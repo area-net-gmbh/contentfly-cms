@@ -1,4 +1,15 @@
-# AREANET-PIM
+# BÜHNER-PIM
+
+## 1. Setup
+
+* vagrant up (Vagrant-Installation siehe unten)
+* vagrant ssh
+```
+> cd /vagrant/source
+> php vendor/bin/doctrine orm:schema:update --force
+```
+* http://local.dev.buehner-kalender.de/setup 
+* http://local.dev.buehner-kalender.de/ (admin|admin)
 
 ## API-Doc
 
@@ -28,11 +39,7 @@
 > composer install
 ```
 
-## Installation
-
-* http://wuestenrot.dev/setup (Passwort im Setup-Controller anpassen)
-
-# vagrant-apache-shopware-ansible
+# Vagrant-Installation
 
 Author: AREA-NET GmbH, Markus Schmid www.area-net.de | www.app-agentur-bw.de
 
