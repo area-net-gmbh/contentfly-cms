@@ -1,0 +1,3 @@
+- name: Install apidoc
+  shell: npm install apidoc -g
+  sudo: yes

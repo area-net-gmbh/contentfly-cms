@@ -1,0 +1,9 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{modaltitle}}</h3>
+</div>
+
+<div class="modal-body">
+    <div class="list-group">
+        <button ng-repeat="(entity, label) in objects" ng-click="selectObject(entity, label)" ng-class="{ 'active': selectedObject === entity}" type="button" class="list-group-item">{{label}}</button>
+    </div>
+</div>

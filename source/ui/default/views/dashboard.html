@@ -1,0 +1,68 @@
+<div class="row header ">
+    <div class="col-sm-6 col-sm-offset-1">
+        <h3>Aktuelle Statistiken</h3>
+    </div>
+    <div class="col-sm-3">
+        <div class="btn-group pull-right">
+            <p class="btn-note">vom </p> <button type="button" class="btn btn-default">01.03.2016 <span class="caret"></span></button>
+            <p class="btn-note"> bis </p>  <button type="button" class="btn btn-default">30.03.2016 <span class="caret"></span></button>
+        </div>
+    </div>
+</div>
+<div class="row header-analytics">
+    <div class="col-sm-3 col-sm-offset-1">
+        <div class="panel panel-primary panel-analytics">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-user pull-left"></span>
+                <span class="pull-right">123</span>
+                <br class="clear">
+            </div>
+            <div class="panel-body">
+                Aktive Benutzer
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-info panel-analytics">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-star pull-left"></span>
+                <span class="pull-right">26</span>
+                <br class="clear">
+            </div>
+            <div class="panel-body">
+                Neue Benutzer
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="panel panel-info panel-analytics">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-signal pull-left"></span>
+                <span class="pull-right">856</span>
+                <br class="clear">
+            </div>
+            <div class="panel-body">
+                Seitenaufrufe
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-1">
+        <h4>Übersicht App-Nutzung</h4>
+        <canvas id="line" class="chart chart-line" chart-data="data"
+                chart-labels="labels" chart-legend="true" chart-series="series"
+                chart-click="onClick"  >
+        </canvas>
+    </div>
+    <div class="col-sm-3">
+        <h4>Top-Inhalte</h4>
+        <canvas id="bar" class="chart chart-bar"
+                chart-data="dataContent" chart-labels="labelsContent" chart-series="seriesContent">
+        </canvas>
+        <h4>Geräteverbreitung</h4>
+        <canvas id="pie" class="chart chart-pie"
+                chart-data="dataDevices" chart-labels="labelsDevices" chart-legend="true">
+        </canvas>
+    </div>
+</div>

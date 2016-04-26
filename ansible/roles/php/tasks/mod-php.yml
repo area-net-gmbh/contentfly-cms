@@ -1,0 +1,35 @@
+---
+- name: ensure timezone is set in apache2 php.ini
+  lineinfile: dest=/etc/php5/apache2/php.ini
+              regexp='date.timezone ='
+              line='date.timezone = {{ server.timezone }}'
+
+- name: enabling opcache
+  lineinfile: dest=/etc/php5/apache2/php.ini
+              regexp=';?opcache.enable=\d'
+              line='opcache.enable=1'
+
+- name: setting upload size
+  lineinfile: dest=/etc/php5/apache2/php.ini
+              regexp='upload_max_filesize = \d'
+              line='upload_max_filesize = {{ php.upload_max_size }}'
+
+- name: setting post_max_size size
+  lineinfile: dest=/etc/php5/apache2/php.ini
+              regexp='post_max_size = \d'
+              line='post_max_size = {{ php.upload_max_size }}'
+
+- name: max_execution_time
+  lineinfile: dest=/etc/php5/apache2/php.ini
+              regexp='max_execution_time = \d'
+              line='max_execution_time = {{ php.max_execution_time }}'
+
+- name: setting memory limit
+  lineinfile: dest=/etc/php5/apache2/php.ini
+              regexp='memory_limit = \d'
+              line='memory_limit = {{ php.memory_limit }}'
+
+- name: restart server
+  command: sudo apache2ctl restart
+
+

@@ -1,0 +1,18 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{modaltitle}}</h3>
+</div>
+
+<div class="modal-body">
+    <uib-tabset>
+        <uib-tab select="loadEntityObjects(entity)" heading="{{label}}" ng-repeat="(entity, label) in entities">
+            <p ng-hide="objectsAvailable || objectsNotAvailable">Daten werden geladen...</p>
+            <p ng-show="objectsNotAvailable">Es sind derzeit leider keine Daten vorhanden.</p>
+            
+            <div ng-show="objectsAvailable">
+                <div class="list-group">
+                    <button type="button" class="list-group-item" ng-click="selectObject(entity, object)" ng-repeat="object in objects">{{object.title}}</button>
+                </div>
+            </div>
+        </uib-tab>
+    </uib-tabset>
+</div>

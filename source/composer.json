@@ -1,0 +1,15 @@
+{
+    "require": {
+        "silex/silex": "~1.3",
+        "twig/twig": "^1.23",
+        "dflydev/doctrine-orm-service-provider": "1.0.7",
+        "doctrine/dbal": "~2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Areanet\\":        "areanet/",
+            "Plugins\\":         "plugins/",
+            "Custom\\":        "custom/"
+        }
+    }
+}
