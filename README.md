@@ -1,6 +1,6 @@
 # BÜHNER-PIM
 
-## 1. Setup
+## 1. Setup!
 
 * vagrant up (Vagrant-Installation siehe unten)
 * vagrant ssh
