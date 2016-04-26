@@ -1,0 +1,4 @@
+.vagrant
+.idea
+source/data/files/*
+source/data/cache/*

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" lang="de" ng-app="BackendUI">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <title>Backend</title>
+    <base href="/ui/default/">
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css" >
+    <link rel="stylesheet" href="styles/custom.css">
+    <link rel="stylesheet" href="styles/custom.css">
+    <link rel="stylesheet prefetch" href="vendor/font-awesome/font-awesome.min.css">
+    <link rel="stylesheet prefetch" href="vendor/textAngular/textAngular.css" media="screen">
+    <link rel="stylesheet prefetch" href="vendor/loaders/loaders.min.css">
+    <link rel="stylesheet prefetch" href="vendor/chartjs/angular-chart.min.css">
+</head>
+<body>
+
+    <nav ng-cloak ng-show="userLoggedIn" id="pim-header" class="navbar navbar-default navbar-fixed-top devmode-{{devmode}} ">
+        <div class="container-fluid">
+            <a href="#/dashboard"><img class="logo" src="img/appcms_logo.png"></a>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right ">
+                    <li uib-dropdown>
+                        <a href id="simple-dropdown" uib-dropdown-toggle>{{user.alias}} <span class="glyphicon glyphicon-user"></span></a>
+                        <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                            <li><a class="dropdown" href="#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <nav ng-cloak ng-show="userLoggedIn" id="pim-nav">
+        <ul>
+            <li><h3><span class="glyphicon glyphicon-th-large"></span>Inhalte</h3>
+                <ul>
+                    <li ng-repeat="(entity, label) in entities"><a href="#/list/{{entity}}">{{label}}</a></li>
+                </ul>
+            </li>
+            <li><h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
+                <ul>
+                    <li><a href="#/files">Dateien</a></li>
+                </ul>
+            </li>
+            <li ng-show="user.isAdmin"><h3><span class="glyphicon glyphicon-cog"></span>Administration</h3>
+                <ul>
+                    <li><a href="#/list/PIM/Log">Protokollierung</a></li>
+                    <li><a href="#/list/PIM/User">Benutzer</a></li>
+                </ul>
+            </li>
+            <li class="version">Version {{version}}</li>
+        </ul>
+
+    </nav>
+
+    <div id="pim-content" class="container-fluid" >
+        <div ng-view></div>
+    </div>
+
+    <div class="splash" ng-cloak="">
+        <div class="loader-inner ball-pulse">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <p>Anwendung wird geladen...</p>
+    </div>
+
+    <script src="vendor/jquery/jquery-2.1.4.min.js"></script>
+    <script src="vendor/angular/angular.js"></script>
+    <script src="vendor/angular/angular-route.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
+    <script src="vendor/angular/angular-local-storage.min.js"></script>
+    <script src="vendor/angular/ui-bootstrap-tpls-0.14.3.min.js"></script>
+    <script src="vendor/angular/ng-file-upload-all.min.js"></script>
+    <script src="vendor/angular/dirPagination.js"></script>
+    <script src="vendor/textAngular/textAngular-rangy.min.js"></script>
+    <script src="vendor/textAngular/textAngular-sanitize.min.js"></script>
+    <script src="vendor/textAngular/textAngular.min.js"></script>
+    <script src="vendor/momentjs/moment.min.js"></script>
+    <script src="vendor/angular/angular-moment.min.js"></script>
+    <script src="vendor/angulargrid/angulargrid.min.js"></script>
+    <script src="vendor/chartjs/chart.min.js"></script>
+    <script src="vendor/chartjs/angular-chart.min.js"></script>
+
+
+    <script src="scripts/app.js"></script>
+    <script src="scripts/directives/autoformat.js"></script>
+    <script src="scripts/directives/clearinput.js"></script>
+    <script src="scripts/directives/bindValidity.js"></script>
+    <script src="scripts/directives/enter.js"></script>
+    <script src="scripts/controllers/partials/modal.js"></script>
+    <script src="scripts/controllers/partials/form.js"></script>
+    <script src="scripts/controllers/partials/entity-browser.js"></script>
+    <script src="scripts/controllers/partials/object-browser.js"></script>
+    <script src="scripts/controllers/partials/file-edit.js"></script>
+    <script src="scripts/controllers/partials/video-add.js"></script>
+    <script src="scripts/controllers/login.js"></script>
+    <script src="scripts/controllers/logout.js"></script>
+    <script src="scripts/controllers/list.js"></script>
+    <script src="scripts/controllers/files.js"></script>
+    <script src="scripts/controllers/dashboard.js"></script>
+</body>
+</html>
