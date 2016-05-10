@@ -8,6 +8,9 @@ define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'cli')
 use Silex\Application;
 use \Areanet\PIM\Classes\Config;
 
+use Knp\Provider\ConsoleServiceProvider;
+
+
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/Config.php');
 
 Config\Adapter::setHostname(HOST);
@@ -25,6 +28,12 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
         'password'  => Config\Adapter::getConfig()->DB_PASS,
         'charset'   => Config\Adapter::getConfig()->DB_CHARSET,
     ),
+));
+
+$app->register(new ConsoleServiceProvider(), array(
+    'console.name'              => 'MyApplication',
+    'console.version'           => '1.0.0',
+    'console.project_directory' => __DIR__
 ));
 
 
@@ -77,3 +86,5 @@ $em->registerDoctrineTypeMapping('point', 'point');
 $config = new Doctrine\ORM\Configuration();
 $config->addCustomNumericFunction('DISTANCE', '\Areanet\PIM\Classes\ORM\Spatial\PointType\Distance');
 $config->addCustomNumericFunction('POINT_STR', '\Areanet\PIM\Classes\ORM\Spatial\PointType\PointStr');
+
+require_once __DIR__.'/custom/app.php';

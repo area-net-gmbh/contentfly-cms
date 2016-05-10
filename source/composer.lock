@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0919fd5e99118e6964eeb85b70285883",
-    "content-hash": "bb00892124df3011af5b63574be0238a",
+    "hash": "ceb16eb2b84b47d9aa38e84678d2f84c",
+    "content-hash": "8c06f88fe3be26de19e37ef999222d8d",
     "packages": [
         {
             "name": "dflydev/doctrine-orm-service-provider",
@@ -668,6 +668,49 @@
                 "orm"
             ],
             "time": "2015-12-25 15:50:05"
+        },
+        {
+            "name": "knplabs/console-service-provider",
+            "version": "1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/KnpLabs/ConsoleServiceProvider.git",
+                "reference": "7a839206270755483f6a06a6cfb3308fa6f9c562"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/KnpLabs/ConsoleServiceProvider/zipball/7a839206270755483f6a06a6cfb3308fa6f9c562",
+                "reference": "7a839206270755483f6a06a6cfb3308fa6f9c562",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2",
+                "symfony/console": "~2.3|~3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Knp\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "KnpLabs",
+                    "homepage": "http://knplabs.com"
+                }
+            ],
+            "description": "console service provider for Silex",
+            "homepage": "http://knplabs.com",
+            "keywords": [
+                "console",
+                "silex"
+            ],
+            "abandoned": "ivoba/console-service-provider",
+            "time": "2016-02-01 15:38:27"
         },
         {
             "name": "pimple/pimple",
