@@ -117,7 +117,8 @@ app.controller("ListCtrl", function($scope, $cookies, localStorageService, $rout
                 entity: function(){ return $scope.entity;},
                 title: function(){ return 'Objekt bearbeiten'; },
                 object: function(){ return object; }
-            }
+            },
+            size: 'lg'
         });
 
         modalInstance.result.then(function (isSaved) {
@@ -137,7 +138,8 @@ app.controller("ListCtrl", function($scope, $cookies, localStorageService, $rout
                 entity: function(){ return $scope.entity;},
                 title: function(){ return 'Neues Objekt anlegen'; },
                 object: function(){ return {};}
-            }
+            },
+            size: 'lg'
         });
 
         modalInstance.result.then(function (isSaved) {

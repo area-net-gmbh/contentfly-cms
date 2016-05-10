@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Classes\Controller\Provider\Base;
 
+use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\Provider\BaseControllerProvider;
 use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
@@ -39,7 +40,7 @@ class ApiControllerProvider extends BaseControllerProvider
         $controllers->post('/update', "api.controller:updateAction")->before($checkAuth);
         $controllers->post('/insert', "api.controller:insertAction")->before($checkAuth);
 
-        if(APP_DEVMODE){
+        if(Config\Adapter::getConfig()->APP_DEBUG){
             $controllers->get('/schema', "api.controller:schemaAction");
         }else{
             $controllers->get('/schema', "api.controller:schemaAction")->before($checkAuth);

@@ -69,5 +69,23 @@ class Log extends Base
     {
         $this->mode = $mode;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getIsHidden()
+    {
+        return $this->isHidden;
+    }
+
+    /**
+     * @param mixed $isHidden
+     */
+    public function setIsHidden($isHidden)
+    {
+        $this->isHidden = $isHidden;
+    }
+
+    
 }
 ?>

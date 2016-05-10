@@ -5,6 +5,7 @@ ini_set("display_startup_errors", "On");
 require_once __DIR__.'/bootstrap.php';
 
 use Areanet\PIM\Controller;
+use \Areanet\PIM\Classes\Config;
 
 define('ROOT_DIR', __DIR__);
 
@@ -21,9 +22,7 @@ $app->get('/setup', "setup.controller:setupAction");
 require_once __DIR__.'/custom/app.php';
 
 $app->get('/', 'ui.controller:showAction');
-$app->get(APP_BACKEND_URL, 'ui.controller:showAction');
-
-
+$app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
 
 
 $app->mount('/api', new \Areanet\PIM\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));
