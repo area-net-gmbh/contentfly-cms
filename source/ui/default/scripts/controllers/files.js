@@ -38,7 +38,7 @@ app.controller("FilesCtrl", function($scope, $cookies, localStorageService, $uib
                     entity: entity
                 }
             }).then(function successCallback(response) {
-                $scope.filterJoins[field] = JSON.parse(response.data.data);
+                $scope.filterJoins[field] = (response.data.data);
             }, function errorCallback(response) {
             });
         }
@@ -203,7 +203,7 @@ app.controller("FilesCtrl", function($scope, $cookies, localStorageService, $uib
             angularGridInstance.gallery.refresh();
 
             $scope.totalItems = response.data.totalItems;
-            $scope.objects = JSON.parse(response.data.data);
+            $scope.objects = (response.data.data);
             $scope.objectsAvailable = true;
             $scope.objectsNotAvailable = false;
 
@@ -262,7 +262,7 @@ app.controller("FilesCtrl", function($scope, $cookies, localStorageService, $uib
             }
         }).then(function successCallback(response) {
             console.log(response.data.data);
-            $scope.objects = JSON.parse(response.data.data);
+            $scope.objects = (response.data.data);
             angularGridInstance.gallery.refresh();
         }, function errorCallback(response) {
             console.warn(response);

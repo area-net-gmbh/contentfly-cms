@@ -1,0 +1,284 @@
+<div  class="form-group ng-class: {'has-error': submitted && !config.readonly && !config.hide && !form[key].$valid};" ng-hide="config.hide" ng-if="config.tab == tabkey"   ng-repeat="(key, config) in schema.properties">
+
+    <ng-switch on="config.type">
+
+        <!-- CHECKBOX -->
+        <div ng-switch-when="boolean">
+            <div class="col-sm-10 col-sm-offset-2">
+                <div class="checkbox">
+                    <label for="{{key}}" class="ng-class: {optional: config.nullable}">
+                        <input type="checkbox"  id="{{key}}" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly" ng-model="object[key]">
+                        {{schema.properties[key].label}}</label>
+                </div>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+
+
+        <!-- Upload - Single-->
+        <div ng-switch-when="file">
+            <label for="{{key}}" class="col-sm-2 control-label optional">{{schema.properties[key].label}}</label>
+
+            <div class="col-sm-10" uib-dropdown>
+                <button class="btn btn-default" id="dropdown-{{key}}" type="button" uib-dropdown-toggle>
+                    Dateien hinzufügen <span class="glyphicon glyphicon-menu-down"></span>
+                </button>
+                <ul role="menu" uib-dropdown-menu aria-labelledby="dropdown-{{key}}">
+                    <li><button class="btn btn-link" type="file" ngf-select="uploadFile(key, $file, $invalidFiles)"
+                                ngf-accept="'{{config.accept}}'">
+                        Upload</button></li>
+                    <li><button class="btn btn-link" type="button" ng-click="addFile(key, config.accept)">
+                        Medienarchiv</button></li>
+                    <li><button ng-show="config.accept == '*'" class="btn btn-link" type="button" ng-click="addVideo(key)">
+                        Youtube</button></li>
+                </ul>
+
+            </div>
+            <div class="col-sm-10 col-sm-offset-2">
+                <div class="row image-upload" ng-show="fileUploads[key]">
+                    <div class="col-sm-3">{{fileUploads[key].name}}</div>
+                    <div class="col-sm-7">
+                        <uib-progressbar ng-show="fileUploads[key].progress >= 0" max="max" value="fileUploads[key].progress">{{fileUploads[key].progress}} %</uib-progressbar>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="object[key]" >
+                <ng-switch on="object[key].type">
+                    <div ng-switch-when="image/jpeg"  class="image-edit">
+                        <img src="/data/files/{{object[key].id}}/320-{{object[key].name}}">
+                        <button class="btn btn-danger" ng-click="removeFile(key, object[key].id)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                    </div>
+                    <div ng-switch-when="image/png"  class="image-edit">
+                        <img src="/data/files/{{object[key].id}}/320-{{object[key].name}}">
+                        <button class="btn btn-danger" ng-click="removeFile(key, object[key].id)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+
+                    </div>
+                    <div ng-switch-when="image/gif"  class="image-edit">
+                        <img src="/data/files/{{object[key].id}}/320-{{object[key].name}}">
+                        <button class="btn btn-danger" ng-click="removeFile(key, object[key].id)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                    </div>
+                    <div ng-switch-default class="file-edit">
+                        <ul><li><a href="/data/files/{{object[key].id}}/320-{{object[key].name}}" target="_blank">{{object[key].name}}</a> <span ng-click="removeFile(key, object[key].id)" class="text-danger glyphicon glyphicon-trash" aria-hidden="true"></span></li></ul>
+                    </div>
+                </ng-switch>
+            </div>
+        </div>
+
+        <!-- Upload - Multi-->
+        <div ng-switch-when="multifile">
+            <label for="{{key}}" class="col-sm-2 control-label optional">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10" uib-dropdown>
+                <button class="btn btn-default" id="dropdown-{{key}}" type="button" uib-dropdown-toggle>
+                    Dateien hinzufügen <span class="glyphicon glyphicon-menu-down"></span>
+                </button>
+                <ul role="menu" uib-dropdown-menu aria-labelledby="dropdown-{{key}}">
+                    <li><button class="btn btn-link" type="file" ngf-select="uploadMultiFile(key, $files, $invalidFiles)"
+                                multiple ngf-accept="'{{config.accept}}'">
+                        Upload</button></li>
+                    <li><button class="btn btn-link" type="button" ng-click="addMultiFile(key, config.accept)">
+                        Medienarchiv</button></li>
+                    <li><button ng-show="config.accept == '*'" class="btn btn-link" type="button" ng-click="addVideo(key)">
+                        Youtube</button></li>
+                </ul>
+
+            </div>
+            <div class="col-sm-10 col-sm-offset-2">
+                <div class="row image-upload" ng-show="fileUploads[key]" ng-repeat="f in fileUploads[key]">
+                    <div class="col-sm-3">{{f.name}}</div>
+                    <div class="col-sm-7">
+                        <uib-progressbar ng-show="f.progress >= 0" max="max" value="f.progress">{{f.progress}} %</uib-progressbar>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-repeat="(index, subobject) in object[key]" >
+                <ng-switch on="subobject.type">
+                    <div ng-switch-when="image/jpeg" class="image-edit">
+                        <img src="/data/files/{{subobject.id}}/320-{{subobject.name}}">
+                        <button class="btn btn-danger" ng-click="removeMultiFile(key, index)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn2" ng-click="editMultiFile(key, index, subobject.id, subobject.title)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                    </div>
+                    <div ng-switch-when="image/png"  class="image-edit">
+                        <img src="/data/files/{{subobject.id}}/320-{{subobject.name}}">
+                        <button class="btn btn-danger" ng-click="removeMultiFile(key, index)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn2" ng-click="editMultiFile(key, index, subobject.id, subobject.title)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                    </div>
+                    <div ng-switch-when="image/gif"  class="image-edit">
+                        <img src="/data/files/{{subobject.id}}/320-{{subobject.name}}">
+                        <button class="btn btn-danger" ng-click="removeMultiFile(key, index)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn2" ng-click="editMultiFile(key, index, subobject.id, subobject.title)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                    </div>
+                    <div ng-switch-when="link/youtube"  class="image-edit">
+                        <object width="100%" height="320"
+                                data="http://www.youtube.com/embed/{{subobject.name}}">
+                        </object>
+                        <button class="btn btn-danger" ng-click="removeMultiFile(key, index)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                        <button class="btn btn-default btn2" ng-click="editMultiFile(key, index, subobject.id, subobject.title)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                    </div>
+                    <div ng-switch-default class="file-edit">
+                        <ul>
+                            <li>
+                                <a href="/data/files/{{subobject.id}}/{{subobject.name}}" target="_blank">{{subobject.name}}</a>
+                                <span ng-click="editMultiFile(key, index, subobject.id, subobject.title)" class="text-danger glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                <span ng-click="removeMultiFile(key, index, subobject.id, subobject.title)" class="text-danger glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-switch>
+            </div>
+        </div>
+
+        <!-- Datum -->
+        <div ng-switch-when="datetime">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <p class="input-group">
+                    <input type="text" class="form-control" name="{{key}}" uib-datepicker-popup="dd.MM.yyyy" on-open-focus="true" ng-model="datePickerModels[key]" is-open="datePickerOpened[key]"  ng-required="!config.nullable && !config.readonly && !config.hide" close-text="Close" />
+                                  <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openDatePicker(key)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                  </span>
+                </p>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- RTE -->
+        <div ng-switch-when="rte">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <text-angular name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ta-unsafe-sanitizer="true" ta-toolbar="{{config.rteToolbar}}" ta-disabled="config.readonly" ng-model="object[key]">
+
+                </text-angular>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- TEXTAREA -->
+        <div ng-switch-when="textarea">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <textarea rows="{{config.lines}}" maxlength="{{schema.properties[key].length}}" id="{{key}}" class="form-control" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly" ng-model="object[key]"></textarea>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- SELECT -->
+        <div ng-switch-when="select">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+
+                <select  type="text" class="form-control {{key}}" id="{{key}}" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide"  ng-model="object[key]">
+                    <option value="">Bitte auswählen...</option>
+                    <option ng-repeat="option in config.options" value="{{option.id}}">{{option.name}}</option>
+                </select>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- SINGLE-JOIN SELECTOR -->
+        <div ng-switch-when="join">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <input  type="text" class="form-control {{key}}" id="{{key}}" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="1" ng-model="object[key].title">
+                    <pim-clearinput class-selector="{{key}}" model-value="object[key]"></pim-clearinput>
+                    <div class="cursor-pointer input-group-addon glyphicon glyphicon-folder-open" ng-click="openObjectBrowser(key, config.accept)"></div>
+                </div>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- ONE2ON"-JOIN SELECTOR -->
+        <div ng-switch-when="onejoin">
+            <!-- @todo: One2One darstellen
+            - schema[config.accept] laden, bzw. in FOREACH durchgehen.
+            - Darstellung ng-switc-when ... auslagen
+
+             -->
+        </div>
+        <!-- MULTI-JOIN SELECTOR -->
+        <div ng-switch-when="multijoin">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10"><i>TODO MULTIJOIN (n:m)...</i></div>
+        </div>
+
+        <!-- ENTITY SELECTOR -->
+        <div ng-switch-when="entitySelector">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <input  type="text" class="form-control {{key}}" id="{{key}}" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="1" ng-model="object[key]">
+                    <pim-clearinput class-selector="{{key}}" model-value="object[key]"></pim-clearinput>
+                    <div class="cursor-pointer input-group-addon glyphicon glyphicon-folder-open" ng-click="openEntityBrowser(key)"></div>
+                </div>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && ![formName][key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- OBJECT SELECTOR -->
+        <div ng-switch-when="objectSelector">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <div class="input-group">
+                    <input  type="text" class="form-control {{key}}" id="{{key}}" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="1" ng-model="object[key]">
+                    <pim-clearinput class-selector="{{key}}" model-value="object[key]"></pim-clearinput>
+                    <div class="cursor-pointer input-group-addon glyphicon glyphicon-folder-open" ng-click="openObjectBrowser(key, null)"></div>
+                </div>
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- Passwort -->
+        <div ng-switch-when="password">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: object.id}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <input  type="password" class="form-control " id="{{key}}" name="{{key}}" maxlength="{{schema.properties[key].length}}" ng-required="!object.id" ng-readonly="config.readonly" ng-model="password[key]">
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+        <!-- POINT/LOCATION -->
+        <div ng-switch-when="point">
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <input  type="text" class="form-control " id="{{key}}_search" name="{{key}}_search" placeholder="Suche nach Adresse..." >
+                <input  type="text" class="form-control " id="{{key}}.x" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly" ng-model="object[key].x">
+                <input  type="text" class="form-control " id="{{key}}.y" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly" ng-model="object[key].y">
+            </div>
+            <div class="col-sm-12">Google Maps // TODO</div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+
+
+        <!-- TEXTFELDER -->
+        <div ng-switch-default>
+            <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{schema.properties[key].label}}</label>
+            <div class="col-sm-10">
+                <input  type="text" class="form-control " id="{{key}}" name="{{key}}" maxlength="{{schema.properties[key].length}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly" ng-model="object[key]">
+            </div>
+            <div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !form[key].$valid">
+                <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+            </div>
+        </div>
+    </ng-switch>
+</div>

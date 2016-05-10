@@ -6,6 +6,7 @@ use \Areanet\PIM\Classes\Config\Factory;
  */
 
 $config = new \Areanet\PIM\Classes\Config();
+
 $config->DB_HOST = '127.0.0.1';
 $config->DB_NAME = 'db';
 $config->DB_USER = 'user';
@@ -13,6 +14,7 @@ $config->DB_PASS = 'pass';
 
 $config->APP_DEBUG = true;
 
+$config->FRONTEND_ITEMS_PER_PAGE = 30;
 $config->FRONTEND_CUSTOM_LOGO = true;
 
 $configFactory = Factory::getInstance();

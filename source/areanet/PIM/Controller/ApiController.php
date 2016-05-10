@@ -37,9 +37,8 @@ class ApiController extends BaseController
         if(!$object){
             return new JsonResponse(array('message' => "Not found"), 404);
         }
-        $data = json_encode($object);
 
-        return new JsonResponse(array('message' => "ok", 'data' => $data));
+        return new JsonResponse(array('message' => "ok", 'data' => $object));
     }
 
     /**
@@ -119,7 +118,7 @@ class ApiController extends BaseController
         if($where){
             $placeholdCounter = 0;
             $currentPage = 1;
-            
+
             foreach($where as $field => $value){
 
                 if(!isset($schema[$entityName]['properties'][$field])){
@@ -242,12 +241,11 @@ class ApiController extends BaseController
 
         }
 
-        $data = json_encode($array);
 
         if($currentPage) {
-            return new JsonResponse(array('message' => "ok", 'data' => $data, 'itemsPerPage' => Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE, 'totalItems' => count($totalObjects)));
+            return new JsonResponse(array('message' => "ok", 'data' => $array, 'itemsPerPage' => Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE, 'totalItems' => count($totalObjects)));
         } else {
-            return new JsonResponse(array('message' => "ok", 'data' => $data));
+            return new JsonResponse(array('message' => "ok", 'data' => $array));
         }
     }
 
@@ -418,6 +416,10 @@ class ApiController extends BaseController
                     $objectToJoin = $this->em->getRepository($entity)->find($value);
                     $object->$setter($objectToJoin);
                     break;
+                case 'multijoin':
+                    break;
+                case 'onejoin':
+                    break;
                 default:
                     $object->$setter($value);
                     break;
@@ -563,6 +565,10 @@ class ApiController extends BaseController
                     $entity = $schema[ucfirst($request->get('entity'))]['properties'][$property]['accept'];
                     $objectToJoin = $this->em->getRepository($entity)->find($value);
                     $object->$setter($objectToJoin);
+                    break;
+                case 'multijoin':
+                    break;
+                case 'onejoin':
                     break;
                 default:
                     if(strtoupper($value) == 'INC'){
@@ -941,6 +947,14 @@ class ApiController extends BaseController
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\Id){
                         $annotations['readonly'] = true;
+                    }
+
+                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToOne){
+                        $annotations['type']     = 'onejoin';
+                        $annotations['accept']   = $propertyAnnotation->targetEntity;
+                        $annotations['multiple'] = false;
+
+                        $settings['tabs'][$propertyAnnotation->targetEntity] = $annotations['label'];
                     }
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToOne){
