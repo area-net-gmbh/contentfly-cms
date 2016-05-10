@@ -118,7 +118,8 @@ class ApiController extends BaseController
 
         if($where){
             $placeholdCounter = 0;
-
+            $currentPage = 1;
+            
             foreach($where as $field => $value){
 
                 if(!isset($schema[$entityName]['properties'][$field])){
@@ -209,6 +210,7 @@ class ApiController extends BaseController
 
         $query   = $queryBuilder->getQuery();
         $objects = $query->getResult();
+
 
         if($doCount){
             return new JsonResponse(array('message' => "ok", 'data' => count($objects)));
