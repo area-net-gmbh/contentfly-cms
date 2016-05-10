@@ -13,6 +13,8 @@ $config->DB_PASS = 'pass';
 
 $config->APP_DEBUG = true;
 
+$config->FRONTEND_CUSTOM_LOGO = true;
+
 $configFactory = Factory::getInstance();
 $configFactory->setConfig($config);
 

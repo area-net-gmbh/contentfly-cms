@@ -88,6 +88,11 @@ class Config{
     public $FRONTEND_URL = 'backend';
 
     /**
+     * @var boolean Show custom logo custom/Resources/logo.png
+     */
+    public $FRONTEND_CUSTOM_LOGO = false;
+
+    /**
      * @var integer URL/Path for login in the backend
      */
     public $FRONTEND_ITEMS_PER_PAGE = 20;

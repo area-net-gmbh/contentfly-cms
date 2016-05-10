@@ -780,7 +780,12 @@ class ApiController extends BaseController
      */
     public function schemaAction()
     {
-        return new JsonResponse(array('message' => 'schemaAction', 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
+
+        $frontend = array(
+            'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
+        );
+
+        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
     }
 
     protected function getSchema()
