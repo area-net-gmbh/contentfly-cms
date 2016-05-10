@@ -82,7 +82,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr dir-paginate="object in objects | itemsPerPage: itemsPerPage" total-items="totalItems" current-page="currentPage">
+                <tr dir-paginate="object in objects | itemsPerPage: itemsPerPage" total-items="totalItems" current-page="currentPage" ng-dblclick="edit(object)">
                     <td><pim-autoformat property="id" schema="schema" object="object"></pim-autoformat></td>
                     <td ng-repeat="property in schema.list"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
                     <td><pim-autoformat property="modified" long="true" schema="schema" object="object"></pim-autoformat></td>

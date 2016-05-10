@@ -7,7 +7,7 @@ require_once __DIR__.'/bootstrap.php';
 use Areanet\PIM\Controller;
 use \Areanet\PIM\Classes\Config;
 
-define('ROOT_DIR', __DIR__);
+
 
 $app['ui.controller'] = $app->share(function() use ($app) {
     return new Controller\UiController($app);

@@ -370,6 +370,10 @@ label.optional{
     color:#000000;
 }
 
+.table tbody tr:hover{
+    background-color:#EAEDF2;
+}
+
 
 li.grid.isSelectable{
     cursor:pointer;
