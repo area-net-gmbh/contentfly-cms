@@ -129,6 +129,24 @@ class File extends Base
         $this->size = $size;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getIsHidden()
+    {
+        return $this->isHidden;
+    }
+
+    /**
+     * @param mixed $isHidden
+     */
+    public function setIsHidden($isHidden)
+    {
+        $this->isHidden = $isHidden;
+    }
+
+    
+
     public function toValueObject()
     {
         $properties = parent::toValueObject();

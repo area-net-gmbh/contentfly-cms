@@ -1,8 +1,11 @@
 <?php
 namespace Areanet\PIM\Classes;
 
+use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Entity\Base;
 use Doctrine\ORM\EntityManager;
+
+// @todo: Push-Modul optimieren, siehe Wüstenrot
 
 class Push{
 
@@ -62,10 +65,10 @@ class Push{
         }
 
         $streamContext = stream_context_create();
-        stream_context_set_option($streamContext, 'ssl', 'local_cert', ROOT_DIR.'/custom/'.PUSH_APPLE_CERT);
-        stream_context_set_option($streamContext, 'ssl', 'passphrase', PUSH_APPLE_PASS);
+        stream_context_set_option($streamContext, 'ssl', 'local_cert', ROOT_DIR.'/custom/'.Config\Adapter::getConfig()->PUSH_APPLE_CERT);
+        stream_context_set_option($streamContext, 'ssl', 'passphrase', Config\Adapter::getConfig()->PUSH_APPLE_PASS);
 
-        $apns = stream_socket_client('ssl://' . PUSH_APPLE_HOST, $error, $errorString, 60, STREAM_CLIENT_CONNECT, $streamContext);
+        $apns = stream_socket_client('ssl://' . Config\Adapter::getConfig()->PUSH_APPLE_HOST, $error, $errorString, 60, STREAM_CLIENT_CONNECT, $streamContext);
 
         $payload['aps'] = array('alert' => $title.' '.$text, 'badge' => 0, 'object' => $objectId);
         $payload        = json_encode($payload);
@@ -100,7 +103,7 @@ class Push{
 
         $headers = array
         (
-            'Authorization: key=' . PUSH_GOOGLE_KEY,
+            'Authorization: key=' . Config\Adapter::getConfig()->PUSH_GOOGLE_KEY,
             'Content-Type: application/json'
         );
 

@@ -15,7 +15,7 @@ class Base implements \JsonSerializable
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @PIM\Config(showInList=10, readonly=true, hide=true, label="ID")
+     * @PIM\Config(readonly=true, hide=true, label="ID")
      */
     protected $id;
 
@@ -39,11 +39,6 @@ class Base implements \JsonSerializable
      */
     protected $isDeleted;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     * @PIM\Config(showInList=11, label="Versteckt")
-     */
-    protected $isHidden;
 
     /**
      * @ORM\Column(type="integer", options={"default" = 0}, nullable=true, nullable=true)
@@ -70,7 +65,6 @@ class Base implements \JsonSerializable
         $this->created   = new \DateTime();
         $this->modified  = new \DateTime();
         $this->isDeleted = false;
-        $this->isHidden  = false;
     }
 
 
@@ -158,22 +152,6 @@ class Base implements \JsonSerializable
     public function setUser($user)
     {
         $this->user = $user;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIsHidden()
-    {
-        return $this->isHidden;
-    }
-
-    /**
-     * @param mixed $isHidden
-     */
-    public function setIsHidden($isHidden)
-    {
-        $this->isHidden = $isHidden;
     }
 
     /**

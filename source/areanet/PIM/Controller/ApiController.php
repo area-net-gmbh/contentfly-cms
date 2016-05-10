@@ -1,5 +1,7 @@
 <?php
 namespace Areanet\PIM\Controller;
+
+use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\Push;
@@ -192,8 +194,8 @@ class ApiController extends BaseController
 
         if($currentPage) {
             $queryBuilder
-                ->setFirstResult(ITEMS_PER_PAGE * ($currentPage - 1))
-                ->setMaxResults(ITEMS_PER_PAGE)
+                ->setFirstResult(Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE * ($currentPage - 1))
+                ->setMaxResults(Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE)
             ;
         }
 
@@ -241,7 +243,7 @@ class ApiController extends BaseController
         $data = json_encode($array);
 
         if($currentPage) {
-            return new JsonResponse(array('message' => "ok", 'data' => $data, 'itemsPerPage' => ITEMS_PER_PAGE, 'totalItems' => count($totalObjects)));
+            return new JsonResponse(array('message' => "ok", 'data' => $data, 'itemsPerPage' => Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE, 'totalItems' => count($totalObjects)));
         } else {
             return new JsonResponse(array('message' => "ok", 'data' => $data));
         }
@@ -717,10 +719,7 @@ class ApiController extends BaseController
                         }
                     }
                 }
-
-                if($object->getIsHidden()){
-                    $objectData->isDelete = true;
-                }
+                
 
                 if($object instanceof File && !$object->getIsDeleted() && $filedata != null){
                     $backendFS = new FileSystem();
@@ -781,8 +780,7 @@ class ApiController extends BaseController
      */
     public function schemaAction()
     {
-        $devMode = defined('APP_DEVMODE') ? APP_DEVMODE : false;
-        return new JsonResponse(array('message' => 'schemaAction', 'devmode' => $devMode, 'version' => APP_VERSION, 'data' => $this->getSchema()));
+        return new JsonResponse(array('message' => 'schemaAction', 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
     }
 
     protected function getSchema()

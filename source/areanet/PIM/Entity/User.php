@@ -31,6 +31,12 @@ class User extends Base implements \JsonSerializable
     protected $pass;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(showInList=10, label="Aktiv")
+     */
+    protected $isActive;
+
+    /**
      * @ORM\Column(type="string", length=100)
      * @PIM\Config(hide=true)
      */
@@ -120,6 +126,24 @@ class User extends Base implements \JsonSerializable
     {
         $this->salt = $salt;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getIsActive()
+    {
+        return $this->isActive;
+    }
+
+    /**
+     * @param mixed $isActive
+     */
+    public function setIsActive($isActive)
+    {
+        $this->isActive = $isActive;
+    }
+
+
 
 
     /**

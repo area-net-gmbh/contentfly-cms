@@ -74,6 +74,7 @@
         <table class="table" ng-show="objectsAvailable">
             <thead>
                 <tr>
+                    <th class="ng-scope">ID</th>
                     <th ng-repeat="property in schema.list">{{schema.properties[property].label}}</th>
                     <th class="ng-scope">geändert am</th>
                     <th class="ng-scope">geändert von</th>
@@ -82,6 +83,7 @@
             </thead>
             <tbody>
                 <tr dir-paginate="object in objects | itemsPerPage: itemsPerPage" total-items="totalItems" current-page="currentPage">
+                    <td><pim-autoformat property="id" schema="schema" object="object"></pim-autoformat></td>
                     <td ng-repeat="property in schema.list"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
                     <td><pim-autoformat property="modified" long="true" schema="schema" object="object"></pim-autoformat></td>
                     <td><pim-autoformat property="user" schema="schema" object="object"></pim-autoformat></td>

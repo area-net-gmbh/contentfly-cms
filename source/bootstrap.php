@@ -1,15 +1,17 @@
 <?php
-define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'cli');
-
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/custom/config.php';
 require_once __DIR__.'/version.php';
 
-\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/Config.php');
-
-date_default_timezone_set(APP_TIMEZONE);
+define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'cli');
 
 use Silex\Application;
+use \Areanet\PIM\Classes\Config;
+
+\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/Config.php');
+
+Config\Adapter::setHostname(HOST);
+date_default_timezone_set(Config\Adapter::getConfig()->APP_TIMEZONE);
 
 $app = new Application();
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
@@ -17,11 +19,11 @@ $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => array (
         'driver'    => 'pdo_mysql',
-        'host'      => DB_HOST,
-        'dbname'    => DB_NAME,
-        'user'      => DB_USER,
-        'password'  => DB_PASS,
-        'charset'   => DB_CHARSET,
+        'host'      => Config\Adapter::getConfig()->DB_HOST,
+        'dbname'    => Config\Adapter::getConfig()->DB_NAME,
+        'user'      => Config\Adapter::getConfig()->DB_USER,
+        'password'  => Config\Adapter::getConfig()->DB_PASS,
+        'charset'   => Config\Adapter::getConfig()->DB_CHARSET,
     ),
 ));
 
@@ -54,10 +56,11 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
 ));
 
 
-$app['debug'] = APP_DEBUG;
+$app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
 
 
 //Config Image-Processing
+//@todo: Implement Database version: #11
 Areanet\PIM\Classes\File\Processing::registerProcessor('image/jpeg', '\Areanet\Pim\Classes\File\Processing\Image');
 Areanet\PIM\Classes\File\Processing::registerProcessor('image/gif', '\Areanet\Pim\Classes\File\Processing\Image');
 Areanet\PIM\Classes\File\Processing::registerProcessor('image/png', '\Areanet\Pim\Classes\File\Processing\Image');
