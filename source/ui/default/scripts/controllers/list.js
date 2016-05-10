@@ -197,7 +197,7 @@ app.controller("ListCtrl", function($scope, $cookies, localStorageService, $rout
 
 
             $scope.totalItems = response.data.totalItems;
-            $scope.objects = JSON.parse(response.data.data);
+            $scope.objects = response.data.data;
 
             $scope.objectsAvailable = true;
             $scope.objectsNotAvailable = false;

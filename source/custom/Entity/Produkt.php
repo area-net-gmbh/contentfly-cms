@@ -60,6 +60,13 @@ class Produkt extends Base
     protected $detailbilder;
 
     /**
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktMetainformationen")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Metainformationen")
+     */
+    protected $metainformationen;
+
+    /**
      * @return mixed
      */
     public function getAktiv()
@@ -174,7 +181,22 @@ class Produkt extends Base
         $this->detailbilder = $detailbilder;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getMetainformationen()
+    {
+        return $this->metainformationen;
+    }
 
+    /**
+     * @param mixed $metainformationen
+     */
+    public function setMetainformationen($metainformationen)
+    {
+        $this->metainformationen = $metainformationen;
+    }
+    
 
 
 }
