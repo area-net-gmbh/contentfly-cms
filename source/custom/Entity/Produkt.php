@@ -29,9 +29,15 @@ class Produkt extends Base
 
     /**
      * @ORM\Column(type="string")
-     * @PIM\Config(showInList=30, label="Formnummer")
+     * @PIM\Config(showInList=20, label="Formnummer")
      */
     protected $formnummer;
+
+    /**
+     * @ORM\Column(type="string")
+     * @PIM\Config(showInList=30, label="Kürzel")
+     */
+    protected $kuerzel;
 
     /**
      * @ORM\Column(type="string")
@@ -85,8 +91,7 @@ class Produkt extends Base
         $this->versteckt = $versteckt;
     }
 
-
-
+    
     /**
      * @return mixed
      */
@@ -102,6 +107,24 @@ class Produkt extends Base
     {
         $this->formnummer = $formnummer;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getKuerzel()
+    {
+        return $this->kuerzel;
+    }
+
+    /**
+     * @param mixed $kuerzel
+     */
+    public function setKuerzel($kuerzel)
+    {
+        $this->kuerzel = $kuerzel;
+    }
+
+
 
     /**
      * @return mixed
