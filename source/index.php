@@ -19,7 +19,7 @@ $app['setup.controller'] = $app->share(function() use ($app) {
 
 $app->get('/setup', "setup.controller:setupAction");
 
-require_once __DIR__.'/custom/app.php';
+
 
 $app->get('/', 'ui.controller:showAction');
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');

@@ -1368,5 +1368,50 @@
             "pimple",
             "silex"
         ]
+    },
+    {
+        "name": "knplabs/console-service-provider",
+        "version": "1.1",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/KnpLabs/ConsoleServiceProvider.git",
+            "reference": "7a839206270755483f6a06a6cfb3308fa6f9c562"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/KnpLabs/ConsoleServiceProvider/zipball/7a839206270755483f6a06a6cfb3308fa6f9c562",
+            "reference": "7a839206270755483f6a06a6cfb3308fa6f9c562",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.2",
+            "symfony/console": "~2.3|~3.0"
+        },
+        "time": "2016-02-01 15:38:27",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Knp\\": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "KnpLabs",
+                "homepage": "http://knplabs.com"
+            }
+        ],
+        "description": "console service provider for Silex",
+        "homepage": "http://knplabs.com",
+        "keywords": [
+            "console",
+            "silex"
+        ],
+        "abandoned": "ivoba/console-service-provider"
     }
 ]
