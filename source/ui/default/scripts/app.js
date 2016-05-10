@@ -57,7 +57,7 @@ app.run(function($rootScope, $location, $cookies, localStorageService) {
                 $rootScope.version = localStorageService.get('version');
                 $rootScope.token = localStorageService.get('token');
                 $rootScope.devmode = localStorageService.get('devmode');
-                //$rootScope.schema = $cookies.getObject('schema');
+                $rootScope.frontend = localStorageService.get('frontend');
                 $rootScope.schema = localStorageService.get('schema');
 
                 var entities = {};

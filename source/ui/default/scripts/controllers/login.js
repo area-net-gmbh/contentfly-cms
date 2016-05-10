@@ -23,6 +23,7 @@ app.controller("LoginCtrl", function($scope, $location, localStorageService, $co
             localStorageService.set('schema', response.data.data);
             localStorageService.set('version', response.data.version);
             localStorageService.set('devmode', response.data.devmode);
+            localStorageService.set('frontend', response.data.frontend);
             $location.path("/");
         }, function errorCallback(response) {
             $scope.error = response.data.message;

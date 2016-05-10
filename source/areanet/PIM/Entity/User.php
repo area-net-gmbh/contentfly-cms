@@ -48,7 +48,7 @@ class User extends Base implements \JsonSerializable
 
         $token = bin2hex(openssl_random_pseudo_bytes(32));
         $this->setSalt($token);
-
+        $this->isActive = true;
     }
 
     /**

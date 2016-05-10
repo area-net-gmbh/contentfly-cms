@@ -48,7 +48,7 @@ class AuthController extends BaseController
             return new JsonResponse(array('message' => 'Ungültiger Benutzername.'), 401);
         }
 
-        if($user->getIsHidden() || $user->getIsDeleted()){
+        if(!$user->getIsActive() || $user->getIsDeleted()){
             return new JsonResponse(array('message' => 'Der Benutzer ist gesperrt.'), 401);
         }
 

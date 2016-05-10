@@ -12,6 +12,7 @@ app.controller("LogoutCtrl", function($scope, $rootScope, $location, localStorag
 
     localStorageService.remove('token');
     localStorageService.remove('schema');
+    localStorageService.remove('frontend');
     localStorageService.remove('user');
     localStorageService.remove('version');
     localStorageService.clearAll();
