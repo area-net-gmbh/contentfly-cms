@@ -34,13 +34,13 @@ class ProduktMetainformationen extends Base
      * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(label="SEO-URL")
      */
-    protected $seo_url;
+    protected $seoUrl;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(label="Kurz-URL")
      */
-    protected $kurz_url;
+    protected $kurzUrl;
 
     /**
      * @return mixed
@@ -95,15 +95,15 @@ class ProduktMetainformationen extends Base
      */
     public function getSeoUrl()
     {
-        return $this->seo_url;
+        return $this->seoUrl;
     }
 
     /**
-     * @param mixed $seo_url
+     * @param mixed $seoUrl
      */
-    public function setSeoUrl($seo_url)
+    public function setSeoUrl($seoUrl)
     {
-        $this->seo_url = $seo_url;
+        $this->seoUrl = $seoUrl;
     }
 
     /**
@@ -111,16 +111,18 @@ class ProduktMetainformationen extends Base
      */
     public function getKurzUrl()
     {
-        return $this->kurz_url;
+        return $this->kurzUrl;
     }
 
     /**
-     * @param mixed $kurz_url
+     * @param mixed $kurzUrl
      */
-    public function setKurzUrl($kurz_url)
+    public function setKurzUrl($kurzUrl)
     {
-        $this->kurz_url = $kurz_url;
+        $this->kurzUrl = $kurzUrl;
     }
+
+
 
 
 

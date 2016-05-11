@@ -3,11 +3,14 @@ namespace Areanet\PIM\Controller;
 
 use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
+use Areanet\PIM\Classes\Exceptions\Config\EntityNotFoundException;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\File;
 use Areanet\PIM\Entity\Log;
+use Areanet\PIM\Entity\User;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
@@ -369,6 +372,20 @@ class ApiController extends BaseController
     {
         $entityName          = ucfirst($request->get('entity'));
         $data                = $request->get('data');
+
+        try {
+            $object = $this->insert($entityName, $data, $app['auth.user']);
+        }catch(EntityDuplicateException $e){
+            return new JsonResponse(array('message' => $e->getMessage()), 500);
+        }catch(Exception $e){
+            return new JsonResponse(array('message' => $e->getMessage()), $e->getCode());
+        }
+
+        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => json_encode($object)));
+    }
+
+    protected function insert($entityName, $data, $user)
+    {
         $schema              = $this->getSchema();
 
         $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
@@ -378,11 +395,12 @@ class ApiController extends BaseController
         $object     = new $entityPath();
         //Todo: Validierung!
 
+
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
 
             //Todo: dynamisch alle Joins
-            switch($schema[ucfirst($request->get('entity'))]['properties'][$property]['type']){
+            switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
                 case 'file':
                     if(empty($value)){
                         $object->$setter(null);
@@ -412,22 +430,35 @@ class ApiController extends BaseController
 
                     break;
                 case 'join':
-                    $entity = $schema[ucfirst($request->get('entity'))]['properties'][$property]['accept'];
+                    $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
                     $objectToJoin = $this->em->getRepository($entity)->find($value);
                     $object->$setter($objectToJoin);
                     break;
                 case 'multijoin':
                     break;
                 case 'onejoin':
+                    $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+                    $joinObject = $this->insert($joinEntity, $value, $user);
+                    $object->$setter($joinObject);
+
                     break;
-                default:
+                case 'string':
+                case 'datetime':
+                case 'decimal':
+                case 'float':
+                case 'textarea':
+                case 'text':
+                case 'rte':
+                case 'integer':
+                case 'boolean':
                     $object->$setter($value);
                     break;
             }
 
         }
 
-        $object->setUser($app['auth.user']);
+        $object->setUser($user);
 
         try {
 
@@ -435,11 +466,11 @@ class ApiController extends BaseController
             $this->em->flush();
 
 
-            $isPush = $schema[ucfirst($request->get('entity'))]['settings']['isPush'];
+            $isPush = $schema[$entityName]['settings']['isPush'];
             if($isPush){
-                $pushTitle  = $schema[ucfirst($request->get('entity'))]['settings']['pushTitle'];
-                $pushText   = $schema[ucfirst($request->get('entity'))]['settings']['pushText'];
-                $pushObject = $schema[ucfirst($request->get('entity'))]['settings']['pushObject'];
+                $pushTitle  = $schema[$entityName]['settings']['pushTitle'];
+                $pushText   = $schema[$entityName]['settings']['pushText'];
+                $pushObject = $schema[$entityName]['settings']['pushObject'];
 
                 $push = new Push($this->em, $object);
                 $push->send($pushTitle, $pushText, $pushObject);
@@ -451,35 +482,34 @@ class ApiController extends BaseController
             $log = new Log();
 
             $log->setModelId($object->getId());
-            $log->setModelName(ucfirst($request->get('entity')));
-            $log->setUser($app['auth.user']);
+            $log->setModelName($entityName);
+            $log->setUser($user);
             $log->setMode('Erstellt');
 
             $this->em->persist($log);
             $this->em->flush();
         }catch(UniqueConstraintViolationException $e){
             if($entityPath == 'Areanet\PIM\Entity\User'){
-                return new JsonResponse(array('message' => "Ein Benutzer mit diesem Benutzername ist bereits vorhanden."), 500);
+                throw new EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
             }
             $uniqueObjectLoaded = false;
 
-            foreach($schema[ucfirst($request->get('entity'))]['properties'] as $property => $propertySettings){
+            foreach($schema[$entityName]['properties'] as $property => $propertySettings){
 
                 if($propertySettings['unique']){
                     $object = $this->em->getRepository($entityPath)->findOneBy(array($property => $data[$property]));
                     if(!$object){
-                        return new JsonResponse(array('message' => "Unbekannter Fehler"), 501);
+                        throw new Exception("Unbekannter Fehler", 501);
                     }
                     $uniqueObjectLoaded = true;
                     break;
                 }
             }
 
-            if(!$uniqueObjectLoaded) return new JsonResponse(array('message' => "Unbekannter Fehler"), 500);
+            if(!$uniqueObjectLoaded) throw new Exception("Unbekannter Fehler", 500);
         }
 
-
-        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => json_encode($object)));
+        return $object;
     }
 
     /**
@@ -513,6 +543,30 @@ class ApiController extends BaseController
         $id                  = $request->get('id');
         $data                = $request->get('data');
         $disableModifiedTime = $request->get('disableModifiedTime');
+
+        try{
+            $this->update($entityName, $id, $data, $disableModifiedTime, $app['auth.user']);
+        }catch(EntityDuplicateException $e){
+            return new JsonResponse(array('message' => $e->getMessage()), 500);
+        }catch(EntityNotFoundException $e){
+            return new JsonResponse(array('message' => "Not found"), 404);
+        }
+
+        return new JsonResponse(array('message' => 'Object updated', 'id' => $id));
+
+    }
+
+
+    /**
+     * @param string $entityName
+     * @param integer $id
+     * @param array $data
+     * @param boolean $disableModifiedTime
+     * @param User $user
+     * @return JsonResponse
+     */
+    protected function update($entityName, $id, $data, $disableModifiedTime, $user = null)
+    {
         $schema              = $this->getSchema();
 
         $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
@@ -522,7 +576,8 @@ class ApiController extends BaseController
 
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
-            return new JsonResponse(array('message' => "Not found"), 404);
+            throw new EntityNotFoundException();
+
         }
 
         //Todo: Validierung!
@@ -532,7 +587,7 @@ class ApiController extends BaseController
             $getter = 'get'.ucfirst($property);
 
             //Todo: dynamisch alle Joins?
-            switch($schema[ucfirst($request->get('entity'))]['properties'][$property]['type']){
+            switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
                 case 'file':
                     if(empty($value)){
                         $object->$setter(null);
@@ -562,15 +617,35 @@ class ApiController extends BaseController
 
                     break;
                 case 'join':
-                    $entity = $schema[ucfirst($request->get('entity'))]['properties'][$property]['accept'];
+                    $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
                     $objectToJoin = $this->em->getRepository($entity)->find($value);
                     $object->$setter($objectToJoin);
                     break;
                 case 'multijoin':
                     break;
                 case 'onejoin':
+                    $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+                    if(!empty($value['id'])){
+                        $this->update($joinEntity, $value['id'], $value, false, $user);
+                    }else{
+                        $joinObject = $this->insert($joinEntity, $value, $user);
+                        $object->$setter($joinObject);
+                    }
                     break;
-                default:
+                case 'datetime':
+                    if(!is_array($value)){
+                        $object->$setter($value);
+                    }
+                    break;
+                case 'string':
+                case 'decimal':
+                case 'float':
+                case 'textarea':
+                case 'text':
+                case 'rte':
+                case 'integer':
+                case 'boolean':
                     if(strtoupper($value) == 'INC'){
                         $oldValue = $object->$getter();
                         $oldValue++;
@@ -587,7 +662,7 @@ class ApiController extends BaseController
             }
         }
 
-        $object->setUser($app['auth.user']);
+        $object->setUser($user);
 
         try{
             if($disableModifiedTime){
@@ -598,12 +673,11 @@ class ApiController extends BaseController
             $this->em->flush();
 
 
-
         }catch(UniqueConstraintViolationException $e){
             if($entityPath == 'Areanet\PIM\Entity\User'){
-                return new JsonResponse(array('message' => "Ein Benutzer mit diesem Benutzername ist bereits vorhanden."), 500);
+                throw new EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
             }else{
-                return new JsonResponse(array('message' => "Ein gleicher Eintrag ist bereits vorhanden."), 500);
+                throw new EntityDuplicateException("Ein gleicher Eintrag ist bereits vorhanden.");
             }
         }
 
@@ -613,15 +687,12 @@ class ApiController extends BaseController
         $log = new Log();
 
         $log->setModelId($object->getId());
-        $log->setModelName(ucfirst($request->get('entity')));
-        $log->setUser($app['auth.user']);
+        $log->setModelName(ucfirst($entityName));
+        if($user) $log->setUser($user);
         $log->setMode('Geändert');
 
         $this->em->persist($log);
         $this->em->flush();
-
-        return new JsonResponse(array('message' => 'Object updated', 'id' => $object->getId()));
-
     }
 
     /**
@@ -834,7 +905,7 @@ class ApiController extends BaseController
                 'pushObject' => '',
                 'sortBy' => 'id',
                 'sortOrder' => 'DESC',
-                'tabs' => array('default' => 'Allgemein')
+                'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false))
             );
 
             $classAnnotations = $annotationReader->getClassAnnotations($reflect);
@@ -856,7 +927,7 @@ class ApiController extends BaseController
                     if($classAnnotation->tabs){
                         $tabs = json_decode(str_replace("'", '"', $classAnnotation->tabs));
                         foreach($tabs as $key=>$value){
-                            $settings['tabs'][$key] = $value;
+                            $settings['tabs'][$key] = array('title' => $value, 'onejoin' => false);
                         }
                     }
                 }
@@ -898,10 +969,15 @@ class ApiController extends BaseController
                         //$annotations['accept']      = !empty($propertyAnnotation->accept) ? $propertyAnnotation->accept : $annotations['accept'];
                         $annotations['rteToolbar']  = $propertyAnnotation->rteToolbar ? $propertyAnnotation->rteToolbar : '';
                         $annotations['filter']      = $propertyAnnotation->filter ? $propertyAnnotation->filter : '';
-                        $annotations['tab']         = $propertyAnnotation->tab ? $propertyAnnotation->tab : $annotations['tab'];
+                        $annotations['tab']         = $propertyAnnotation->tab && !$annotations['tab'] ? $propertyAnnotation->tab : $annotations['tab'];
 
                         if($propertyAnnotation->type){
                             $annotations['type'] = $propertyAnnotation->type;
+                        }
+
+                        if($annotations['type'] == 'onejoin'){
+
+                            $settings['tabs'][$annotations['accept']]['title'] = $annotations['label'];
                         }
 
                         if($annotations['type'] == 'select' && $propertyAnnotation->options){
@@ -951,10 +1027,15 @@ class ApiController extends BaseController
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToOne){
                         $annotations['type']     = 'onejoin';
-                        $annotations['accept']   = $propertyAnnotation->targetEntity;
+
+                        $entityPath     = explode('\\', $propertyAnnotation->targetEntity);
+                        $one2Oneentity  = $entityPath[(count($entityPath) - 1)];
+
+                        $annotations['accept']   = $one2Oneentity;
                         $annotations['multiple'] = false;
 
-                        $settings['tabs'][$propertyAnnotation->targetEntity] = $annotations['label'];
+                        $settings['tabs'][$one2Oneentity] =array('title' =>  $annotations['label'], 'onejoin' => true, 'onejoin_field' => $prop->getName());
+                        $annotations['tab'] = $one2Oneentity;
                     }
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToOne){
