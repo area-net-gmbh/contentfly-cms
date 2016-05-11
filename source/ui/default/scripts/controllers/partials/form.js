@@ -1,5 +1,7 @@
 app.controller("FormCtrl", function($scope, $cookies, $uibModalInstance, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment) {
     var schema = localStorageService.get('schema');
+
+    $scope.schemaOnejoin = {};
     $scope.schema = schema[entity];
     $scope.object = object;
     $scope.isSubmit = false;
@@ -46,7 +48,23 @@ app.controller("FormCtrl", function($scope, $cookies, $uibModalInstance, localSt
                         break;
                     case 'password':
                         break;
+                    case 'onejoin':
+                        data[key] = $scope.object[key];
 
+                        var joinEntity = schema[entity].properties[key].accept;
+
+                        angular.forEach(schema[joinEntity].properties, function (config, subkey) {
+                            if (!config.readonly && !config.hide) {
+                                switch(config.type){
+                                    case 'datetime':
+                                        if($scope.datePickerModels[subkey]) {
+                                            data[key][subkey] = $scope.datePickerModels[subkey].toISOString();
+                                        }
+                                        break;
+                                }
+                            }
+                        }, data, key);
+                        break;
                     default:
                         data[key] = $scope.object[key];
                         break;
@@ -130,9 +148,6 @@ app.controller("FormCtrl", function($scope, $cookies, $uibModalInstance, localSt
     }
 
 
-
-
-
     $scope.datePickerOpened = {};
     $scope.datePickerModels = {};
     angular.forEach(schema[entity].properties, function (config, key) {
@@ -141,8 +156,24 @@ app.controller("FormCtrl", function($scope, $cookies, $uibModalInstance, localSt
             $scope.datePickerModels[key] = object[key] ? moment(object[key].ISO8601).toDate() : new Date();
             $scope.datePickerOpened[key] = false;
         }
-    }, $scope.datePickerModels, $scope.datePickerOpened);
 
+        if(config.type == 'onejoin'){
+            $scope.schemaOnejoin[config.tab] = schema[config.tab];
+            $scope.object[key] = $scope.object[key] ? $scope.object[key] : {};
+
+            var joinEntity = schema[entity].properties[key].accept;
+            angular.forEach(schema[joinEntity].properties, function (config, subkey) {
+                if (config.type == 'datetime' && object[key][subkey]) {
+
+                    $scope.datePickerModels[subkey] = object[key][subkey] ? moment(object[key][subkey].ISO8601).toDate() : new Date();
+                    $scope.datePickerOpened[subkey] = false;
+                }
+            }, $scope.datePickerModels, $scope.datePickerOpened, key);
+
+        }
+
+    }, $scope.datePickerModels, $scope.datePickerOpened);
+    
 
     $scope.openDatePicker = function(key) {
         $scope.datePickerOpened[key] = true;

@@ -67,6 +67,14 @@ class Produkt extends Base
     protected $metainformationen;
 
     /**
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktPreise")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Preise")
+     */
+    protected $preise;
+
+
+    /**
      * @return mixed
      */
     public function getAktiv()
@@ -196,6 +204,24 @@ class Produkt extends Base
     {
         $this->metainformationen = $metainformationen;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPreise()
+    {
+        return $this->preise;
+    }
+
+    /**
+     * @param mixed $preise
+     */
+    public function setPreise($preise)
+    {
+        $this->preise = $preise;
+    }
+
+    
     
 
 
