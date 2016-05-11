@@ -12,7 +12,7 @@ $config->DB_NAME = 'db';
 $config->DB_USER = 'user';
 $config->DB_PASS = 'pass';
 
-$config->APP_DEBUG = true;
+$config->APP_DEBUG = false;
 
 $config->FRONTEND_ITEMS_PER_PAGE = 30;
 $config->FRONTEND_CUSTOM_LOGO = true;

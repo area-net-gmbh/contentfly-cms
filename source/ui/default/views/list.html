@@ -1,5 +1,5 @@
 <div class="row header">
-    <div class="col-sm-8 col-sm-offset-1">
+    <div class="col-lg-9 col-lg-offset-0 col-xl-8 col-xl-offset-1">
         <h3>{{schema.settings.label}} anzeigen</h3>
         <div class="btn-group btn-sorting" uib-dropdown>
             <button class="btn btn-default" id="dropdown-sorting" type="button" uib-dropdown-toggle>
@@ -62,12 +62,12 @@
     <div class="col-sm-1">
         <button ng-show="devmode" class="btn btn-default btn-sm" ng-click="loadSchema()">Reload Schema</button>
     </div>
-    <div class="col-sm-1">
+    <div class="col-sm-1" >
         <button class="btn btn-primary btn-sm" ng-click="new()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt anlegen</button>
     </div>
 </div>
 <div class="row">
-    <div class="col-sm-10 col-sm-offset-1">
+    <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
 
         <p ng-hide="objectsAvailable || objectsNotAvailable">Daten werden geladen...</p>
         <p ng-show="objectsNotAvailable">Es sind derzeit leider keine Daten vorhanden.</p>

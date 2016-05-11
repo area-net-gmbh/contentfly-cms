@@ -38,7 +38,7 @@ app.controller("ListCtrl", function($scope, $cookies, localStorageService, $rout
                     entity: entity
                 }
             }).then(function successCallback(response) {
-                $scope.filterJoins[field] = JSON.parse(response.data.data);
+                $scope.filterJoins[field] = (response.data.data);
             }, function errorCallback(response) {
             });
         }
@@ -252,7 +252,7 @@ app.controller("ListCtrl", function($scope, $cookies, localStorageService, $rout
                 order: sortSettings
             }
         }).then(function successCallback(response) {
-            $scope.objects = JSON.parse(response.data.data);
+            $scope.objects = (response.data.data);
         }, function errorCallback(response) {
             console.warn(response);
         });
