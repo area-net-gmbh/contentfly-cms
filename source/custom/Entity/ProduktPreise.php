@@ -25,6 +25,12 @@ class ProduktPreise extends Base
     protected $abPreisText;
 
     /**
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     * @PIM\Config(label="Herbstpreis")
+     */
+    protected $herbstpreis;
+    
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      * @PIM\Config(label="Beginn Herbstpreise")
      */
@@ -74,6 +80,22 @@ class ProduktPreise extends Base
     public function getBeginnHerbstpreise()
     {
         return $this->beginnHerbstpreise;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHerbstpreis()
+    {
+        return $this->herbstpreis;
+    }
+
+    /**
+     * @param mixed $herbstpreis
+     */
+    public function setHerbstpreis($herbstpreis)
+    {
+        $this->herbstpreis = $herbstpreis;
     }
 
     /**
