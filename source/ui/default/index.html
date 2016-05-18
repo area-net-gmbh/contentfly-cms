@@ -69,6 +69,7 @@
         <p>Anwendung wird geladen...</p>
     </div>
 
+    <!-- Angular Files -->
     <script src="vendor/jquery/jquery-2.1.4.min.js"></script>
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-route.min.js"></script>
@@ -86,16 +87,28 @@
     <script src="vendor/chartjs/chart.min.js"></script>
     <script src="vendor/chartjs/angular-chart.min.js"></script>
 
+    <!-- Global App Files -->
+    <script src="scripts/app.config.js"></script>
     <script src="scripts/app.module.js"></script>
     <script src="scripts/app.routes.js"></script>
     <script src="scripts/app.js"></script>
-    <script src="scripts/directives/form.js"></script>
-    <script src="scripts/directives/autoformat.js"></script>
-    <script src="scripts/directives/clearinput.js"></script>
-    <script src="scripts/directives/bindValidity.js"></script>
-    <script src="scripts/directives/enter.js"></script>
+
+    <!-- App Services -->
+    <script src="scripts/services/entity.service.js"></script>
+
+    <!-- App Types -->
+    <script src="types/string/string.directive.js"></script>
+    <script src="types/boolean/boolean.directive.js"></script>
+
+    <!-- App Directives -->
+    <script src="scripts/directives/form.directive.js"></script>
+    <script src="scripts/directives/autoformat.directive.js"></script>
+    <script src="scripts/directives/clearinput.directive.js"></script>
+    <script src="scripts/directives/bindValidity.directive.js"></script>
+    <script src="scripts/directives/enter.directive.js"></script>
+
+    <!-- App Controllers -->
     <script src="scripts/controllers/partials/modal.js"></script>
-    <script src="scripts/controllers/partials/form.js"></script>
     <script src="scripts/controllers/partials/entity-browser.js"></script>
     <script src="scripts/controllers/partials/object-browser.js"></script>
     <script src="scripts/controllers/partials/file-edit.js"></script>
@@ -103,6 +116,7 @@
     <script src="scripts/controllers/login.js"></script>
     <script src="scripts/controllers/logout.js"></script>
     <script src="scripts/controllers/list.js"></script>
+    <script src="scripts/controllers/form.js"></script>
     <script src="scripts/controllers/files.js"></script>
     <script src="scripts/controllers/dashboard.js"></script>
 </body>
