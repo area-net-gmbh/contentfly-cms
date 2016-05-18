@@ -3,21 +3,21 @@
 
     angular
         .module('app')
-        .directive('pimBoolean', pimBoolean);
+        .directive('pimRte', pimRte);
 
 
-    function pimBoolean(){
+    function pimRte(){
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isvalid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/boolean/boolean.html'
+                return 'types/rte/rte.html'
             },
             link: function(scope, element, attrs){
                 scope.$watch('value',function(data){
-                    scope.onChangeCallback({key: scope.key, value: scope.value ? scope.value : false});
+                    scope.onChangeCallback({key: scope.key, value: scope.value});
                 },true)
             }
         }

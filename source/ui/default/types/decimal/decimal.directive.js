@@ -3,21 +3,23 @@
 
     angular
         .module('app')
-        .directive('pimString', pimString);
+        .directive('pimDecimal', pimDecimal);
 
 
-    function pimString(){
+    function pimDecimal(){
         return {
             restrict: 'E',
             scope: {
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/string/string.html'
+                return 'types/decimal/decimal.html'
             },
             link: function(scope, element, attrs){
+                scope.value = scope.value ? scope.value.replace('.', ',') : null;
+
                 scope.$watch('value',function(data){
-                    scope.onChangeCallback({key: scope.key, value: scope.value});
+                    scope.onChangeCallback({key: scope.key, value: scope.value ? scope.value.replace(',', '.') : null});
                 },true)
             }
         }

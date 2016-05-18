@@ -117,7 +117,7 @@
             }).then(function successCallback(response) {
                 localStorageService.set('schema', response.data.data);
                 localStorageService.set('devmode', response.data.devmode);
-                vm.schema = response.data.data[$scope.entity];
+                vm.schema = response.data.data[vm.entity];
                 loadData();
             }, function errorCallback(response) {
                 vm.error = response.data.message;
