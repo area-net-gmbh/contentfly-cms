@@ -1,21 +1,21 @@
-app.controller("LogoutCtrl", function($scope, $rootScope, $location, localStorageService, $cookies) {
-    $scope.login = function() {
-        $http({
-            method: 'GET',
-            url: '/auth/logout'
-        }).then(function successCallback(response) {
+(function() {
+    'use strict';
 
-        }, function errorCallback(response) {
+    angular
+        .module('app')
+        .controller('LogoutCtrl', LogoutCtrl);
 
-        });
-    };
+    function LogoutCtrl($scope, $rootScope, $location, localStorageService, $cookies){
 
-    localStorageService.remove('token');
-    localStorageService.remove('schema');
-    localStorageService.remove('frontend');
-    localStorageService.remove('user');
-    localStorageService.remove('version');
-    localStorageService.clearAll();
-    $rootScope.userLoggedIn = false;
-    $location.path('/login');
-});
+        localStorageService.remove('token');
+        localStorageService.remove('schema');
+        localStorageService.remove('frontend');
+        localStorageService.remove('user');
+        localStorageService.remove('version');
+        localStorageService.clearAll();
+        $rootScope.userLoggedIn = false;
+        $location.path('/login');
+    }
+
+})();
+

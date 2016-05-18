@@ -625,6 +625,7 @@ class ApiController extends BaseController
                     break;
                 case 'onejoin':
                     $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+                    
 
                     if(!empty($value['id'])){
                         $this->update($joinEntity, $value['id'], $value, false, $user);
@@ -634,7 +635,7 @@ class ApiController extends BaseController
                     }
                     break;
                 case 'datetime':
-                    if(!is_array($value)){
+                    if(!is_array($value) && $value){
                         $object->$setter($value);
                     }
                     break;

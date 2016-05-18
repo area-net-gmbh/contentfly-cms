@@ -9,6 +9,7 @@
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
+        var backupForObject  = null;
 
         //Properties
         vm.schemaOnejoin    = {};
@@ -20,12 +21,10 @@
         vm.modaltitle       = title;
         vm.password = {};
 
-        console.log(object);
-
         //Functions
-        vm.save     = save;
-        vm.cancel   = cancel;
-        vm.change   = onChange;
+        vm.save                 = save;
+        vm.cancel               = cancel;
+        vm.changeValue          = onChangeValue;
 
         //Startup
         init();
@@ -33,15 +32,14 @@
         ///////////////////////////////////
 
         function cancel() {
-            angular.copy(backupForObject, vm.object);
-            backupForObject = null;
+            //angular.copy(backupForObject, vm.object);
+            //backupForObject = null;
             $uibModalInstance.dismiss(false);
         }
 
         function doSave() {
             var data = {};
             vm.isSubmit = true;
-            
 
             for (var formName in vm.forms) {
                 if (!vm.forms[formName].$valid) {
@@ -100,8 +98,7 @@
                 data[key] = password;
             }, data);
             */
-            
-            console.log(objectDataToSave);
+
 
             if (!object['id']) {
 
@@ -162,8 +159,8 @@
         }
 
         function init(){
-            angular.copy(vm.object, backupForObject);
-            var backupForObject = angular.copy(object);
+            //angular.copy(vm.object, backupForObject);
+            //backupForObject = angular.copy(object);
 
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
@@ -171,8 +168,6 @@
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
             });
-
-            console.log(vm.schemaOnejoin);
         }
 
         function save() {
@@ -228,9 +223,18 @@
 
         }
 
-        function onChange(key, value){
-            objectDataToSave[key] = value;
+        function onChangeValue(key, mainKey, value){
+            if(!mainKey) {
+                objectDataToSave[key] = value;
+            }else{
+                if(!objectDataToSave[mainKey]){
+                    objectDataToSave[mainKey] = {};
+                }
+
+                objectDataToSave[mainKey][key] = value;
+            }
         }
+
 
         
         

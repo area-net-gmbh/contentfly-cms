@@ -3,21 +3,21 @@
 
     angular
         .module('app')
-        .directive('pimBoolean', pimBoolean);
+        .directive('pimTextarea', pimTextarea);
 
 
-    function pimBoolean(){
+    function pimTextarea(){
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isvalid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/boolean/boolean.html'
+                return 'types/textarea/textarea.html'
             },
             link: function(scope, element, attrs){
                 scope.$watch('value',function(data){
-                    scope.onChangeCallback({key: scope.key, value: scope.value ? scope.value : false});
+                    scope.onChangeCallback({key: scope.key, value: scope.value});
                 },true)
             }
         }
