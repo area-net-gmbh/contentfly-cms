@@ -1,14 +1,31 @@
-app.controller("ModalCtrl", function($scope, $uibModalInstance, title, body, hideCancelButton) {
+(function() {
+    'use strict';
 
-    $scope.title = title;
-    $scope.body = body;
-    $scope.hideCancelButton = hideCancelButton;
+    angular
+        .module('app')
+        .controller('ModalCtrl', ModalCtrl);
 
-    $scope.ok = function () {
-        $uibModalInstance.close(true);
-    };
+    function ModalCtrl($scope, $uibModalInstance, title, body, hideCancelButton){
+        var vm = this;
 
-    $scope.cancel = function () {
-        $uibModalInstance.dismiss(false);
-    };
-});
+        //Properties
+        vm.title            = title;
+        vm.body             = body;
+        vm.hideCancelButton = hideCancelButton;
+
+        //Functions
+        vm.ok       = ok;
+        vm.cancel   = cancel;
+
+        ///////////////////////////////////
+
+        function ok() {
+            $uibModalInstance.close(true);
+        }
+
+        function cancel() {
+            $uibModalInstance.dismiss(false);
+        }
+    }
+
+})();

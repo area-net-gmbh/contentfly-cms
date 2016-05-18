@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{modaltitle}} <small ng-show="vm.object.created">Erstellt {{vm.object.created.LOCAL}} | Geändert {{vm.object.modified.LOCAL_TIME}} Uhr</small></h3>
+</div>
+<div class="modal-body">
+
+        <uib-tabset active="active">
+            <uib-tab  ng-repeat="(tabKey, tab) in vm.schema.settings.tabs" index="$index">
+                <uib-tab-heading ng-class="{tabInvalid: tabInvalid}">
+                    {{tab.title}} <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"></span>
+                </uib-tab-heading>
+
+                {{formName='form'+$index;""}}
+
+                <form name="forms.form{{$index}}" class="form-horizontal" bind-validity="tabInvalid">
+                    <div ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'has-error': isSubmit && !config.readonly && !config.hide && !forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schema.properties">
+                        <pim-form key="key" config="config" object="vm.object" isvalid="forms[formName][key].$valid" submitted="isSubmit" on-change-callback="vm.change(key,value)"></pim-form>
+                    </div>
+                    <div ng-if="tab.onejoin == true" class="form-group ng-class: {'has-error': isSubmit && !config.readonly && !config.hide && !forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schemaOnejoin[tabKey].properties">
+                        {{config}} {{vm.object.metainformationen}}
+                        <pim-form key="key" config="config" object="vm.object[key]" isvalid="forms[formName][key].$valid" submitted="isSubmit" on-change-callback="vm.change(key,value)"></pim-form>
+                    </div>
+                </form>
+
+            </uib-tab>
+        </uib-tabset>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">Abbrechen</button>
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">Speichern</button>
+</div>
