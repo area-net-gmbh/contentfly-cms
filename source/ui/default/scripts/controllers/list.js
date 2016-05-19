@@ -18,6 +18,7 @@
         vm.totalItems   = 0;
         vm.currentPage   = 1;
 
+
         if(pimEntity){
             vm.entity = 'PIM\\' + $routeParams.entity;
         }else{
@@ -69,6 +70,10 @@
         }
 
         function doDelete(id){
+            if(vm.schema.settings.isPush || vm.schema.settings.readonly){
+                return;
+            }
+            
             var modalInstance = $uibModal.open({
                 templateUrl: 'views/partials/modal.html',
                 controller: 'ModalCtrl as vm',
@@ -79,32 +84,35 @@
                 }
             });
 
-            modalInstance.result.then(function (doDelete) {
-                //todo: Delete-Service
-                if(doDelete){
-                    $http({
-                        method: 'POST',
-                        url: '/api/delete',
-                        headers: { 'X-Token': localStorageService.get('token') },
-                        data: {entity: $scope.entity, id: id}
-                    }).then(function successCallback(response) {
-                        loadData();
+            modalInstance.result.then(
+                function (doDelete) {
+                    if(doDelete){
 
-                    }, function errorCallback(response) {
-                        var modalInstance = $uibModal.open({
-                            templateUrl: 'views/partials/modal.html',
-                            controller: 'ModalCtrl as vm',
-                            resolve: {
-                                title: function(){ return 'Fehler beim Löschen'; },
-                                body: function(){ return response.data.message; },
-                                hideCancelButton: true
+                        var data = {
+                            entity: vm.entity,
+                            id: id
+                        };
+
+                        EntityService.delete(data).then(
+                            function successCallback(response) {
+                                loadData();
+                            },
+                            function errorCallback(response) {
+                                var modalInstance = $uibModal.open({
+                                    templateUrl: 'views/partials/modal.html',
+                                    controller: 'ModalCtrl as vm',
+                                    resolve: {
+                                        title: function(){ return 'Fehler beim Löschen'; },
+                                        body: function(){ return response.data.message; },
+                                        hideCancelButton: true
+                                    }
+                                });
                             }
-                        });
-                    });
-
-                }
-            }, function () {
-            });
+                        );
+                    }
+                },
+                function () {}
+            );
         };
 
 
@@ -125,12 +133,16 @@
         }
 
         function openForm(object){
+            if(vm.schema.settings.isPush || vm.schema.settings.readonly){
+                return;
+            }
+
             var modalInstance = $uibModal.open({
                 templateUrl: 'views/form.html',
                 controller: 'FormCtrl as vm',
                 resolve: {
                     entity: function(){ return vm.entity;},
-                    title: function(){ return 'Objekt bearbeiten'; },
+                    title: function(){ return object ? 'Objekt bearbeiten' : 'Neues Objekt anlegen'; },
                     object: function(){ return object; }
                 },
                 size: 'lg'

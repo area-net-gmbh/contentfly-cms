@@ -24,7 +24,7 @@
             .when('/list/:entity', {
                 templateUrl: 'views/list.html',
                 controller: 'ListCtrl as vm',
-                resolve: { pimEntity: function(){return false;} },
+                resolve: { pimEntity: function(){return null;} },
                 secure: true
             })
             .when('/list/PIM/:entity', {

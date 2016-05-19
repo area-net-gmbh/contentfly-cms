@@ -8,6 +8,7 @@
     function EntityService(localStorageService, $http){
 
         return{
+            delete: doDelete,
             list: list,
             insert: insert,
             update: update,
@@ -17,6 +18,15 @@
 
         //////////////////////////////////////////////////////
 
+        function doDelete(data){
+            return $http({
+                method: 'POST',
+                url: '/api/delete',
+                headers: { 'X-Token': localStorageService.get('token') },
+                data: data
+            });
+        }
+        
         function list(data){
             return $http({
                 method: 'POST',
@@ -52,6 +62,8 @@
                 data: data
             });
         }
+        
+        
     }
 
 })();

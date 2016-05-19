@@ -14,7 +14,7 @@
         //Properties
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];
-        vm.object           = object;
+        vm.object           = object ? object : {};
         vm.isSubmit         = false;
         vm.fileUploads      = {};
         vm.forms            = {};
@@ -37,8 +37,32 @@
             $uibModalInstance.dismiss(false);
         }
 
+        function confirmPush(count, title, text, object) {
+            var modalInstance = $uibModal.open({
+                templateUrl: 'views/partials/modal.html',
+                controller: 'ModalCtrl as vm',
+                resolve: {
+                    title: function () {
+                        return 'Push-Nachricht an ' + count + ' Benutzer versenden';
+                    },
+                    body: function () {
+                        return "<p><b>" + title + "</b></p><p>" + text + "</p><p><br>" + object + "</p>";
+                    },
+                    hideCancelButton: function () {
+                        return false;
+                    }
+                }
+            });
+
+            modalInstance.result.then(
+                function(doDelete) {
+                    if (doDelete) doSave();
+                },
+                function(){}
+            );
+        }
+
         function doSave() {
-            var data = {};
             vm.isSubmit = true;
 
             for (var formName in vm.forms) {
@@ -100,7 +124,7 @@
             */
 
 
-            if (!object['id']) {
+            if (!vm.object['id']) {
 
                 var data = {
                     entity: entity,
@@ -159,9 +183,6 @@
         }
 
         function init(){
-            //angular.copy(vm.object, backupForObject);
-            //backupForObject = angular.copy(object);
-
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
                     vm.schemaOnejoin[config.tab] = schemaComplete[config.tab];
@@ -171,8 +192,6 @@
         }
 
         function save() {
-
-
             if (vm.schema['settings']['isPush']) {
 
                 for (var formName in vm.forms) {
@@ -241,263 +260,6 @@
         
         //@todo: OLD CODE
         
-        var confirmPush = function (count, title, text, object) {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/modal.html',
-                controller: 'ModalCtrl',
-                resolve: {
-                    title: function () {
-                        return 'Push-Nachricht an ' + count + ' Benutzer versenden';
-                    },
-                    body: function () {
-                        return "<p><b>" + title + "</b></p><p>" + text + "</p><p><br>" + object + "</p>";
-                    },
-                    hideCancelButton: function () {
-                        return false;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (doDelete) {
-                if (doDelete) {
-                    doSave();
-                }
-            }, function () {
-
-            });
-        }
-
-
-        $scope.datePickerOpened = {};
-        $scope.datePickerModels = {};
-        /*
-        angular.forEach(schema[entity].properties, function (config, key) {
-            if (config.type == 'datetime') {
-                //var m = moment(object[key].ISO8601);
-                $scope.datePickerModels[key] = object[key] ? moment(object[key].ISO8601).toDate() : new Date();
-                $scope.datePickerOpened[key] = false;
-            }
-
-            if (config.type == 'onejoin') {
-                $scope.schemaOnejoin[config.tab] = schema[config.tab];
-                $scope.object[key] = $scope.object[key] ? $scope.object[key] : {};
-
-                var joinEntity = schema[entity].properties[key].accept;
-                angular.forEach(schema[joinEntity].properties, function (config, subkey) {
-                    if (config.type == 'datetime' && object[key][subkey]) {
-
-                        $scope.datePickerModels[subkey] = object[key][subkey] ? moment(object[key][subkey].ISO8601).toDate() : new Date();
-                        $scope.datePickerOpened[subkey] = false;
-                    }
-                }, $scope.datePickerModels, $scope.datePickerOpened, key);
-
-            }
-
-        }, $scope.datePickerModels, $scope.datePickerOpened);
-*/
-
-        $scope.openDatePicker = function (key) {
-            $scope.datePickerOpened[key] = true;
-        };
-
-        $scope.removeFile = function (property, fileId) {
-            object[property] = null;
-        };
-
-        $scope.removeMultiFile = function (property, index) {
-            object[property].splice(index, 1);
-        };
-
-        $scope.editMultiFile = function (property, index, id, title) {
-
-            var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/file-edit.html',
-                controller: 'FileEditCtrl',
-                resolve: {
-                    modaltitle: function () {
-                        return 'Titel Datei ' + id + ' bearbeiten';
-                    },
-                    title: function () {
-                        return title;
-                    },
-                    id: function () {
-                        return id;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (title) {
-                $scope.object[property][index]["title"] = title;
-            }, function () {
-            });
-
-        };
-
-        $scope.addVideo = function (property) {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/video-add.html',
-                controller: 'VideoAddCtrl',
-                resolve: {
-                    modaltitle: function () {
-                        return 'Neues Youtube-Video hinzufügen';
-                    },
-                    property: function () {
-                        return property;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (fileData) {
-                if (fileData) {
-                    if (typeof $scope.object[property] == 'undefined') {
-                        $scope.object[property] = [];
-                    }
-                    $scope.object[property].push(fileData);
-                }
-            }, function () {
-            });
-
-        };
-
-        $scope.uploadFile = function (property, file, errFiles) {
-            $scope.fileUploads[property] = file;
-
-            if (file) {
-                file.upload = Upload.upload({
-                    url: '/file/upload',
-                    headers: {'X-Token': localStorageService.get('token')},
-                    data: {file: file}
-                });
-
-                file.upload.then(function (response) {
-                    //console.log(response.data.data);
-                    file.result = response.data;
-                    $scope.object[property] = response.data.data;
-
-                    $timeout(function () {
-                        $scope.fileUploads[property] = null;
-                    }, 1000);
-
-                }, function (response) {
-                    if (response.status > 0)
-                        $scope.errorMsg = response.status + ': ' + response.data;
-                }, function (evt) {
-                    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                });
-            }
-        };
-
-        $scope.uploadMultiFile = function (property, files, errFiles) {
-            $scope.fileUploads[property] = files;
-
-            if (typeof $scope.object[property] == 'undefined') {
-                $scope.object[property] = [];
-            }
-
-            angular.forEach(files, function (file) {
-                file.upload = Upload.upload({
-                    url: '/file/upload',
-                    headers: {'X-Token': localStorageService.get('token')},
-                    data: {file: file}
-                });
-
-                file.upload.then(function (response) {
-                    //console.log(response.data.data);
-                    file.result = response.data;
-
-                    $scope.object[property].push(response.data.data);
-
-                    $timeout(function () {
-                        $scope.fileUploads[property] = null;
-                    }, 1000);
-
-                }, function (response) {
-                    if (response.status > 0)
-                        $scope.errorMsg = response.status + ': ' + response.data;
-                }, function (evt) {
-                    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                });
-            });
-
-        };
-
-        $scope.addFile = function (property, accept) {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'views/files.html',
-                controller: 'FilesCtrl',
-                resolve: {
-                    modaltitle: function () {
-                        return 'Datei hinzufügen';
-                    },
-                    property: function () {
-                        return property;
-                    },
-                    pimEntity: function () {
-                        return true;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (fileData) {
-                var accept = $scope.schema.properties[property].accept.replace('*', '');
-                var fileDataType = fileData.type.substr(0, accept.length);
-
-                if (accept != fileDataType) {
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'views/partials/modal.html',
-                        controller: 'ModalCtrl',
-                        resolve: {
-                            title: function () {
-                                return 'Fehler bei der Dateiauswahl';
-                            },
-                            body: function () {
-                                return 'Dieser Dateityp kann an dieser Stelle nicht ausgewählt werden.';
-                            },
-                            hideCancelButton: true
-                        }
-                    });
-                    return;
-                }
-
-                if (fileData) {
-                    $scope.object[property] = fileData;
-                }
-            }, function () {
-            });
-        };
-
-        $scope.addMultiFile = function (property, accept) {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'views/files.html',
-                controller: 'FilesCtrl',
-                resolve: {
-                    modaltitle: function () {
-                        return 'Datei hinzufügen';
-                    },
-                    property: function () {
-                        return property;
-                    },
-                    pimEntity: function () {
-                        return true;
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (fileData) {
-                if (fileData) {
-
-                    if (typeof $scope.object[property] == 'undefined') {
-                        $scope.object[property] = [];
-                    }
-                    $scope.object[property].push(fileData);
-                }
-            }, function () {
-            });
-        };
-
-        
-
-
 
 
         /**

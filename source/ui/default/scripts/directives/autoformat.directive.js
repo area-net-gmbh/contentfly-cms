@@ -11,7 +11,7 @@
             scope: { object: '=', schema: '=', long: '=' },
             link: function(scope, element, attrs){
                 //var object = JSON.parse(attrs.object);
-
+    
                 var property = attrs.property;
                 var long     = attrs.long ? attrs.long : false;
                 var type     = scope.schema.properties[property].type;
