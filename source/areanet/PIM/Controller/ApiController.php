@@ -92,11 +92,12 @@ class ApiController extends BaseController
     {
         $data = array();
 
-        $entityName = $request->get('entity');
-        $doCount    = $request->get('count', false);
-        $order      = $request->get('order', null);
-        $where      = $request->get('where', null);
-        $currentPage = $request->get('currentPage');
+        $entityName   = $request->get('entity');
+        $doCount      = $request->get('count', false);
+        $order        = $request->get('order', null);
+        $where        = $request->get('where', null);
+        $currentPage  = $request->get('currentPage');
+        $itemsPerPage = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
 
         if(substr($entityName, 0, 3) == 'PIM'){
             $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
@@ -186,19 +187,12 @@ class ApiController extends BaseController
         //die($query->getSQL());
         $totalObjects = $query->getResult();
 
-        /*
-        $qb = $this->em->createQueryBuilder();
-        $qb
-            ->select($entityName)
-            ->from($entityNameToLoad, $entityName)
-            ->where("$entityName.isDeleted = false")
-        ;
-        */
+
 
         if($currentPage) {
             $queryBuilder
-                ->setFirstResult(Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE * ($currentPage - 1))
-                ->setMaxResults(Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE)
+                ->setFirstResult($itemsPerPage * ($currentPage - 1))
+                ->setMaxResults($itemsPerPage)
             ;
         }
 
@@ -246,7 +240,7 @@ class ApiController extends BaseController
 
 
         if($currentPage) {
-            return new JsonResponse(array('message' => "ok", 'data' => $array, 'itemsPerPage' => Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE, 'totalItems' => count($totalObjects)));
+            return new JsonResponse(array('message' => "ok", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => count($totalObjects)));
         } else {
             return new JsonResponse(array('message' => "ok", 'data' => $array));
         }
@@ -603,8 +597,9 @@ class ApiController extends BaseController
                     break;
                 case 'multifile':
                     $collection = new ArrayCollection();
+
                     if(!is_array($value) || !count($value)){
-                        $object->$setter($collection);
+                        $object->$getter()->clear();
                         continue;
                     }
 
@@ -613,6 +608,7 @@ class ApiController extends BaseController
                         $collection->add($objectToJoin);
                     }
 
+                    $object->$getter()->clear();
                     $object->$setter($collection);
 
                     break;
@@ -625,7 +621,7 @@ class ApiController extends BaseController
                     break;
                 case 'onejoin':
                     $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-                    
+
 
                     if(!empty($value['id'])){
                         $this->update($joinEntity, $value['id'], $value, false, $user);
@@ -647,6 +643,7 @@ class ApiController extends BaseController
                 case 'rte':
                 case 'integer':
                 case 'boolean':
+                case 'password':
                     if(strtoupper($value) == 'INC'){
                         $oldValue = $object->$getter();
                         $oldValue++;
@@ -662,7 +659,6 @@ class ApiController extends BaseController
                     break;
             }
         }
-
         $object->setUser($user);
 
         try{
@@ -672,7 +668,6 @@ class ApiController extends BaseController
 
             $this->em->persist($object);
             $this->em->flush();
-
 
         }catch(UniqueConstraintViolationException $e){
             if($entityPath == 'Areanet\PIM\Entity\User'){

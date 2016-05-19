@@ -1,29 +1,47 @@
-app.controller('FileEditCtrl', function($scope, $uibModalInstance, $uibModal, localStorageService, $http, modaltitle, title, id) {
-    $scope.modaltitle = modaltitle;
-    $scope.title = title;
-    $scope.id = id;
+(function() {
+    'use strict';
 
-    $scope.ok = function () {
+    angular
+        .module('app')
+        .controller('FileEditCtrl', FileEditCtrl);
+    
+    function FileEditCtrl($scope, $uibModalInstance, $uibModal, localStorageService, $http, modaltitle, title, id, EntityService){
+        var vm = this;
 
-        $http({
-            method: 'POST',
-            url: '/api/update',
-            headers: {'X-Token': localStorageService.get('token')},
-            data: {
+        //Properties
+        vm.modaltitle   = modaltitle;
+        vm.title        = title;
+        vm.id           = id;
+
+        //Functions
+        vm.cancel   = cancel;
+        vm.ok       = ok;
+
+        /////////////////////
+
+        function cancel(){
+            $uibModalInstance.dismiss();
+        }
+
+        function ok(){
+            var data = {
                 entity: "PIM\\File",
-                id: id,
+                id: vm.id,
                 data: {
-                    "title": $scope.title
+                    "title": vm.title
                 }
-            }
-        }).then(function successCallback(response) {
-            $uibModalInstance.close($scope.title);
-        }, function errorCallback(response) {
-            alert("SERVERFEHLER");
-        });
-    };
+            };
 
-    $scope.cancel = function () {
-        $uibModalInstance.dismiss();
-    };
-});
+            EntityService.update(data).then(
+                function successCallback(response) {
+                    $uibModalInstance.close(vm.title);
+                },
+                function errorCallback(response) {
+                    alert("SERVERFEHLER");
+                }
+            );
+        }
+    }
+
+})();
+

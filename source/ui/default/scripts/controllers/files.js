@@ -1,272 +1,279 @@
-app.controller("FilesCtrl", function($scope, $cookies, localStorageService, $uibModalInstance, $routeParams, $timeout, $http, $uibModal, pimEntity, Upload, angularGridInstance, modaltitle, property) {
+(function() {
+    'use strict';
 
-    $scope.objects = [];
-    $scope.objectsAvailable = false;
-    $scope.objectsNotAvailable = false;
+    angular
+        .module('app')
+        .controller('FilesCtrl', FilesCtrl);
 
-    $scope.modaltitle = modaltitle;
+    function FilesCtrl($scope, $cookies, localStorageService, $uibModalInstance, $routeParams, $timeout, $http, $uibModal, pimEntity, Upload, angularGridInstance, modaltitle, property, EntityService){
+        var vm = this;
+        var oldPageNumber = 1;
 
-    $scope.itemsPerPage = 0;
-    $scope.totalItems = 0;
-    $scope.currentPage = 1;
-    var oldPageNumber = 1;
+        //Properties
+        vm.objects = [];
+        vm.objectsAvailable = false;
+        vm.objectsNotAvailable = false;
 
-    $scope.entity = 'PIM\\File';
+        vm.modaltitle = modaltitle;
 
-    $scope.fileUploads = null;
+        vm.itemsPerPage = 0;
+        vm.totalItems = 0;
+        vm.currentPage = 1;
 
-    var schema = localStorageService.get('schema');
-    $scope.schema = schema[$scope.entity];
 
-    $scope.sortProperty = $scope.schema.settings.sortBy;
-    $scope.sortOrder    = $scope.schema.settings.sortOrder;
+        vm.entity = 'PIM\\File';
 
-    $scope.filter = {};
-    $scope.filterIsOpen = false;
-    $scope.filterBadge = 0;
-    $scope.filterJoins = {};
+        vm.fileUploads = null;
 
-    for (var key in $scope.schema.properties) {
-        if($scope.schema.properties[key].type == 'join'){
-            var entity =  $scope.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-            var field  = key;
-            $http({
-                method: 'POST',
-                url: '/api/list',
-                headers: { 'X-Token': localStorageService.get('token') },
-                data: {
-                    entity: entity
+        var schema = localStorageService.get('schema');
+        vm.schema = schema[vm.entity];
+
+        vm.sortProperty = vm.schema.settings.sortBy;
+        vm.sortOrder    = vm.schema.settings.sortOrder;
+
+        vm.filter = {};
+        vm.filterIsOpen = false;
+        vm.filterBadge = 0;
+        vm.filterJoins = {};
+
+        //Functions
+        vm.closeFilter = closeFilter;
+        vm.delete = doDelete;
+        vm.loadData = loadData;
+        vm.openForm = openForm;
+        vm.executeFilter = executeFilter;
+        vm.paginationChanged = paginationChanged;
+        vm.resetFilter = resetFilter;
+        vm.selectFile = selectFile;
+        vm.sortBy = sortBy;
+        vm.uploadMultiFile = uploadMultiFile;
+
+        //Startup
+        init();
+
+        /////////////////////////
+
+        function closeFilter (){
+            vm.filterIsOpen = false;
+        }
+
+        function doDelete(id, name){
+            var modalInstance = $uibModal.open({
+                templateUrl: 'views/partials/modal.html',
+                controller: 'ModalCtrl as vm',
+                resolve: {
+                    title: function(){ return 'Datei löschen'; },
+                    body: function(){ return 'Wollen Sie die Datei  "' + name + '" wirklich löschen?'; },
+                    hideCancelButton: false
                 }
-            }).then(function successCallback(response) {
-                $scope.filterJoins[field] = (response.data.data);
-            }, function errorCallback(response) {
             });
+
+            modalInstance.result.then(
+                function (doDelete) {
+                    if(doDelete){
+
+                        var data = {
+                            entity: vm.entity,
+                            id: id
+                        };
+
+                        EntityService.delete(data).then(
+                            function successCallback(response) {
+                                loadData();
+                            },
+                            function errorCallback(response) {
+                                var modalInstance = $uibModal.open({
+                                    templateUrl: 'views/partials/modal.html',
+                                    controller: 'ModalCtrl as vm',
+                                    resolve: {
+                                        title: function(){ return 'Fehler beim Löschen'; },
+                                        body: function(){ return response.data.message; },
+                                        hideCancelButton: true
+                                    }
+                                });
+                            }
+                        );
+
+                    }
+                },
+                function () {}
+            );
+        }
+
+        function openForm(object){
+            var modalInstance = $uibModal.open({
+                templateUrl: 'views/form.html',
+                controller: 'FormCtrl as  vm',
+                resolve: {
+                    entity: function(){ return vm.entity;},
+                    title: function(){ return 'Objekt bearbeiten'; },
+                    object: function(){ return object; }
+                }
+            });
+
+            modalInstance.result.then(
+                function (isSaved) {
+                    if(isSaved){
+                        //$scope.loadData();
+                    }
+                },
+                function () {}
+            );
+        }
+
+        function executeFilter() {
+
+            var badgeCount = 0;
+            for (var key in vm.filter) {
+                if(vm.filter[key]){
+                    badgeCount++;
+                }
+            }
+
+            vm.filterBadge = badgeCount;
+
+            loadData();
+        }
+
+        function init(){
+            for (var key in vm.schema.properties) {
+                if(vm.schema.properties[key].type == 'join'){
+                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
+                    var field  = key;
+
+                    var data = {
+                        entity: entity
+                    };
+
+                    EntityService.list(data).then(
+                        function successCallback(response) {
+                            vm.filterJoins[field] = (response.data.data);
+                        },
+                        function errorCallback(response) {
+                        }
+                    );
+                }
+            }
+        }
+
+        function loadData() {
+            var sortSettings = {};
+            sortSettings[vm.sortProperty] = vm.sortOrder;
+
+            var filter = {};
+            for (var key in vm.filter) {
+                if(vm.filter[key]){
+                    filter[key] = vm.filter[key];
+                }
+            }
+            vm.objectsAvailable = false;
+
+            var data = {
+                entity: 'PIM\\File',
+                currentPage: vm.currentPage,
+                order: sortSettings,
+                where: filter
+            };
+
+            EntityService.list(data).then(
+                function successCallback(response) {
+
+                    if(vm.itemsPerPage === 0) {
+                        vm.itemsPerPage = response.data.itemsPerPage;
+                    }
+
+                    vm.totalItems = response.data.totalItems;
+                    vm.objects = (response.data.data);
+                    vm.objectsAvailable = true;
+                    vm.objectsNotAvailable = false;
+
+                    angularGridInstance.gallery.refresh();
+                },
+                function errorCallback(response) {
+
+                    vm.objectsAvailable = false;
+                    vm.objectsNotAvailable = true;
+                    vm.objects = {};
+
+                    angularGridInstance.gallery.refresh();
+                }
+            );
+
+        }
+
+        function paginationChanged(newPageNumber) {
+            if(oldPageNumber == newPageNumber){
+                return;
+            }
+
+            vm.objectsAvailable = false;
+            vm.currentPage = newPageNumber;
+            oldPageNumber = newPageNumber;
+
+            loadData();
+        };
+
+        function resetFilter() {
+            vm.filter = {};
+            vm.filterBadge = 0;
+            vm.filterIsOpen = false;
+
+            loadData();
+        }
+
+        function selectFile(object){
+            if(!modaltitle) return;
+
+            $uibModalInstance.close(object);
+        }
+
+        function sortBy(property) {
+            if(vm.sortProperty === property) {
+                if(vm.sortOrder === 'DESC') {
+                    vm.sortOrder = 'ASC';
+                } else {
+                    vm.sortOrder = 'DESC';
+                }
+            } else {
+                vm.sortProperty = property;
+                vm.sortOrder = 'ASC';
+            }
+
+            loadData();
+        }
+
+        function uploadMultiFile(files, errFiles) {
+            vm.fileUploads = files;
+
+
+            angular.forEach(files, function(file) {
+                file.upload = Upload.upload({
+                    url: '/file/upload',
+                    headers: {'X-Token': localStorageService.get('token')},
+                    data: {file: file}
+                });
+
+                file.upload.then(
+                    function (response) {
+
+                        file.result = response.data;
+
+                        $timeout(function () {
+                            vm.fileUploads = null;
+                            loadData();
+                        }, 1000);
+
+                    },
+                    function (response) {
+                        if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
+                    },
+                    function (evt) {
+                        file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                    }
+                );
+            });
+
         }
     }
 
-
-    $scope.executeFilter = function() {
-
-        var badgeCount = 0;
-        for (var key in $scope.filter) {
-            if($scope.filter[key]){
-                badgeCount++;
-            }
-        }
-
-        $scope.loadData();
-        $scope.filterBadge = badgeCount;
-    };
-
-    $scope.closeFilter = function(){
-        $scope.filterIsOpen = false;
-    };
-
-    $scope.resetFilter = function() {
-        $scope.filter = {};
-        $scope.filterBadge = 0;
-        $scope.loadData();
-        $scope.filterIsOpen = false;
-    };
-
-    $scope.uploadMultiFile = function(files, errFiles) {
-        $scope.fileUploads = files;
-
-
-        angular.forEach(files, function(file) {
-            file.upload = Upload.upload({
-                url: '/file/upload',
-                headers: {'X-Token': localStorageService.get('token')},
-                data: {file: file}
-            });
-
-            file.upload.then(function (response) {
-                //console.log(response.data.data);
-                file.result = response.data;
-
-
-                $timeout(function () {
-                    $scope.fileUploads = null;
-                    $scope.loadData();
-                }, 1000);
-
-            }, function (response) {
-                if (response.status > 0)
-                    $scope.errorMsg = response.status + ': ' + response.data;
-            }, function (evt) {
-                file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-            });
-        });
-
-    };
-
-    $scope.delete = function(id, name){
-        var modalInstance = $uibModal.open({
-            templateUrl: 'views/partials/modal.html',
-            controller: 'ModalCtrl',
-            resolve: {
-                title: function(){ return 'Datei löschen'; },
-                body: function(){ return 'Wollen Sie die Datei  "' + name + '" wirklich löschen?'; },
-                hideCancelButton: false
-            }
-        });
-
-        modalInstance.result.then(function (doDelete) {
-
-            if(doDelete){
-                $http({
-                    method: 'POST',
-                    url: '/api/delete',
-                    headers: { 'X-Token': localStorageService.get('token') },
-                    data: {entity: $scope.entity, id: id}
-                }).then(function successCallback(response) {
-                    $scope.loadData();
-
-                }, function errorCallback(response) {
-                    var modalInstance = $uibModal.open({
-                        templateUrl: 'views/partials/modal.html',
-                        controller: 'ModalCtrl',
-                        resolve: {
-                            title: function(){ return 'Fehler beim Löschen'; },
-                            body: function(){ return response.data.message; },
-                            hideCancelButton: true
-                        }
-                    });
-                    //alert("Serverfehler: " + response.data.message);
-                });
-
-            }
-        }, function () {
-        });
-    };
-
-    $scope.selectFile = function(object){
-        if(!modaltitle) return;
-
-        $uibModalInstance.close(object);
-    };
-
-    $scope.edit = function(object){
-        var modalInstance = $uibModal.open({
-            templateUrl: 'views/partials/form.html',
-            controller: 'FormCtrl',
-            resolve: {
-                entity: function(){ return $scope.entity;},
-                title: function(){ return 'Objekt bearbeiten'; },
-                object: function(){ return object; }
-            }
-        });
-
-        modalInstance.result.then(function (isSaved) {
-            if(isSaved){
-                //$scope.loadData();
-            }
-        }, function () {
-
-        });
-    };
-
-    $scope.new = function(){
-
-    };
-
-
-
-    $scope.loadData = function() {
-        var sortSettings = {};
-        sortSettings[$scope.sortProperty] = $scope.sortOrder;
-
-        var filter = {};
-        for (var key in $scope.filter) {
-            if($scope.filter[key]){
-                filter[key] = $scope.filter[key];
-            }
-        }
-        $scope.objectsAvailable = false;
-
-        $http({
-            method: 'POST',
-            url: '/api/list',
-            headers: { 'X-Token': localStorageService.get('token') },
-            data: {
-                entity: 'PIM\\File',
-                currentPage: $scope.currentPage,
-                order: sortSettings,
-                where: filter
-            }
-        }).then(function successCallback(response) {
-            if($scope.itemsPerPage === 0) {
-                $scope.itemsPerPage = response.data.itemsPerPage;
-            }
-
-
-            angularGridInstance.gallery.refresh();
-
-            $scope.totalItems = response.data.totalItems;
-            $scope.objects = (response.data.data);
-            $scope.objectsAvailable = true;
-            $scope.objectsNotAvailable = false;
-
-
-        }, function errorCallback(response) {
-            $scope.objectsAvailable = false;
-            $scope.objectsNotAvailable = true;
-            $scope.objects = {};
-            angularGridInstance.gallery.refresh();
-        });
-    };
-
-
-    /**
-     * Pagination page change
-     */
-    $scope.paginationChanged = function(newPageNumber) {
-        if(oldPageNumber == newPageNumber){
-            return;
-        }
-
-        $scope.objectsAvailable = false;
-        $scope.currentPage = newPageNumber;
-        oldPageNumber = newPageNumber;
-        $scope.loadData();
-    };
-
-
-    /**
-     * Table sort
-     */
-    $scope.sortBy = function(property) {
-        if($scope.sortProperty === property) {
-            // Click on same column
-            if($scope.sortOrder === 'DESC') {
-                $scope.sortOrder = 'ASC';
-            } else {
-                $scope.sortOrder = 'DESC';
-            }
-        } else {
-            $scope.sortProperty = property;
-            $scope.sortOrder = 'ASC';
-        }
-
-        var sortSettings = {};
-        sortSettings[$scope.sortProperty] = $scope.sortOrder;
-
-        $http({
-            method: 'POST',
-            url: '/api/list',
-            headers: { 'X-Token': localStorageService.get('token') },
-            data: {
-                entity: 'PIM\\File',
-                currentPage: $scope.currentPage,
-                order: sortSettings
-            }
-        }).then(function successCallback(response) {
-            console.log(response.data.data);
-            $scope.objects = (response.data.data);
-            angularGridInstance.gallery.refresh();
-        }, function errorCallback(response) {
-            console.warn(response);
-        });
-    };
-
-});
+})();

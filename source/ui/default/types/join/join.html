@@ -1,0 +1,28 @@
+<label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}}</label>
+<div class="col-sm-10">
+    <button type="button" class="btn btn-default" ng-hide="chooserOpened" ng-click="openChooser()">Auswählen</button>
+    <div class="input-group" ng-show="chooserOpened">
+        <input id="search" type="text" class="form-control"  ng-model="search" ng-change="loadData()">
+        <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="closeChooser()"><span class="glyphicon glyphicon-remove"></span></button>
+        </span>
+    </div>
+    <table ng-show="chooserOpened">
+        <thead>
+            <tr>
+                <th class="ng-scope">ID</th>
+                <th ng-repeat="property in schema.list">{{schema.properties[property].label}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="object in objects" ng-click="chooseObject(object)">
+                <td><pim-autoformat property="id" schema="schema" object="object"></pim-autoformat></td>
+                <td ng-repeat="property in schema.list"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <ul ng-show="value.id" ng-hide="chooserOpened">
+        <li>{{value.id}} - {{value.titel}} <span ng-click="removeObject()" class="text-danger glyphicon glyphicon-trash" aria-hidden="true"></span></li>
+    </ul>
+</div>

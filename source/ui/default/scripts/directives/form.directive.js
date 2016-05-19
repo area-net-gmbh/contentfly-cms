@@ -14,7 +14,7 @@
             },
             replace: true,
             link: function(scope, element) {
-                var formTypeDirective = '<pim-' + scope.config.type + ' key="key" config="config" value="object[key]" is-valid="isValid" is-submit="isSubmit" on-change-callback="onChange(key, value)"></pim-' + scope.config.type + '>';
+                var formTypeDirective = '<pim-' + scope.config.type + ' key="key" config="config" object="object" value="object[key]" is-valid="isValid" is-submit="isSubmit" on-change-callback="onChange(key, value)"></pim-' + scope.config.type + '>';
                 //console.log(formTypeDirective);
                 element.append($compile(formTypeDirective)(scope));
 
