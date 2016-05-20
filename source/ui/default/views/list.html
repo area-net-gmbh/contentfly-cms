@@ -15,7 +15,7 @@
                 <li><a ng-click="vm.sortBy('user')">geändert von</a></li>
             </ul>
         </div>
-        <div class="btn-filter" uib-dropdown auto-close="outsideClick" is-open="filterIsOpen">
+        <div class="btn-filter" uib-dropdown auto-close="outsideClick" is-open="vm.filterIsOpen" on-toggle="vm.toggleFilter(open)">
             <button class="btn btn-default" id="dropdown-filter" type="button" uib-dropdown-toggle>
                 Filter <span ng-show="vm.filterBadge" class="badge">{{vm.filterBadge}}</span> <span ng-hide="filterBadge" class="glyphicon glyphicon-filter"></span>
             </button>
@@ -47,7 +47,7 @@
                     </div>
                     <div class="form-group">
                         <label>Volltext</label>
-                        <input type="text" class="form-control" ng-model="vm.filter.fulltext" ng-enter="vm.closeFilter()" ng-change="vm.executeFilter()" ng-model-options="{debounce:500}">
+                        <input type="text" id="fulltext" class="form-control" ng-model="vm.filter.fulltext" ng-enter="vm.closeFilter()" ng-change="vm.executeFilter()" ng-model-options="{debounce:500}">
                     </div>
                     <div class="form-group">
                         <button class="btn btn-default" ng-click="vm.resetFilter()">Filter zurücksetzen</button>

@@ -57,7 +57,7 @@ class FileController extends BaseController
     }
 
     public function getAction(Request $request){
-
+        
     }
 
     protected function sanitizeFileName($string, $force_lowercase = true, $anal = false) {

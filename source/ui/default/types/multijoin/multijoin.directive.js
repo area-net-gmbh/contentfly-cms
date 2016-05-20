@@ -17,27 +17,56 @@
             },
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;
+                var entity       = null;
 
                 //Properties
                 scope.chooserOpened = false;
                 scope.currentPage   = 1;
+                scope.propertyCount = 0;
                 scope.objects       = [];
-                scope.schema        = localStorageService.get('schema')['Produkt'];
+                scope.schema        = null;;
                 scope.selectedIndex = 0;
                 scope.totalPages    = 1;
 
                 scope.value = scope.value ? scope.value : [];
 
                 //Functions
+                scope.addNewObject  = addNewObject;
                 scope.change        = change;
                 scope.chooseObject  = chooseObject;
                 scope.closeChooser  = closeChooser;
+                scope.editObject    = editObject;
                 scope.keyPressed    = keyPressed;
                 scope.loadData      = loadData;
                 scope.openChooser   = openChooser;
                 scope.removeObject  = removeObject;
 
+                //Startup
+                init();
+
                 /////////////////////////////////////
+
+                function addNewObject(){
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'views/form.html',
+                        controller: 'FormCtrl as vm',
+                        resolve: {
+                            entity: function(){ return entity;},
+                            title: function(){ return 'Neues Objekt anlegen'; },
+                            object: function(){ return null; }
+                        },
+                        size: 'lg'
+                    });
+
+                    modalInstance.result.then(
+                        function (newObject) {
+                            if(newObject){
+                                chooseObject(newObject);
+                            }
+                        },
+                        function () {}
+                    );
+                }
 
                 function change(){
                     scope.currentPage = 1;
@@ -60,6 +89,37 @@
 
                 function closeChooser(){
                     scope.chooserOpened = false;
+                }
+
+                function editObject(index){
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'views/form.html',
+                        controller: 'FormCtrl as vm',
+                        resolve: {
+                            entity: function(){ return entity;},
+                            title: function(){ return 'Objekt ' + scope.value[index].id + ' bearbeiten'; },
+                            object: function(){ return scope.value[index]; }
+                        },
+                        size: 'lg'
+                    });
+
+                    modalInstance.result.then(
+                        function (newObject) {
+                            if(newObject){
+                                scope.value[index] = newObject;
+                            }
+                        },
+                        function () {}
+                    );
+                }
+
+                function init(){
+                    var fullEntity = scope.config.accept.split('\\');
+                    entity = fullEntity[(fullEntity.length - 1)];
+                    scope.schema = localStorageService.get('schema')[entity];
+
+                    scope.propertyCount = Object.keys(scope.schema.list).length;
                 }
 
                 function keyPressed(event){
@@ -97,7 +157,7 @@
                     var where = scope.search ? {fulltext: scope.search} : {};
 
                     var data = {
-                        entity: 'Produkt',
+                        entity: entity,
                         currentPage: scope.currentPage,
                         itemsPerPage: itemsPerPage,
                         where: where

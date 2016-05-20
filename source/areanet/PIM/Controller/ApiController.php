@@ -57,6 +57,7 @@ class ApiController extends BaseController
      * @apiParam {Object} order="{'id': 'DESC'}" Sortierung: <code>{'date': 'ASC/DESC',...}</code>
      * @apiParam {Object} where Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
      * @apiParam {Integer} currentPage Aktuelle Seite für Pagination
+     * @apiParam {Integer} itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE" Anzahl Objekte pro Seite bei Pagination
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "News",
@@ -152,6 +153,10 @@ class ApiController extends BaseController
             if(isset($where['fulltext'])){
                 $orX = $queryBuilder->expr()->orX();
                 $fulltextTypes = array('string', 'text', 'textarea', 'rte');
+
+                $orX->add("$entityName.id = :FT_id");
+                $queryBuilder->setParameter("FT_id", $where['fulltext']);
+
                 foreach($schema[$entityName]['properties'] as $field => $fieldOptions){
 
                     if(in_array($fieldOptions['type'], $fulltextTypes)){
@@ -187,8 +192,6 @@ class ApiController extends BaseController
         //die($query->getSQL());
         $totalObjects = $query->getResult();
 
-
-
         if($currentPage) {
             $queryBuilder
                 ->setFirstResult($itemsPerPage * ($currentPage - 1))
@@ -219,8 +222,7 @@ class ApiController extends BaseController
         $array = array();
         foreach($objects as $object){
             $objectData = $object->toValueObject();
-
-            //Todo: n:m-Objekte nur optional mit Parameter laden
+            //@todo: "Schlanke" Listenabfrage ohne Joins als Option!
 
             foreach($schema[$entityName]['properties'] as $key => $config){
                 if(isset($config['type']) && $config['type'] == 'multifile'){
@@ -393,7 +395,7 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => $e->getMessage()), $e->getCode());
         }
 
-        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => json_encode($object)));
+        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => ($object)));
     }
 
     protected function insert($entityName, $data, $user)
@@ -410,6 +412,7 @@ class ApiController extends BaseController
 
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
+            $getter = 'get'.ucfirst($property);
 
             //Todo: dynamisch alle Joins
             switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
@@ -447,6 +450,20 @@ class ApiController extends BaseController
                     $object->$setter($objectToJoin);
                     break;
                 case 'multijoin':
+                    $collection = new ArrayCollection();
+                    $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+                    if(!is_array($value) || !count($value)){
+                        continue;
+                    }
+
+                    foreach($value as $id){
+                        $objectToJoin = $this->em->getRepository($entity)->find($id);
+                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
+                    }
+
+                    $object->$setter($collection);
+
                     break;
                 case 'onejoin':
                     $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
@@ -863,7 +880,7 @@ class ApiController extends BaseController
         $currentDate = new \Datetime();
         $jsonResponse = new JsonResponse(array('message' => 'allAction',  'lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
 
-        if($filedata != null) file_put_contents(ROOT_DIR.'/data/currentData.json', json_encode($all));
+        if($filedata != null) file_put_contents(ROOT_DIR.'/data/currentData.json', ($all));
 
         return $jsonResponse;
     }

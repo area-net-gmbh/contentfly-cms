@@ -5,7 +5,7 @@
         .module('app')
         .controller('ListCtrl', ListCtrl);
 
-    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService){
+    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService, $document){
         var vm              = this;
         var oldPageNumber   = 1;
 
@@ -44,6 +44,7 @@
         vm.paginationChanged    = paginationChanged;
         vm.resetFilter          = resetFilter;
         vm.sortBy               = sortBy;
+        vm.toggleFilter         = toggleFilter;
 
         //Startup
         init();
@@ -198,19 +199,20 @@
                 controller: 'FormCtrl as vm',
                 resolve: {
                     entity: function(){ return vm.entity;},
-                    title: function(){ return object ? 'Objekt bearbeiten' : 'Neues Objekt anlegen'; },
+                    title: function(){ return object ? 'Objekt ' + object.id + ' bearbeiten' : 'Neues Objekt anlegen'; },
                     object: function(){ return object; }
                 },
                 size: 'lg'
             });
 
-            modalInstance.result.then(function (isSaved) {
-                if(isSaved){
-                    loadData();
-                }
-            }, function () {
-
-            });
+            modalInstance.result.then(
+                function (isSaved) {
+                    if(isSaved){
+                        loadData();
+                    }
+                },
+                function () {}
+            );
         }
 
         function paginationChanged(newPageNumber) {
@@ -245,6 +247,13 @@
             }
 
             loadData();
+        }
+
+        function toggleFilter(open){
+            if(open){
+                $document.find('#fulltext').focus();
+
+            }
         }
 
 

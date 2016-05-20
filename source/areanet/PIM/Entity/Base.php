@@ -216,6 +216,7 @@ class Base implements \JsonSerializable
 
     public function toValueObject()
     {
+        //@todo: "Schlanke" Listenabfrage ohne Joins als Option!
         $result = new \stdClass();
         foreach ($this as $property => $value) {
             $getter = 'get' . ucfirst($property);
@@ -239,8 +240,15 @@ class Base implements \JsonSerializable
                         );
                     }
                 }
-
+                if($result->$property instanceof \Doctrine\ORM\PersistentCollection){
+                    $data = array();
+                    foreach($result->$property as $object){
+                        $data[] = $object->toValueObject();
+                    }
+                    $result->$property = $data;
+                }
             }
+
         }
         return $result;
     }

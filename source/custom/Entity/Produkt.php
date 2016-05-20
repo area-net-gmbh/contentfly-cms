@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt")
- * @PIM\Config(tabs="{'img': 'Bilder'}")
+ * @PIM\Config(tabs="{'img': 'Bilder', 'cross': 'Cross-Selling'}")
  */
 class Produkt extends Base
 {
@@ -68,11 +68,36 @@ class Produkt extends Base
     protected $metainformationen;
 
     /**
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktWebinformationen")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Webinformationen")
+     */
+    protected $webinformationen;
+
+    /**
      * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktPreise")
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Preise")
      */
     protected $preise;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Custom\Entity\Produkt")
+     * @ORM\JoinTable(name="produkt_alternativprodukte",
+     *     joinColumns={@ORM\JoinColumn(name="produkt_id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="produkt_alternativ_id", onDelete="CASCADE")})
+     * @PIM\Config(label="Alternativ-Produkte", tab="cross")
+     */
+    protected $alternativprodukte;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Custom\Entity\Produkt")
+     * @ORM\JoinTable(name="produkt_zubehoerprodukte",
+     *     joinColumns={@ORM\JoinColumn(name="produkt_id", onDelete="CASCADE")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="produkt_zubehor_id", onDelete="CASCADE")})
+     * @PIM\Config(label="Zubehör-Produkte", tab="cross")
+     */
+    protected $zubehoerprodukte;
 
 
     /**
@@ -222,6 +247,56 @@ class Produkt extends Base
         $this->preise = $preise;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getWebinformationen()
+    {
+        return $this->webinformationen;
+    }
+
+    /**
+     * @param mixed $webinformationen
+     */
+    public function setWebinformationen($webinformationen)
+    {
+        $this->webinformationen = $webinformationen;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAlternativprodukte()
+    {
+        return $this->alternativprodukte;
+    }
+
+    /**
+     * @param mixed $alternativprodukte
+     */
+    public function setAlternativprodukte($alternativprodukte)
+    {
+        $this->alternativprodukte = $alternativprodukte;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getZubehoerprodukte()
+    {
+        return $this->zubehoerprodukte;
+    }
+
+    /**
+     * @param mixed $zubehoerprodukte
+     */
+    public function setZubehoerprodukte($zubehoerprodukte)
+    {
+        $this->zubehoerprodukte = $zubehoerprodukte;
+    }
+
+
+    
     
     
 

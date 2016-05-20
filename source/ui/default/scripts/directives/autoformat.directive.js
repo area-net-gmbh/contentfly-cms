@@ -16,6 +16,7 @@
                 var type     = scope.schema.properties[property].type;
 
                 scope.$watch('object', function() {
+                    
                     if(scope.object == null){
                         return;
                     }
