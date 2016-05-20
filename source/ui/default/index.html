@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:ng="http://angularjs.org" lang="de" ng-app="BackendUI">
+<html xmlns:ng="http://angularjs.org" lang="de" ng-app="app">
 
 <head>
     <meta charset="utf-8">
@@ -69,6 +69,7 @@
         <p>Anwendung wird geladen...</p>
     </div>
 
+    <!-- Angular Files -->
     <script src="vendor/jquery/jquery-2.1.4.min.js"></script>
     <script src="vendor/angular/angular.js"></script>
     <script src="vendor/angular/angular-route.min.js"></script>
@@ -86,23 +87,46 @@
     <script src="vendor/chartjs/chart.min.js"></script>
     <script src="vendor/chartjs/angular-chart.min.js"></script>
 
-
+    <!-- Global App Files -->
+    <script src="scripts/app.config.js"></script>
+    <script src="scripts/app.module.js"></script>
+    <script src="scripts/app.routes.js"></script>
     <script src="scripts/app.js"></script>
-    <script src="scripts/directives/form.js"></script>
-    <script src="scripts/directives/autoformat.js"></script>
-    <script src="scripts/directives/clearinput.js"></script>
-    <script src="scripts/directives/bindValidity.js"></script>
-    <script src="scripts/directives/enter.js"></script>
-    <script src="scripts/controllers/partials/modal.js"></script>
-    <script src="scripts/controllers/partials/form.js"></script>
-    <script src="scripts/controllers/partials/entity-browser.js"></script>
-    <script src="scripts/controllers/partials/object-browser.js"></script>
-    <script src="scripts/controllers/partials/file-edit.js"></script>
-    <script src="scripts/controllers/partials/video-add.js"></script>
-    <script src="scripts/controllers/login.js"></script>
-    <script src="scripts/controllers/logout.js"></script>
-    <script src="scripts/controllers/list.js"></script>
-    <script src="scripts/controllers/files.js"></script>
-    <script src="scripts/controllers/dashboard.js"></script>
+
+    <!-- App Services -->
+    <script src="scripts/services/entity.service.js"></script>
+
+    <!-- App Types -->
+    <script src="types/string/string.directive.js"></script>
+    <script src="types/boolean/boolean.directive.js"></script>
+    <script src="types/textarea/textarea.directive.js"></script>
+    <script src="types/rte/rte.directive.js"></script>
+    <script src="types/decimal/decimal.directive.js"></script>
+    <script src="types/integer/integer.directive.js"></script>
+    <script src="types/datetime/datetime.directive.js"></script>
+    <script src="types/file/file.directive.js"></script>
+    <script src="types/multifile/multifile.directive.js"></script>
+    <script src="types/password/password.directive.js"></script>
+    <script src="types/join/join.directive.js"></script>
+    <script src="types/multijoin/multijoin.directive.js"></script>
+    <script src="types/entity/entity.directive.js"></script>
+
+    <!-- App Directives -->
+    <script src="scripts/directives/form.directive.js"></script>
+    <script src="scripts/directives/autoformat.directive.js"></script>
+    <script src="scripts/directives/clearinput.directive.js"></script>
+    <script src="scripts/directives/bindValidity.directive.js"></script>
+    <script src="scripts/directives/enter.directive.js"></script>
+
+    <!-- App Controllers -->
+    <script src="scripts/controllers/partials/modal.controller.js"></script>
+    <script src="scripts/controllers/partials/file-edit.controller.js"></script>
+    <script src="scripts/controllers/partials/video-add.controller.js"></script>
+    <script src="scripts/controllers/login.controller.js"></script>
+    <script src="scripts/controllers/logout.controller.js"></script>
+    <script src="scripts/controllers/list.controller.js"></script>
+    <script src="scripts/controllers/form.controller.js"></script>
+    <script src="scripts/controllers/files.controller.js"></script>
+    <script src="scripts/controllers/dashboard.controller.js"></script>
 </body>
 </html>

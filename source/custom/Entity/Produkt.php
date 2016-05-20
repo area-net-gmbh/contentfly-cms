@@ -58,6 +58,7 @@ class Produkt extends Base
      * @PIM\Config(label="Detailbilder", accept="image/*", tab="img")
      */
     protected $detailbilder;
+    
 
     /**
      * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktMetainformationen")

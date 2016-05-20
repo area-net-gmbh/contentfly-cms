@@ -92,11 +92,12 @@ class ApiController extends BaseController
     {
         $data = array();
 
-        $entityName = $request->get('entity');
-        $doCount    = $request->get('count', false);
-        $order      = $request->get('order', null);
-        $where      = $request->get('where', null);
-        $currentPage = $request->get('currentPage');
+        $entityName   = $request->get('entity');
+        $doCount      = $request->get('count', false);
+        $order        = $request->get('order', null);
+        $where        = $request->get('where', null);
+        $currentPage  = $request->get('currentPage');
+        $itemsPerPage = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
 
         if(substr($entityName, 0, 3) == 'PIM'){
             $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
@@ -186,19 +187,12 @@ class ApiController extends BaseController
         //die($query->getSQL());
         $totalObjects = $query->getResult();
 
-        /*
-        $qb = $this->em->createQueryBuilder();
-        $qb
-            ->select($entityName)
-            ->from($entityNameToLoad, $entityName)
-            ->where("$entityName.isDeleted = false")
-        ;
-        */
+
 
         if($currentPage) {
             $queryBuilder
-                ->setFirstResult(Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE * ($currentPage - 1))
-                ->setMaxResults(Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE)
+                ->setFirstResult($itemsPerPage * ($currentPage - 1))
+                ->setMaxResults($itemsPerPage)
             ;
         }
 
@@ -234,7 +228,17 @@ class ApiController extends BaseController
                     $multiFiles = $object->$getterName();
                     $multiData  = array();
                     foreach($multiFiles as $multiFile){
-                        $multiData[] = $multiFile->toValueObject();
+                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                    }
+                    $objectData->$key = $multiData;
+                }
+
+                if(isset($config['type']) && $config['type'] == 'multijoin'){
+                    $getterName = 'get'.ucfirst($key);
+                    $multiFiles = $object->$getterName();
+                    $multiData  = array();
+                    foreach($multiFiles as $multiFile){
+                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
                     }
                     $objectData->$key = $multiData;
                 }
@@ -246,7 +250,7 @@ class ApiController extends BaseController
 
 
         if($currentPage) {
-            return new JsonResponse(array('message' => "ok", 'data' => $array, 'itemsPerPage' => Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE, 'totalItems' => count($totalObjects)));
+            return new JsonResponse(array('message' => "ok", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => count($totalObjects)));
         } else {
             return new JsonResponse(array('message' => "ok", 'data' => $array));
         }
@@ -294,7 +298,7 @@ class ApiController extends BaseController
             $object->setAlias("$alias (gelöscht)");
         }
 
-        if($entityPath == 'Areanet\PIM\Entity\File') {
+        //if($entityPath == 'Areanet\PIM\Entity\File') {
             $schema = $this->getSchema();
 
             foreach($schema as $entity => $entityConfig){
@@ -305,23 +309,31 @@ class ApiController extends BaseController
                 }
 
                 foreach($entityConfig['properties'] as $property => $propertyConfig){
-                    if($propertyConfig['type'] == 'file'){
-                        //Todo: TESTEN!
+
+                    if($propertyConfig['type'] == 'file' && $entityPath == 'Areanet\PIM\Entity\File'  || $propertyConfig['type'] == 'join' && $propertyConfig['accept'] == $entityPath){
                         $query = $this->em->createQuery("UPDATE $entityUpdatePath e SET e.$property = NULL, e.modified = CURRENT_TIMESTAMP() WHERE e.$property = ?1");
+
                         $query->setParameter(1, $id);
                         $query->execute();
-                    }elseif($propertyConfig['type'] == 'multifile'){
+                    }elseif($propertyConfig['type'] == 'multifile' && $entityPath == 'Areanet\PIM\Entity\File' || $propertyConfig['type'] == 'multijoin' && $propertyConfig['accept'] == $entityPath){
                         $query = $this->em->createQuery('UPDATE '.$entityUpdatePath.' e SET e.modified = CURRENT_TIMESTAMP() WHERE ?1 MEMBER OF e.'.$property);
                         $query->setParameter(1, $id);
                         $query->execute();
                         $foreignTable = $propertyConfig['foreign'];
-                        $statement = "DELETE FROM $foreignTable WHERE file_id = ?";
+
+                        $tableName = 'file';
+                        if($entityPath != 'Areanet\PIM\Entity\File' ){
+                            $tableName = $this->em->getClassMetadata($propertyConfig['accept'])->getTableName();
+                        }
+                        $fieldName = $tableName.'_id';
+
+                        $statement = "DELETE FROM $foreignTable WHERE $fieldName = ?";
                         $this->em->getConnection()->executeUpdate($statement, array($id));
                     }
                 }
             }
 
-        }
+        //}
 
         $object->setIsDeleted(true);
 
@@ -603,16 +615,18 @@ class ApiController extends BaseController
                     break;
                 case 'multifile':
                     $collection = new ArrayCollection();
+
                     if(!is_array($value) || !count($value)){
-                        $object->$setter($collection);
+                        $object->$getter()->clear();
                         continue;
                     }
 
                     foreach($value as $id){
                         $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                        $collection->add($objectToJoin);
+                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
                     }
 
+                    $object->$getter()->clear();
                     $object->$setter($collection);
 
                     break;
@@ -622,9 +636,26 @@ class ApiController extends BaseController
                     $object->$setter($objectToJoin);
                     break;
                 case 'multijoin':
+                    $collection = new ArrayCollection();
+                    $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+                    if(!is_array($value) || !count($value)){
+                        $object->$getter()->clear();
+                        continue;
+                    }
+
+                    foreach($value as $id){
+                        $objectToJoin = $this->em->getRepository($entity)->find($id);
+                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
+                    }
+
+                    $object->$getter()->clear();
+                    $object->$setter($collection);
+
                     break;
                 case 'onejoin':
                     $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
 
                     if(!empty($value['id'])){
                         $this->update($joinEntity, $value['id'], $value, false, $user);
@@ -634,7 +665,7 @@ class ApiController extends BaseController
                     }
                     break;
                 case 'datetime':
-                    if(!is_array($value)){
+                    if(!is_array($value) && $value){
                         $object->$setter($value);
                     }
                     break;
@@ -646,6 +677,8 @@ class ApiController extends BaseController
                 case 'rte':
                 case 'integer':
                 case 'boolean':
+                case 'password':
+                case 'entity':
                     if(strtoupper($value) == 'INC'){
                         $oldValue = $object->$getter();
                         $oldValue++;
@@ -661,7 +694,6 @@ class ApiController extends BaseController
                     break;
             }
         }
-
         $object->setUser($user);
 
         try{
@@ -671,7 +703,6 @@ class ApiController extends BaseController
 
             $this->em->persist($object);
             $this->em->flush();
-
 
         }catch(UniqueConstraintViolationException $e){
             if($entityPath == 'Areanet\PIM\Entity\User'){
