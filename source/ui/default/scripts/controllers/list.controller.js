@@ -113,7 +113,63 @@
                 },
                 function () {}
             );
-        };
+        }
+
+        function init(){
+            for (var key in vm.schema.properties) {
+                if(vm.schema.properties[key].type == 'join'){
+                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
+                    var field  = key;
+
+                    EntityService.list({entity: entity}).then(
+                        function successCallback(response) {
+                            vm.filterJoins[field] = (response.data.data);
+                        },
+                        function errorCallback(response) {
+                        }
+                    );
+
+                }
+            }
+        }
+
+        function loadData(){
+            var sortSettings = {};
+            sortSettings[vm.sortProperty] = vm.sortOrder;
+
+            var filter = {};
+            for (var key in vm.filter) {
+                if(vm.filter[key]){
+                    filter[key] = vm.filter[key];
+                }
+            }
+            vm.objectsAvailable = false;
+
+            var data = {
+                entity: vm.entity,
+                currentPage: vm.currentPage,
+                order: sortSettings,
+                where: filter
+            };
+
+            EntityService.list(data).then(
+                function successCallback(response) {
+                    if(vm.itemsPerPage === 0) {
+                        vm.itemsPerPage = response.data.itemsPerPage;
+                    }
+
+                    vm.totalItems = response.data.totalItems;
+                    vm.objects = response.data.data;
+
+                    vm.objectsAvailable = true;
+                    vm.objectsNotAvailable = false;
+                },
+                function errorCallback(response) {
+                    vm.objectsAvailable = false;
+                    vm.objectsNotAvailable = true;
+                }
+            );
+        }
 
 
         function loadSchema(){
@@ -192,63 +248,7 @@
         }
 
 
-        ///////////////////////////////////
 
-        function loadData(){
-            var sortSettings = {};
-            sortSettings[vm.sortProperty] = vm.sortOrder;
-
-            var filter = {};
-            for (var key in vm.filter) {
-                if(vm.filter[key]){
-                    filter[key] = vm.filter[key];
-                }
-            }
-            vm.objectsAvailable = false;
-
-            var data = {
-                entity: vm.entity,
-                currentPage: vm.currentPage,
-                order: sortSettings,
-                where: filter
-            };
-
-            EntityService.list(data).then(
-                function successCallback(response) {
-                    if(vm.itemsPerPage === 0) {
-                        vm.itemsPerPage = response.data.itemsPerPage;
-                    }
-
-                    vm.totalItems = response.data.totalItems;
-                    vm.objects = response.data.data;
-
-                    vm.objectsAvailable = true;
-                    vm.objectsNotAvailable = false;
-                },
-                function errorCallback(response) {
-                    vm.objectsAvailable = false;
-                    vm.objectsNotAvailable = true;
-                }
-            );
-        }
-
-        function init(){
-            for (var key in vm.schema.properties) {
-                if(vm.schema.properties[key].type == 'join'){
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-                    var field  = key;
-
-                    EntityService.list({entity: entity}).then(
-                        function successCallback(response) {
-                            vm.filterJoins[field] = (response.data.data);
-                        },
-                        function errorCallback(response) {
-                        }
-                    );
-
-                }
-            }
-        }
     }
 
 })();

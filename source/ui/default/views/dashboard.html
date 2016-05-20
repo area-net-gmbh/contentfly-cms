@@ -50,19 +50,19 @@
 <div class="row">
     <div class="col-sm-6 col-sm-offset-1">
         <h4>Übersicht App-Nutzung</h4>
-        <canvas id="line" class="chart chart-line" chart-data="data"
-                chart-labels="labels" chart-legend="true" chart-series="series"
-                chart-click="onClick"  >
+        <canvas id="line" class="chart chart-line" chart-data="vm.data"
+                chart-labels="vm.labels" chart-legend="true" chart-series="vm.series"
+                chart-click="vm.onClick"  >
         </canvas>
     </div>
     <div class="col-sm-3">
         <h4>Top-Inhalte</h4>
         <canvas id="bar" class="chart chart-bar"
-                chart-data="dataContent" chart-labels="labelsContent" chart-series="seriesContent">
+                chart-data="vm.dataContent" chart-labels="vm.labelsContent" chart-series="vm.seriesContent">
         </canvas>
         <h4>Geräteverbreitung</h4>
         <canvas id="pie" class="chart chart-pie"
-                chart-data="dataDevices" chart-labels="labelsDevices" chart-legend="true">
+                chart-data="vm.dataDevices" chart-labels="vm.labelsDevices" chart-legend="true">
         </canvas>
     </div>
 </div>

@@ -452,3 +452,51 @@ li.grid:hover .image-edit{
 .header-analytics{
     margin-bottom: 20px;
 }
+
+/** CHOOSER **/
+.chooserContainer{
+    border:1px solid #CCCCCC;
+}
+
+.chooser{
+    position: relative;
+    background-color:#efefef;
+    width:100%;
+}
+
+.chooser thead th{
+    padding-top:5px;
+}
+
+.chooser thead *, .chooser tfoot *{
+    color:#999999;
+    font-weight:normal;
+}
+
+.chooser td, .chooser th{
+    font-size:75%;
+    padding:2px;
+}
+
+.chooser td, .chooser th{
+    border-bottom:1px solid #dedede;
+    padding:2px;
+}
+
+.chooser tr.selected{
+    background-color:#CCCCCC;
+}
+
+.join{
+    border:1px solid #CCCCCC;
+    margin-top:10px;
+}
+
+.join tbody tr:hover{
+    background-color:#efefef;
+}
+
+.join td, .join th{
+    font-size:75%;
+    padding:2px;
+}
