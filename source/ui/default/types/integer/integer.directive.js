@@ -6,7 +6,7 @@
         .directive('pimInteger', pimInteger);
 
 
-    function pimDecimal(){
+    function pimInteger(){
         return {
             restrict: 'E',
             scope: {

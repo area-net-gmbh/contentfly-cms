@@ -70,58 +70,6 @@
                     return;
                 }
             }
-            
-            /*
-            angular.forEach(vm.schema.properties, function (config, key) {
-                if (!config.readonly && !config.hide) {
-                    switch (config.type) {
-                        case 'datetime':
-                            data[key] = vm.datePickerModels[key].toISOString();
-                            break;
-                        case 'file':
-                            data[key] = vm.object[key] ? vm.object[key]['id'] : null;
-                            break;
-                        case 'join':
-                            data[key] = vm.object[key] ? vm.object[key]['id'] : null;
-                            break;
-                        case 'multifile':
-                            data[key] = [];
-                            if (Array.isArray(vm.object[key]) && vm.object[key].length > 0) {
-                                angular.forEach(vm.object[key], function (value, index) {
-                                    data[key].push(parseInt(value['id']));
-                                }, data, key);
-                            }
-                            break;
-                        case 'password':
-                            break;
-                        case 'onejoin':
-                            data[key] = vm.object[key];
-
-                            var joinEntity = vm.schema.properties[key].accept;
-
-                            angular.forEach(schemaComplete[joinEntity].properties, function (config, subkey) {
-                                if (!config.readonly && !config.hide) {
-                                    switch (config.type) {
-                                        case 'datetime':
-                                            if (vm.datePickerModels[subkey]) {
-                                                data[key][subkey] = vm.datePickerModels[subkey].toISOString();
-                                            }
-                                            break;
-                                    }
-                                }
-                            }, data, key);
-                            break;
-                        default:
-                            data[key] = vm.object[key];
-                            break;
-                    }
-                }
-            }, data);
-
-            angular.forEach(vm.password, function (password, key) {
-                data[key] = password;
-            }, data);
-            */
 
 
             if (!vm.object['id']) {
@@ -243,6 +191,7 @@
         }
 
         function onChangeValue(key, mainKey, value){
+
             if(!mainKey) {
                 objectDataToSave[key] = value;
             }else{
@@ -287,43 +236,7 @@
             }, function () {
             });
         };
-
-
-        /**
-         * Open object browser
-         */
-        $scope.openObjectBrowser = function (key, entity) {
-            var modalInstance = $uibModal.open({
-                size: 'lg',
-                templateUrl: 'views/partials/object-browser.html',
-                controller: 'ObjectBrowserCtrl',
-                resolve: {
-                    title: function () {
-                        return 'Objekt auswählen';
-                    },
-                    schema: function () {
-                        return schema;
-                    },
-                    selectedObject: function () {
-                        return $scope.object[key];
-                    },
-                    entityToSelect: function () {
-                        return entity;
-                    },
-                }
-            });
-
-            modalInstance.result.then(function (objectToSelect) {
-                if (entity) {
-                    $scope.object[key] = objectToSelect;
-                } else {
-                    var objectId = entity + '_' + objectToSelect.id;
-                    $scope.object[key] = objectId;
-                }
-
-            }, function () {
-            });
-        };
+        
     }
 
 })();

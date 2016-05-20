@@ -1,7 +1,55 @@
-<label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{config.label}}</label>
+<label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}}</label>
 <div class="col-sm-10">
-    MULTIJOIN
-</div>
-<div class="col-sm-10 col-sm-offset-2" ng-show="isSubmit && !config.readonly && !config.hide && !isValid">
-    <p class="error">Bitte fülllen Sie das Feld korrekt aus!</p>
+    <div>
+        <button type="button" class="btn btn-default btn-sm" ng-hide="chooserOpened" ng-click="openChooser()">Auswählen</button>
+        <div class="input-group" ng-show="chooserOpened">
+            <input id="search" type="text" class="form-control"  ng-model="search" ng-keydown="keyPressed($event)" ng-change="change()">
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="closeChooser()"><span class="glyphicon glyphicon-remove"></span></button>
+            </span>
+        </div>
+        <div ng-show="chooserOpened" class="chooserContainer">
+            <table class="chooser">
+                <thead>
+                <tr>
+                    <th class="ng-scope">ID</th>
+                    <th ng-repeat="property in schema.list">{{schema.properties[property].label}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="object in objects" ng-click="chooseObject(object)" ng-class='{selected:$index == selectedIndex}'>
+                    <td><pim-autoformat property="id" schema="schema" object="object"></pim-autoformat></td>
+                    <td ng-repeat="property in schema.list"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="{{schema.list.length + 1}}">
+                        Seite {{currentPage}} von {{totalPages}}
+                    </td>
+                </tr>
+                </tfoot>
+
+            </table>
+        </div>
+    </div>
+    <div>
+        <table ng-show="value.length" ng-hide="chooserOpened" class="join col-sm-12"  >
+            <thead ng-show="value.length">
+            <tr>
+                <th class="ng-scope">ID</th>
+                <th ng-repeat="property in schema.list">{{schema.properties[property].label}}</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody ng-show="value.length">
+            <tr ng-repeat="object in value">
+                <td>{{object.id}}</td>
+                <td ng-repeat="property in schema.list"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
+                <td><button class="btn btn-danger btn-xs" type="button" ng-click="removeObject($index)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 </div>

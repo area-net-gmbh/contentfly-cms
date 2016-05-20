@@ -228,7 +228,17 @@ class ApiController extends BaseController
                     $multiFiles = $object->$getterName();
                     $multiData  = array();
                     foreach($multiFiles as $multiFile){
-                        $multiData[] = $multiFile->toValueObject();
+                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                    }
+                    $objectData->$key = $multiData;
+                }
+
+                if(isset($config['type']) && $config['type'] == 'multijoin'){
+                    $getterName = 'get'.ucfirst($key);
+                    $multiFiles = $object->$getterName();
+                    $multiData  = array();
+                    foreach($multiFiles as $multiFile){
+                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
                     }
                     $objectData->$key = $multiData;
                 }
@@ -288,7 +298,7 @@ class ApiController extends BaseController
             $object->setAlias("$alias (gelöscht)");
         }
 
-        if($entityPath == 'Areanet\PIM\Entity\File') {
+        //if($entityPath == 'Areanet\PIM\Entity\File') {
             $schema = $this->getSchema();
 
             foreach($schema as $entity => $entityConfig){
@@ -299,23 +309,31 @@ class ApiController extends BaseController
                 }
 
                 foreach($entityConfig['properties'] as $property => $propertyConfig){
-                    if($propertyConfig['type'] == 'file'){
-                        //Todo: TESTEN!
+
+                    if($propertyConfig['type'] == 'file' && $entityPath == 'Areanet\PIM\Entity\File'  || $propertyConfig['type'] == 'join' && $propertyConfig['accept'] == $entityPath){
                         $query = $this->em->createQuery("UPDATE $entityUpdatePath e SET e.$property = NULL, e.modified = CURRENT_TIMESTAMP() WHERE e.$property = ?1");
+
                         $query->setParameter(1, $id);
                         $query->execute();
-                    }elseif($propertyConfig['type'] == 'multifile'){
+                    }elseif($propertyConfig['type'] == 'multifile' && $entityPath == 'Areanet\PIM\Entity\File' || $propertyConfig['type'] == 'multijoin' && $propertyConfig['accept'] == $entityPath){
                         $query = $this->em->createQuery('UPDATE '.$entityUpdatePath.' e SET e.modified = CURRENT_TIMESTAMP() WHERE ?1 MEMBER OF e.'.$property);
                         $query->setParameter(1, $id);
                         $query->execute();
                         $foreignTable = $propertyConfig['foreign'];
-                        $statement = "DELETE FROM $foreignTable WHERE file_id = ?";
+
+                        $tableName = 'file';
+                        if($entityPath != 'Areanet\PIM\Entity\File' ){
+                            $tableName = $this->em->getClassMetadata($propertyConfig['accept'])->getTableName();
+                        }
+                        $fieldName = $tableName.'_id';
+
+                        $statement = "DELETE FROM $foreignTable WHERE $fieldName = ?";
                         $this->em->getConnection()->executeUpdate($statement, array($id));
                     }
                 }
             }
 
-        }
+        //}
 
         $object->setIsDeleted(true);
 
@@ -605,7 +623,7 @@ class ApiController extends BaseController
 
                     foreach($value as $id){
                         $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                        $collection->add($objectToJoin);
+                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
                     }
 
                     $object->$getter()->clear();
@@ -618,6 +636,22 @@ class ApiController extends BaseController
                     $object->$setter($objectToJoin);
                     break;
                 case 'multijoin':
+                    $collection = new ArrayCollection();
+                    $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+                    if(!is_array($value) || !count($value)){
+                        $object->$getter()->clear();
+                        continue;
+                    }
+
+                    foreach($value as $id){
+                        $objectToJoin = $this->em->getRepository($entity)->find($id);
+                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
+                    }
+
+                    $object->$getter()->clear();
+                    $object->$setter($collection);
+
                     break;
                 case 'onejoin':
                     $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
@@ -644,6 +678,7 @@ class ApiController extends BaseController
                 case 'integer':
                 case 'boolean':
                 case 'password':
+                case 'entity':
                     if(strtoupper($value) == 'INC'){
                         $oldValue = $object->$getter();
                         $oldValue++;
