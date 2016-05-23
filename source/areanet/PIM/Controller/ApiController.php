@@ -58,6 +58,7 @@ class ApiController extends BaseController
      * @apiParam {Object} where Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
      * @apiParam {Integer} currentPage Aktuelle Seite für Pagination
      * @apiParam {Integer} itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE" Anzahl Objekte pro Seite bei Pagination
+     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "News",
@@ -99,6 +100,7 @@ class ApiController extends BaseController
         $where        = $request->get('where', null);
         $currentPage  = $request->get('currentPage');
         $itemsPerPage = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
+        $flatten      = $request->get('flatten', false);
 
         if(substr($entityName, 0, 3) == 'PIM'){
             $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
@@ -108,8 +110,7 @@ class ApiController extends BaseController
         }
 
         $schema     = $this->getSchema();
-
-
+        
         /**
          * Get all entity objects for pagination
          */
@@ -219,30 +220,53 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => "Not found"), 404);
         }
 
+
         $array = array();
         foreach($objects as $object){
-            $objectData = $object->toValueObject();
+            $objectData = $object->toValueObject($flatten);
             //@todo: "Schlanke" Listenabfrage ohne Joins als Option!
 
             foreach($schema[$entityName]['properties'] as $key => $config){
-                if(isset($config['type']) && $config['type'] == 'multifile'){
-                    $getterName = 'get'.ucfirst($key);
-                    $multiFiles = $object->$getterName();
-                    $multiData  = array();
-                    foreach($multiFiles as $multiFile){
-                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                if($flatten){
+                    if (isset($config['type']) && $config['type'] == 'multifile') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            $multiData[] =  $multiFile->getid();
+                        }
+                        $objectData->$key = $multiData;
                     }
-                    $objectData->$key = $multiData;
-                }
 
-                if(isset($config['type']) && $config['type'] == 'multijoin'){
-                    $getterName = 'get'.ucfirst($key);
-                    $multiFiles = $object->$getterName();
-                    $multiData  = array();
-                    foreach($multiFiles as $multiFile){
-                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                    if (isset($config['type']) && $config['type'] == 'multijoin') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            $multiData[] =  $multiFile->getid();
+                        }
+                        $objectData->$key = $multiData;
                     }
-                    $objectData->$key = $multiData;
+                }else {
+                    if (isset($config['type']) && $config['type'] == 'multifile') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                        }
+                        $objectData->$key = $multiData;
+                    }
+
+                    if (isset($config['type']) && $config['type'] == 'multijoin') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                        }
+                        $objectData->$key = $multiData;
+                    }
                 }
             }
             
@@ -310,7 +334,7 @@ class ApiController extends BaseController
                     $entityUpdatePath = 'Areanet\PIM\Entity\\'.substr($entity, 4);
                 }
 
-                foreach($entityConfig['properties'] as $property => $propertyConfig){
+                /*foreach($entityConfig['properties'] as $property => $propertyConfig){
 
                     if($propertyConfig['type'] == 'file' && $entityPath == 'Areanet\PIM\Entity\File'  || $propertyConfig['type'] == 'join' && $propertyConfig['accept'] == $entityPath){
                         $query = $this->em->createQuery("UPDATE $entityUpdatePath e SET e.$property = NULL, e.modified = CURRENT_TIMESTAMP() WHERE e.$property = ?1");
@@ -318,9 +342,9 @@ class ApiController extends BaseController
                         $query->setParameter(1, $id);
                         $query->execute();
                     }elseif($propertyConfig['type'] == 'multifile' && $entityPath == 'Areanet\PIM\Entity\File' || $propertyConfig['type'] == 'multijoin' && $propertyConfig['accept'] == $entityPath){
-                        $query = $this->em->createQuery('UPDATE '.$entityUpdatePath.' e SET e.modified = CURRENT_TIMESTAMP() WHERE ?1 MEMBER OF e.'.$property);
-                        $query->setParameter(1, $id);
-                        $query->execute();
+                        //$query = $this->em->createQuery('UPDATE '.$entityUpdatePath.' e SET e.modified = CURRENT_TIMESTAMP() WHERE ?1 MEMBER OF e.'.$property);
+                        //$query->setParameter(1, $id);
+                        //$query->execute();
                         $foreignTable = $propertyConfig['foreign'];
 
                         $tableName = 'file';
@@ -333,6 +357,7 @@ class ApiController extends BaseController
                         $this->em->getConnection()->executeUpdate($statement, array($id));
                     }
                 }
+                */
             }
 
         //}
@@ -754,6 +779,7 @@ class ApiController extends BaseController
      * @apiDescription Gibt alle Objekte aller Entitys zurück
      *
      * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
+     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "lastModified": "2016-02-20 15:30:22"
@@ -786,6 +812,7 @@ class ApiController extends BaseController
         $timestamp    = $request->get('lastModified');
         $filedata     = $request->get('filedata');
         $check        = $request->get('check', false);
+        $flatten      = $request->get('flatten', false);
 
         $lastModified = null;
         if(!empty($timestamp)) {
@@ -827,22 +854,58 @@ class ApiController extends BaseController
                 continue;
             }
 
+
             $array = array();
             foreach($objects as $object){
 
-                $objectData = $object->toValueObject();
+                $objectData = $object->toValueObject($flatten);
 
                 if(isset($schema[$entityShortcut])) {
                     foreach ($schema[$entityShortcut]['properties'] as $key => $config) {
-
-                        if ($config['type'] == 'multifile') {
-                            $getterName = 'get' . ucfirst($key);
-                            $multiFiles = $object->$getterName();
-                            $multiData = array();
-                            foreach ($multiFiles as $multiFile) {
-                                $multiData[] = $multiFile->toValueObject();
+                        if($flatten){
+                            if (isset($config['type']) && $config['type'] == 'multifile') {
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+                                foreach ($multiFiles as $multiFile) {
+                                    $multiData[] =  $multiFile->getid();
+                                }
+                                $objectData->$key = $multiData;
                             }
-                            $objectData->$key = $multiData;
+
+                            if (isset($config['type']) && $config['type'] == 'multijoin') {
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+                                foreach ($multiFiles as $multiFile) {
+                                    $multiData[] =  $multiFile->getid();
+                                }
+                                $objectData->$key = $multiData;
+                            }
+                        }else {
+                            if (isset($config['type']) && $config['type'] == 'multifile') {
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+                                foreach ($multiFiles as $multiFile) {
+                                    if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                                }
+                                $objectData->$key = $multiData;
+                            }
+
+                            if (isset($config['type']) && $config['type'] == 'multijoin') {
+
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+
+                                foreach ($multiFiles as $multiFile) {
+                                    $multiData[] = $multiFile->toValueObject();
+                                }
+
+
+                                $objectData->$key = $multiData;
+                            }
                         }
                     }
                 }
@@ -865,9 +928,12 @@ class ApiController extends BaseController
                             $objectData->filedata->$size = $base64;
                             //die("test: ".$objectData->filedata->$size);
                         }
-
-
                     }
+                }
+
+                if($object->getId() == '2949'){
+                    //$test = $object->getWebInformationen()->toValueObject();
+
                 }
 
                 $array[] = $objectData;
@@ -942,6 +1008,8 @@ class ApiController extends BaseController
             $reflect   = new \ReflectionClass($object);
             $props     = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
 
+            $defaultValues = $reflect->getDefaultProperties();
+
             $annotationReader = new AnnotationReader();
 
             $settings = array(
@@ -997,10 +1065,13 @@ class ApiController extends BaseController
                     'filter' => '',
                     'options' => array(),
                     'foreign' => null,
-                    'tab' => null
+                    'tab' => null,
+                    'default' => $defaultValues[$prop->getName()]
                 );
 
                 $reflectionProperty = new \ReflectionProperty($className, $prop->getName());
+
+
                 $propertyAnnotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
 
                 foreach($propertyAnnotations as $propertyAnnotation){

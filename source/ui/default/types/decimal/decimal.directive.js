@@ -16,6 +16,10 @@
                 return 'types/decimal/decimal.html'
             },
             link: function(scope, element, attrs){
+                if(scope.value === undefined && scope.config.default != null){
+                    scope.value = parseFloat(scope.config.default).toFixed(2);
+                }
+
                 scope.value = scope.value ? scope.value.replace('.', ',') : null;
 
                 scope.$watch('value',function(data){
