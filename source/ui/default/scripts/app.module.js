@@ -14,7 +14,8 @@
         'chart.js',
         'LocalStorageModule',
         'textAngular',
-        'ui.bootstrap'
+        'ui.bootstrap',
+        'ui.sortable'
     ]);
 
 })();

@@ -18,7 +18,6 @@
         vm.totalItems   = 0;
         vm.currentPage   = 1;
 
-
         if(pimEntity){
             vm.entity = 'PIM\\' + $routeParams.entity;
         }else{
@@ -29,11 +28,44 @@
 
         vm.sortProperty = vm.schema.settings.sortBy;
         vm.sortOrder    = vm.schema.settings.sortOrder;
+        vm.sortableOptions = {
+            stop: function(e,ui){
+                var resortObjectData = [];
+                var sortOffset = vm.sortOrder == 'ASC'
+                for(var i = 0; i < vm.objects.length; i++){
+                    var newSortPosition = vm.sortOrder == 'ASC' ? i : vm.objects.length - 1 - i;
+                    vm.objects[i].sorting = newSortPosition;
+                    resortObjectData.push({
+                        entity: vm.entity,
+                        id: vm.objects[i].id,
+                        data:{
+                            sorting: newSortPosition
+                        }
+                    });
+                }
+
+                var data = {
+                    objects: resortObjectData
+                }
+
+                EntityService.multiupdate(data).then(
+                    function successCallback(response) {
+                    },
+                    function errorCallback(response) {
+                    }
+                );
+
+            },
+            handle: '.sortable-handle'
+
+        };
+        vm.sortableObjects = [];
 
         vm.filter       = {};
         vm.filterIsOpen = false;
         vm.filterBadge  = 0;
         vm.filterJoins  = {};
+
 
         //Functions
         vm.closeFilter          = closeFilter;
@@ -145,10 +177,9 @@
                 }
             }
             vm.objectsAvailable = false;
-
             var data = {
                 entity: vm.entity,
-                currentPage: vm.currentPage,
+                currentPage: vm.schema.settings.isSortable ? 0 : vm.currentPage,
                 order: sortSettings,
                 where: filter
             };

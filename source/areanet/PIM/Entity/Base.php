@@ -218,8 +218,7 @@ class Base implements \JsonSerializable
 
     public function toValueObject($flatten = false, $level = 0)
     {
-
-        //@todo: "Schlanke" Listenabfrage ohne Joins als Option!
+        
         $result = new \stdClass();
 
         if($level > 2){
@@ -269,7 +268,11 @@ class Base implements \JsonSerializable
 
                 if (method_exists($this, $getter)) {
                     if ($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
-                        $result->$property = [];
+                        $data = array();
+                        foreach($this->$getter() as $object){
+                            $data[] =  $object->getId();
+                        }
+                        $result->$property = $data;
                     }elseif($this->$property instanceof Base){
                         $result->$property = $this->$getter()->getId();
                     }else{

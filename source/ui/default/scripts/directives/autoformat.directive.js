@@ -5,7 +5,7 @@
         .module('app')
         .directive('pimAutoformat', pimAutoformat);
 
-    function pimAutoformat($filter){
+    function pimAutoformat($filter, localStorageService){
         return {
             restrict: 'AEC',
             scope: { object: '=', schema: '=', long: '=' },
@@ -31,7 +31,12 @@
                             element.text(scope.object[property] ? 'Ja' : 'Nein');
                             break;
                         case 'join':
-                            element.text(scope.object[property].title);
+                            var fullEntity    = scope.schema.properties[property].accept.split('\\');
+                            var entity        = fullEntity[(fullEntity.length - 1)];
+                            var joinSchema    = localStorageService.get('schema')[entity]
+                            var firstProperty = joinSchema.list[Object.keys(joinSchema.list)[0]];
+                            
+                            element.text(scope.object[property][firstProperty]);
                             break;
                         default:
                             element.text(scope.object[property]);

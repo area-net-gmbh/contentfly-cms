@@ -8,6 +8,7 @@ use Areanet\PIM\Classes\Exceptions\Config\EntityNotFoundException;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\File;
 use Areanet\PIM\Entity\Log;
 use Areanet\PIM\Entity\User;
@@ -42,6 +43,32 @@ class ApiController extends BaseController
         }
 
         return new JsonResponse(array('message' => "ok", 'data' => $object));
+    }
+
+    public function treeAction(Request $request)
+    {
+        $entityName   = $request->get('entity');
+
+        if(substr($entityName, 0, 3) == 'PIM'){
+            $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        }else{
+            $entityName = ucfirst($request->get('entity'));
+            $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
+        }
+
+
+        return new JsonResponse(array('message' => "ok", 'data' => $this->loadTree($entityNameToLoad, null)));
+    }
+
+    protected function loadTree($entity, $parent){
+        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent));
+        $array   = array();
+        foreach($objects as $object){
+            $data = $object->toValueObject(true);
+            $data->treeChilds = $this->loadTree($entity, $object);
+            $array[] = $data;
+        }
+        return $array;
     }
 
     /**
@@ -224,7 +251,6 @@ class ApiController extends BaseController
         $array = array();
         foreach($objects as $object){
             $objectData = $object->toValueObject($flatten);
-            //@todo: "Schlanke" Listenabfrage ohne Joins als Option!
 
             foreach($schema[$entityName]['properties'] as $key => $config){
                 if($flatten){
@@ -609,6 +635,24 @@ class ApiController extends BaseController
         return new JsonResponse(array('message' => 'Object updated', 'id' => $id));
 
     }
+    
+    public function multiupdateAction(Request $request, Application $app)
+    {
+        $objects             = $request->get('objects');
+        $disableModifiedTime = $request->get('disableModifiedTime');
+        
+        foreach($objects as $object){
+            try{
+                $this->update($object['entity'], $object['id'], $object['data'], $disableModifiedTime, $app['auth.user']);
+            }catch(EntityDuplicateException $e){
+                continue;
+            }catch(EntityNotFoundException $e){
+                continue;
+            }
+        }
+
+        return new JsonResponse(array('message' => 'Objects updated'));
+    }
 
 
     /**
@@ -627,6 +671,7 @@ class ApiController extends BaseController
         if(substr($entityName, 0, 3) == "PIM"){
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
+
 
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
@@ -1021,8 +1066,16 @@ class ApiController extends BaseController
                 'pushObject' => '',
                 'sortBy' => 'id',
                 'sortOrder' => 'DESC',
+                'isSortable' => false,
+                'type' => 'default',
                 'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false))
             );
+
+            if($object instanceof BaseSortable){
+                $settings['sortBy']     = 'sorting';
+                $settings['sortOrder']  = 'ASC';
+                $settings['isSortable'] = true;
+            }
 
             $classAnnotations = $annotationReader->getClassAnnotations($reflect);
 
@@ -1030,7 +1083,7 @@ class ApiController extends BaseController
             foreach($classAnnotations as $classAnnotation) {
 
                 if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
-
+                    $settings['type']        = $classAnnotation->type ? $classAnnotation->type : $settings['type'];
                     $settings['label']       = $classAnnotation->label ? $classAnnotation->label : $entity;
                     $settings['readonly']    = $classAnnotation->readonly ? $classAnnotation->readonly : false;
                     $settings['isPush']      = ($classAnnotation->pushText && $classAnnotation->pushTitle);
