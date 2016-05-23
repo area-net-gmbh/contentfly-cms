@@ -13,11 +13,11 @@
                 
                 var property = attrs.property;
                 var long     = attrs.long ? attrs.long : false;
-                var type     = scope.schema.properties[property].type;
+                var type     = scope.schema.properties[property] ? scope.schema.properties[property].type : null;
 
                 scope.$watch('object', function() {
                     
-                    if(scope.object == null){
+                    if(scope.object == null || type == null){
                         return;
                     }
 

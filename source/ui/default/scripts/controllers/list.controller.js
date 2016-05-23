@@ -14,8 +14,8 @@
         vm.objectsAvailable    = false;
         vm.objectsNotAvailable = false;
 
-        vm.itemsPerPage = 0;
-        vm.totalItems   = 0;
+        vm.itemsPerPage  = 0;
+        vm.totalItems    = 0;
         vm.currentPage   = 1;
 
         if(pimEntity){
@@ -186,6 +186,7 @@
 
             EntityService.list(data).then(
                 function successCallback(response) {
+                    
                     if(vm.itemsPerPage === 0) {
                         vm.itemsPerPage = response.data.itemsPerPage;
                     }

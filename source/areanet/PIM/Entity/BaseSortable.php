@@ -14,7 +14,7 @@ class BaseSortable extends Base
      * @ORM\Column(type="integer", options={"default" = 0}, nullable=true)
      * @PIM\Config(hide=true, label="Position")
      */
-    protected $sorting;
+    protected $sorting = 0;
 
     /**
      * @return mixed
@@ -32,5 +32,5 @@ class BaseSortable extends Base
         $this->sorting = $sorting;
     }
 
-    
+
 }

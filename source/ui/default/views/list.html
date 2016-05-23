@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <dir-pagination-controls on-page-change="vm.paginationChanged(newPageNumber)"></dir-pagination-controls>
+        <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable" on-page-change="vm.paginationChanged(newPageNumber)"></dir-pagination-controls>
     </div>
 
     <div class="col-sm-1">
@@ -117,6 +117,6 @@
             </tbody>
         </table>
 
-        <dir-pagination-controls ng-show="vm.objectsAvailable" on-page-change="paginationChanged(newPageNumber)"></dir-pagination-controls>
+        <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable" on-page-change="paginationChanged(newPageNumber)"></dir-pagination-controls>
     </div>
 </div>

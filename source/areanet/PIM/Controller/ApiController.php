@@ -391,6 +391,14 @@ class ApiController extends BaseController
         $object->setIsDeleted(true);
 
         $this->em->persist($object);
+
+        if($schema[ucfirst($entityName)]['settings']['isSortable']){
+            $oldPos = $object->getSorting();
+            //@todo: ACHTUNG BEI NESTED SET / KATEGORIEN
+            $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos");
+            $query->execute();
+        }
+
         $this->em->flush();
 
         /**
@@ -538,13 +546,20 @@ class ApiController extends BaseController
 
         }
 
+
         $object->setUser($user);
 
         try {
 
             $this->em->persist($object);
-            $this->em->flush();
 
+            if($schema[ucfirst($entityName)]['settings']['isSortable']){
+                //@todo: ACHTUNG BEI NESTED SET / KATEGORIEN
+                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false");
+                $query->execute();
+            }
+
+            $this->em->flush();
 
             $isPush = $schema[$entityName]['settings']['isPush'];
             if($isPush){
