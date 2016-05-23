@@ -9,6 +9,7 @@ use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\File;
 use Areanet\PIM\Entity\Log;
 use Areanet\PIM\Entity\User;
@@ -1092,13 +1093,16 @@ class ApiController extends BaseController
                 $settings['isSortable'] = true;
             }
 
+            if($object instanceof BaseTree){
+                $settings['type']  = 'tree';
+            }
+
             $classAnnotations = $annotationReader->getClassAnnotations($reflect);
 
 
             foreach($classAnnotations as $classAnnotation) {
 
                 if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
-                    $settings['type']        = $classAnnotation->type ? $classAnnotation->type : $settings['type'];
                     $settings['label']       = $classAnnotation->label ? $classAnnotation->label : $entity;
                     $settings['readonly']    = $classAnnotation->readonly ? $classAnnotation->readonly : false;
                     $settings['isPush']      = ($classAnnotation->pushText && $classAnnotation->pushTitle);
@@ -1266,6 +1270,10 @@ class ApiController extends BaseController
                     }
 
 
+                }
+
+                if(!$annotations['tab']){
+                    $annotations['tab'] = 'default';
                 }
 
                 $properties[$prop->getName()] = $annotations;

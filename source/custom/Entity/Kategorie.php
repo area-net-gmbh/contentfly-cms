@@ -12,9 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="kategorie")
- * @PIM\Config(type="tree")
  */
-class Kategorie extends BaseSortable
+class Kategorie extends BaseTree
 {
     /**
      * @ORM\Column(type="string")
@@ -23,16 +22,11 @@ class Kategorie extends BaseSortable
     protected $titel;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Custom\Entity\Kategorie", inversedBy="treeChilds")
-     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="SET NULL")
-     * @PIM\Config(showInList=60, label="Kategorie")
+     * @ORM\OneToMany(targetEntity="Custom\Entity\Kategorie2Produkte", mappedBy="kategorie")
+     * @PIM\Config(label="Produkte")
      */
-    protected $treeParent;
+    protected $produktVerknuepfungen;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Custom\Entity\Kategorie", mappedBy="treeParent")
-     */
-    protected $treeChilds;
 
     /**
      * @return mixed
@@ -53,38 +47,21 @@ class Kategorie extends BaseSortable
     /**
      * @return mixed
      */
-    public function getTreeParent()
+    public function getProduktVerknuepfungen()
     {
-        return $this->treeParent;
+        return $this->produktVerknuepfungen;
     }
 
     /**
-     * @param mixed $treeParent
+     * @param mixed $produktVerknuepfungen
      */
-    public function setTreeParent($treeParent)
+    public function setProduktVerknuepfungen($produktVerknuepfungen)
     {
-        $this->treeParent = $treeParent;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTreeChilds()
-    {
-        return $this->treeChilds;
-    }
-
-    /**
-     * @param mixed $treeChilds
-     */
-    public function setTreeChilds($treeChilds)
-    {
-        $this->treeChilds = $treeChilds;
+        $this->produktVerknuepfungen = $produktVerknuepfungen;
     }
 
 
-
-
-
+    
+    
 
 }
