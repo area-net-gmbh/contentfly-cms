@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="kategorie")
+ * @PIM\Config(label="Kategorien", tabs="{'produkte': 'Produkte'}")
  */
 class Kategorie extends BaseTree
 {
@@ -23,7 +24,8 @@ class Kategorie extends BaseTree
 
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\Kategorie2Produkte", mappedBy="kategorie")
-     * @PIM\Config(label="Produkte")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Produkt", mappedBy="produkt")
+     * @PIM\Config(label="Produkte", tab="produkte")
      */
     protected $produktVerknuepfungen;
 
@@ -59,9 +61,5 @@ class Kategorie extends BaseTree
     {
         $this->produktVerknuepfungen = $produktVerknuepfungen;
     }
-
-
-    
-    
 
 }

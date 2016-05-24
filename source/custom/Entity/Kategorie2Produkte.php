@@ -6,12 +6,14 @@ use Areanet\PIM\Classes\Annotations as PIM;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\File;
+use Areanet\PIM\Entity\LinkSortable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="kategorie2produkte")
+ * @ORM\Table(name="kategorie_produkte")
+ * @PIM\Config(hide=true)
  */
 class Kategorie2Produkte extends BaseSortable
 {

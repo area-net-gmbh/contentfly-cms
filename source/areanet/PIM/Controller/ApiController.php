@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Controller;
 
+use Areanet\PIM\Classes\Annotations\ManyToMany;
 use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
@@ -138,16 +139,13 @@ class ApiController extends BaseController
         }
 
         $schema     = $this->getSchema();
-        
-        /**
-         * Get all entity objects for pagination
-         */
+
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select($entityName)
             ->from($entityNameToLoad, $entityName)
-            ->where("$entityName.isDeleted = false")
-        ;
+            ->where("$entityName.isDeleted = false");
+
 
         if($where){
             $placeholdCounter = 0;
@@ -547,8 +545,10 @@ class ApiController extends BaseController
 
         }
 
+        if($object instanceof Base){
+            $object->setUser($user);
+        }
 
-        $object->setUser($user);
 
         try {
 
@@ -741,18 +741,57 @@ class ApiController extends BaseController
                 case 'multijoin':
                     $collection = new ArrayCollection();
                     $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+                    $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
+
+                    if($mappedBy){
+                        $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                        $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+
+                        $object->$getter()->clear();
+                        $query = $this->em->createQuery('DELETE FROM '.$acceptFrom.' e WHERE e.'.$mappedFrom.' = ?1');
+                        $query->setParameter(1, $id);
+                        $query->execute();
+                    }else{
+                        $object->$getter()->clear();
+                    }
 
                     if(!is_array($value) || !count($value)){
-                        $object->$getter()->clear();
                         continue;
                     }
 
+                    $sorting = 0;
                     foreach($value as $id){
+
+
                         $objectToJoin = $this->em->getRepository($entity)->find($id);
-                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
+                        if(!$objectToJoin->getIsDeleted()){
+
+
+                            if($mappedBy){
+                                $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
+                                $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                                $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+                                $mappedEntity   = new $acceptFrom();
+
+                                $mappedSetter = 'set'.ucfirst($mappedBy);
+                                $mappedEntity->$mappedSetter($objectToJoin);
+
+                                $mappedSetter = 'set'.ucfirst($mappedFrom);
+                                $mappedEntity->$mappedSetter($object);
+
+                                if($isSortable){
+                                    $mappedEntity->setSorting($sorting++);
+                                }
+
+                                $this->em->persist($mappedEntity);
+                                $collection->add($mappedEntity);
+                            }else{
+                                $collection->add($objectToJoin);
+                            }
+
+                        }
                     }
 
-                    $object->$getter()->clear();
                     $object->$setter($collection);
 
                     break;
@@ -1077,6 +1116,7 @@ class ApiController extends BaseController
                 'label' => $entity,
                 'readonly' => false,
                 'isPush' => false,
+                'hide' => false,
                 'pushTitle' => '',
                 'pushText' => '',
                 'pushObject' => '',
@@ -1111,6 +1151,7 @@ class ApiController extends BaseController
                     $settings['pushObject']  = $classAnnotation->pushObject ? $classAnnotation->pushObject : null;
                     $settings['sortBy']      = $classAnnotation->sortBy ? $classAnnotation->sortBy : $settings['sortBy'];
                     $settings['sortOrder']   = $classAnnotation->sortOrder ? $classAnnotation->sortOrder : $settings['sortOrder'];
+                    $settings['hide']        = $classAnnotation->hide ? $classAnnotation->hide : $settings['hide'];
 
                     if($classAnnotation->tabs){
                         $tabs = json_decode(str_replace("'", '"', $classAnnotation->tabs));
@@ -1244,10 +1285,17 @@ class ApiController extends BaseController
                                 $annotations['type']     = 'join';
                                 $annotations['accept']   = $propertyAnnotation->targetEntity;
                                 $annotations['multiple'] = false;
+
+                                if($settings['type'] == 'tree' && $prop->getName() == 'treeParent'){
+                                    $annotations['accept'] = $className;
+                                }
+
                                 break;
                         }
 
                     }
+
+
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToMany){
                         $annotations['nullable'] = true;
@@ -1267,6 +1315,19 @@ class ApiController extends BaseController
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\JoinTable){
                         $annotations['foreign'] = $propertyAnnotation->name;
+                    }
+
+                    if($propertyAnnotation instanceof ManyToMany){
+                        $annotations['type']        = 'multijoin';
+                        $annotations['accept']      = $propertyAnnotation->targetEntity;
+                        $annotations['mappedBy']    = $propertyAnnotation->mappedBy;
+                        $annotations['multiple']    = true;
+                        $annotations['sortable']    = true;
+                    }
+
+                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany   ){
+                        $annotations['acceptFrom'] = $propertyAnnotation->targetEntity;
+                        $annotations['mappedFrom'] = $propertyAnnotation->mappedBy;
                     }
 
 

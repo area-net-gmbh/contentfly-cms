@@ -24,6 +24,7 @@
             <div uib-dropdown-menu aria-labelledby="dropdown-filter" class="form-inline">
 
                     <div class="form-group" ng-hide="config.hide" ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type" >
+
                         <label ng-switch-when="boolean">{{vm.schema.properties[key].label}}</label>
                         <select class="form-control" ng-switch-when="boolean" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                             <option value="">alle</option>
@@ -31,10 +32,10 @@
                             <option value="false">nein</option>
                         </select>
 
-                        <label ng-show="filterJoins[key]" ng-switch-when="join">{{vm.schema.properties[key].label}}</label>
-                        <select class="form-control" ng-show="filterJoins[key]" ng-switch-when="join" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                        <label ng-show="vm.filterJoins[key]" ng-switch-when="join">{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="join" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                             <option value="">alle</option>
-                            <option ng-repeat="option in filterJoins[key]" value="{{option.id}}">{{option.title}}</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.title}}</option>
                         </select>
 
                         <label ng-switch-when="select">{{vm.schema.properties[key].label}}</label>

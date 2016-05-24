@@ -34,9 +34,11 @@
                             var fullEntity    = scope.schema.properties[property].accept.split('\\');
                             var entity        = fullEntity[(fullEntity.length - 1)];
                             var joinSchema    = localStorageService.get('schema')[entity]
-                            var firstProperty = joinSchema.list[Object.keys(joinSchema.list)[0]];
+                            if(scope.object[property]){
+                                var firstProperty = joinSchema.list[Object.keys(joinSchema.list)[0]];
                             
-                            element.text(scope.object[property][firstProperty]);
+                                element.text(scope.object[property][firstProperty]);
+                            }
                             break;
                         default:
                             element.text(scope.object[property]);

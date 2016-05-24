@@ -26,6 +26,14 @@
                 scope.objects       = [];
                 scope.schema        = null;;
                 scope.selectedIndex = 0;
+                scope.sortableOptions = {
+                    stop: function(e,ui){
+                        triggerUpdate();
+                    },
+                    handle: '.sortable-handle'
+
+                };
+
                 scope.totalPages    = 1;
 
                 scope.value = scope.value ? scope.value : [];
@@ -43,7 +51,7 @@
 
                 //Startup
                 init();
-
+                
                 /////////////////////////////////////
 
                 function addNewObject(){
@@ -74,15 +82,25 @@
                 }
 
                 function chooseObject(object){
-                    scope.value.push(object);
+                    var newData = {};
 
-                    scope.selectedIndex = 0;
-                    scope.currentPage = 1;
+                    if(scope.config.mappedBy){
+                        newData['produkt'] =  object;
+                    }else{
+                        newData = object;
+                    }
 
-                    scope.search        = '';
-                    scope.objects       = [];
+                    scope.value.push(newData);
 
-                    closeChooser();
+
+
+                    //scope.selectedIndex = 0;
+                    //scope.currentPage = 1;
+
+                    //scope.search        = '';
+                    //scope.objects       = [];
+
+                    //closeChooser();
                     triggerUpdate();
 
                 }
@@ -93,13 +111,16 @@
 
                 function editObject(index){
 
+                    var id     = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy].id : scope.value[index].id;
+                    var object = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index];
+
                     var modalInstance = $uibModal.open({
                         templateUrl: 'views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
-                            title: function(){ return 'Objekt ' + scope.value[index].id + ' bearbeiten'; },
-                            object: function(){ return scope.value[index]; }
+                            title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
+                            object: function(){ return object; }
                         },
                         size: 'lg'
                     });
@@ -115,6 +136,7 @@
                 }
 
                 function init(){
+                    
                     var fullEntity = scope.config.accept.split('\\');
                     entity = fullEntity[(fullEntity.length - 1)];
                     scope.schema = localStorageService.get('schema')[entity];
@@ -192,8 +214,15 @@
 
                 function triggerUpdate(){
                     var values = [];
-                    for (var index in scope.value) {
-                        values.push(scope.value[index].id);
+
+                    if(scope.config.mappedBy){
+                        for (var index in scope.value) {
+                            values.push(scope.value[index][scope.config.mappedBy].id);
+                        }
+                    }else{
+                        for (var index in scope.value) {
+                            values.push(scope.value[index].id);
+                        }
                     }
 
                     scope.onChangeCallback({key: scope.key, value: values});

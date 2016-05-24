@@ -138,6 +138,18 @@
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
             });
+
+            var data = {
+                entity: entity,
+                id: vm.object.id
+            }
+
+            EntityService.single(data).then(
+                function(response){
+                    vm.object = response.data.data;
+                },
+                function(){}
+            );
         }
 
         function save() {

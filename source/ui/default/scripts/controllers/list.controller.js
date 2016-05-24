@@ -151,12 +151,20 @@
         function init(){
             for (var key in vm.schema.properties) {
                 if(vm.schema.properties[key].type == 'join'){
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-                    var field  = key;
-
+                    var entity =  vm.schema.properties[key].accept.replace('\\Custom\\Entity\\', '');
+                    var field = key;
                     EntityService.list({entity: entity}).then(
                         function successCallback(response) {
-                            vm.filterJoins[field] = (response.data.data);
+                            var joinSchema = localStorageService.get('schema')[entity];
+                            vm.filterJoins[field] = response.data.data;
+
+                            for(var i = 0; i < vm.filterJoins[field].length; i++){
+                                if(!vm.filterJoins[field][i]['title']){
+                                    vm.filterJoins[field][i]['title'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                }
+                            }
+
+
                         },
                         function errorCallback(response) {
                         }
@@ -183,7 +191,6 @@
                 order: sortSettings,
                 where: filter
             };
-
             EntityService.list(data).then(
                 function successCallback(response) {
                     

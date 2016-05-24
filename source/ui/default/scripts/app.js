@@ -22,7 +22,7 @@
 
                     var entities = {};
                     for (var entity in $rootScope.schema) {
-                        if(entity.substr(0, 4) == 'PIM\\') continue;
+                        if(entity.substr(0, 4) == 'PIM\\' || $rootScope.schema[entity]["settings"]["hide"]) continue;
                         entities[entity] = $rootScope.schema[entity]["settings"]["label"];
                     }
 
