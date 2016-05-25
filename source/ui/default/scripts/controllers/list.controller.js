@@ -5,7 +5,7 @@
         .module('app')
         .controller('ListCtrl', ListCtrl);
 
-    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService){
+    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService, $document){
         var vm              = this;
         var oldPageNumber   = 1;
 
@@ -14,10 +14,9 @@
         vm.objectsAvailable    = false;
         vm.objectsNotAvailable = false;
 
-        vm.itemsPerPage = 0;
-        vm.totalItems   = 0;
+        vm.itemsPerPage  = 0;
+        vm.totalItems    = 0;
         vm.currentPage   = 1;
-
 
         if(pimEntity){
             vm.entity = 'PIM\\' + $routeParams.entity;
@@ -29,11 +28,44 @@
 
         vm.sortProperty = vm.schema.settings.sortBy;
         vm.sortOrder    = vm.schema.settings.sortOrder;
+        vm.sortableOptions = {
+            stop: function(e,ui){
+                var resortObjectData = [];
+                var sortOffset = vm.sortOrder == 'ASC'
+                for(var i = 0; i < vm.objects.length; i++){
+                    var newSortPosition = vm.sortOrder == 'ASC' ? i : vm.objects.length - 1 - i;
+                    vm.objects[i].sorting = newSortPosition;
+                    resortObjectData.push({
+                        entity: vm.entity,
+                        id: vm.objects[i].id,
+                        data:{
+                            sorting: newSortPosition
+                        }
+                    });
+                }
+
+                var data = {
+                    objects: resortObjectData
+                }
+
+                EntityService.multiupdate(data).then(
+                    function successCallback(response) {
+                    },
+                    function errorCallback(response) {
+                    }
+                );
+
+            },
+            handle: '.sortable-handle'
+
+        };
+        vm.sortableObjects = [];
 
         vm.filter       = {};
         vm.filterIsOpen = false;
         vm.filterBadge  = 0;
         vm.filterJoins  = {};
+
 
         //Functions
         vm.closeFilter          = closeFilter;
@@ -44,6 +76,7 @@
         vm.paginationChanged    = paginationChanged;
         vm.resetFilter          = resetFilter;
         vm.sortBy               = sortBy;
+        vm.toggleFilter         = toggleFilter;
 
         //Startup
         init();
@@ -118,12 +151,20 @@
         function init(){
             for (var key in vm.schema.properties) {
                 if(vm.schema.properties[key].type == 'join'){
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-                    var field  = key;
-
+                    var entity =  vm.schema.properties[key].accept.replace('\\Custom\\Entity\\', '');
+                    var field = key;
                     EntityService.list({entity: entity}).then(
                         function successCallback(response) {
-                            vm.filterJoins[field] = (response.data.data);
+                            var joinSchema = localStorageService.get('schema')[entity];
+                            vm.filterJoins[field] = response.data.data;
+
+                            for(var i = 0; i < vm.filterJoins[field].length; i++){
+                                if(!vm.filterJoins[field][i]['title']){
+                                    vm.filterJoins[field][i]['title'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                }
+                            }
+
+
                         },
                         function errorCallback(response) {
                         }
@@ -144,16 +185,15 @@
                 }
             }
             vm.objectsAvailable = false;
-
             var data = {
                 entity: vm.entity,
-                currentPage: vm.currentPage,
+                currentPage: vm.schema.settings.isSortable ? 0 : vm.currentPage,
                 order: sortSettings,
                 where: filter
             };
-
             EntityService.list(data).then(
                 function successCallback(response) {
+                    
                     if(vm.itemsPerPage === 0) {
                         vm.itemsPerPage = response.data.itemsPerPage;
                     }
@@ -198,19 +238,20 @@
                 controller: 'FormCtrl as vm',
                 resolve: {
                     entity: function(){ return vm.entity;},
-                    title: function(){ return object ? 'Objekt bearbeiten' : 'Neues Objekt anlegen'; },
+                    title: function(){ return object ? 'Objekt ' + object.id + ' bearbeiten' : 'Neues Objekt anlegen'; },
                     object: function(){ return object; }
                 },
                 size: 'lg'
             });
 
-            modalInstance.result.then(function (isSaved) {
-                if(isSaved){
-                    loadData();
-                }
-            }, function () {
-
-            });
+            modalInstance.result.then(
+                function (isSaved) {
+                    if(isSaved){
+                        loadData();
+                    }
+                },
+                function () {}
+            );
         }
 
         function paginationChanged(newPageNumber) {
@@ -245,6 +286,13 @@
             }
 
             loadData();
+        }
+
+        function toggleFilter(open){
+            if(open){
+                $document.find('#fulltext').focus();
+
+            }
         }
 
 

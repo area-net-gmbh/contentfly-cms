@@ -500,3 +500,11 @@ li.grid:hover .image-edit{
     font-size:75%;
     padding:2px;
 }
+
+.chooser .td-large, .join .td-large{
+    width:100%;
+}
+
+.chooser .td-small, .join .td-small{
+    width:80px;
+}

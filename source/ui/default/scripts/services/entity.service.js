@@ -12,6 +12,7 @@
             list: list,
             insert: insert,
             update: update,
+            multiupdate: multiupdate,
             single: single
         }
 
@@ -49,6 +50,15 @@
             return $http({
                 method: 'POST',
                 url: '/api/update',
+                headers: {'X-Token': localStorageService.get('token')},
+                data: data
+            });
+        }
+
+        function multiupdate(data){
+            return $http({
+                method: 'POST',
+                url: '/api/multiupdate',
                 headers: {'X-Token': localStorageService.get('token')},
                 data: data
             });

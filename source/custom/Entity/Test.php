@@ -3,6 +3,7 @@ namespace Custom\Entity;
 
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Classes\Annotations as PIM;
+use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\File;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="test")
  */
-class Test extends Base
+class Test extends BaseSortable
 {
     /**
      * @ORM\Column(type="string")

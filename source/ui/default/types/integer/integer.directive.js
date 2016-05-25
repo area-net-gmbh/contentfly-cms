@@ -16,6 +16,10 @@
                 return 'types/integer/integer.html'
             },
             link: function(scope, element, attrs){
+                if(scope.value === undefined && scope.config.default != null){
+                    scope.value = parseInt(scope.config.default);
+                }
+
                 scope.$watch('value',function(data){
                     scope.onChangeCallback({key: scope.key, value: scope.value});
                 },true)

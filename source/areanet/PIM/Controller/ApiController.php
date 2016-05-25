@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Controller;
 
+use Areanet\PIM\Classes\Annotations\ManyToMany;
 use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
@@ -8,6 +9,8 @@ use Areanet\PIM\Classes\Exceptions\Config\EntityNotFoundException;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\File;
 use Areanet\PIM\Entity\Log;
 use Areanet\PIM\Entity\User;
@@ -44,6 +47,32 @@ class ApiController extends BaseController
         return new JsonResponse(array('message' => "ok", 'data' => $object));
     }
 
+    public function treeAction(Request $request)
+    {
+        $entityName   = $request->get('entity');
+
+        if(substr($entityName, 0, 3) == 'PIM'){
+            $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        }else{
+            $entityName = ucfirst($request->get('entity'));
+            $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
+        }
+
+
+        return new JsonResponse(array('message' => "ok", 'data' => $this->loadTree($entityNameToLoad, null)));
+    }
+
+    protected function loadTree($entity, $parent){
+        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent));
+        $array   = array();
+        foreach($objects as $object){
+            $data = $object->toValueObject(true);
+            $data->treeChilds = $this->loadTree($entity, $object);
+            $array[] = $data;
+        }
+        return $array;
+    }
+
     /**
      * @apiVersion 1.3.0
      * @api {post} /api/list list
@@ -57,6 +86,8 @@ class ApiController extends BaseController
      * @apiParam {Object} order="{'id': 'DESC'}" Sortierung: <code>{'date': 'ASC/DESC',...}</code>
      * @apiParam {Object} where Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
      * @apiParam {Integer} currentPage Aktuelle Seite für Pagination
+     * @apiParam {Integer} itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE" Anzahl Objekte pro Seite bei Pagination
+     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "News",
@@ -98,6 +129,7 @@ class ApiController extends BaseController
         $where        = $request->get('where', null);
         $currentPage  = $request->get('currentPage');
         $itemsPerPage = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
+        $flatten      = $request->get('flatten', false);
 
         if(substr($entityName, 0, 3) == 'PIM'){
             $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
@@ -108,16 +140,12 @@ class ApiController extends BaseController
 
         $schema     = $this->getSchema();
 
-
-        /**
-         * Get all entity objects for pagination
-         */
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select($entityName)
             ->from($entityNameToLoad, $entityName)
-            ->where("$entityName.isDeleted = false")
-        ;
+            ->where("$entityName.isDeleted = false");
+
 
         if($where){
             $placeholdCounter = 0;
@@ -152,6 +180,10 @@ class ApiController extends BaseController
             if(isset($where['fulltext'])){
                 $orX = $queryBuilder->expr()->orX();
                 $fulltextTypes = array('string', 'text', 'textarea', 'rte');
+
+                $orX->add("$entityName.id = :FT_id");
+                $queryBuilder->setParameter("FT_id", $where['fulltext']);
+
                 foreach($schema[$entityName]['properties'] as $field => $fieldOptions){
 
                     if(in_array($fieldOptions['type'], $fulltextTypes)){
@@ -187,8 +219,6 @@ class ApiController extends BaseController
         //die($query->getSQL());
         $totalObjects = $query->getResult();
 
-
-
         if($currentPage) {
             $queryBuilder
                 ->setFirstResult($itemsPerPage * ($currentPage - 1))
@@ -216,31 +246,52 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => "Not found"), 404);
         }
 
+
         $array = array();
         foreach($objects as $object){
-            $objectData = $object->toValueObject();
-
-            //Todo: n:m-Objekte nur optional mit Parameter laden
+            $objectData = $object->toValueObject($flatten);
 
             foreach($schema[$entityName]['properties'] as $key => $config){
-                if(isset($config['type']) && $config['type'] == 'multifile'){
-                    $getterName = 'get'.ucfirst($key);
-                    $multiFiles = $object->$getterName();
-                    $multiData  = array();
-                    foreach($multiFiles as $multiFile){
-                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                if($flatten){
+                    if (isset($config['type']) && $config['type'] == 'multifile') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            $multiData[] =  $multiFile->getid();
+                        }
+                        $objectData->$key = $multiData;
                     }
-                    $objectData->$key = $multiData;
-                }
 
-                if(isset($config['type']) && $config['type'] == 'multijoin'){
-                    $getterName = 'get'.ucfirst($key);
-                    $multiFiles = $object->$getterName();
-                    $multiData  = array();
-                    foreach($multiFiles as $multiFile){
-                        if(!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                    if (isset($config['type']) && $config['type'] == 'multijoin') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            $multiData[] =  $multiFile->getid();
+                        }
+                        $objectData->$key = $multiData;
                     }
-                    $objectData->$key = $multiData;
+                }else {
+                    if (isset($config['type']) && $config['type'] == 'multifile') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                        }
+                        $objectData->$key = $multiData;
+                    }
+
+                    if (isset($config['type']) && $config['type'] == 'multijoin') {
+                        $getterName = 'get' . ucfirst($key);
+                        $multiFiles = $object->$getterName();
+                        $multiData = array();
+                        foreach ($multiFiles as $multiFile) {
+                            if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                        }
+                        $objectData->$key = $multiData;
+                    }
                 }
             }
             
@@ -308,7 +359,7 @@ class ApiController extends BaseController
                     $entityUpdatePath = 'Areanet\PIM\Entity\\'.substr($entity, 4);
                 }
 
-                foreach($entityConfig['properties'] as $property => $propertyConfig){
+                /*foreach($entityConfig['properties'] as $property => $propertyConfig){
 
                     if($propertyConfig['type'] == 'file' && $entityPath == 'Areanet\PIM\Entity\File'  || $propertyConfig['type'] == 'join' && $propertyConfig['accept'] == $entityPath){
                         $query = $this->em->createQuery("UPDATE $entityUpdatePath e SET e.$property = NULL, e.modified = CURRENT_TIMESTAMP() WHERE e.$property = ?1");
@@ -316,9 +367,9 @@ class ApiController extends BaseController
                         $query->setParameter(1, $id);
                         $query->execute();
                     }elseif($propertyConfig['type'] == 'multifile' && $entityPath == 'Areanet\PIM\Entity\File' || $propertyConfig['type'] == 'multijoin' && $propertyConfig['accept'] == $entityPath){
-                        $query = $this->em->createQuery('UPDATE '.$entityUpdatePath.' e SET e.modified = CURRENT_TIMESTAMP() WHERE ?1 MEMBER OF e.'.$property);
-                        $query->setParameter(1, $id);
-                        $query->execute();
+                        //$query = $this->em->createQuery('UPDATE '.$entityUpdatePath.' e SET e.modified = CURRENT_TIMESTAMP() WHERE ?1 MEMBER OF e.'.$property);
+                        //$query->setParameter(1, $id);
+                        //$query->execute();
                         $foreignTable = $propertyConfig['foreign'];
 
                         $tableName = 'file';
@@ -331,6 +382,7 @@ class ApiController extends BaseController
                         $this->em->getConnection()->executeUpdate($statement, array($id));
                     }
                 }
+                */
             }
 
         //}
@@ -338,6 +390,14 @@ class ApiController extends BaseController
         $object->setIsDeleted(true);
 
         $this->em->persist($object);
+
+        if($schema[ucfirst($entityName)]['settings']['isSortable']){
+            $oldPos = $object->getSorting();
+            //@todo: ACHTUNG BEI NESTED SET / KATEGORIEN
+            $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos");
+            $query->execute();
+        }
+
         $this->em->flush();
 
         /**
@@ -393,7 +453,7 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => $e->getMessage()), $e->getCode());
         }
 
-        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => json_encode($object)));
+        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => ($object)));
     }
 
     protected function insert($entityName, $data, $user)
@@ -410,6 +470,7 @@ class ApiController extends BaseController
 
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
+            $getter = 'get'.ucfirst($property);
 
             //Todo: dynamisch alle Joins
             switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
@@ -447,6 +508,20 @@ class ApiController extends BaseController
                     $object->$setter($objectToJoin);
                     break;
                 case 'multijoin':
+                    $collection = new ArrayCollection();
+                    $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+                    if(!is_array($value) || !count($value)){
+                        continue;
+                    }
+
+                    foreach($value as $id){
+                        $objectToJoin = $this->em->getRepository($entity)->find($id);
+                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
+                    }
+
+                    $object->$setter($collection);
+
                     break;
                 case 'onejoin':
                     $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
@@ -470,13 +545,22 @@ class ApiController extends BaseController
 
         }
 
-        $object->setUser($user);
+        if($object instanceof Base){
+            $object->setUser($user);
+        }
+
 
         try {
 
             $this->em->persist($object);
-            $this->em->flush();
 
+            if($schema[ucfirst($entityName)]['settings']['isSortable']){
+                //@todo: ACHTUNG BEI NESTED SET / KATEGORIEN
+                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false");
+                $query->execute();
+            }
+
+            $this->em->flush();
 
             $isPush = $schema[$entityName]['settings']['isPush'];
             if($isPush){
@@ -567,6 +651,24 @@ class ApiController extends BaseController
         return new JsonResponse(array('message' => 'Object updated', 'id' => $id));
 
     }
+    
+    public function multiupdateAction(Request $request, Application $app)
+    {
+        $objects             = $request->get('objects');
+        $disableModifiedTime = $request->get('disableModifiedTime');
+        
+        foreach($objects as $object){
+            try{
+                $this->update($object['entity'], $object['id'], $object['data'], $disableModifiedTime, $app['auth.user']);
+            }catch(EntityDuplicateException $e){
+                continue;
+            }catch(EntityNotFoundException $e){
+                continue;
+            }
+        }
+
+        return new JsonResponse(array('message' => 'Objects updated'));
+    }
 
 
     /**
@@ -585,6 +687,7 @@ class ApiController extends BaseController
         if(substr($entityName, 0, 3) == "PIM"){
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
+
 
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
@@ -638,18 +741,57 @@ class ApiController extends BaseController
                 case 'multijoin':
                     $collection = new ArrayCollection();
                     $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+                    $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
+
+                    if($mappedBy){
+                        $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                        $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+
+                        $object->$getter()->clear();
+                        $query = $this->em->createQuery('DELETE FROM '.$acceptFrom.' e WHERE e.'.$mappedFrom.' = ?1');
+                        $query->setParameter(1, $id);
+                        $query->execute();
+                    }else{
+                        $object->$getter()->clear();
+                    }
 
                     if(!is_array($value) || !count($value)){
-                        $object->$getter()->clear();
                         continue;
                     }
 
+                    $sorting = 0;
                     foreach($value as $id){
+
+
                         $objectToJoin = $this->em->getRepository($entity)->find($id);
-                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
+                        if(!$objectToJoin->getIsDeleted()){
+
+
+                            if($mappedBy){
+                                $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
+                                $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                                $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+                                $mappedEntity   = new $acceptFrom();
+
+                                $mappedSetter = 'set'.ucfirst($mappedBy);
+                                $mappedEntity->$mappedSetter($objectToJoin);
+
+                                $mappedSetter = 'set'.ucfirst($mappedFrom);
+                                $mappedEntity->$mappedSetter($object);
+
+                                if($isSortable){
+                                    $mappedEntity->setSorting($sorting++);
+                                }
+
+                                $this->em->persist($mappedEntity);
+                                $collection->add($mappedEntity);
+                            }else{
+                                $collection->add($objectToJoin);
+                            }
+
+                        }
                     }
 
-                    $object->$getter()->clear();
                     $object->$setter($collection);
 
                     break;
@@ -737,6 +879,7 @@ class ApiController extends BaseController
      * @apiDescription Gibt alle Objekte aller Entitys zurück
      *
      * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
+     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "lastModified": "2016-02-20 15:30:22"
@@ -769,6 +912,7 @@ class ApiController extends BaseController
         $timestamp    = $request->get('lastModified');
         $filedata     = $request->get('filedata');
         $check        = $request->get('check', false);
+        $flatten      = $request->get('flatten', false);
 
         $lastModified = null;
         if(!empty($timestamp)) {
@@ -810,22 +954,58 @@ class ApiController extends BaseController
                 continue;
             }
 
+
             $array = array();
             foreach($objects as $object){
 
-                $objectData = $object->toValueObject();
+                $objectData = $object->toValueObject($flatten);
 
                 if(isset($schema[$entityShortcut])) {
                     foreach ($schema[$entityShortcut]['properties'] as $key => $config) {
-
-                        if ($config['type'] == 'multifile') {
-                            $getterName = 'get' . ucfirst($key);
-                            $multiFiles = $object->$getterName();
-                            $multiData = array();
-                            foreach ($multiFiles as $multiFile) {
-                                $multiData[] = $multiFile->toValueObject();
+                        if($flatten){
+                            if (isset($config['type']) && $config['type'] == 'multifile') {
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+                                foreach ($multiFiles as $multiFile) {
+                                    $multiData[] =  $multiFile->getid();
+                                }
+                                $objectData->$key = $multiData;
                             }
-                            $objectData->$key = $multiData;
+
+                            if (isset($config['type']) && $config['type'] == 'multijoin') {
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+                                foreach ($multiFiles as $multiFile) {
+                                    $multiData[] =  $multiFile->getid();
+                                }
+                                $objectData->$key = $multiData;
+                            }
+                        }else {
+                            if (isset($config['type']) && $config['type'] == 'multifile') {
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+                                foreach ($multiFiles as $multiFile) {
+                                    if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                                }
+                                $objectData->$key = $multiData;
+                            }
+
+                            if (isset($config['type']) && $config['type'] == 'multijoin') {
+
+                                $getterName = 'get' . ucfirst($key);
+                                $multiFiles = $object->$getterName();
+                                $multiData = array();
+
+                                foreach ($multiFiles as $multiFile) {
+                                    $multiData[] = $multiFile->toValueObject();
+                                }
+
+
+                                $objectData->$key = $multiData;
+                            }
                         }
                     }
                 }
@@ -848,9 +1028,12 @@ class ApiController extends BaseController
                             $objectData->filedata->$size = $base64;
                             //die("test: ".$objectData->filedata->$size);
                         }
-
-
                     }
+                }
+
+                if($object->getId() == '2949'){
+                    //$test = $object->getWebInformationen()->toValueObject();
+
                 }
 
                 $array[] = $objectData;
@@ -863,7 +1046,7 @@ class ApiController extends BaseController
         $currentDate = new \Datetime();
         $jsonResponse = new JsonResponse(array('message' => 'allAction',  'lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
 
-        if($filedata != null) file_put_contents(ROOT_DIR.'/data/currentData.json', json_encode($all));
+        if($filedata != null) file_put_contents(ROOT_DIR.'/data/currentData.json', ($all));
 
         return $jsonResponse;
     }
@@ -925,19 +1108,34 @@ class ApiController extends BaseController
             $reflect   = new \ReflectionClass($object);
             $props     = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
 
+            $defaultValues = $reflect->getDefaultProperties();
+
             $annotationReader = new AnnotationReader();
 
             $settings = array(
                 'label' => $entity,
                 'readonly' => false,
                 'isPush' => false,
+                'hide' => false,
                 'pushTitle' => '',
                 'pushText' => '',
                 'pushObject' => '',
                 'sortBy' => 'id',
                 'sortOrder' => 'DESC',
+                'isSortable' => false,
+                'type' => 'default',
                 'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false))
             );
+
+            if($object instanceof BaseSortable){
+                $settings['sortBy']     = 'sorting';
+                $settings['sortOrder']  = 'ASC';
+                $settings['isSortable'] = true;
+            }
+
+            if($object instanceof BaseTree){
+                $settings['type']  = 'tree';
+            }
 
             $classAnnotations = $annotationReader->getClassAnnotations($reflect);
 
@@ -945,7 +1143,6 @@ class ApiController extends BaseController
             foreach($classAnnotations as $classAnnotation) {
 
                 if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
-
                     $settings['label']       = $classAnnotation->label ? $classAnnotation->label : $entity;
                     $settings['readonly']    = $classAnnotation->readonly ? $classAnnotation->readonly : false;
                     $settings['isPush']      = ($classAnnotation->pushText && $classAnnotation->pushTitle);
@@ -954,6 +1151,7 @@ class ApiController extends BaseController
                     $settings['pushObject']  = $classAnnotation->pushObject ? $classAnnotation->pushObject : null;
                     $settings['sortBy']      = $classAnnotation->sortBy ? $classAnnotation->sortBy : $settings['sortBy'];
                     $settings['sortOrder']   = $classAnnotation->sortOrder ? $classAnnotation->sortOrder : $settings['sortOrder'];
+                    $settings['hide']        = $classAnnotation->hide ? $classAnnotation->hide : $settings['hide'];
 
                     if($classAnnotation->tabs){
                         $tabs = json_decode(str_replace("'", '"', $classAnnotation->tabs));
@@ -980,10 +1178,13 @@ class ApiController extends BaseController
                     'filter' => '',
                     'options' => array(),
                     'foreign' => null,
-                    'tab' => null
+                    'tab' => null,
+                    'default' => $defaultValues[$prop->getName()]
                 );
 
                 $reflectionProperty = new \ReflectionProperty($className, $prop->getName());
+
+
                 $propertyAnnotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
 
                 foreach($propertyAnnotations as $propertyAnnotation){
@@ -1084,10 +1285,17 @@ class ApiController extends BaseController
                                 $annotations['type']     = 'join';
                                 $annotations['accept']   = $propertyAnnotation->targetEntity;
                                 $annotations['multiple'] = false;
+
+                                if($settings['type'] == 'tree' && $prop->getName() == 'treeParent'){
+                                    $annotations['accept'] = $className;
+                                }
+
                                 break;
                         }
 
                     }
+
+
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToMany){
                         $annotations['nullable'] = true;
@@ -1109,7 +1317,24 @@ class ApiController extends BaseController
                         $annotations['foreign'] = $propertyAnnotation->name;
                     }
 
+                    if($propertyAnnotation instanceof ManyToMany){
+                        $annotations['type']        = 'multijoin';
+                        $annotations['accept']      = $propertyAnnotation->targetEntity;
+                        $annotations['mappedBy']    = $propertyAnnotation->mappedBy;
+                        $annotations['multiple']    = true;
+                        $annotations['sortable']    = true;
+                    }
 
+                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany   ){
+                        $annotations['acceptFrom'] = $propertyAnnotation->targetEntity;
+                        $annotations['mappedFrom'] = $propertyAnnotation->mappedBy;
+                    }
+
+
+                }
+
+                if(!$annotations['tab']){
+                    $annotations['tab'] = 'default';
                 }
 
                 $properties[$prop->getName()] = $annotations;

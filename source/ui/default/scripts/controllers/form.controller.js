@@ -81,7 +81,7 @@
 
                 EntityService.insert(data).then(
                     function successCallback(response) {
-                        $uibModalInstance.close(true);
+                        $uibModalInstance.close(response.data.data);
                     }, 
                     function errorCallback(response) {
                         var modalInstance = $uibModal.open({
@@ -103,13 +103,14 @@
 
                 var data = {
                     entity: entity,
-                    id: object['id'],
+                    id: vm.object['id'],
                     data: objectDataToSave
                 };
 
                 EntityService.update(data).then(
                     function successCallback(response) {
-                        $uibModalInstance.close(true);
+                        
+                        $uibModalInstance.close(vm.object);
                     },
                     function errorCallback(response) {
                         var modalInstance = $uibModal.open({
@@ -137,6 +138,18 @@
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
             });
+
+            var data = {
+                entity: entity,
+                id: vm.object.id
+            }
+
+            EntityService.single(data).then(
+                function(response){
+                    vm.object = response.data.data;
+                },
+                function(){}
+            );
         }
 
         function save() {
@@ -191,7 +204,6 @@
         }
 
         function onChangeValue(key, mainKey, value){
-
             if(!mainKey) {
                 objectDataToSave[key] = value;
             }else{
@@ -203,39 +215,6 @@
             }
         }
 
-
-        
-        
-        
-        //@todo: OLD CODE
-        
-
-
-        /**
-         * Open entity browser
-         */
-        $scope.openEntityBrowser = function (key) {
-            var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/entity-browser.html',
-                controller: 'EntityBrowserCtrl',
-                resolve: {
-                    title: function () {
-                        return 'Objekt auswählen';
-                    },
-                    schema: function () {
-                        return schema;
-                    },
-                    selectedObject: function () {
-                        return $scope.object[key];
-                    }
-                }
-            });
-
-            modalInstance.result.then(function (entity, label) {
-                $scope.object[key] = entity;
-            }, function () {
-            });
-        };
         
     }
 

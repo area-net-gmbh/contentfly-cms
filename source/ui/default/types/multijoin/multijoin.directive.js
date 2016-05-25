@@ -17,27 +17,64 @@
             },
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;
+                var entity       = null;
 
                 //Properties
                 scope.chooserOpened = false;
                 scope.currentPage   = 1;
+                scope.propertyCount = 0;
                 scope.objects       = [];
-                scope.schema        = localStorageService.get('schema')['Produkt'];
+                scope.schema        = null;;
                 scope.selectedIndex = 0;
+                scope.sortableOptions = {
+                    stop: function(e,ui){
+                        triggerUpdate();
+                    },
+                    handle: '.sortable-handle'
+
+                };
+
                 scope.totalPages    = 1;
 
                 scope.value = scope.value ? scope.value : [];
 
                 //Functions
+                scope.addNewObject  = addNewObject;
                 scope.change        = change;
                 scope.chooseObject  = chooseObject;
                 scope.closeChooser  = closeChooser;
+                scope.editObject    = editObject;
                 scope.keyPressed    = keyPressed;
                 scope.loadData      = loadData;
                 scope.openChooser   = openChooser;
                 scope.removeObject  = removeObject;
 
+                //Startup
+                init();
+                
                 /////////////////////////////////////
+
+                function addNewObject(){
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'views/form.html',
+                        controller: 'FormCtrl as vm',
+                        resolve: {
+                            entity: function(){ return entity;},
+                            title: function(){ return 'Neues Objekt anlegen'; },
+                            object: function(){ return null; }
+                        },
+                        size: 'lg'
+                    });
+
+                    modalInstance.result.then(
+                        function (newObject) {
+                            if(newObject){
+                                chooseObject(newObject);
+                            }
+                        },
+                        function () {}
+                    );
+                }
 
                 function change(){
                     scope.currentPage = 1;
@@ -45,21 +82,66 @@
                 }
 
                 function chooseObject(object){
-                    scope.value.push(object);
+                    var newData = {};
 
-                    scope.selectedIndex = 0;
-                    scope.currentPage = 1;
+                    if(scope.config.mappedBy){
+                        newData['produkt'] =  object;
+                    }else{
+                        newData = object;
+                    }
 
-                    scope.search        = '';
-                    scope.objects       = [];
+                    scope.value.push(newData);
 
-                    closeChooser();
+
+
+                    //scope.selectedIndex = 0;
+                    //scope.currentPage = 1;
+
+                    //scope.search        = '';
+                    //scope.objects       = [];
+
+                    //closeChooser();
                     triggerUpdate();
 
                 }
 
                 function closeChooser(){
                     scope.chooserOpened = false;
+                }
+
+                function editObject(index){
+
+                    var id     = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy].id : scope.value[index].id;
+                    var object = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index];
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: 'views/form.html',
+                        controller: 'FormCtrl as vm',
+                        resolve: {
+                            entity: function(){ return entity;},
+                            title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
+                            object: function(){ return object; }
+                        },
+                        size: 'lg'
+                    });
+
+                    modalInstance.result.then(
+                        function (newObject) {
+                            if(newObject){
+                                scope.value[index] = newObject;
+                            }
+                        },
+                        function () {}
+                    );
+                }
+
+                function init(){
+                    
+                    var fullEntity = scope.config.accept.split('\\');
+                    entity = fullEntity[(fullEntity.length - 1)];
+                    scope.schema = localStorageService.get('schema')[entity];
+
+                    scope.propertyCount = Object.keys(scope.schema.list).length;
                 }
 
                 function keyPressed(event){
@@ -97,7 +179,7 @@
                     var where = scope.search ? {fulltext: scope.search} : {};
 
                     var data = {
-                        entity: 'Produkt',
+                        entity: entity,
                         currentPage: scope.currentPage,
                         itemsPerPage: itemsPerPage,
                         where: where
@@ -132,8 +214,15 @@
 
                 function triggerUpdate(){
                     var values = [];
-                    for (var index in scope.value) {
-                        values.push(scope.value[index].id);
+
+                    if(scope.config.mappedBy){
+                        for (var index in scope.value) {
+                            values.push(scope.value[index][scope.config.mappedBy].id);
+                        }
+                    }else{
+                        for (var index in scope.value) {
+                            values.push(scope.value[index].id);
+                        }
                     }
 
                     scope.onChangeCallback({key: scope.key, value: values});

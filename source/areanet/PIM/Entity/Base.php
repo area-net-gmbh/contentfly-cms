@@ -9,7 +9,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
  * @ORM\HasLifecycleCallbacks
  */
 
-class Base implements \JsonSerializable
+class Base extends Serializable
 {
     /**
      * @ORM\Column(type="integer")
@@ -201,47 +201,4 @@ class Base implements \JsonSerializable
         }
     }
 
-
-    /**
-     * Specify data which should be serialized to JSON
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
-     */
-    function jsonSerialize()
-    {
-        return $this->toValueObject();
-    }
-
-    public function toValueObject()
-    {
-        $result = new \stdClass();
-        foreach ($this as $property => $value) {
-            $getter = 'get' . ucfirst($property);
-            if (method_exists($this, $getter)) {
-                $result->$property = $this->$getter();
-                if($result->$property instanceof \Datetime){
-                    $res = $result->$property->format('Y');
-                    if($result->$property->format('Y') == '-0001' || $result->$property->format('Y') == '0000'){
-                        $result->$property = array(
-                            'LOCAL_TIME' => null,
-                            'LOCAL' => null,
-                            'ISO8601' => null,
-                            'IMESTAMP' => null
-                        );
-                    }else {
-                        $result->$property = array(
-                            'LOCAL_TIME' => $result->$property->format('d.m.Y H:i'),
-                            'LOCAL' => $result->$property->format('d.m.Y'),
-                            'ISO8601' => $result->$property->format(\DateTime::ISO8601),
-                            'TIMESTAMP' => $result->$property->getTimestamp()
-                        );
-                    }
-                }
-
-            }
-        }
-        return $result;
-    }
 }

@@ -10,18 +10,21 @@
                 <span ng-show="vm.sortOrder === 'DESC'" class="glyphicon glyphicon-arrow-down"></span>
             </button>
             <ul uib-dropdown-menu aria-labelledby="dropdown-sorting">
+                <li><a ng-click="vm.sortBy('id')">ID</a></li>
+                <li ng-show="vm.schema.settings.isSortable"><a ng-click="vm.sortBy('sorting')">Position</a></li>
                 <li ng-repeat="property in vm.schema.list"><a ng-click="vm.sortBy(property)">{{vm.schema.properties[property].label}}</a></li>
                 <li><a ng-click="vm.sortBy('modified')">geändert am</a></li>
                 <li><a ng-click="vm.sortBy('user')">geändert von</a></li>
             </ul>
         </div>
-        <div class="btn-filter" uib-dropdown auto-close="outsideClick" is-open="filterIsOpen">
+        <div class="btn-filter" uib-dropdown auto-close="outsideClick" is-open="vm.filterIsOpen" on-toggle="vm.toggleFilter(open)">
             <button class="btn btn-default" id="dropdown-filter" type="button" uib-dropdown-toggle>
                 Filter <span ng-show="vm.filterBadge" class="badge">{{vm.filterBadge}}</span> <span ng-hide="filterBadge" class="glyphicon glyphicon-filter"></span>
             </button>
             <div uib-dropdown-menu aria-labelledby="dropdown-filter" class="form-inline">
 
                     <div class="form-group" ng-hide="config.hide" ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type" >
+
                         <label ng-switch-when="boolean">{{vm.schema.properties[key].label}}</label>
                         <select class="form-control" ng-switch-when="boolean" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                             <option value="">alle</option>
@@ -29,10 +32,10 @@
                             <option value="false">nein</option>
                         </select>
 
-                        <label ng-show="filterJoins[key]" ng-switch-when="join">{{vm.schema.properties[key].label}}</label>
-                        <select class="form-control" ng-show="filterJoins[key]" ng-switch-when="join" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                        <label ng-show="vm.filterJoins[key]" ng-switch-when="join">{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="join" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                             <option value="">alle</option>
-                            <option ng-repeat="option in filterJoins[key]" value="{{option.id}}">{{option.title}}</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.title}}</option>
                         </select>
 
                         <label ng-switch-when="select">{{vm.schema.properties[key].label}}</label>
@@ -47,7 +50,7 @@
                     </div>
                     <div class="form-group">
                         <label>Volltext</label>
-                        <input type="text" class="form-control" ng-model="vm.filter.fulltext" ng-enter="vm.closeFilter()" ng-change="vm.executeFilter()" ng-model-options="{debounce:500}">
+                        <input type="text" id="fulltext" class="form-control" ng-model="vm.filter.fulltext" ng-enter="vm.closeFilter()" ng-change="vm.executeFilter()" ng-model-options="{debounce:500}">
                     </div>
                     <div class="form-group">
                         <button class="btn btn-default" ng-click="vm.resetFilter()">Filter zurücksetzen</button>
@@ -56,7 +59,7 @@
             </div>
         </div>
 
-        <dir-pagination-controls on-page-change="vm.paginationChanged(newPageNumber)"></dir-pagination-controls>
+        <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable" on-page-change="vm.paginationChanged(newPageNumber)"></dir-pagination-controls>
     </div>
 
     <div class="col-sm-1">
@@ -75,15 +78,17 @@
             <thead>
                 <tr>
                     <th class="ng-scope">ID</th>
+                    <th ng-show="vm.schema.settings.isSortable">Position</th>
                     <th ng-repeat="property in vm.schema.list">{{vm.schema.properties[property].label}}</th>
                     <th class="ng-scope">geändert am</th>
                     <th class="ng-scope">geändert von</th>
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
-                <tr dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)">
+            <tbody ng-if="!vm.schema.settings.isSortable">
+                <tr ui-sortable dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)">
                     <td><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat></td>
+                    <td ng-show="vm.schema.settings.isSortable"><pim-autoformat property="sorting" long="false" schema="vm.schema" object="object"></pim-autoformat></td>
                     <td ng-repeat="property in vm.schema.list"><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat></td>
                     <td><pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat></td>
                     <td><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat></td>
@@ -95,8 +100,24 @@
                     </td>
                 </tr>
             </tbody>
+            <tbody ng-if="vm.schema.settings.isSortable" ui-sortable="vm.sortableOptions" ng-model="vm.objects">
+                <tr ng-repeat="object in vm.objects" ng-dblclick="vm.openForm(object)">
+                    <td><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat></td>
+                    <td ng-show="vm.schema.settings.isSortable">{{object.sorting}}</td>
+                    <td ng-repeat="property in vm.schema.list"><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat></td>
+                    <td><pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat></td>
+                    <td><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat></td>
+                    <td>
+                        <div class="pull-right">
+                            <span ng-show="vm.schema.settings.isSortable && vm.sortProperty == 'sorting'" class="glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>
+                            <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.delete(object.id)" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                            <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.openForm(object)" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
         </table>
 
-        <dir-pagination-controls ng-show="vm.objectsAvailable" on-page-change="paginationChanged(newPageNumber)"></dir-pagination-controls>
+        <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable" on-page-change="paginationChanged(newPageNumber)"></dir-pagination-controls>
     </div>
 </div>
