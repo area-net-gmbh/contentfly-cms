@@ -468,6 +468,10 @@ li.grid:hover .image-edit{
     padding-top:5px;
 }
 
+.chooser tbody tr{
+    cursor: pointer;
+}
+
 .chooser thead *, .chooser tfoot *{
     color:#999999;
     font-weight:normal;
@@ -506,5 +510,6 @@ li.grid:hover .image-edit{
 }
 
 .chooser .td-small, .join .td-small{
-    width:80px;
+    width:100px;
 }
+

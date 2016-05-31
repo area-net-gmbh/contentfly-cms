@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt")
- * @PIM\Config(label = "Produkte", tabs="{'img': 'Bilder', 'cross': 'Cross-Selling'}")
+ * @PIM\Config(label = "Produkte", tabs="{'img': 'Bilder', 'cross': 'Cross-Selling', 'filter': 'Filter'}")
  */
 class Produkt extends Base
 {
@@ -98,6 +98,14 @@ class Produkt extends Base
      * @PIM\Config(label="Zubehör-Produkte", tab="cross")
      */
     protected $zubehoerprodukte;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktFilterOption", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Filter", mappedBy="filter")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Filteroption", mappedBy="option")
+     * @PIM\Config(label="Filter", tab="filter")
+     */
+    protected $filterOptionen;
 
 
     /**
@@ -294,6 +302,24 @@ class Produkt extends Base
     {
         $this->zubehoerprodukte = $zubehoerprodukte;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getFilterOptionen()
+    {
+        return $this->filterOptionen;
+    }
+
+    /**
+     * @param mixed $filterOptionen
+     */
+    public function setFilterOptionen($filterOptionen)
+    {
+        $this->filterOptionen = $filterOptionen;
+    }
+
+
 
 
     

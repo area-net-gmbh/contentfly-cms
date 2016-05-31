@@ -48,6 +48,7 @@
                 scope.loadData      = loadData;
                 scope.openChooser   = openChooser;
                 scope.removeObject  = removeObject;
+                scope.setSelectedIndex = setSelectedIndex;
 
                 //Startup
                 init();
@@ -85,7 +86,7 @@
                     var newData = {};
 
                     if(scope.config.mappedBy){
-                        newData['produkt'] =  object;
+                        newData[scope.config.mappedBy] =  object;
                     }else{
                         newData = object;
                     }
@@ -139,6 +140,7 @@
                     
                     var fullEntity = scope.config.accept.split('\\');
                     entity = fullEntity[(fullEntity.length - 1)];
+                    
                     scope.schema = localStorageService.get('schema')[entity];
 
                     scope.propertyCount = Object.keys(scope.schema.list).length;
@@ -210,6 +212,10 @@
                     scope.value.splice(index, 1);
 
                     triggerUpdate();
+                }
+
+                function setSelectedIndex(index){
+                    scope.selectedIndex = index;
                 }
 
                 function triggerUpdate(){

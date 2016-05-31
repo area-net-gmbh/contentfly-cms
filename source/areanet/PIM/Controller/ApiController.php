@@ -764,6 +764,7 @@ class ApiController extends BaseController
 
 
                         $objectToJoin = $this->em->getRepository($entity)->find($id);
+                      
                         if(!$objectToJoin->getIsDeleted()){
 
 
@@ -1179,6 +1180,7 @@ class ApiController extends BaseController
                     'options' => array(),
                     'foreign' => null,
                     'tab' => null,
+                    'sortable' => false,
                     'default' => $defaultValues[$prop->getName()]
                 );
 
@@ -1186,6 +1188,8 @@ class ApiController extends BaseController
 
 
                 $propertyAnnotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
+
+                $customMany2ManyAnnotationsIterator = 1;
 
                 foreach($propertyAnnotations as $propertyAnnotation){
 
@@ -1295,7 +1299,14 @@ class ApiController extends BaseController
 
                     }
 
+                    /*if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany){
+                        $annotations['nullable'] = true;
+                        $annotations['type']     = 'multijoin';
+                        $annotations['accept']   = $propertyAnnotation->targetEntity;
+                        $annotations['multiple'] = true;
+                        $targetEntity = new $propertyAnnotation->targetEntity();
 
+                    }*/
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToMany){
                         $annotations['nullable'] = true;
@@ -1317,17 +1328,29 @@ class ApiController extends BaseController
                         $annotations['foreign'] = $propertyAnnotation->name;
                     }
 
-                    if($propertyAnnotation instanceof ManyToMany){
-                        $annotations['type']        = 'multijoin';
-                        $annotations['accept']      = $propertyAnnotation->targetEntity;
-                        $annotations['mappedBy']    = $propertyAnnotation->mappedBy;
-                        $annotations['multiple']    = true;
-                        $annotations['sortable']    = true;
+                    if($propertyAnnotation instanceof ManyToMany) {
+                        $annotations['type'] = 'multijoin';
+                        $annotations['multiple'] = true;
+
+                        if ($customMany2ManyAnnotationsIterator == 1){
+                            $annotations['accept'] = $propertyAnnotation->targetEntity;
+                            $annotations['mappedBy'] = $propertyAnnotation->mappedBy;
+                        }else {
+                            $annotations['accept'.$customMany2ManyAnnotationsIterator] = $propertyAnnotation->targetEntity;
+                            $annotations['mappedBy'.$customMany2ManyAnnotationsIterator] = $propertyAnnotation->mappedBy;
+                        }
+
+                        $customMany2ManyAnnotationsIterator++;
                     }
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany   ){
                         $annotations['acceptFrom'] = $propertyAnnotation->targetEntity;
                         $annotations['mappedFrom'] = $propertyAnnotation->mappedBy;
+
+                        $targetEntity = new $propertyAnnotation->targetEntity();
+                        if($targetEntity instanceof  BaseSortable){
+                            $annotations['sortable']    = true;
+                        }
                     }
 
 

@@ -34,8 +34,8 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
 ));
 
 $app->register(new ConsoleServiceProvider(), array(
-    'console.name'              => 'MyApplication',
-    'console.version'           => '1.0.0',
+    'console.name'              => 'PIM',
+    'console.version'           => APP_VERSION,
     'console.project_directory' => __DIR__
 ));
 

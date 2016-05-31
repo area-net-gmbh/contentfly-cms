@@ -18,7 +18,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="object in objects" ng-click="chooseObject(object)" ng-class='{selected:$index == selectedIndex}'>
+                    <tr ng-repeat="object in objects" ng-click="chooseObject(object)" ng-mouseover="setSelectedIndex($index)" ng-class='{selected:$index == selectedIndex}'>
                         <td class="td-small"><pim-autoformat property="id" schema="schema" object="object"></pim-autoformat></td>
                         <td ng-repeat="property in schema.list"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
                     </tr>
