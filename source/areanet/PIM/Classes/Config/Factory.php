@@ -37,7 +37,7 @@ class Factory{
             return $this->configSettings['default'];
         }
 
-        $this->configSettings[$host];
+        return $this->configSettings[$host];
     }
 
     /**
