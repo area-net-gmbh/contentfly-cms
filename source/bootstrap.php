@@ -64,9 +64,11 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
 $user = new \Areanet\PIM\Entity\User();
 $user->getAlias();
 
-$app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/custom/Views/',
-));
+if(is_dir(__DIR__.'/custom/Views/')){
+    $app->register(new Silex\Provider\TwigServiceProvider(), array(
+        'twig.path' => __DIR__.'/custom/Views/',
+    ));
+}
 
 
 $app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
