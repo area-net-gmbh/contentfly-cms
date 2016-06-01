@@ -2,10 +2,10 @@
 $time = strftime("%Y-%m-%d %H:%M:%S", time());
 
 
-$input = file_get_contents("php://input");
+$payload = file_get_contents("php://input");
 file_put_contents('log.txt', $time."\n".$input, FILE_APPEND);
 
-if($payload = json_decode($input)) {
+if($payload) {
     try {
         $payload = json_decode($payload);
     } catch(Exception $ex) {
