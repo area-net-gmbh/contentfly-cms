@@ -1,3 +1,2 @@
 <?php
-die("test");
 phpinfo();
