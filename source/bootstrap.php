@@ -15,6 +15,7 @@ use Knp\Provider\ConsoleServiceProvider;
 
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/Config.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
+\Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
 Config\Adapter::setHostname(HOST);
 date_default_timezone_set(Config\Adapter::getConfig()->APP_TIMEZONE);
@@ -34,8 +35,8 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
 ));
 
 $app->register(new ConsoleServiceProvider(), array(
-    'console.name'              => 'MyApplication',
-    'console.version'           => '1.0.0',
+    'console.name'              => 'PIM',
+    'console.version'           => APP_VERSION,
     'console.project_directory' => __DIR__
 ));
 

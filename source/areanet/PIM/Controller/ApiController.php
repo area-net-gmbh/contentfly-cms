@@ -2,6 +2,7 @@
 namespace Areanet\PIM\Controller;
 
 use Areanet\PIM\Classes\Annotations\ManyToMany;
+use Areanet\PIM\Classes\Annotations\MatrixChooser;
 use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
@@ -764,6 +765,7 @@ class ApiController extends BaseController
 
 
                         $objectToJoin = $this->em->getRepository($entity)->find($id);
+
                         if(!$objectToJoin->getIsDeleted()){
 
 
@@ -790,6 +792,55 @@ class ApiController extends BaseController
                             }
 
                         }
+                    }
+
+                    $object->$setter($collection);
+
+                    break;
+                case 'matrixchooser':
+                    $collection = new ArrayCollection();
+
+                    $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                    $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+
+                    $object->$getter()->clear();
+                    $query = $this->em->createQuery('DELETE FROM '.$acceptFrom.' e WHERE e.'.$mappedFrom.' = ?1');
+                    $query->setParameter(1, $id);
+                    $query->execute();
+
+                    $object->$setter($collection);
+
+                    if(!is_array($value) || !count($value)){
+                        continue;
+                    }
+
+                    foreach($value as $subobject){
+                        $mappedEntity   = new $acceptFrom();
+
+                        $target1Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target1Entity'];
+                        $mapped1By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped1By'];
+                        $target2Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target2Entity'];
+                        $mapped2By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped2By'];
+
+                        $object1ToJoin  = $this->em->getRepository($target1Entity)->find($subobject[$mapped1By]);
+                        if(!$object1ToJoin){
+                            continue;
+                        }
+                        $mapped1Setter = 'set'.ucfirst($mapped1By);
+                        $mappedEntity->$mapped1Setter($object1ToJoin);
+
+                        $object2ToJoin  = $this->em->getRepository($target2Entity)->find($subobject[$mapped2By]);
+                        if(!$object2ToJoin){
+                            continue;
+                        }
+                        $mapped2Setter = 'set'.ucfirst($mapped2By);
+                        $mappedEntity->$mapped2Setter($object2ToJoin);
+
+                        $mappedSetter = 'set'.ucfirst($mappedFrom);
+                        $mappedEntity->$mappedSetter($object);
+
+                        $this->em->persist($mappedEntity);
+                        $collection->add($mappedEntity);
                     }
 
                     $object->$setter($collection);
@@ -1179,6 +1230,7 @@ class ApiController extends BaseController
                     'options' => array(),
                     'foreign' => null,
                     'tab' => null,
+                    'sortable' => false,
                     'default' => $defaultValues[$prop->getName()]
                 );
 
@@ -1186,6 +1238,8 @@ class ApiController extends BaseController
 
 
                 $propertyAnnotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
+
+                $customMany2ManyAnnotationsIterator = 1;
 
                 foreach($propertyAnnotations as $propertyAnnotation){
 
@@ -1295,7 +1349,14 @@ class ApiController extends BaseController
 
                     }
 
+                    /*if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany){
+                        $annotations['nullable'] = true;
+                        $annotations['type']     = 'multijoin';
+                        $annotations['accept']   = $propertyAnnotation->targetEntity;
+                        $annotations['multiple'] = true;
+                        $targetEntity = new $propertyAnnotation->targetEntity();
 
+                    }*/
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToMany){
                         $annotations['nullable'] = true;
@@ -1317,17 +1378,37 @@ class ApiController extends BaseController
                         $annotations['foreign'] = $propertyAnnotation->name;
                     }
 
-                    if($propertyAnnotation instanceof ManyToMany){
-                        $annotations['type']        = 'multijoin';
-                        $annotations['accept']      = $propertyAnnotation->targetEntity;
-                        $annotations['mappedBy']    = $propertyAnnotation->mappedBy;
-                        $annotations['multiple']    = true;
-                        $annotations['sortable']    = true;
+                    if($propertyAnnotation instanceof ManyToMany) {
+                        $annotations['type'] = 'multijoin';
+                        $annotations['multiple'] = true;
+
+                        if ($customMany2ManyAnnotationsIterator == 1){
+                            $annotations['accept'] = $propertyAnnotation->targetEntity;
+                            $annotations['mappedBy'] = $propertyAnnotation->mappedBy;
+                        }else {
+                            $annotations['accept'.$customMany2ManyAnnotationsIterator] = $propertyAnnotation->targetEntity;
+                            $annotations['mappedBy'.$customMany2ManyAnnotationsIterator] = $propertyAnnotation->mappedBy;
+                        }
+
+                        $customMany2ManyAnnotationsIterator++;
                     }
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany   ){
                         $annotations['acceptFrom'] = $propertyAnnotation->targetEntity;
                         $annotations['mappedFrom'] = $propertyAnnotation->mappedBy;
+
+                        $targetEntity = new $propertyAnnotation->targetEntity();
+                        if($targetEntity instanceof  BaseSortable){
+                            $annotations['sortable']    = true;
+                        }
+                    }
+
+                    if($propertyAnnotation instanceof MatrixChooser){
+                        $annotations['type'] = 'matrixchooser';
+                        $annotations['target1Entity'] = $propertyAnnotation->target1Entity;
+                        $annotations['mapped1By'] = $propertyAnnotation->mapped1By;
+                        $annotations['target2Entity'] = $propertyAnnotation->target2Entity;
+                        $annotations['mapped2By'] = $propertyAnnotation->mapped2By;
                     }
 
 

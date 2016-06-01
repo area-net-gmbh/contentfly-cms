@@ -39,6 +39,7 @@
                 scope.loadData      = loadData;
                 scope.openChooser   = openChooser;
                 scope.removeObject  = removeObject;
+                scope.setSelectedIndex = setSelectedIndex;
 
                 //Startup
                 init();
@@ -188,6 +189,10 @@
                 function removeObject(){
                     scope.value = {};
                     scope.onChangeCallback({key: scope.key, value: ''});
+                }
+
+                function setSelectedIndex(index){
+                    scope.selectedIndex = index;
                 }
 
             }
