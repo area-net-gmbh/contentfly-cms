@@ -1,13 +1,11 @@
 <?php
 $time = strftime("%Y-%m-%d %H:%M:%S", time());
 
-$data = print_r($_REQUEST, true);
-file_put_contents('log.txt', $time."\n".serialize($data), FILE_APPEND);
 
 $input = file_get_contents("php://input");
 file_put_contents('log.txt', $time."\n".$input, FILE_APPEND);
 
-if($payload = json_decode($_REQUEST['payload'])) {
+if($payload = json_decode($input)) {
     try {
         $payload = json_decode($payload);
     } catch(Exception $ex) {
