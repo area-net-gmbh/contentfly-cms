@@ -23,10 +23,16 @@ $configFactory->setConfig($config);
 
 
 /*
- * Config for Dev-System
- * 
- * $config = new \Areanet\PIM\Classes\Config('dev.domain.de', $config);
- * ...
- * $configFactory = Factory::getInstance();
- * $configFactory->setConfig($config);
- * */
+ * Config for Test-System
+ */
+$config = new \Areanet\PIM\Classes\Config('dev.pim.areanet-buehner.de', $config);
+
+$config->DB_HOST = 'db1242.mydbserver.com';
+$config->DB_NAME = 'usr_p212925_3';
+$config->DB_USER = 'p212925d1';
+$config->DB_PASS = 'Ufisisog.693';
+
+$configFactory->setConfig($config);
+
+
+
