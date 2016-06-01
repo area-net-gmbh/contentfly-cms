@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="filteroption")
- * @PIM\Config(label="Option")
+ * @PIM\Config(label="Filter-Option")
  */
 class Filteroption extends Base
 {

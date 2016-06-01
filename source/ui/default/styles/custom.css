@@ -494,6 +494,7 @@ li.grid:hover .image-edit{
 .join{
     border:1px solid #CCCCCC;
     margin-top:10px;
+    margin-bottom:10px;
 }
 
 .join tbody tr:hover{

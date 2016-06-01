@@ -101,8 +101,8 @@ class Produkt extends Base
 
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktFilterOption", mappedBy="produkt")
-     * @PIM\ManyToMany(targetEntity="Custom\Entity\Filter", mappedBy="filter")
-     * @PIM\ManyToMany(targetEntity="Custom\Entity\Filteroption", mappedBy="option")
+     * @PIM\MatrixChooser(target1Entity="Custom\Entity\Filter", mapped1By="filter",
+     *                    target2Entity="Custom\Entity\Filteroption", mapped2By="option")
      * @PIM\Config(label="Filter", tab="filter")
      */
     protected $filterOptionen;

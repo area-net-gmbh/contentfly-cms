@@ -1,0 +1,4 @@
+deploy:
+  script:
+    - cd /html/pim
+    - git pull origin master
