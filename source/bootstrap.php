@@ -64,7 +64,7 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
 $user = new \Areanet\PIM\Entity\User();
 $user->getAlias();
 
-if(is_dir(__DIR__.'/custom/Views/')){
+if(!is_dir(__DIR__.'/custom/Views/')){
     mkdir(__DIR__.'/custom/Views/');
 }
 
