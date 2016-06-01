@@ -1,4 +1,4 @@
-# BÜHNER-PIM V1.1 -
+# BÜHNER-PIM V1.1 --
 
 ## 1. Setup!
 
