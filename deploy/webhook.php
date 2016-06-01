@@ -1,6 +1,7 @@
 <?php
 
-if($payload = file_get_contents('php://input')) {
+//if($payload = file_get_contents('php://input')) {
+if($payload = json_decode($_REQUEST['payload'])) {
     try {
         $payload = json_decode($payload);
     } catch(Exception $ex) {
