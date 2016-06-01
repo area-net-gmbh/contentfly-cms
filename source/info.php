@@ -1,3 +1,3 @@
 <?php
-//Test
+//Test 2
 phpinfo();
