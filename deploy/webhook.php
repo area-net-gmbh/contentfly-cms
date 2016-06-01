@@ -3,7 +3,7 @@ $time = strftime("%Y-%m-%d %H:%M:%S", time());
 
 
 $payload = file_get_contents("php://input");
-file_put_contents('log.txt', $time."\n".$input, FILE_APPEND);
+file_put_contents('log.txt', $time."\n\n");
 
 if($payload) {
     try {
@@ -19,9 +19,8 @@ if($payload) {
         exit(0);
     }*/
     //put the branch you want here, as well as the directory your site is in
-    $result = `cd /html/pim && git pull origin master`;
-    file_put_contents('log.txt', $time."\n"."Webhook successful executed", FILE_APPEND);
-    echo $result;
+    $result = shell_exec('cd /html/pim && git pull origin master');
+    file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
 } else {
     file_put_contents('log.txt', $time."\n"."Webhook failed: payload error", FILE_APPEND);
 }
