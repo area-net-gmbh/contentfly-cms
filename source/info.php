@@ -1,2 +1,3 @@
 <?php
+//Test
 phpinfo();
