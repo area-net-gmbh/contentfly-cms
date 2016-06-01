@@ -1,3 +1,3 @@
 <?php
-//Test 2343
+die("test2");
 phpinfo();
