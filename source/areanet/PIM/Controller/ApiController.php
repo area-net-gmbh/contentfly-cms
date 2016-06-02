@@ -524,6 +524,49 @@ class ApiController extends BaseController
                     $object->$setter($collection);
 
                     break;
+                case 'matrixchooser':
+                    $collection = new ArrayCollection();
+
+                    $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                    $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+
+
+                    if(!is_array($value) || !count($value)){
+                        continue;
+                    }
+
+                    foreach($value as $subobject){
+                        $mappedEntity   = new $acceptFrom();
+
+                        $target1Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target1Entity'];
+                        $mapped1By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped1By'];
+                        $target2Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target2Entity'];
+                        $mapped2By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped2By'];
+
+                        $object1ToJoin  = $this->em->getRepository($target1Entity)->find($subobject[$mapped1By]);
+                        if(!$object1ToJoin){
+                            continue;
+                        }
+                        $mapped1Setter = 'set'.ucfirst($mapped1By);
+                        $mappedEntity->$mapped1Setter($object1ToJoin);
+
+                        $object2ToJoin  = $this->em->getRepository($target2Entity)->find($subobject[$mapped2By]);
+                        if(!$object2ToJoin){
+                            continue;
+                        }
+                        $mapped2Setter = 'set'.ucfirst($mapped2By);
+                        $mappedEntity->$mapped2Setter($object2ToJoin);
+
+                        $mappedSetter = 'set'.ucfirst($mappedFrom);
+                        $mappedEntity->$mappedSetter($object);
+
+                        $this->em->persist($mappedEntity);
+                        $collection->add($mappedEntity);
+                    }
+
+                    $object->$setter($collection);
+
+                    break;
                 case 'onejoin':
                     $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 
