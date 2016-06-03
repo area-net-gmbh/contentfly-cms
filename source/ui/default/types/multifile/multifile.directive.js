@@ -18,6 +18,7 @@
             link: function (scope, element, attrs) {
 
                 //Properties
+                
 
                 //Functions
                 scope.addFile       = addFile;
@@ -41,7 +42,8 @@
                             pimEntity: function () {
                                 return true;
                             }
-                        }
+                        },
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(

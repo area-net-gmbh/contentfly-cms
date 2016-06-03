@@ -29,8 +29,7 @@
                 scope.sortableOptions = {
                     stop: function(e,ui){
                         triggerUpdate();
-                    },
-                    handle: '.sortable-handle'
+                    }
 
                 };
 
@@ -85,22 +84,13 @@
                     var newData = {};
 
                     if(scope.config.mappedBy){
-                        newData['produkt'] =  object;
+                        newData[scope.config.mappedBy] =  object;
                     }else{
                         newData = object;
                     }
 
                     scope.value.push(newData);
-
-
-
-                    //scope.selectedIndex = 0;
-                    //scope.currentPage = 1;
-
-                    //scope.search        = '';
-                    //scope.objects       = [];
-
-                    //closeChooser();
+                    
                     triggerUpdate();
 
                 }
@@ -136,9 +126,15 @@
                 }
 
                 function init(){
-                    
-                    var fullEntity = scope.config.accept.split('\\');
-                    entity = fullEntity[(fullEntity.length - 1)];
+
+                    if(scope.config.accept.substr(0, 18) == 'Areanet\\PIM\\Entity'){
+                        entity = scope.config.accept.replace('Areanet\\PIM\\Entity', 'PIM');
+                    }else{
+                        var fullEntity = null;
+                        fullEntity = scope.config.accept.split('\\');
+                        entity = fullEntity[(fullEntity.length - 1)];
+                    }
+
                     scope.schema = localStorageService.get('schema')[entity];
 
                     scope.propertyCount = Object.keys(scope.schema.list).length;

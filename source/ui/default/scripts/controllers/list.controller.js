@@ -241,8 +241,9 @@
                     title: function(){ return object ? 'Objekt ' + object.id + ' bearbeiten' : 'Neues Objekt anlegen'; },
                     object: function(){ return object; }
                 },
-                size: 'lg'
-            });
+                size: 'lg',
+                backdrop: 'static'
+            })
 
             modalInstance.result.then(
                 function (isSaved) {

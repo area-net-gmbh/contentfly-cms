@@ -14,7 +14,7 @@
 ## API-Doc
 
 * Login per vagrant ssh
-* in Ordner "/vagran" wechseln
+* in Ordner "/vagrant" wechseln
 
 ```
 > apidoc -i source/ -o doc/

@@ -43,7 +43,8 @@
                             pimEntity: function () {
                                 return true;
                             }
-                        }
+                        },
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(function (fileData) {
