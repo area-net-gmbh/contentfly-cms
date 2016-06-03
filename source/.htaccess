@@ -11,6 +11,8 @@ php_flag display_errors on
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
-<Files info.php>
-    XSendFile on
-</Files>
+<IfModule mod_xsendfile.c>
+    <Files info.php>
+        XSendFile on
+    </Files>
+ </IfModule>
