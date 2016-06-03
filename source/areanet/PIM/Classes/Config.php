@@ -73,7 +73,10 @@ class Config{
      */
     public $APP_TIMEZONE = 'Europe/Berlin';
 
-
+    /**
+     * @var string Aktiviert XSendFile für Download (Apache-Modul muss installiert und aktiviert sein)
+     */
+    public $APP_ENABLE_XSENDFILE = false;
 
 
 

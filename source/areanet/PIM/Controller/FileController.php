@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Controller;
+use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Processing;
@@ -56,8 +57,9 @@ class FileController extends BaseController
         return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject));
     }
 
-    public function getAction($alias){
+    public function getAction($alias, Request $request){
         $fileObject = null;
+        $size       = $request->get('size', null);
 
         if( filter_var($alias, FILTER_VALIDATE_INT) !== false ){
             $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($alias);
@@ -66,20 +68,27 @@ class FileController extends BaseController
         }
 
         if(!$fileObject){
-            throw new \Exception("File not found");
+            throw new \Exception("FileObject not found");
         }
 
         $backend = Backend::getInstance();
 
+        if(!file_exists($backend->getUri($fileObject, $size))){
+            throw new \Exception("File not found");
+        }
+
         $modules = apache_get_modules();
 
-        if(in_array('mod_xsendfile', $modules)) {
-            header('Content-type: ' . $fileObject->getType());
-            //header('Content-Disposition: attachment; filename="' . $fileObject->getName() . '"');
-            header("X-Sendfile: " . $backend->getUri($fileObject));
+        if(in_array('mod_xsendfile', $modules) && Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
+            header('Content-type: ' . mime_content_type($backend->getUri($fileObject, $size)));
+            header("Content-length: " . $fileObject->getSize());
+            header("X-Sendfile: ".$backend->getUri($fileObject, $size));
             exit;
         }else{
+            header('Location '.$backend->getWebUri($fileObject, $size));
             header('Content-type: ' . $fileObject->getType());
+            header("Content-length: " . $fileObject->getSize());
+            readfile($backend->getUri($fileObject, $size));
         }
     }
 
