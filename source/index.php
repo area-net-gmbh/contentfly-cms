@@ -20,6 +20,14 @@ $app['setup.controller'] = $app->share(function() use ($app) {
 $app->get('/setup', "setup.controller:setupAction");
 
 
+$app->error(function (\Exception $e, $code) use($app) {
+    if($app['debug']){
+        return $app->json(array("message" => $e->getMessage(), 'debug' => $e->getTrace()), $code);
+    }else{
+        return $app->json(array("message" => $e->getMessage()), $code);
+    }
+
+});
 
 $app->get('/', 'ui.controller:showAction');
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
