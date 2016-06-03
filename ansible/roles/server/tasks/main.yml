@@ -11,6 +11,7 @@
     - curl
     - wget
     - python-software-properties
+    - libapache2-mod-xsendfile
 
 - name: Install Extra Packages
   sudo: yes
@@ -29,4 +30,3 @@
 - name: Set default system language pack
   shell: locale-gen {{server.locale}}
   sudo: yes
-

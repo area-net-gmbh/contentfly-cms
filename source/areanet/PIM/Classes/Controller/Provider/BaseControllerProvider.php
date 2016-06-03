@@ -36,7 +36,9 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
                 }
                 $request->request->replace(is_array($data) ? $data : array());
             }else{
-                throw new \Exception("Inavlid Content-Type", 500);
+                //Todo: Content-Type prüfen, z.B. ob bei API JSON gesetzt ist!
+                //die("test");
+                //throw new \Exception("Inavlid Content-Type", 500);
             }
         });
     }
