@@ -272,8 +272,25 @@ label.optional{
     position: relative;
     float:left;
     margin-top:5px;
+
 }
 
+.image-form-container{
+    width:200px;
+    height:200px;
+    float:left;
+    margin-right:5px;
+
+}
+
+.image-form.image-edit{
+    width:200px;
+    height:200px;
+    overflow:hidden;
+    background-size: cover;
+    background-position: center center;
+    border:1px solid #999999;
+}
 
 
 .image-edit button{

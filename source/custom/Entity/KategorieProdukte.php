@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="kategorie_produkte")
  * @PIM\Config(hide=true)
  */
-class Kategorie2Produkte extends BaseSortable
+class KategorieProdukte extends BaseSortable
 {
     /**
      * @ORM\ManyToOne(targetEntity="Custom\Entity\Kategorie")

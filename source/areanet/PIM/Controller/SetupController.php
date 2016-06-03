@@ -13,8 +13,8 @@ class SetupController extends BaseController
 
 
         $user = new User();
-        $user->setAlias("admin");
-        $user->setPass("admin");
+        $user->setAlias("admin2");
+        $user->setPass("admin2");
         $user->setIsAdmin(true);
 
         $this->em->persist($user);

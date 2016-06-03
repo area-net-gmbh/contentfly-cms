@@ -23,7 +23,7 @@ class Kategorie extends BaseTree
     protected $titel;
 
     /**
-     * @ORM\OneToMany(targetEntity="Custom\Entity\Kategorie2Produkte", mappedBy="kategorie")
+     * @ORM\OneToMany(targetEntity="Custom\Entity\KategorieProdukte", mappedBy="kategorie")
      * @PIM\ManyToMany(targetEntity="Custom\Entity\Produkt", mappedBy="produkt")
      * @PIM\Config(label="Produkte", tab="produkte")
      */

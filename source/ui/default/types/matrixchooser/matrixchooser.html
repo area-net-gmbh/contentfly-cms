@@ -61,7 +61,7 @@ glyphicon "></span> {{object.label}}</button>
     </div>
 </div>
 <div class="col-sm-12">
-    <button type="button" class="btn btn-default btn-sm" ng-hide="chooserOpened[0]" ng-click="openChooser(0)"><span class="glyphicon glyphicon-plus
+    <button type="button" class="btn btn-default btn-sm col-sm-2" ng-hide="chooserOpened[0]" ng-click="openChooser(0)"><span class="glyphicon glyphicon-plus
 glyphicon "></span> {{config.label}}</button>
     <div class="input-group" ng-show="chooserOpened[0]">
         <input id="search_0" type="text" class="form-control"  ng-model="search[0]" ng-keydown="keyPressed(0, $event, true)" ng-change="change(0)">

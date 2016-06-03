@@ -117,8 +117,14 @@
                 }
                 
                 function init(){
-                    var fullEntity  = scope.config.accept.split('\\');
-                    entity          = fullEntity[(fullEntity.length - 1)];
+                    if(scope.config.accept.substr(0, 18) == 'Areanet\\PIM\\Entity'){
+                        entity = scope.config.accept.replace('Areanet\\PIM\\Entity', 'PIM');
+                    }else{
+                        var fullEntity = null;
+                        fullEntity = scope.config.accept.split('\\');
+                        entity = fullEntity[(fullEntity.length - 1)];
+                    }
+                    
                     scope.schema    = localStorageService.get('schema')[entity];
 
                     scope.propertyCount = Object.keys(scope.schema.list).length;

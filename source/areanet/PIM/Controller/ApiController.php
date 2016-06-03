@@ -33,6 +33,39 @@ class ApiController extends BaseController
         'pdf' => array('application/pdf')
     );
 
+    /**
+     * @apiVersion 1.3.0
+     * @api {post} /api/single single
+     * @apiName Single
+     * @apiGroup Objekte
+     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam {String} entity Auszulesende Entity
+     * @apiParam {Boolean} group Nur Rückgabe der Anzahl der Objekte
+     * @apiParam {Object} order="{'id': 'DESC'}" Sortierung: <code>{'date': 'ASC/DESC',...}</code>
+     * @apiParam {Object} where Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
+     * @apiParam {Integer} currentPage Aktuelle Seite für Pagination
+     * @apiParam {Integer} itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE" Anzahl Objekte pro Seite bei Pagination
+     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
+     * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *      "entity": "News",
+     *      "id": 1
+     *     }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "message": "singleAction",
+     *       "data:" {
+     *          "id": 1,
+     *          "isHidden": false,
+     *          "isDeleted": false,
+     *          "title": "Eine News"
+     *       }
+     *   }
+     * @apiError 404 Objekt nicht gefunden
+     */
     public function singleAction(Request $request)
     {
         $data = array();
@@ -42,12 +75,46 @@ class ApiController extends BaseController
 
         $object = $this->em->getRepository('Custom\Entity\\'.ucfirst($entityName))->find($id);
         if(!$object){
-            return new JsonResponse(array('message' => "Not found"), 404);
+            return new JsonResponse(array('message' => "Object not found"), 404);
         }
 
-        return new JsonResponse(array('message' => "ok", 'data' => $object));
+        return new JsonResponse(array('message' => "singleAction", 'data' => $object));
     }
 
+    /**
+     * @apiVersion 1.3.0
+     * @api {post} /api/tree tree
+     * @apiName Baumansicht
+     * @apiGroup Objekte
+     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam {String} entity Auszulesende Entity
+     * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *      "entity": "Category",
+     *     }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "message": "treeAction",
+     *       "data:" [
+     *          {
+     *              "id": 1,
+     *              "isHidden": false,
+     *              "isDeleted": false,
+     *              "title": "Eine Kategorie",
+     *              "treeChilds" : [
+     *                  {
+     *                      ....
+     *                  }
+     *              ]
+     *          },
+     *          {...},
+     *          ...
+     *      ]
+     *   }
+     */
     public function treeAction(Request $request)
     {
         $entityName   = $request->get('entity');
@@ -59,8 +126,7 @@ class ApiController extends BaseController
             $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
         }
 
-
-        return new JsonResponse(array('message' => "ok", 'data' => $this->loadTree($entityNameToLoad, null)));
+        return new JsonResponse(array('message' => "treeAction", 'data' => $this->loadTree($entityNameToLoad, null)));
     }
 
     protected function loadTree($entity, $parent){
@@ -103,7 +169,7 @@ class ApiController extends BaseController
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
      *     {
-     *       "message": "allAction",
+     *       "message": "listAction",
      *       "lastModified": "2016-02-21 12:20:00"
      *       "itemsPerPage": 15,
      *       "totalItems": 200,
@@ -240,7 +306,7 @@ class ApiController extends BaseController
 
 
         if($doCount){
-            return new JsonResponse(array('message' => "ok", 'data' => count($objects)));
+            return new JsonResponse(array('message' => "listAction", 'data' => count($objects)));
         }
 
         if(!$objects){
@@ -302,9 +368,9 @@ class ApiController extends BaseController
 
 
         if($currentPage) {
-            return new JsonResponse(array('message' => "ok", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => count($totalObjects)));
+            return new JsonResponse(array('message' => "listAction", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => count($totalObjects)));
         } else {
-            return new JsonResponse(array('message' => "ok", 'data' => $array));
+            return new JsonResponse(array('message' => "listAction", 'data' => $array));
         }
     }
 
@@ -414,7 +480,7 @@ class ApiController extends BaseController
         $this->em->persist($log);
         $this->em->flush();
 
-        return new JsonResponse(array('message' => 'Object deleted'));
+        return new JsonResponse(array('message' => 'deleteAction'));
     }
 
 
@@ -692,7 +758,7 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => "Not found"), 404);
         }
 
-        return new JsonResponse(array('message' => 'Object updated', 'id' => $id));
+        return new JsonResponse(array('message' => 'updateAction', 'id' => $id));
 
     }
     
@@ -711,7 +777,7 @@ class ApiController extends BaseController
             }
         }
 
-        return new JsonResponse(array('message' => 'Objects updated'));
+        return new JsonResponse(array('message' => 'multiupdate'));
     }
 
 

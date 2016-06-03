@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt")
- * @PIM\Config(label = "Produkte", tabs="{'img': 'Bilder', 'cross': 'Cross-Selling', 'filter': 'Filter'}")
+ * @PIM\Config(label = "Produkte", tabs="{'img': 'Bilder', 'cross': 'Cross-Selling', 'filter': 'Filter', 'files': 'Dateien'}")
  */
 class Produkt extends Base
 {
@@ -58,7 +58,13 @@ class Produkt extends Base
      * @PIM\Config(label="Detailbilder", accept="image/*", tab="img")
      */
     protected $detailbilder;
-    
+
+    /**
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktDetailbilder", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Areanet\PIM\Entity\File", mappedBy="bild")
+     * @PIM\Config(label="Detailbilder 2", tab="img")
+     */
+    protected $bilder;
 
     /**
      * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktMetainformationen")
@@ -106,6 +112,13 @@ class Produkt extends Base
      * @PIM\Config(label="Filter", tab="filter")
      */
     protected $filterOptionen;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinTable(name="produkt_dateien_layoutvorlagen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @PIM\Config(label="Layoutvorlagen", accept="*", tab="files")
+     */
+    protected $layoutvorlagen;
 
 
     /**
@@ -226,6 +239,24 @@ class Produkt extends Base
     /**
      * @return mixed
      */
+    public function getBilder()
+    {
+        return $this->bilder;
+    }
+
+    /**
+     * @param mixed $bilder
+     */
+    public function setBilder($bilder)
+    {
+        $this->bilder = $bilder;
+    }
+    
+    
+
+    /**
+     * @return mixed
+     */
     public function getMetainformationen()
     {
         return $this->metainformationen;
@@ -319,12 +350,22 @@ class Produkt extends Base
         $this->filterOptionen = $filterOptionen;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getLayoutvorlagen()
+    {
+        return $this->layoutvorlagen;
+    }
 
-
-
-    
-    
-    
+    /**
+     * @param mixed $layoutvorlagen
+     */
+    public function setLayoutvorlagen($layoutvorlagen)
+    {
+        $this->layoutvorlagen = $layoutvorlagen;
+    }
+       
 
 
 }

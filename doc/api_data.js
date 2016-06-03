@@ -104,6 +104,66 @@ define({ "api": [
   {
     "version": "1.3.0",
     "type": "post",
+    "url": "/api/tree",
+    "title": "tree",
+    "name": "Baumansicht",
+    "group": "Objekte",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-Token",
+            "description": "<p>Acces-Token</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "defaultValue": "application/json",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "entity",
+            "description": "<p>Auszulesende Entity</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Request-Beispiel:",
+          "content": "{\n \"entity\": \"Category\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "  HTTP/1.1 200 OK\n  {\n    \"message\": \"treeAction\",\n    \"data:\" [\n       {\n           \"id\": 1,\n           \"isHidden\": false,\n           \"isDeleted\": false,\n           \"title\": \"Eine Kategorie\",\n           \"treeChilds\" : [\n               {\n                   ....\n               }\n           ]\n       },\n       {...},\n       ...\n   ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "source/areanet/PIM/Controller/ApiController.php",
+    "groupTitle": "Objekte"
+  },
+  {
+    "version": "1.3.0",
+    "type": "post",
     "url": "/api/delete",
     "title": "delete",
     "name": "Delete",
@@ -333,7 +393,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "  HTTP/1.1 200 OK\n  {\n    \"message\": \"allAction\",\n    \"lastModified\": \"2016-02-21 12:20:00\"\n    \"itemsPerPage\": 15,\n    \"totalItems\": 200,\n    \"data:\" [\n       {\n           \"id\": 1,\n           \"isHidden\": false,\n           \"isDeleted\": false,\n           \"title\": \"Eine News\"\n       },\n       {...},\n       ...\n   ]\n}",
+          "content": "  HTTP/1.1 200 OK\n  {\n    \"message\": \"listAction\",\n    \"lastModified\": \"2016-02-21 12:20:00\"\n    \"itemsPerPage\": 15,\n    \"totalItems\": 200,\n    \"data:\" [\n       {\n           \"id\": 1,\n           \"isHidden\": false,\n           \"isDeleted\": false,\n           \"title\": \"Eine News\"\n       },\n       {...},\n       ...\n   ]\n}",
           "type": "json"
         }
       ]
@@ -390,6 +450,123 @@ define({ "api": [
           "type": "json"
         }
       ]
+    },
+    "filename": "source/areanet/PIM/Controller/ApiController.php",
+    "groupTitle": "Objekte"
+  },
+  {
+    "version": "1.3.0",
+    "type": "post",
+    "url": "/api/single",
+    "title": "single",
+    "name": "Single",
+    "group": "Objekte",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-Token",
+            "description": "<p>Acces-Token</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "defaultValue": "application/json",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "entity",
+            "description": "<p>Auszulesende Entity</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": false,
+            "field": "group",
+            "description": "<p>Nur Rückgabe der Anzahl der Objekte</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Object",
+            "optional": false,
+            "field": "order",
+            "defaultValue": "{'id': 'DESC'}",
+            "description": "<p>Sortierung: <code>{'date': 'ASC/DESC',...}</code></p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Object",
+            "optional": false,
+            "field": "where",
+            "description": "<p>Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code></p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Integer",
+            "optional": false,
+            "field": "currentPage",
+            "description": "<p>Aktuelle Seite für Pagination</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Integer",
+            "optional": false,
+            "field": "itemsPerPage",
+            "defaultValue": "Config::FRONTEND_ITEMS_PER_PAGE",
+            "description": "<p>Anzahl Objekte pro Seite bei Pagination</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": false,
+            "field": "flatten",
+            "defaultValue": "false",
+            "description": "<p>Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Request-Beispiel:",
+          "content": "{\n \"entity\": \"News\",\n \"id\": 1\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "  HTTP/1.1 200 OK\n  {\n    \"message\": \"singleAction\",\n    \"data:\" {\n       \"id\": 1,\n       \"isHidden\": false,\n       \"isDeleted\": false,\n       \"title\": \"Eine News\"\n    }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "404",
+            "description": "<p>Objekt nicht gefunden</p>"
+          }
+        ]
+      }
     },
     "filename": "source/areanet/PIM/Controller/ApiController.php",
     "groupTitle": "Objekte"
