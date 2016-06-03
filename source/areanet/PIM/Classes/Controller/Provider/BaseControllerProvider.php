@@ -27,8 +27,16 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
     {
         $app->before(function (Request $request) {
             if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
-                $data = json_decode($request->getContent(), true);
+                $data = null;
+                if($request->getContent()) {
+                    $data = json_decode($request->getContent(), true);
+                    if ($data == null) {
+                        throw new \Exception("Inavlid JSON-Data", 500);
+                    }
+                }
                 $request->request->replace(is_array($data) ? $data : array());
+            }else{
+                throw new \Exception("Inavlid Content-Type", 500);
             }
         });
     }

@@ -21,6 +21,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Silex\Application;
 
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -540,6 +541,9 @@ class ApiController extends BaseController
             $getter = 'get'.ucfirst($property);
 
             //Todo: dynamisch alle Joins
+            if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
+                throw new \Exception("Unkown property $property for entity $entityPath", 500);
+            }
             switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
                 case 'file':
                     if(empty($value)){
@@ -812,6 +816,9 @@ class ApiController extends BaseController
             $getter = 'get'.ucfirst($property);
 
             //Todo: dynamisch alle Joins?
+            if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
+                throw new \Exception("Unkown property $property for entity $entityPath", 500);
+            }
             switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
                 case 'file':
                     if(empty($value)){
