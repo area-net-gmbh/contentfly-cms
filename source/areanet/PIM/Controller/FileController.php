@@ -56,8 +56,31 @@ class FileController extends BaseController
         return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject));
     }
 
-    public function getAction(Request $request){
-        
+    public function getAction($alias){
+        $fileObject = null;
+
+        if( filter_var($alias, FILTER_VALIDATE_INT) !== false ){
+            $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($alias);
+        }else{
+            $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $alias));
+        }
+
+        if(!$fileObject){
+            throw new \Exception("File not found");
+        }
+
+        $backend = Backend::getInstance();
+
+        $modules = apache_get_modules();
+
+        if(in_array('mod_xsendfile', $modules)) {
+            header('Content-type: ' . $fileObject->getType());
+            //header('Content-Disposition: attachment; filename="' . $fileObject->getName() . '"');
+            header("X-Sendfile: " . $backend->getUri($fileObject));
+            exit;
+        }else{
+            header('Content-type: ' . $fileObject->getType());
+        }
     }
 
     protected function sanitizeFileName($string, $force_lowercase = true, $anal = false) {

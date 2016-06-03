@@ -18,4 +18,19 @@ class FileSystem implements BackendInterface
         return '/data/files/'.$file->getId();
     }
 
+    public function getUri(File $file, $size = null)
+    {
+        if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
+        $sizeUri = $size ? $size.'-' : '';
+        return ROOT_DIR.'/data/files/'.$file->getId().'/'.$sizeUri.$file->getName();
+    }
+
+    public function getWebUri(File $file, $size = null)
+    {
+        if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
+        $sizeUri = $size ? $size.'-' : '';
+        return '/data/files/'.$file->getId().'/'.$sizeUri.$file->getName();
+    }
+
+
 }
