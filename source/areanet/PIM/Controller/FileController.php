@@ -101,9 +101,9 @@ class FileController extends BaseController
             }
 
         }
-
-        $modules    = \apache_get_modules();
         
+
+        $sizeObject = null;
         if($size){
 
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
@@ -114,8 +114,7 @@ class FileController extends BaseController
 
         $fileName   = $backend->getUri($fileObject, $sizeObject);
 
-        if(in_array('mod_xsendfile', $modules) && Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
-
+        if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
             header('Content-type: ' . $fileObject->getType());
             header("Content-length: " . $fileObject->getSize());
             header("X-Sendfile: ".$fileName);
