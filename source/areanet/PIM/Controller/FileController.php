@@ -102,7 +102,7 @@ class FileController extends BaseController
 
         }
 
-        $modules    = apache_get_modules();
+        $modules    = \apache_get_modules();
         
         if($size){
 
