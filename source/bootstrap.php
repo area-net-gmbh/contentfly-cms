@@ -77,14 +77,35 @@ $app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
 
 
 //Config Image-Processing
-//@todo: Implement Database version: #11
-Areanet\PIM\Classes\File\Processing::registerProcessor('image/jpeg', '\Areanet\Pim\Classes\File\Processing\Image');
-Areanet\PIM\Classes\File\Processing::registerProcessor('image/gif', '\Areanet\Pim\Classes\File\Processing\Image');
-Areanet\PIM\Classes\File\Processing::registerProcessor('image/png', '\Areanet\Pim\Classes\File\Processing\Image');
+$queryBuilder = $app['orm.em']->createQueryBuilder();
+$queryBuilder
+    ->select('thumbnailSetting')
+    ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting')
+    ->where("thumbnailSetting.isDeleted = false");
+$query   = $queryBuilder->getQuery();
+$thumbnailSettings = $query->getResult();
 
-Areanet\PIM\Classes\File\Processing\Image::registerImageSize(320);
-Areanet\PIM\Classes\File\Processing\Image::registerImageSize(640);
-Areanet\PIM\Classes\File\Processing\Image::registerImageSize(960);
+
+$app['thumbnailSettings'] = function ($app) {
+    $queryBuilder = $app['orm.em']->createQueryBuilder();
+    $queryBuilder
+        ->select('thumbnailSetting')
+        ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting')
+        ->where("thumbnailSetting.isDeleted = false");
+    $query   = $queryBuilder->getQuery();
+    return $query->getResult();
+};
+
+foreach(Config\Adapter::getConfig()->FILE_PROCESSORS as $fileProcessorSetting){
+    $fileProcessor = new $fileProcessorSetting();
+
+    foreach($app['thumbnailSettings'] as $thumbnailSetting){
+        $fileProcessor->registerImageSize($thumbnailSetting);
+    }
+
+    Areanet\PIM\Classes\File\Processing::registerProcessor($fileProcessor);
+}
+
 
 //Config Spatial ORM-Types
 Doctrine\DBAL\Types\Type::addType('point', '\Areanet\PIM\Classes\ORM\Spatial\PointType');

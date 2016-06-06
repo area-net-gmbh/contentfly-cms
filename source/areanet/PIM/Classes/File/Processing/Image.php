@@ -4,31 +4,44 @@ namespace Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\File\ProcessingInterface;
 use Areanet\PIM\Classes\File\BackendInterface;
 use Areanet\PIM\Entity\File;
+use Areanet\PIM\Entity\ThumbnailSetting;
 
 class Image implements ProcessingInterface
 {
 
-    static protected $imageSizes = array();
+    protected $thumbnailSettings = array();
+
     protected $mimeMapping = array(
         'image/jpeg' => 'jpeg',
+        'image/jpg' => 'jpeg',
         'image/gif' => 'gif',
         'image/png' => 'png'
     );
     protected $qualityMapping = array(
         'image/jpeg' => 90,
+        'image/jpg' => 90,
         'image/gif' => null,
         'image/png' => 0
     );
 
-    static public function registerImageSize($size)
+    public function registerImageSize(ThumbnailSetting $thumbnailSetting)
     {
-        self::$imageSizes[] = $size;
+        $this->thumbnailSettings[$thumbnailSetting->getAlias()] = $thumbnailSetting;
+    }
+    
+    public function getMimeTypes()
+    {
+        return array('image/jpeg', 'image/gif', 'image/png');
     }
 
-    public function execute(BackendInterface $backend, File $fileObject)
+    public function execute(BackendInterface $backend, File $fileObject, $fileSizeAlias = null)
     {
         if(!isset($this->mimeMapping[$fileObject->getType()])){
             return;
+        }
+
+        if($fileSizeAlias && !isset($this->thumbnailSettings[$fileSizeAlias])){
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSizeSetting not found");
         }
 
         $type           = $this->mimeMapping[$fileObject->getType()];
@@ -43,27 +56,207 @@ class Image implements ProcessingInterface
             imagesavealpha($img, true);
         }
 
-        foreach(self::$imageSizes as $size){
+        foreach($this->thumbnailSettings as $thumbnailSetting){
+
+            if($fileSizeAlias && $fileSizeAlias != $thumbnailSetting->getAlias()){
+                continue;
+            }
+
             $orig_width  = imagesx($img);
             $orig_height = imagesy($img);
-            $height      = (($orig_height * $size) / $orig_width);
 
-            $thumb = imagecreatetruecolor($size, $height);
+            $thumb = null;
 
-            if($fileObject->getType() == 'image/png') {
+            if($thumbnailSetting->getWidth() && $thumbnailSetting->getHeight()){
+                if($thumbnailSetting->getDoCut()){
+                    $thumb = $this->resizeByCutting($fileObject, $img, $thumbnailSetting);
+                }else{
+                    if($orig_width > $orig_height){
+                        $thumb = $this->resizeByWidth($fileObject, $img, $thumbnailSetting);
+                    }else{
+                        $thumb = $this->resizeByHeight($fileObject, $img, $thumbnailSetting);
+                    }
+                }
+            }elseif($thumbnailSetting->getWidth()){
+                $thumb = $this->resizeByWidth($fileObject, $img, $thumbnailSetting);
+            }elseif($thumbnailSetting->getHeight()){
+                $thumb = $this->resizeByHeight($fileObject, $img, $thumbnailSetting);
+            }elseif($thumbnailSetting->getPercent()){
+                $thumb = $this->resizePercentual($fileObject, $img, $thumbnailSetting);
+            }
+
+            if($thumb){
+                $imgThumbName = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
+                if($thumbnailSetting->getForceJpeg()){
+                    $imgThumbNameList = explode('.', $imgThumbName);
+                    $imgThumbNameList[(count($imgThumbNameList) -  1)] = 'jpg';
+                    $imgThumbName = implode('.', $imgThumbNameList);
+                    imagejpeg($thumb, $imgThumbName, $this->qualityMapping['image/jpeg']);
+                }else{
+                    $saveMethodName($thumb, $imgThumbName, $this->qualityMapping[$fileObject->getType()]);
+                }
+
+                imagedestroy($thumb);
+            }
+
+        }
+    }
+
+
+    protected function resizeByWidth($fileObject, $img, ThumbnailSetting $thumbnailSetting){
+        $orig_width  = imagesx($img);
+        $orig_height = imagesy($img);
+
+        $width       = $thumbnailSetting->getWidth();
+        $height      = (($orig_height * $width) / $orig_width);
+
+        $thumb = imagecreatetruecolor($width, $height);
+
+        if($fileObject->getType() == 'image/png') {
+
+            if($thumbnailSetting->getBackgroundColor()){
+                $colorName          = str_replace('#', '', $thumbnailSetting->getBackgroundColor());
+                list($r, $g, $b)    = array_map('hexdec',str_split($colorName,2));
+
+                $bgcolor = imageColorAllocate($thumb, $r, $g, $b);
+                imagefilledrectangle($thumb, 0, 0, $width, $height, $bgcolor);
+            }else{
                 imagealphablending($thumb, false);
                 imagesavealpha($thumb, true);
             }
 
-            imagecopyresampled($thumb, $img,
-                0, 0, 0, 0,
-                $size, $height,
-                $orig_width, $orig_height);
-
-            $imgThumbName = $backend->getPath($fileObject).'/'.$size.'-'.$fileObject->getName();
-            $saveMethodName($thumb, $imgThumbName, $this->qualityMapping[$fileObject->getType()]);
-
-            $thumb = null;
         }
+
+        imagecopyresampled($thumb, $img,
+            0, 0, 0, 0,
+            $width, $height,
+            $orig_width, $orig_height);
+
+        return $thumb;
+    }
+
+    protected function resizeByHeight($fileObject, $img, ThumbnailSetting $thumbnailSetting){
+        $orig_width  = imagesx($img);
+        $orig_height = imagesy($img);
+
+        $height     = $thumbnailSetting->getHeight();
+        $width      = (($orig_width * $height) / $orig_height);
+
+        $thumb = imagecreatetruecolor($width, $height);
+
+        if($fileObject->getType() == 'image/png') {
+            if($thumbnailSetting->getBackgroundColor()){
+                $colorName          = str_replace('#', '', $thumbnailSetting->getBackgroundColor());
+                list($r, $g, $b)    = array_map('hexdec',str_split($colorName,2));
+
+                $bgcolor = imageColorAllocate($thumb, $r, $g, $b);
+                imagefilledrectangle($thumb, 0, 0, $width, $height, $bgcolor);
+            }else{
+                imagealphablending($thumb, false);
+                imagesavealpha($thumb, true);
+            }
+        }
+
+        imagecopyresampled($thumb, $img,
+            0, 0, 0, 0,
+            $width, $height,
+            $orig_width, $orig_height);
+
+        return $thumb;
+    }
+
+    protected function resizeByCutting($fileObject, $img, ThumbnailSetting $thumbnailSetting){
+        $orig_width  = imagesx($img);
+        $orig_height = imagesy($img);
+
+        $width  = $thumbnailSetting->getWidth();
+        $height  = $thumbnailSetting->getHeight();
+
+        $width_resized  = $width;
+        $height_resized = $height;
+
+        if($width > $height){
+            if($orig_height/$orig_width >=  $height/$width){
+                $width_resized  = $width;
+                $height_resized = round($width/$orig_width * $orig_height);
+            }else{
+                $height_resized  = $height;
+                $width_resized   = round($height/$orig_height * $orig_width);
+            }
+        }else{
+            if($orig_width/$orig_height >=  $width/$height){
+                $width_resized  = round($height/$orig_height * $orig_width);
+                $height_resized = $height;
+            }else{
+                $height_resized = round($height/$orig_width * $orig_height);
+                $width_resized  = $height;
+            }
+        }
+
+        $image_resized = imagecreatetruecolor($width_resized, $height_resized);
+        if($fileObject->getType() == 'image/png') {
+            if($thumbnailSetting->getBackgroundColor()){
+                $colorName          = str_replace('#', '', $thumbnailSetting->getBackgroundColor());
+                list($r, $g, $b)    = array_map('hexdec',str_split($colorName,2));
+
+                $bgcolor = imageColorAllocate($image_resized, $r, $g, $b);
+                imagefilledrectangle($image_resized, 0, 0, $width_resized, $height_resized, $bgcolor);
+            }else{
+                imagealphablending($image_resized, false);
+                imagesavealpha($image_resized, true);
+            }
+        }
+
+        imagecopyresampled($image_resized, $img, 0, 0, 0, 0, $width_resized, $height_resized, $orig_width, $orig_height);
+
+        $width  = $width_resized <  $width ? $width_resized : $width;
+        $height = $height_resized <  $height ? $height_resized : $height;
+
+        $thumb = imagecreatetruecolor($width, $height);
+        if($fileObject->getType() == 'image/png') {
+            if($thumbnailSetting->getBackgroundColor()){
+                $colorName          = str_replace('#', '', $thumbnailSetting->getBackgroundColor());
+                list($r, $g, $b)    = array_map('hexdec',str_split($colorName,2));
+
+                $bgcolor = imageColorAllocate($image_resized, $r, $g, $b);
+                imagefilledrectangle($thumb, 0, 0, $width, $height, $bgcolor);
+            }else{
+                imagealphablending($image_resized, false);
+                imagesavealpha($thumb, true);
+            }
+        }
+        $src_y = 0;
+        $src_x = round(($width_resized - $width)/2);
+
+        imagecopyresampled($thumb, $image_resized, 0, 0, $src_x, $src_y, $width, $height, $width, $height);
+
+        imagedestroy($image_resized);
+
+        return $thumb;
+    }
+
+    protected function resizePercentual($fileObject, $img, ThumbnailSetting $thumbnailSetting){
+        $sizePerCent = $thumbnailSetting->getPercent();
+        $sizeFactor  = $sizePerCent/100;
+
+        $orig_width  = imagesx($img);
+        $orig_height = imagesy($img);
+
+        $width       = $orig_width * $sizeFactor;
+        $height      = $orig_height * $sizeFactor;
+
+        $thumb = imagecreatetruecolor($width, $height);
+
+        if($fileObject->getType() == 'image/png') {
+            imagealphablending($thumb, false);
+            imagesavealpha($thumb, true);
+        }
+
+        imagecopyresampled($thumb, $img,
+            0, 0, 0, 0,
+            $width, $height,
+            $orig_width, $orig_height);
+
+        return $thumb;
     }
 }

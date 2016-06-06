@@ -12,6 +12,7 @@
     - headers
     - expires
     - filter
+    - xsendfile
 
 - shell: apache2 -v
   register: apache_version

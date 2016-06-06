@@ -7,7 +7,10 @@ use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
 use Areanet\PIM\Classes\Exceptions\Config\EntityNotFoundException;
+use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
+use Areanet\PIM\Classes\File\Processing;
+use Areanet\PIM\Classes\File\Processing\Standard;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
@@ -78,6 +81,21 @@ class ApiController extends BaseController
         if(!$object){
             return new JsonResponse(array('message' => "Object not found"), 404);
         }
+
+        /*if($object instanceof File){
+            $backend = Backend::getInstance();
+            $object->uris = array(
+                'original' => $backend->getWebUri($object)
+            );
+
+            $processor = Processing::getInstance($object->getType());
+            if(!($processor instanceof Standard)){
+                foreach($this->app['thumbnailSettings'] as $thumbnailSetting){
+                    $object->uris[$thumbnailSetting->getAlias()] =  $backend->getWebUri($object, $thumbnailSetting);
+                }
+            }
+
+        }*/
 
         return new JsonResponse(array('message' => "singleAction", 'data' => $object));
     }
@@ -212,7 +230,8 @@ class ApiController extends BaseController
         $queryBuilder
             ->select($entityName)
             ->from($entityNameToLoad, $entityName)
-            ->where("$entityName.isDeleted = false");
+            ->where("$entityName.isDeleted = false")
+            ->where("$entityName.isIntern = false");
 
 
         if($where){
@@ -318,6 +337,22 @@ class ApiController extends BaseController
         $array = array();
         foreach($objects as $object){
             $objectData = $object->toValueObject($flatten);
+
+            /*if($entityName == 'PIM\\File'){
+                $backend = Backend::getInstance();
+                $objectData->uris = array(
+                    'original' => $backend->getWebUri($object)
+                );
+
+                $processor = Processing::getInstance($object->getType());
+                if(!($processor instanceof Standard)){
+                    foreach($this->app['thumbnailSettings'] as $thumbnailSetting){
+                        $objectData->uris[$thumbnailSetting->getAlias()] =  $backend->getWebUri($object, $thumbnailSetting);
+                    }
+                }
+
+            }
+            */
 
             foreach($schema[$entityName]['properties'] as $key => $config){
                 if($flatten){
@@ -1103,6 +1138,9 @@ class ApiController extends BaseController
 
         foreach($entities as $entityName){
             $entityShortcut = substr($entityName, strrpos($entityName, '\\') + 1);
+            if(substr($entityName, 0, 11) == 'Areanet\\PIM'){
+                $entityShortcut = 'PIM\\'.$entityShortcut;
+            }
             $qb = $this->em->createQueryBuilder();
             $qb
                 ->select($entityShortcut)
@@ -1128,6 +1166,22 @@ class ApiController extends BaseController
                 $objectData = $object->toValueObject($flatten);
 
                 if(isset($schema[$entityShortcut])) {
+
+                    /*if($entityShortcut == 'PIM\\File'){
+                        $backend = Backend::getInstance();
+                        $objectData->uris = array(
+                            'original' => $backend->getWebUri($object)
+                        );
+
+                        $processor = Processing::getInstance($object->getType());
+                        if(!($processor instanceof Standard)){
+                            foreach($this->app['thumbnailSettings'] as $thumbnailSetting){
+                                $objectData->uris[$thumbnailSetting->getAlias()] =  $backend->getWebUri($object, $thumbnailSetting);
+                            }
+                        }
+
+                    }*/
+
                     foreach ($schema[$entityShortcut]['properties'] as $key => $config) {
                         if($flatten){
                             if (isset($config['type']) && $config['type'] == 'multifile') {
@@ -1261,7 +1315,8 @@ class ApiController extends BaseController
         $entities[] = "PIM\\User";
         $entities[] = "PIM\\Log";
         $entities[] = "PIM\\PushToken";
-
+        $entities[] = "PIM\\ThumbnailSetting";
+        
         $data     = array();
 
         foreach($entities as $entity){

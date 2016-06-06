@@ -21,10 +21,14 @@ $app->get('/setup', "setup.controller:setupAction");
 
 
 $app->error(function (\Exception $e, $code) use($app) {
-    if($app['debug']){
-        return $app->json(array("message" => $e->getMessage(), 'debug' => $e->getTrace()), $code);
+    if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
+        return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 200));
     }else{
-        return $app->json(array("message" => $e->getMessage()), $code);
+        if($app['debug']){
+            return $app->json(array("message" => $e->getMessage(), 'debug' => $e->getTrace()), $code);
+        }else{
+            return $app->json(array("message" => $e->getMessage()), $code);
+        }
     }
 
 });

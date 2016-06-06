@@ -100,7 +100,10 @@ class Config{
      */
     public $FRONTEND_ITEMS_PER_PAGE = 20;
 
-
+    /**
+     * @var array Register File Processors
+     */
+    public $FILE_PROCESSORS = array('\Areanet\Pim\Classes\File\Processing\Image');
 
 
     /**

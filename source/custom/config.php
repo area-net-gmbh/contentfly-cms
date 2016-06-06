@@ -14,7 +14,7 @@ $config->DB_PASS = 'pass';
 
 $config->APP_DEBUG = true;
 
-$config->APP_ENABLE_XSENDFILE = false;
+$config->APP_ENABLE_XSENDFILE = true;
 
 $config->FRONTEND_ITEMS_PER_PAGE = 30;
 $config->FRONTEND_CUSTOM_LOGO = true;

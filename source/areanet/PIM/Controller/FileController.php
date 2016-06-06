@@ -2,6 +2,7 @@
 namespace Areanet\PIM\Controller;
 use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\Exceptions\Config\FileNotFoundException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Entity\File;
@@ -17,7 +18,7 @@ class FileController extends BaseController
     /**
      * @apiVersion 1.3.0
      * @api {post} /file/upload upload
-     * @apiName File
+     * @apiName Upload
      * @apiGroup File
      * @apiHeader {String} X-Token Acces-Token
      * @apiHeader {String} Content-Type=application/json
@@ -57,38 +58,72 @@ class FileController extends BaseController
         return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject));
     }
 
-    public function getAction($alias, Request $request){
+    /**
+     * @apiVersion 1.3.0
+     * @api {get} /file/get/:id/[:size]/[:alias]
+     * @apiName Get
+     * @apiGroup File
+     * @apiParam {string} id ID oder Dateiname
+     * @apiParam {string} size=null Optional: Alias der gewünschten Thumbnail-Größe, muss im PIM-Backend oder als PIM-Standard ("pim_list", "pim_small") entsprechend definiert sein
+     * @apiParam {string} alias=null Optional: Beliebiger Dateiname für SEO (Die Datei wird lediglich über die ID geladen)
+     * @apiExample {curl} Abfrage anhand ID
+     *     /file/get/12
+     * @apiExample {curl} ID und Dateiname
+     *     /file/get/12/sample.jpg
+     * @apiExample {curl} Thumbnails anhand ID und Dateiname
+     *     /file/get/12/small/sample.jpg
+     *
+     * @apiDescription Download/Darstellung von Dateien, der Aufruf kann über folgende Kombinationen erfolgen
+     *
+     * - /file/get/ID
+     * - /file/get/ID/ALIAS
+     * - /file/get/ID/SIZE/ALIAS
+     *
+     * Der Parameter ALIAS (z.B. beliebiger Dateiname) kann frei für SEO-Zwecke gesetzt werden und hat keinen Einfluss auf die Abfrage des entsprechenden Objektes. Für die Abfrage spielt lediglich die ID eine Rolle.
+     */
+    public function getAction($id, $alias = null, $size = null){
         $fileObject = null;
-        $size       = $request->get('size', null);
 
-        if( filter_var($alias, FILTER_VALIDATE_INT) !== false ){
-            $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($alias);
-        }else{
-            $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $alias));
-        }
+        $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
         if(!$fileObject){
-            throw new \Exception("FileObject not found");
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileObject not found");
         }
 
         $backend = Backend::getInstance();
 
         if(!file_exists($backend->getUri($fileObject, $size))){
-            throw new \Exception("File not found");
+            $processor = Processing::getInstance($fileObject->getType());
+            if($processor instanceof Processing\Standard){
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize for FileObject not found");
+            }else{
+                $processor->execute($backend, $fileObject, $size);
+            }
+
         }
 
-        $modules = apache_get_modules();
+        $modules    = apache_get_modules();
+        
+        if($size){
+
+            $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
+            if(!$sizeObject){
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize not found");
+            }
+        }
+
+        $fileName   = $backend->getUri($fileObject, $sizeObject);
 
         if(in_array('mod_xsendfile', $modules) && Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
-            header('Content-type: ' . mime_content_type($backend->getUri($fileObject, $size)));
-            header("Content-length: " . $fileObject->getSize());
-            header("X-Sendfile: ".$backend->getUri($fileObject, $size));
-            exit;
-        }else{
-            header('Location '.$backend->getWebUri($fileObject, $size));
+
             header('Content-type: ' . $fileObject->getType());
             header("Content-length: " . $fileObject->getSize());
-            readfile($backend->getUri($fileObject, $size));
+            header("X-Sendfile: ".$fileName);
+            exit;
+        }else{
+            header('Content-type: ' . $fileObject->getType());
+            header("Content-length: " . $fileObject->getSize());
+            readfile($fileName);
         }
     }
 

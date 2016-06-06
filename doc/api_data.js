@@ -1,10 +1,67 @@
 define({ "api": [
   {
     "version": "1.3.0",
+    "type": "get",
+    "url": "/file/get/:id/[:size]/[:alias]",
+    "title": "",
+    "name": "Get",
+    "group": "File",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID oder Dateiname</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "size",
+            "defaultValue": "null",
+            "description": "<p>Optional: Alias der gewünschten Thumbnail-Größe, muss im PIM-Backend oder als PIM-Standard (&quot;pim_list&quot;, &quot;pim_small&quot;) entsprechend definiert sein</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "alias",
+            "defaultValue": "null",
+            "description": "<p>Optional: Beliebiger Dateiname für SEO (Die Datei wird lediglich über die ID geladen)</p>"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "title": "Abfrage anhand ID",
+        "content": "/file/get/12",
+        "type": "curl"
+      },
+      {
+        "title": "ID und Dateiname",
+        "content": "/file/get/12/sample.jpg",
+        "type": "curl"
+      },
+      {
+        "title": "Thumbnails anhand ID und Dateiname",
+        "content": "/file/get/12/small/sample.jpg",
+        "type": "curl"
+      }
+    ],
+    "description": "<p>Download/Darstellung von Dateien, der Aufruf kann über folgende Kombinationen erfolgen</p> <ul> <li>/file/get/ID</li> <li>/file/get/ID/ALIAS</li> <li>/file/get/ID/SIZE/ALIAS</li> </ul> <p>Der Parameter ALIAS (z.B. beliebiger Dateiname) kann frei für SEO-Zwecke gesetzt werden und hat keinen Einfluss auf die Abfrage des entsprechenden Objektes. Für die Abfrage spielt lediglich die ID eine Rolle.</p>",
+    "filename": "source/areanet/PIM/Controller/FileController.php",
+    "groupTitle": "File"
+  },
+  {
+    "version": "1.3.0",
     "type": "post",
     "url": "/file/upload",
     "title": "upload",
-    "name": "File",
+    "name": "Upload",
     "group": "File",
     "header": {
       "fields": {
