@@ -103,7 +103,7 @@ class Config{
     /**
      * @var array Register File Processors
      */
-    public $FILE_PROCESSORS = array('\Areanet\Pim\Classes\File\Processing\Image');
+    public $FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\Image');
 
 
     /**
