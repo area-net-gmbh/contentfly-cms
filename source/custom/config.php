@@ -34,6 +34,8 @@ $config->DB_NAME = 'usr_p212925_3';
 $config->DB_USER = 'p212925d1';
 $config->DB_PASS = 'Ufisisog.693';
 
+$config->APP_ENABLE_XSENDFILE = false;
+
 $configFactory->setConfig($config);
 
 
