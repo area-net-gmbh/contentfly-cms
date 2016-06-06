@@ -3,7 +3,7 @@ define({ "api": [
     "version": "1.3.0",
     "type": "get",
     "url": "/file/get/:id/[:size]/[:alias]",
-    "title": "",
+    "title": "get",
     "name": "Get",
     "group": "File",
     "parameter": {

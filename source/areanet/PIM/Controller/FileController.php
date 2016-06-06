@@ -60,7 +60,7 @@ class FileController extends BaseController
 
     /**
      * @apiVersion 1.3.0
-     * @api {get} /file/get/:id/[:size]/[:alias]
+     * @api {get} /file/get/:id/[:size]/[:alias] get
      * @apiName Get
      * @apiGroup File
      * @apiParam {string} id ID oder Dateiname
