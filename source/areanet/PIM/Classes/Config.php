@@ -73,7 +73,10 @@ class Config{
      */
     public $APP_TIMEZONE = 'Europe/Berlin';
 
-
+    /**
+     * @var string Aktiviert XSendFile für Download (Apache-Modul muss installiert und aktiviert sein)
+     */
+    public $APP_ENABLE_XSENDFILE = false;
 
 
 
@@ -97,7 +100,10 @@ class Config{
      */
     public $FRONTEND_ITEMS_PER_PAGE = 20;
 
-
+    /**
+     * @var array Register File Processors
+     */
+    public $FILE_PROCESSORS = array('\Areanet\Pim\Classes\File\Processing\Image');
 
 
     /**

@@ -54,12 +54,17 @@ class Base extends Serializable
     protected $user;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @PIM\Config(hide=true)
+     */
+    protected $isIntern = 0;
+
+    /**
      * @PIM\Config(hide=true)
      */
     protected $disableModifiedTime = false;
 
-
-
+    
     public function __construct()
     {
         $this->created   = new \DateTime();
@@ -184,6 +189,22 @@ class Base extends Serializable
     public function setDisableModifiedTime($disableModifiedTime)
     {
         $this->disableModifiedTime = $disableModifiedTime;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsIntern()
+    {
+        return $this->isIntern;
+    }
+
+    /**
+     * @param mixed $isIntern
+     */
+    public function setIsIntern($isIntern)
+    {
+        $this->isIntern = $isIntern;
     }
 
 

@@ -5,14 +5,15 @@ php_flag display_errors on
     Options -MultiViews
 
     RewriteEngine On
+
     #RewriteBase /path/to/app
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [QSA,L]
+
 </IfModule>
 
 <IfModule mod_xsendfile.c>
-    <Files info.php>
-        XSendFile on
-    </Files>
+
+     XSendFile on
  </IfModule>

@@ -29,8 +29,10 @@ class FileControllerProvider extends BaseControllerProvider
         };
 
         $controllers->post('/upload', "file.controller:uploadAction")->before($checkAuth);
-        $controllers->get('/get/{alias}', "file.controller:getAction");
-
+        $controllers->get('/get/{id}', "file.controller:getAction");
+        $controllers->get('/get/{id}/{alias}', "file.controller:getAction");
+        $controllers->get('/get/{id}/{size}/{alias}', "file.controller:getAction");
+        
         return $controllers;
     }
 

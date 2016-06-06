@@ -3,6 +3,7 @@ namespace Areanet\PIM\Classes\File\Backend;
 
 use Areanet\PIM\Entity\File;
 use Areanet\PIM\Classes\File\BackendInterface;
+use Areanet\PIM\Entity\ThumbnailSetting;
 
 class FileSystem implements BackendInterface
 {
@@ -20,16 +21,44 @@ class FileSystem implements BackendInterface
 
     public function getUri(File $file, $size = null)
     {
+        $fileName = $file->getName();
+        $sizeUri  = '';
+        if($size){
+            if($size instanceof ThumbnailSetting){
+                if($size->getForceJpeg()) {
+                    $imgThumbNameList = explode('.', $fileName);
+                    $imgThumbNameList[(count($imgThumbNameList) - 1)] = 'jpg';
+                    $fileName = implode('.', $imgThumbNameList);
+                }
+                $sizeUri = $size->getAlias().'-';
+            }else{
+                $sizeUri = $size.'-';
+            }
+        }
+
         if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
-        $sizeUri = $size ? $size.'-' : '';
-        return ROOT_DIR.'/data/files/'.$file->getId().'/'.$sizeUri.$file->getName();
+
+        return ROOT_DIR.'/data/files/'.$file->getId().'/'.$sizeUri.$fileName;
     }
 
     public function getWebUri(File $file, $size = null)
     {
-        if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
-        $sizeUri = $size ? $size.'-' : '';
-        return '/data/files/'.$file->getId().'/'.$sizeUri.$file->getName();
+        $fileName = $file->getName();
+        $sizeUri  = '';
+        if($size){
+            if($size instanceof ThumbnailSetting){
+                if($size->getForceJpeg()) {
+                    $imgThumbNameList = explode('.', $fileName);
+                    $imgThumbNameList[(count($imgThumbNameList) - 1)] = 'jpg';
+                    $fileName = implode('.', $imgThumbNameList);
+                }
+                $sizeUri = $size->getAlias().'/';
+            }else{
+                $sizeUri = $size.'/';
+            }
+        }
+
+        return 'files/get/'.$file->getId().'/'.$sizeUri.$fileName;
     }
 
 

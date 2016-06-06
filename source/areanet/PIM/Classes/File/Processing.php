@@ -6,17 +6,19 @@ class Processing
 {
     static protected $mapping = array();
 
-    static public function registerProcessor($mimeType, $className)
+    static public function registerProcessor(ProcessingInterface $processor)
     {
-        self::$mapping[$mimeType] = $className;
+        foreach($processor->getMimeTypes() as $mimeType){
+            self::$mapping[$mimeType] = $processor;
+        }
+
     }
 
     static public function getInstance($mimeType)
     {
 
         if(isset(self::$mapping[$mimeType])){
-            $class = self::$mapping[$mimeType];
-            return new $class();
+            return self::$mapping[$mimeType];
         }
 
         return new \Areanet\PIM\Classes\File\Processing\Standard();
