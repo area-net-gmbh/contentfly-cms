@@ -18,7 +18,7 @@
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;
                 var entity       = null;
-
+                
                 //Properties
                 scope.chooserOpened = false;
                 scope.currentPage   = 1;

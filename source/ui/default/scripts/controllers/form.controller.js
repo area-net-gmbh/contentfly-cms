@@ -10,7 +10,7 @@
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
         var backupForObject  = null;
-
+        
         //Properties
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];

@@ -13,7 +13,8 @@
             insert: insert,
             update: update,
             multiupdate: multiupdate,
-            single: single
+            single: single,
+            tree: tree
         }
 
 
@@ -68,6 +69,15 @@
             return $http({
                 method: 'POST',
                 url: '/api/single',
+                headers: { 'X-Token': localStorageService.get('token') },
+                data: data
+            });
+        }
+
+        function tree(data){
+            return $http({
+                method: 'POST',
+                url: '/api/tree',
                 headers: { 'X-Token': localStorageService.get('token') },
                 data: data
             });

@@ -34,8 +34,16 @@
 
                         <label ng-show="vm.filterJoins[key]" ng-switch-when="join">{{vm.schema.properties[key].label}}</label>
                         <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="join" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
-                            <option value="">alle</option>
-                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.title}}</option>
+                            option value="">alle anzeigen</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
+                        </select>
+
+                        <label ng-show="vm.filterJoins[key]" ng-switch-when="multijoin">{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="multijoin" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                            <option value="">alle anzeigen</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
                         </select>
 
                         <label ng-switch-when="select">{{vm.schema.properties[key].label}}</label>

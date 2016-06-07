@@ -27,7 +27,7 @@ class ThumbnailSetting extends Base
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @PIM\Config(label="Zuschneiden")
+     * @PIM\Config(showInList=25, label="Zuschneiden")
      */
     protected $doCut=0;
 
@@ -51,13 +51,13 @@ class ThumbnailSetting extends Base
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(showInList=50, label="HG-Farbe")
+     * @PIM\Config(showInList=60, label="HG-Farbe")
      */
     protected $backgroundColor;
 
     /**
     * @ORM\Column(type="boolean", nullable=true)
-    * @PIM\Config(label="JPEG-Ausgabe erzwingen")
+    * @PIM\Config(showInList=70, label="JPEG-Ausgabe erzwingen")
     */
     protected $forceJpeg=0;
 

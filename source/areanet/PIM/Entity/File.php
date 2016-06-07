@@ -7,6 +7,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_file")
+ * @PIM\Config(label="Dateien", tabs="{'tags': 'Tags'}")
  */
 
 class File extends Base
@@ -19,13 +20,31 @@ class File extends Base
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(label="Titel", showInList=40)
+     * @PIM\Config(label="Alias-Name")
+     */
+    protected $alias;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Titel")
      */
     protected $title;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Alt-Text")
+     */
+    protected $altText;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Config(type="textarea", label="Beschreibung")
+     */
+    protected $description;
+
+    /**
      * @ORM\Column(type="string")
-     * @PIM\Config(label="Dateityp", hide=true, showInList=50)
+     * @PIM\Config(label="Dateityp", readonly=true, showInList=50)
      */
     protected $type;
 
@@ -37,7 +56,7 @@ class File extends Base
 
     /**
      * @ORM\Column(type="integer")
-     * @PIM\Config(label="Dateigröße", hide=true, showInList=60)
+     * @PIM\Config(label="Dateigröße", readonly=true, showInList=60)
      */
     protected $size;
 
@@ -46,6 +65,13 @@ class File extends Base
      * @PIM\Config(hide=true, label="Versteckt")
      */
     protected $isHidden;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\Tag")
+     * @ORM\JoinTable(name="pim_file_tags", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @PIM\Config(label="Tags", tab="tags")
+     */
+    protected $tags;
 
     /**
      * @return mixed
@@ -153,6 +179,72 @@ class File extends Base
 
         return $properties;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @param mixed $alias
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAltText()
+    {
+        return $this->altText;
+    }
+
+    /**
+     * @param mixed $altText
+     */
+    public function setAltText($altText)
+    {
+        $this->altText = $altText;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * @param mixed $tags
+     */
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+    }
+
+
 
 
 
