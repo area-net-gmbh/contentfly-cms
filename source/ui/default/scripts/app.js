@@ -29,6 +29,8 @@
                     $rootScope.entities = entities;
 
                 }
+            }else{
+                $rootScope.frontend = localStorageService.get('frontend');
             }
         });
     }

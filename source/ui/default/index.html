@@ -15,7 +15,7 @@
     <link rel="stylesheet prefetch" href="vendor/loaders/loaders.min.css">
     <link rel="stylesheet prefetch" href="vendor/chartjs/angular-chart.min.css">
 </head>
-<body>
+<body ng-class="{emotionalBackground: !userLoggedIn}">
 
     <nav ng-cloak ng-show="userLoggedIn" id="pim-header" class="navbar navbar-default navbar-fixed-top devmode-{{devmode}} ">
         <div class="container-fluid">
