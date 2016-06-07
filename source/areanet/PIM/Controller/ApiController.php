@@ -238,7 +238,7 @@ class ApiController extends BaseController
             ->select($entityName)
             ->from($entityNameToLoad, $entityName)
             ->where("$entityName.isDeleted = false")
-            ->where("$entityName.isIntern = false");
+            ->andWhere("$entityName.isIntern = false");
 
 
         if($where){
