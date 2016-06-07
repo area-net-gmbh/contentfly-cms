@@ -51,18 +51,12 @@ class Produkt extends Base
      * @PIM\Config(label="Vorschaubild", accept="image/*", tab="img")
      */
     protected $vorschaubild;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\File")
-     * @ORM\JoinTable(name="produkt_detailbilder", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
-     * @PIM\Config(label="Detailbilder", accept="image/*", tab="img")
-     */
-    protected $detailbilder;
+    
 
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktDetailbilder", mappedBy="produkt")
      * @PIM\ManyToMany(targetEntity="Areanet\PIM\Entity\File", mappedBy="bild")
-     * @PIM\Config(label="Detailbilder 2", tab="img")
+     * @PIM\Config(label="Detailbilder", tab="img")
      */
     protected $bilder;
 
@@ -119,6 +113,13 @@ class Produkt extends Base
      * @PIM\Config(label="Layoutvorlagen", accept="*", tab="files")
      */
     protected $layoutvorlagen;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Custom\Entity\KategorieProdukte", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Kategorie", mappedBy="kategorie")
+     * @PIM\Config(label="Kategorien", readonly=true, isFilterable=true)
+     */
+    protected $kategorien;
 
 
     /**
@@ -219,23 +220,8 @@ class Produkt extends Base
     {
         $this->vorschaubild = $vorschaubild;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getDetailbilder()
-    {
-        return $this->detailbilder;
-    }
-
-    /**
-     * @param mixed $detailbilder
-     */
-    public function setDetailbilder($detailbilder)
-    {
-        $this->detailbilder = $detailbilder;
-    }
-
+    
+    
     /**
      * @return mixed
      */
@@ -365,6 +351,24 @@ class Produkt extends Base
     {
         $this->layoutvorlagen = $layoutvorlagen;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getKategorien()
+    {
+        return $this->kategorien;
+    }
+
+    /**
+     * @param mixed $kategorien
+     */
+    public function setKategorien($kategorien)
+    {
+        $this->kategorien = $kategorien;
+    }
+
+
        
 
 

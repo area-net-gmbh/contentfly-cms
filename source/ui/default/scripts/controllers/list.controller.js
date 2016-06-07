@@ -79,27 +79,13 @@
         vm.toggleFilter         = toggleFilter;
 
         //Startup
-        init();
         loadData();
+        loadFilters();
 
         ///////////////////////////////////
 
         function closeFilter(){
             vm.filterIsOpen = false;
-        }
-
-        function executeFilter() {
-
-            var badgeCount = 0;
-            for (var key in vm.filter) {
-                if(vm.filter[key]){
-                    badgeCount++;
-                }
-            }
-
-            vm.filterBadge = badgeCount;
-
-            loadData();
         }
 
         function doDelete(id){
@@ -148,31 +134,37 @@
             );
         }
 
-        function init(){
-            for (var key in vm.schema.properties) {
-                if(vm.schema.properties[key].type == 'join'){
-                    var entity =  vm.schema.properties[key].accept.replace('\\Custom\\Entity\\', '');
-                    var field = key;
-                    EntityService.list({entity: entity}).then(
-                        function successCallback(response) {
-                            var joinSchema = localStorageService.get('schema')[entity];
-                            vm.filterJoins[field] = response.data.data;
+        function executeFilter() {
 
-                            for(var i = 0; i < vm.filterJoins[field].length; i++){
-                                if(!vm.filterJoins[field][i]['title']){
-                                    vm.filterJoins[field][i]['title'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
-                                }
-                            }
+            var badgeCount = 0;
+            for (var key in vm.filter) {
+                if(vm.filter[key]){
+                    badgeCount++;
+                }
+            }
 
+            vm.filterBadge = badgeCount;
 
-                        },
-                        function errorCallback(response) {
-                        }
-                    );
+            loadData();
+        }
 
+        function generateTree(entity, field, data, depth){
+            var joinSchema = localStorageService.get('schema')[entity];
+
+            vm.filterJoins[field] = vm.filterJoins[field] ? vm.filterJoins[field] : [];
+
+            for(var i = 0; i < data.length; i++){
+                var filler = '--'.repeat(depth);
+                filler = filler ? filler + ' ' : filler
+                data[i]['pim_filterTitle'] = filler + data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                vm.filterJoins[field].push(data[i]);
+                if(data[i]['treeChilds']){
+                    var subDepth = depth + 1;
+                    generateTree(entity, field, data[i]['treeChilds'], subDepth);
                 }
             }
         }
+
 
         function loadData(){
             var sortSettings = {};
@@ -209,6 +201,65 @@
                     vm.objectsNotAvailable = true;
                 }
             );
+        }
+
+        function loadFilters(){
+            for (var key in vm.schema.properties) {
+                if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
+                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
+                    var field = key;
+                    EntityService.list({entity: entity}).then(
+                        function successCallback(response) {
+                            var joinSchema = localStorageService.get('schema')[entity];
+                            vm.filterJoins[field] = response.data.data;
+
+                            for(var i = 0; i < vm.filterJoins[field].length; i++){
+                                if(!vm.filterJoins[field][i]['title']){
+                                    vm.filterJoins[field][i]['title'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                }
+                            }
+
+                        },
+                        function errorCallback(response) {
+                        }
+                    );
+
+                }
+                if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
+
+                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
+                    var field = key;
+                    if(localStorageService.get('schema')[entity].settings.type == 'tree'){
+
+                        EntityService.tree({entity: entity}).then(
+                            function successCallback(response) {
+                                generateTree(entity, field, response.data.data, 0)
+                            },
+                            function errorCallback(response) {
+                            }
+                        );
+                    }else{
+
+                        EntityService.list({entity: entity}).then(
+                            function successCallback(response) {
+                                var joinSchema = localStorageService.get('schema')[entity];
+                                vm.filterJoins[field] = response.data.data;
+
+                                for(var i = 0; i < vm.filterJoins[field].length; i++){
+                                    if(!vm.filterJoins[field][i]['title']){
+                                        vm.filterJoins[field][i]['title'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                    }
+                                }
+
+                            },
+                            function errorCallback(response) {
+                            }
+                        );
+                    }
+
+
+                }
+            }
         }
 
 

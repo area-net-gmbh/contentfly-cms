@@ -103,24 +103,20 @@
 
                 function editFile(){
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/partials/file-edit.html',
-                        controller: 'FileEditCtrl as vm',
+                        templateUrl: 'views/form.html',
+                        controller: 'FormCtrl as vm',
                         resolve: {
-                            modaltitle: function () {
-                                return 'Titel Datei ' + scope.value.id + ' bearbeiten';
-                            },
-                            title: function () {
-                                return scope.value.title;
-                            },
-                            id: function () {
-                                return scope.value.id;
-                            }
+                            entity: function(){ return 'PIM\\File';},
+                            title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
+                            object: function(){ return scope.value; }
                         }
                     });
 
                     modalInstance.result.then(
-                        function (title) {
-                            scope.value.title = title;
+                        function (newObject) {
+                            if(newObject){
+                                scope.value = newObject;
+                            }
                         },
                         function () {}
                     );

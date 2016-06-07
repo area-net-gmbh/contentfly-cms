@@ -21,6 +21,11 @@ final class Config extends Annotation
     /**
      * @var boolean
      */
+    public $isFilterable = false;
+
+    /**
+     * @var boolean
+     */
     public $readonly = false;
 
     /**

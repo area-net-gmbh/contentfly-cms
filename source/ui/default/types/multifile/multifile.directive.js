@@ -19,12 +19,19 @@
 
                 //Properties
                 
-
+                
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
                 scope.removeFile    = removeFile;
                 scope.uploadFile    = uploadFile;
+
+                scope.sortableOptions = {
+                    stop: function(e,ui){
+                        triggerUpdate();
+                    },
+                    disabled:!scope.config.sortable
+                };
 
                 ///////////////////////////
 
@@ -50,8 +57,16 @@
                         function (fileData) {
 
                             if (fileData) {
+
                                 scope.value = scope.value ? scope.value : [];
-                                scope.value.push(fileData);
+                                if(scope.config.mappedBy){
+                                    var subObject = {};
+                                    subObject[scope.config.mappedBy] = fileData;
+                                    scope.value.push(subObject);
+                                }else{
+                                    scope.value.push(fileData);
+                                }
+
 
                                 triggerUpdate();
                             }
@@ -64,24 +79,23 @@
                 function editFile(index, id, title) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/partials/file-edit.html',
-                        controller: 'FileEditCtrl as vm',
+                        templateUrl: 'views/form.html',
+                        controller: 'FormCtrl as vm',
                         resolve: {
-                            modaltitle: function () {
-                                return 'Titel Datei ' + id + ' bearbeiten';
-                            },
-                            title: function () {
-                                return title;
-                            },
-                            id: function () {
-                                return id;
-                            }
+                            entity: function(){ return 'PIM\\File';},
+                            title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
+                            object: function(){ return scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index]; }
                         }
                     });
 
                     modalInstance.result.then(
-                        function (title) {
-                            scope.value[index]["title"] = title;
+                        function (newObject) {
+                            if(scope.config.mappedBy){
+                                scope.value[index][scope.config.mappedBy] = newObject;
+                            }else{
+                                scope.value[index] = newObject;
+                            }
+
                         },
                         function () {}
                     );
@@ -97,7 +111,12 @@
                 function triggerUpdate(){
                     var values = [];
                     for (var index in scope.value) {
-                        values.push(scope.value[index].id);
+                        if(scope.config.mappedBy){
+                            values.push(scope.value[index][scope.config.mappedBy].id);
+                        }else{
+                            values.push(scope.value[index].id);
+                        }
+
                     }
                     scope.onChangeCallback({key: scope.key, value: values});
                 }
@@ -118,7 +137,13 @@
                             function (response) {
                                 file.result = response.data;
 
-                                scope.value.push(response.data.data);
+                                if(scope.config.mappedBy) {
+                                    var subObject = {};
+                                    subObject[scope.config.mappedBy] = response.data.data;
+                                    scope.value.push(subObject);
+                                }else{
+                                    scope.value.push(response.data.data);
+                                }
                                 triggerUpdate();
 
                                 $timeout(function () {
