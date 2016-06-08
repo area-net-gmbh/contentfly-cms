@@ -8,10 +8,40 @@
     function LoginCtrl($scope, $location, localStorageService, $cookies, $http){
         var vm = this;
 
-        vm.login  = login;
-        vm.schema = schema;
+        //Properties
+        vm.config               = null;
+        vm.logoIsInitialisied   = false;
+        vm.canLogin             = false;
+
+        //Functions
+        vm.change   = change;
+        vm.login    = login;
+        vm.schema   = schema;
+
+        //Startup
+        init();
 
         //////////////////////////////
+
+        function change(){
+            console.log("test2");
+            if(vm.alias && vm.password){
+                vm.canLogin = true;
+            }else{
+                vm.canLogin = false;
+            }
+        }
+
+        function init(){
+            $http({
+                method: 'GET',
+                url: '/api/config'
+            }).then(function successCallback(response) {
+                vm.config = response.data;
+                vm.logoIsInitialisied = true;
+            }, function errorCallback(response) {
+            });
+        }
 
         function login(){
             $http({

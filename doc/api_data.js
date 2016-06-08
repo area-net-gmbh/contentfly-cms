@@ -472,47 +472,6 @@ define({ "api": [
   },
   {
     "version": "1.3.0",
-    "type": "get",
-    "url": "/api/schema",
-    "title": "schema",
-    "name": "Schema",
-    "group": "Objekte",
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "X-Token",
-            "description": "<p>Acces-Token</p>"
-          },
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "Content-Type",
-            "defaultValue": "application/json",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "description": "<p>Gibt das Schema aller Entities zurück</p>",
-    "success": {
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n  \"devmode\": false,\n  \"version\": \"1.3.0\"\n  \"data:\" {\n    ...\n  }\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "source/areanet/PIM/Controller/ApiController.php",
-    "groupTitle": "Objekte"
-  },
-  {
-    "version": "1.3.0",
     "type": "post",
     "url": "/api/single",
     "title": "single",
@@ -798,6 +757,81 @@ define({ "api": [
     },
     "filename": "source/areanet/PIM/Controller/PushController.php",
     "groupTitle": "Push"
+  },
+  {
+    "version": "1.3.0",
+    "type": "get",
+    "url": "/api/config",
+    "title": "config",
+    "name": "Config",
+    "group": "Settings",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "defaultValue": "application/json",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "description": "<p>Grundlegende, frei-zugängliche Konfiguration, z.B. für Login-Seite</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n  \"devmode\": false,\n  \"version\": \"1.3.0\"\n  \"data:\" {\n    ...\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "source/areanet/PIM/Controller/ApiController.php",
+    "groupTitle": "Settings"
+  },
+  {
+    "version": "1.3.0",
+    "type": "get",
+    "url": "/api/schema",
+    "title": "schema",
+    "name": "Schema",
+    "group": "Settings",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-Token",
+            "description": "<p>Acces-Token</p>"
+          },
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "Content-Type",
+            "defaultValue": "application/json",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "description": "<p>Gibt das Schema aller Entities zurück</p>",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n  \"devmode\": false,\n  \"version\": \"1.3.0\"\n  \"data:\" {\n    ...\n  }\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "source/areanet/PIM/Controller/ApiController.php",
+    "groupTitle": "Settings"
   },
   {
     "version": "1.3.0",

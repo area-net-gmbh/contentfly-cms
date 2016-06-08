@@ -48,6 +48,8 @@ class ApiControllerProvider extends BaseControllerProvider
             $controllers->get('/schema', "api.controller:schemaAction")->before($checkAuth);
         }
 
+        $controllers->get('/config', "api.controller:configAction");
+
 
         return $controllers;
     }
