@@ -13,10 +13,16 @@ use Doctrine\ORM\Mapping as ORM;
 class ProduktWebinformationen extends Base
 {
     /**
-     * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Teaser-Text")
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Teaser-Text")
      */
     protected $teaserText;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Config(type="rte", label="Marketing-Text")
+     */
+    protected $marketingText;
 
     /**
      * @ORM\ManyToMany(targetEntity="Custom\Entity\USPText")
@@ -26,16 +32,48 @@ class ProduktWebinformationen extends Base
     protected $uspTexte;
 
     /**
-     * @ORM\Column(type="boolean", nullable=true)
-     * @PIM\Config(showInList=80, label="Banner 'Neu' anzeigen")
+     * @ORM\ManyToMany(targetEntity="Custom\Entity\Ausverkaufsmeldung")
+     * @ORM\JoinTable(name="produktwebinformaion_ausverkaufsmeldungen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @PIM\Config(label="Ausverkaufsmeldungen")
      */
-    protected $bannerNeu = false;
+    protected $ausverkaufsmeldungen;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Custom\Entity\Hinweistext")
+     * @ORM\JoinTable(name="produktwebinformaion_hinweistexte", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @PIM\Config(label="Hinweistexte")
+     */
+    protected $hinweistexte;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @PIM\Config(showInList=80, label="Banner 'FSC' anzeigen")
+     * @PIM\Config(label="Neu")
      */
-    protected $bannerFsc = false;
+    protected $istNeu = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(label="FSC")
+     */
+    protected $istFsc = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(label="Express")
+     */
+    protected $istExpress = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(label="B-Ware")
+     */
+    protected $istBWare = false;
+
+    /**
+     * @ORM\Column(type="decimal", nullable=true)
+     * @PIM\Config(label="B-Ware Rabatt")
+     */
+    protected $bWareRabatt;
 
     /**
      * @return mixed
@@ -56,6 +94,24 @@ class ProduktWebinformationen extends Base
     /**
      * @return mixed
      */
+    public function getMarketingText()
+    {
+        return $this->marketingText;
+    }
+
+    /**
+     * @param mixed $marketingText
+     */
+    public function setMarketingText($marketingText)
+    {
+        $this->marketingText = $marketingText;
+    }
+
+
+
+    /**
+     * @return mixed
+     */
     public function getUspTexte()
     {
         return $this->uspTexte;
@@ -72,38 +128,115 @@ class ProduktWebinformationen extends Base
     /**
      * @return mixed
      */
-    public function getBannerNeu()
+    public function getIstNeu()
     {
-        return $this->bannerNeu;
+        return $this->istNeu;
     }
 
     /**
-     * @param mixed $bannerNeu
+     * @param mixed $istNeu
      */
-    public function setBannerNeu($bannerNeu)
+    public function setIstNeu($istNeu)
     {
-        $this->bannerNeu = $bannerNeu;
+        $this->istNeu = $istNeu;
     }
 
     /**
      * @return mixed
      */
-    public function getBannerFsc()
+    public function getIstFsc()
     {
-        return $this->bannerFsc;
+        return $this->istFsc;
     }
 
     /**
-     * @param mixed $bannerFsc
+     * @param mixed $istFsc
      */
-    public function setBannerFsc($bannerFsc)
+    public function setIstFsc($istFsc)
     {
-        $this->bannerFsc = $bannerFsc;
+        $this->istFsc = $istFsc;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getIstBWare()
+    {
+        return $this->istBWare;
+    }
 
+    /**
+     * @param mixed $istBWare
+     */
+    public function setIstBWare($istBWare)
+    {
+        $this->istBWare = $istBWare;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBWareRabatt()
+    {
+        return $this->bWareRabatt;
+    }
+
+    /**
+     * @param mixed $bWareRabatt
+     */
+    public function setBWareRabatt($bWareRabatt)
+    {
+        $this->bWareRabatt = $bWareRabatt;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIstExpress()
+    {
+        return $this->istExpress;
+    }
+
+    /**
+     * @param mixed $istExpress
+     */
+    public function setIstExpress($istExpress)
+    {
+        $this->istExpress = $istExpress;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAusverkaufsmeldungen()
+    {
+        return $this->ausverkaufsmeldungen;
+    }
+
+    /**
+     * @param mixed $ausverkaufsmeldungen
+     */
+    public function setAusverkaufsmeldungen($ausverkaufsmeldungen)
+    {
+        $this->ausverkaufsmeldungen = $ausverkaufsmeldungen;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHinweistexte()
+    {
+        return $this->hinweistexte;
+    }
+
+    /**
+     * @param mixed $hinweistexte
+     */
+    public function setHinweistexte($hinweistexte)
+    {
+        $this->hinweistexte = $hinweistexte;
+    }
 
     
-
 
 }

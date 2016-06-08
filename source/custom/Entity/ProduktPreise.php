@@ -13,6 +13,12 @@ use Doctrine\ORM\Mapping as ORM;
 class ProduktPreise extends Base
 {
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Kalk-Modus", type="select", options="normal=Normal, formular=Formular, versteckt=Versteckt")
+     */
+    protected $kalkModus = 'normal';
+
+    /**
      * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
      * @PIM\Config(label="Ab-Preis")
      */
@@ -41,6 +47,23 @@ class ProduktPreise extends Base
      * @PIM\Config(label="Ende Herbstpreise")
      */
     protected $endeHerbstpreise;
+
+    /**
+     * @return mixed
+     */
+    public function getKalkModus()
+    {
+        return $this->kalkModus;
+    }
+
+    /**
+     * @param mixed $kalkModus
+     */
+    public function setKalkModus($kalkModus)
+    {
+        $this->kalkModus = $kalkModus;
+    }
+
 
     /**
      * @return mixed

@@ -41,7 +41,18 @@
                             }
                             break;
                         default:
-                            element.text(scope.object[property]);
+                            var content = strip_tags(scope.object[property]);
+                            if(scope.schema.properties[property].listShorten){
+                                if(content.length > scope.schema.properties[property].listShorten){
+                                    element.text(content.substr(0, scope.schema.properties[property].listShorten) + '...');
+                                }else{
+                                    element.text(content);
+                                }
+
+                            }else{
+                                element.text(content);
+                            }
+
                             break;
                     }
 
@@ -54,6 +65,21 @@
                             break;
                     }
                 })
+
+                function strip_tags(input, allowed){
+                    if (!(typeof input === 'string' || input instanceof String)){
+                        return input;
+                    }
+
+                    allowed = (((allowed || '') + '').toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('')
+
+                    var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi
+                    var commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi
+
+                    return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {
+                        return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : ''
+                    })
+                }
 
 
 

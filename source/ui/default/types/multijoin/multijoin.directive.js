@@ -62,7 +62,7 @@
                             title: function(){ return 'Neues Objekt anlegen'; },
                             object: function(){ return null; }
                         },
-                        size: 'lg'
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(
@@ -112,7 +112,7 @@
                             title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
                             object: function(){ return object; }
                         },
-                        size: 'lg'
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(

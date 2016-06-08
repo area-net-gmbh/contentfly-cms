@@ -292,7 +292,7 @@
                     title: function(){ return object ? 'Objekt ' + object.id + ' bearbeiten' : 'Neues Objekt anlegen'; },
                     object: function(){ return object; }
                 },
-                size: 'lg',
+                size: 'xl',
                 backdrop: 'static'
             })
 

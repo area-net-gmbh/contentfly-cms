@@ -55,7 +55,7 @@
                             title: function(){ return 'Neues Objekt anlegen'; },
                             object: function(){ return null; }
                         },
-                        size: 'lg'
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(
@@ -103,7 +103,7 @@
                             title: function(){ return 'Objekt ' + scope.value.id + ' bearbeiten'; },
                             object: function(){ return scope.value; }
                         },
-                        size: 'lg'
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(
