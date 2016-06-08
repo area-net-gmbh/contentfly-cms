@@ -243,7 +243,7 @@ class ApiController extends BaseController
 
         if($where){
             $placeholdCounter = 0;
-            $currentPage = 1;
+            //$currentPage = 1;
 
             foreach($where as $field => $value){
 
@@ -332,6 +332,10 @@ class ApiController extends BaseController
         $query   = $queryBuilder->getQuery();
         //die($query->getSQL());
         $totalObjects = $query->getResult();
+        //die($currentPage*$itemsPerPage . " = " . $totalObjects);
+        if($currentPage*$itemsPerPage > count($totalObjects)){
+            $currentPage = ceil(count($totalObjects)/$itemsPerPage);
+        }
 
         if($currentPage) {
             $queryBuilder
