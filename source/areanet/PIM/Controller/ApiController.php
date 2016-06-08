@@ -738,6 +738,16 @@ class ApiController extends BaseController
                     $object->$setter($joinObject);
 
                     break;
+                case 'integer':
+                    $object->$setter(intval($value));
+                    break;
+                case 'select':
+                    if($schema[ucfirst($entityName)]['properties'][$property]['dbtype'] == 'integer'){
+                        $object->$setter(intval($value));
+                    }else{
+                        $object->$setter($value);
+                    }
+                    break;
                 case 'string':
                 case 'datetime':
                 case 'decimal':
@@ -745,9 +755,7 @@ class ApiController extends BaseController
                 case 'textarea':
                 case 'text':
                 case 'rte':
-                case 'integer':
                 case 'boolean':
-                case 'select':
                     $object->$setter($value);
                     break;
             }
@@ -1113,18 +1121,25 @@ class ApiController extends BaseController
                         $object->$setter(null);
                     }
                     break;
-
+                case 'integer':
+                    $object->$setter(intval($value));
+                    break;
+                case 'select':
+                    if($schema[ucfirst($entityName)]['properties'][$property]['dbtype'] == 'integer'){
+                        $object->$setter(intval($value));
+                    }else{
+                        $object->$setter($value);
+                    }
+                    break;
                 case 'string':
                 case 'decimal':
                 case 'float':
                 case 'textarea':
                 case 'text':
                 case 'rte':
-                case 'integer':
                 case 'boolean':
                 case 'password':
                 case 'entity':
-                case 'select':
                     if(strtoupper($value) == 'INC'){
                         $oldValue = $object->$getter();
                         $oldValue++;
@@ -1526,6 +1541,7 @@ class ApiController extends BaseController
                     'readonly' => false,
                     'hide' => false,
                     'type' => "",
+                    'dbtype' => "",
                     'label' => $prop->getName(),
                     'accept' => '*',
                     'rteOptions' => '',
@@ -1604,6 +1620,7 @@ class ApiController extends BaseController
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\Column){
                         $annotations['type']     = !empty($annotations['type']) ? $annotations['type'] : $propertyAnnotation->type;
+                        $annotations['dbtype']   = $propertyAnnotation->type;
 
                         $annotations['length'] = $propertyAnnotation->length ? $propertyAnnotation->length : 524288;
                         $annotations['unique'] = $propertyAnnotation->unique ? $propertyAnnotation->unique : false;
