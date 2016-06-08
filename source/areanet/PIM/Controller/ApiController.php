@@ -1373,9 +1373,37 @@ class ApiController extends BaseController
 
     /**
      * @apiVersion 1.3.0
+     * @api {get} /api/config config
+     * @apiName Config
+     * @apiGroup Settings
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiDescription Grundlegende, frei-zugängliche Konfiguration, z.B. für Login-Seite
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "devmode": false,
+     *       "version": "1.3.0"
+     *       "data:" {
+     *         ...
+     *       }
+     *     }
+     */
+    public function configAction()
+    {
+        $frontend = array(
+            'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
+        );
+
+        return new JsonResponse(array('message' => 'configAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION));
+    }
+
+    /**
+     * @apiVersion 1.3.0
      * @api {get} /api/schema schema
      * @apiName Schema
-     * @apiGroup Objekte
+     * @apiGroup Settings
      * @apiHeader {String} X-Token Acces-Token
      * @apiHeader {String} Content-Type=application/json
      *
