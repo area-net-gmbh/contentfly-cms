@@ -29,7 +29,7 @@ class Produkt extends Base
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @PIM\Config(showInList=95, label="Verfügbar", type="select", options="1=1,2=2,3=3")
+     * @PIM\Config(showInList=95, label="Verfügbarkeit", type="select", options="1=1,2=2,3=3")
      */
     protected $verfuegbarkeit = 1;
 
