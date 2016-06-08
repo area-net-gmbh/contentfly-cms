@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Filteroption extends Base
 {
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @PIM\Config(showInList=40, label="Titel")
      */
     protected $titel;

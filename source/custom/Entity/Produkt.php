@@ -28,14 +28,20 @@ class Produkt extends Base
     protected $versteckt;
 
     /**
-     * @ORM\Column(type="string")
-     * @PIM\Config(showInList=20, label="Formnummer")
+     * @ORM\Column(type="integer", nullable=true)
+     * @PIM\Config(showInList=95, label="Verfügbar", type="select", options="1=1,2=2,3=3")
      */
-    protected $formnummer;
+    protected $verfuegbarkeit = 1;
 
     /**
      * @ORM\Column(type="string")
-     * @PIM\Config(showInList=30, label="Kürzel")
+     * @PIM\Config(showInList=20, label="Artikel")
+     */
+    protected $artikel;
+
+    /**
+     * @ORM\Column(type="string")
+     * @PIM\Config(showInList=30, label="Formnummer")
      */
     protected $kuerzel;
 
@@ -44,6 +50,12 @@ class Produkt extends Base
      * @PIM\Config(showInList=40, label="Titel")
      */
     protected $titel;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Config(type="textarea", label="Keywords")
+     */
+    protected $keywords;
 
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
@@ -59,6 +71,13 @@ class Produkt extends Base
      * @PIM\Config(label="Detailbilder", tab="img")
      */
     protected $bilder;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktBeschreibung")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Beschreibung")
+     */
+    protected $beschreibung;
 
     /**
      * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktMetainformationen")
@@ -82,10 +101,8 @@ class Produkt extends Base
     protected $preise;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Custom\Entity\Produkt")
-     * @ORM\JoinTable(name="produkt_alternativprodukte",
-     *     joinColumns={@ORM\JoinColumn(name="produkt_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="produkt_alternativ_id", onDelete="CASCADE")})
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktAlternativprodukte", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Produkt", mappedBy="alternativprodukt")
      * @PIM\Config(label="Alternativ-Produkte", tab="cross")
      */
     protected $alternativprodukte;
@@ -154,22 +171,38 @@ class Produkt extends Base
         $this->versteckt = $versteckt;
     }
 
-    
     /**
      * @return mixed
      */
-    public function getFormnummer()
+    public function getArtikel()
     {
-        return $this->formnummer;
+        return $this->artikel;
     }
 
     /**
-     * @param mixed $formnummer
+     * @param mixed $artikel
      */
-    public function setFormnummer($formnummer)
+    public function setArtikel($artikel)
     {
-        $this->formnummer = $formnummer;
+        $this->artikel = $artikel;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getBeschreibung()
+    {
+        return $this->beschreibung;
+    }
+
+    /**
+     * @param mixed $beschreibung
+     */
+    public function setBeschreibung($beschreibung)
+    {
+        $this->beschreibung = $beschreibung;
+    }
+    
 
     /**
      * @return mixed
@@ -186,7 +219,6 @@ class Produkt extends Base
     {
         $this->kuerzel = $kuerzel;
     }
-
 
 
     /**
@@ -367,6 +399,41 @@ class Produkt extends Base
     {
         $this->kategorien = $kategorien;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getKeywords()
+    {
+        return $this->keywords;
+    }
+
+    /**
+     * @param mixed $keywords
+     */
+    public function setKeywords($keywords)
+    {
+        $this->keywords = $keywords;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVerfuegbarkeit()
+    {
+        return $this->verfuegbarkeit;
+    }
+
+    /**
+     * @param mixed $verfuegbarkeit
+     */
+    public function setVerfuegbarkeit($verfuegbarkeit)
+    {
+        $this->verfuegbarkeit = $verfuegbarkeit;
+    }
+
+
+    
 
 
        

@@ -747,6 +747,7 @@ class ApiController extends BaseController
                 case 'rte':
                 case 'integer':
                 case 'boolean':
+                case 'select':
                     $object->$setter($value);
                     break;
             }
@@ -1112,6 +1113,7 @@ class ApiController extends BaseController
                         $object->$setter(null);
                     }
                     break;
+
                 case 'string':
                 case 'decimal':
                 case 'float':
@@ -1122,6 +1124,7 @@ class ApiController extends BaseController
                 case 'boolean':
                 case 'password':
                 case 'entity':
+                case 'select':
                     if(strtoupper($value) == 'INC'){
                         $oldValue = $object->$getter();
                         $oldValue++;
@@ -1519,6 +1522,7 @@ class ApiController extends BaseController
 
                 $annotations = array(
                     'showInList' => false,
+                    'listShorten' => 0,
                     'readonly' => false,
                     'hide' => false,
                     'type' => "",
@@ -1546,6 +1550,7 @@ class ApiController extends BaseController
                     if($propertyAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
 
                         $annotations['isFilterable']  = $propertyAnnotation->isFilterable;
+                        $annotations['listShorten']  = $propertyAnnotation->listShorten;
                         $annotations['showInList']  = $propertyAnnotation->showInList;
                         $annotations['readonly']    = $propertyAnnotation->readonly;
                         $annotations['hide']        = $propertyAnnotation->hide;

@@ -21,6 +21,12 @@ class USPText extends Base
     protected $titel;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Hinweistitel")
+     */
+    protected $hinweistitel;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      * @PIM\Config(type="textarea", label="Hinweistext")
      */
@@ -49,6 +55,22 @@ class USPText extends Base
         $this->titel = $titel;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getHinweistitel()
+    {
+        return $this->hinweistitel;
+    }
+
+    /**
+     * @param mixed $hinweistitel
+     */
+    public function setHinweistitel($hinweistitel)
+    {
+        $this->hinweistitel = $hinweistitel;
+    }
+    
     /**
      * @return mixed
      */

@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ProduktMetainformationen extends Base
 {
+
     /**
      * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(label="Browsertitel")

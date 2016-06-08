@@ -24,13 +24,15 @@ $app = new Application();
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
-    'db.options' => array (
-        'driver'    => 'pdo_mysql',
-        'host'      => Config\Adapter::getConfig()->DB_HOST,
-        'dbname'    => Config\Adapter::getConfig()->DB_NAME,
-        'user'      => Config\Adapter::getConfig()->DB_USER,
-        'password'  => Config\Adapter::getConfig()->DB_PASS,
-        'charset'   => Config\Adapter::getConfig()->DB_CHARSET,
+    'dbs.options' => array (
+        'pim' => array(
+            'driver'    => 'pdo_mysql',
+            'host'      => Config\Adapter::getConfig()->DB_HOST,
+            'dbname'    => Config\Adapter::getConfig()->DB_NAME,
+            'user'      => Config\Adapter::getConfig()->DB_USER,
+            'password'  => Config\Adapter::getConfig()->DB_PASS,
+            'charset'   => Config\Adapter::getConfig()->DB_CHARSET,
+        )
     ),
 ));
 
@@ -44,6 +46,7 @@ $app->register(new ConsoleServiceProvider(), array(
 $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
     'orm.proxies_dir' => __DIR__.'/data/cache/doctrine',
     'orm.em.options' => array(
+        'connection' => 'pim',
         'mappings' => array(
             array(
                 'type' => 'annotation',
