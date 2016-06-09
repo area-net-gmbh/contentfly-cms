@@ -133,8 +133,9 @@ class DatabaseImport extends CustomCommand
 
         //Import Artikelseiten
         $output->writeln('Import Artikelseiten...');
-        $sql = "SELECT * FROM var_artikelseiten";
+        $sql = "SELECT * FROM var_artikelseiten WHERE block_teaser_text <> '' GROUP BY artikel ORDER BY ts DESC";
         $stmt = $importDB->query($sql);
+
 
         while ($row = $stmt->fetch()) {
             if(!isset($mapping[$row['artikel']])){
