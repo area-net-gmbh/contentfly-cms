@@ -181,7 +181,8 @@
                 entity: vm.entity,
                 currentPage: vm.schema.settings.isSortable ? 0 : vm.currentPage,
                 order: sortSettings,
-                where: filter
+                where: filter,
+                flatten:false
             };
             EntityService.list(data).then(
                 function successCallback(response) {
