@@ -115,15 +115,14 @@ class Produkt extends Base
      * @PIM\Config(label="Zubehör-Produkte", tab="cross")
      */
     protected $zubehoerprodukte;
-
+    
     /**
-     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktFilterOption", mappedBy="produkt")
-     * @PIM\MatrixChooser(target1Entity="Custom\Entity\Filter", mapped1By="filter",
-     *                    target2Entity="Custom\Entity\Filteroption", mapped2By="option")
+     * @ORM\ManyToMany(targetEntity="Custom\Entity\Filteroption")
+     * @ORM\JoinTable(name="produkt_filteroption", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
      * @PIM\Config(label="Filter", tab="filter")
      */
-    protected $filterOptionen;
-
+    protected $filter;
+    
     /**
      * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\File")
      * @ORM\JoinTable(name="produkt_dateien_layoutvorlagen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
@@ -355,18 +354,19 @@ class Produkt extends Base
     /**
      * @return mixed
      */
-    public function getFilterOptionen()
+    public function getFilter()
     {
-        return $this->filterOptionen;
+        return $this->filter;
     }
 
     /**
-     * @param mixed $filterOptionen
+     * @param mixed $filter
      */
-    public function setFilterOptionen($filterOptionen)
+    public function setFilter($filter)
     {
-        $this->filterOptionen = $filterOptionen;
+        $this->filter = $filter;
     }
+    
 
     /**
      * @return mixed

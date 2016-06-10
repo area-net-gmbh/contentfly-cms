@@ -12,15 +12,21 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="filteroption")
- * @PIM\Config(label="Filter-Option")
+ * @PIM\Config(label="Filter-Option", sortBy="sorting")
  */
-class Filteroption extends Base
+class Filteroption extends BaseSortable
 {
     /**
      * @ORM\Column(type="string", unique=true)
      * @PIM\Config(showInList=40, label="Titel")
      */
     protected $titel;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Custom\Entity\Filter")
+     * @PIM\Config(label="Filter", showInList=50, isFilterable=true)
+     */
+    protected $filter;
 
     /**
      * @return mixed
@@ -37,6 +43,24 @@ class Filteroption extends Base
     {
         $this->titel = $titel;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getFilter()
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @param mixed $filter
+     */
+    public function setFilter($filter)
+    {
+        $this->filter = $filter;
+    }
+    
+    
 
 
 }
