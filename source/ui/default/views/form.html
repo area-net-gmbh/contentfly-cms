@@ -24,6 +24,7 @@
         </uib-tabset>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="vm.cancel()">Abbrechen</button>
-    <button class="btn btn-primary" type="button" ng-click="vm.save()">Speichern</button>
+    <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen {{vm.haveChanges}}</button>
+    <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(false)">Speichern</button>
+    <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(true)">Speichern und Schließen</button>
 </div>
