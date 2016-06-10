@@ -219,7 +219,6 @@
                 if(!objectDataToSave[mainKey]){
                     objectDataToSave[mainKey] = {};
                 }
-                if(objectDataToSave[mainKey][key] != value)  vm.haveChanges = true;
                 objectDataToSave[mainKey][key] = value;
             }
         }
