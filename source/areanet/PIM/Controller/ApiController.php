@@ -156,7 +156,7 @@ class ApiController extends BaseController
     }
 
     protected function loadTree($entity, $parent){
-        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent));
+        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent), array('sorting' => 'ASC'));
         $array   = array();
         foreach($objects as $object){
             $data = $object->toValueObject(true);
