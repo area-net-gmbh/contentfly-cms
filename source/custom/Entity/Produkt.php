@@ -62,7 +62,7 @@ class Produkt extends Base
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Vorschaubild", accept="image/*", tab="img")
      */
-    protected $vorschaubild;
+    protected $vorschaubild;    
 
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktDetailbilder", mappedBy="produkt")
@@ -72,8 +72,8 @@ class Produkt extends Base
     protected $bilder;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Custom\Entity\USPText")
-     * @ORM\JoinTable(name="produkt_usptexte", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktUsptexte", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\USPText", mappedBy="usptext")
      * @PIM\Config(label="Allgemeine Bilder PopUp", tab="img")
      */
     protected $uspTexte;
@@ -220,7 +220,7 @@ class Produkt extends Base
     public function setBeschreibung($beschreibung)
     {
         $this->beschreibung = $beschreibung;
-    }
+    }    
 
     /**
      * @return mixed
@@ -268,7 +268,7 @@ class Produkt extends Base
     public function setVorschaubild($vorschaubild)
     {
         $this->vorschaubild = $vorschaubild;
-    }
+    }    
     
     /**
      * @return mixed
@@ -284,7 +284,7 @@ class Produkt extends Base
     public function setBilder($bilder)
     {
         $this->bilder = $bilder;
-    }
+    }    
 
     /**
      * @return mixed
@@ -380,7 +380,7 @@ class Produkt extends Base
     public function setFilter($filter)
     {
         $this->filter = $filter;
-    }
+    }    
 
     /**
      * @return mixed
