@@ -29,7 +29,7 @@ class Produkt extends Base
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @PIM\Config(showInList=95, label="Verfügbarkeit", type="select", options="1=1,2=2,3=3")
+     * @PIM\Config(showInList=95, label="Verfügbarkeit", type="select", options="1=grün: sofort lieferbar,2=gelb: nur wenige verfügbar,3=rot: leider ausverkauft")
      */
     protected $verfuegbarkeit = 1;
 
@@ -63,7 +63,6 @@ class Produkt extends Base
      * @PIM\Config(label="Vorschaubild", accept="image/*", tab="img")
      */
     protected $vorschaubild;
-    
 
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktDetailbilder", mappedBy="produkt")
@@ -71,6 +70,20 @@ class Produkt extends Base
      * @PIM\Config(label="Detailbilder", tab="img")
      */
     protected $bilder;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Custom\Entity\USPText")
+     * @ORM\JoinTable(name="produkt_usptexte", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @PIM\Config(label="Allgemeine Bilder PopUp", tab="img")
+     */
+    protected $uspTexte;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Werbefläche-Skizze", accept="image/*", tab="img")
+     */
+    protected $skizze;
 
     /**
      * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktBeschreibung")
@@ -124,11 +137,18 @@ class Produkt extends Base
     protected $filter;
     
     /**
-     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\File")
-     * @ORM\JoinTable(name="produkt_dateien_layoutvorlagen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
-     * @PIM\Config(label="Layoutvorlagen", accept="*", tab="files")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Technisches Datenblatt", accept="*", tab="files")
      */
-    protected $layoutvorlagen;
+    protected $technischesDatenblatt;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinTable(name="produkt_dateien_digitalvorlagen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @PIM\Config(label="Digitalvorlagen", accept="application/pdf", tab="files")
+     */
+    protected $digitalvorlagen;
 
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\KategorieProdukte", mappedBy="produkt")
@@ -201,7 +221,6 @@ class Produkt extends Base
     {
         $this->beschreibung = $beschreibung;
     }
-    
 
     /**
      * @return mixed
@@ -218,7 +237,6 @@ class Produkt extends Base
     {
         $this->kuerzel = $kuerzel;
     }
-
 
     /**
      * @return mixed
@@ -252,7 +270,6 @@ class Produkt extends Base
         $this->vorschaubild = $vorschaubild;
     }
     
-    
     /**
      * @return mixed
      */
@@ -268,8 +285,6 @@ class Produkt extends Base
     {
         $this->bilder = $bilder;
     }
-    
-    
 
     /**
      * @return mixed
@@ -366,22 +381,37 @@ class Produkt extends Base
     {
         $this->filter = $filter;
     }
-    
 
     /**
      * @return mixed
      */
-    public function getLayoutvorlagen()
+    public function getDigitalvorlagen()
     {
-        return $this->layoutvorlagen;
+        return $this->digitalvorlagen;
     }
 
     /**
-     * @param mixed $layoutvorlagen
+     * @param mixed $digitalvorlagen
      */
-    public function setLayoutvorlagen($layoutvorlagen)
+    public function setDigitalvorlagen($digitalvorlagen)
     {
-        $this->layoutvorlagen = $layoutvorlagen;
+        $this->digitalvorlagen = $digitalvorlagen;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTechnischesDatenblatt()
+    {
+        return $this->technischesDatenblatt;
+    }
+
+    /**
+     * @param mixed $technischesDatenblatt
+     */
+    public function setTechnischesDatenblatt($technischesDatenblatt)
+    {
+        $this->technischesDatenblatt = $technischesDatenblatt;
     }
 
     /**
@@ -432,11 +462,35 @@ class Produkt extends Base
         $this->verfuegbarkeit = $verfuegbarkeit;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getUspTexte()
+    {
+        return $this->uspTexte;
+    }
 
-    
+    /**
+     * @param mixed $uspTexte
+     */
+    public function setUspTexte($uspTexte)
+    {
+        $this->uspTexte = $uspTexte;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getSkizze()
+    {
+        return $this->skizze;
+    }
 
-       
-
-
+    /**
+     * @param mixed $skizze
+     */
+    public function setSkizze($skizze)
+    {
+        $this->skizze = $skizze;
+    }
 }
