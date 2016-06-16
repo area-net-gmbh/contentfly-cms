@@ -206,7 +206,9 @@
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
+
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
+
                     var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
                     var field = key;
                     EntityService.list({entity: entity}).then(
@@ -215,8 +217,8 @@
                             vm.filterJoins[field] = response.data.data;
 
                             for(var i = 0; i < vm.filterJoins[field].length; i++){
-                                if(!vm.filterJoins[field][i]['title']){
-                                    vm.filterJoins[field][i]['title'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                if(!vm.filterJoins[field][i]['pim_filterTitle']){
+                                    vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
                                 }
                             }
 
@@ -247,10 +249,11 @@
                                 vm.filterJoins[field] = response.data.data;
 
                                 for(var i = 0; i < vm.filterJoins[field].length; i++){
-                                    if(!vm.filterJoins[field][i]['title']){
-                                        vm.filterJoins[field][i]['title'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                    if(!vm.filterJoins[field][i]['pim_filterTitle']){
+                                        vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
                                     }
                                 }
+
 
                             },
                             function errorCallback(response) {
@@ -260,6 +263,8 @@
 
 
                 }
+
+
             }
         }
 

@@ -12,6 +12,7 @@
         var backupForObject  = null;
         
         //Properties
+        vm.doSave           = false;
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];
         vm.object           = object ? object : {};
@@ -62,7 +63,7 @@
             );
         }
 
-        function doSave() {
+        function doSave(andClose) {
             vm.isSubmit = true;
 
             for (var formName in vm.forms) {
@@ -71,6 +72,7 @@
                 }
             }
 
+            vm.doSave = true;
 
             if (!vm.object['id']) {
 
@@ -81,9 +83,12 @@
 
                 EntityService.insert(data).then(
                     function successCallback(response) {
-                        $uibModalInstance.close(response.data.data);
+                        vm.doSave = false;
+                        if(andClose) $uibModalInstance.close(response.data.data);
                     }, 
                     function errorCallback(response) {
+                        vm.doSave = false;
+
                         var modalInstance = $uibModal.open({
                             templateUrl: 'views/partials/modal.html',
                             controller: 'ModalCtrl as vm',
@@ -109,10 +114,11 @@
 
                 EntityService.update(data).then(
                     function successCallback(response) {
-                        
-                        $uibModalInstance.close(vm.object);
+                        vm.doSave = false;
+                        if(andClose) $uibModalInstance.close(vm.object);
                     },
                     function errorCallback(response) {
+                        vm.doSave = false;
                         var modalInstance = $uibModal.open({
                             templateUrl: 'views/partials/modal.html',
                             controller: 'ModalCtrl as vm',
@@ -152,7 +158,7 @@
             );
         }
 
-        function save() {
+        function save(andClose) {
             if (vm.schema['settings']['isPush']) {
 
                 for (var formName in vm.forms) {
@@ -167,6 +173,8 @@
                     entity: 'PIM\\PushToken',
                     count: true
                 };
+
+
 
                 EntityService.list(data).then(
                     function successCallback(response) {
@@ -198,19 +206,19 @@
 
 
             } else {
-                doSave();
+                doSave(andClose);
             }
 
         }
 
         function onChangeValue(key, mainKey, value){
+
             if(!mainKey) {
                 objectDataToSave[key] = value;
             }else{
                 if(!objectDataToSave[mainKey]){
                     objectDataToSave[mainKey] = {};
                 }
-
                 objectDataToSave[mainKey][key] = value;
             }
         }

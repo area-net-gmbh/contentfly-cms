@@ -5,7 +5,7 @@
             <button type="button" class="btn btn-default btn-sm" ng-hide="chooserOpened[object.id]" ng-click="openChooser(object.id)"><span class="glyphicon glyphicon-plus
 glyphicon "></span> {{object.label}}</button>
             <div class="input-group" ng-show="chooserOpened[object.id]">
-                <input id="search_{{object.id}}" type="text" class="form-control"  ng-model="search[object.id]" ng-keydown="keyPressed(object.id, $event, false)" ng-change="change(object.id)">
+                <input autocomplete="off" id="search_{{object.id}}" type="text" class="form-control"  ng-model="search[object.id]" ng-keydown="keyPressed(object.id, $event, false)" ng-change="change(object.id)">
             <span class="input-group-btn">
                 <button class="btn btn-default" type="button" ng-click="closeChooser()"><span class="glyphicon glyphicon-remove"></span></button>
                 <button type="button" ng-click="addNewObject(object.id, false)" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span></button>
@@ -64,7 +64,7 @@ glyphicon "></span> {{object.label}}</button>
     <button type="button" class="btn btn-default btn-sm col-sm-2" ng-hide="chooserOpened[0]" ng-click="openChooser(0)"><span class="glyphicon glyphicon-plus
 glyphicon "></span> {{config.label}}</button>
     <div class="input-group" ng-show="chooserOpened[0]">
-        <input id="search_0" type="text" class="form-control"  ng-model="search[0]" ng-keydown="keyPressed(0, $event, true)" ng-change="change(0)">
+        <input autocomplete="off" id="search_0" type="text" class="form-control"  ng-model="search[0]" ng-keydown="keyPressed(0, $event, true)" ng-change="change(0)">
             <span class="input-group-btn">
                 <button class="btn btn-default" type="button" ng-click="closeChooser()"><span class="glyphicon glyphicon-remove"></span></button>
                 <button type="button" ng-click="addNewObject(0, true)" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span></button>

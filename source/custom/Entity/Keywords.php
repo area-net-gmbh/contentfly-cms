@@ -11,32 +11,30 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="filter")
- * @PIM\Config(label="Filter", sortBy="sorting")
+ * @ORM\Table(name="keywords")
+ * @PIM\Config(label="Keywords")
  */
-class Filter extends BaseSortable
+class Keywords extends Base
 {
     /**
      * @ORM\Column(type="string", unique=true)
-     * @PIM\Config(showInList=40, label="Titel")
+     * @PIM\Config(label="Keyword", showInList=60, listShorten=100)
      */
-    protected $titel;
+    protected $keyword;
 
     /**
      * @return mixed
      */
-    public function getTitel()
+    public function getKeyword()
     {
-        return $this->titel;
+        return $this->keyword;
     }
 
     /**
-     * @param mixed $titel
+     * @param mixed $keyword
      */
-    public function setTitel($titel)
+    public function setKeyword($keyword)
     {
-        $this->titel = $titel;
+        $this->keyword = $keyword;
     }
-
-    
 }

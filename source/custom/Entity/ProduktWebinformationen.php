@@ -25,22 +25,27 @@ class ProduktWebinformationen extends Base
     protected $marketingText;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Custom\Entity\USPText")
-     * @ORM\JoinTable(name="produktwebinformaion_usptexte", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
-     * @PIM\Config(label="USP-Texte")
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Config(type="textarea", label="USP-Liste DE")
      */
-    protected $uspTexte;
+    protected $uspDe;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Config(type="textarea", label="USP-Liste AT")
+     */
+    protected $uspAt;
 
     /**
      * @ORM\ManyToMany(targetEntity="Custom\Entity\Ausverkaufsmeldung")
-     * @ORM\JoinTable(name="produktwebinformaion_ausverkaufsmeldungen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @ORM\JoinTable(name="produktwebinformation_ausverkaufsmeldungen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
      * @PIM\Config(label="Ausverkaufsmeldungen")
      */
     protected $ausverkaufsmeldungen;
 
     /**
      * @ORM\ManyToMany(targetEntity="Custom\Entity\Hinweistext")
-     * @ORM\JoinTable(name="produktwebinformaion_hinweistexte", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @ORM\JoinTable(name="produktwebinformation_hinweistexte", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
      * @PIM\Config(label="Hinweistexte")
      */
     protected $hinweistexte;
@@ -53,9 +58,15 @@ class ProduktWebinformationen extends Base
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @PIM\Config(label="FSC")
+     * @PIM\Config(label="FSC zertifiziert")
      */
     protected $istFsc = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(label="FSC auf Wunsch")
+     */
+    protected $istFscWunsch = false;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
@@ -100,29 +111,43 @@ class ProduktWebinformationen extends Base
     }
 
     /**
+     * @return mixed
+     */
+    public function getUspDe()
+    {
+        return $this->uspDe;
+    }
+
+    /**
+     * @param mixed $uspDe
+     */
+    public function setUspDe($uspDe)
+    {
+        $this->uspDe = $uspDe;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUspAt()
+    {
+        return $this->uspAt;
+    }
+
+    /**
+     * @param mixed $uspAt
+     */
+    public function setUspAt($uspAt)
+    {
+        $this->uspAt = $uspAt;
+    }
+
+    /**
      * @param mixed $marketingText
      */
     public function setMarketingText($marketingText)
     {
         $this->marketingText = $marketingText;
-    }
-
-
-
-    /**
-     * @return mixed
-     */
-    public function getUspTexte()
-    {
-        return $this->uspTexte;
-    }
-
-    /**
-     * @param mixed $uspTexte
-     */
-    public function setUspTexte($uspTexte)
-    {
-        $this->uspTexte = $uspTexte;
     }
 
     /**
@@ -235,6 +260,22 @@ class ProduktWebinformationen extends Base
     public function setHinweistexte($hinweistexte)
     {
         $this->hinweistexte = $hinweistexte;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIstFscWunsch()
+    {
+        return $this->istFscWunsch;
+    }
+
+    /**
+     * @param mixed $istFscWunsch
+     */
+    public function setIstFscWunsch($istFscWunsch)
+    {
+        $this->istFscWunsch = $istFscWunsch;
     }
 
     

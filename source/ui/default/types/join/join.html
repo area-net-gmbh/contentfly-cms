@@ -3,7 +3,7 @@
     <div ng-hide="config.readonly">
         <button type="button" class="btn btn-default btn-sm" ng-hide="chooserOpened" ng-click="openChooser()">Auswählen</button>
         <div class="input-group" ng-show="chooserOpened">
-            <input id="search" type="text" class="form-control"  ng-model="search" ng-keydown="keyPressed($event)" ng-change="change()">
+            <input autocomplete="off" id="search" type="text" class="form-control"  ng-model="search" ng-keydown="keyPressed($event)" ng-change="change()">
             <span class="input-group-btn">
                 <button class="btn btn-default" type="button" ng-click="closeChooser()"><span class="glyphicon glyphicon-remove"></span></button>
                 <button type="button" ng-click="addNewObject()" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span></button>
