@@ -38,5 +38,19 @@ $config->APP_ENABLE_XSENDFILE = false;
 
 $configFactory->setConfig($config);
 
+/*
+ * Config for Live-System
+ */
+$config = new \Areanet\PIM\Classes\Config('live.pim.areanet-buehner.de', $config);
+
+$config->DB_HOST = 'db1247.mydbserver.com';
+$config->DB_NAME = 'usr_p212925_5';
+$config->DB_USER = 'p212925d3';
+$config->DB_PASS = 'BL9-cXC44e';
+
+$config->APP_ENABLE_XSENDFILE = false;
+
+$configFactory->setConfig($config);
+
 
 
