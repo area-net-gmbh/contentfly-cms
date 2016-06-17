@@ -24,7 +24,6 @@
         //////////////////////////////
 
         function change(){
-            console.log("test2");
             if(vm.alias && vm.password){
                 vm.canLogin = true;
             }else{

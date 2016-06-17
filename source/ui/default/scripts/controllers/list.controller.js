@@ -304,6 +304,7 @@
 
             modalInstance.result.then(
                 function (isSaved) {
+                    
                     if(isSaved){
                         loadData();
                     }

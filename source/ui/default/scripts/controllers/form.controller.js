@@ -10,7 +10,8 @@
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
         var backupForObject  = null;
-        
+        var refreshOnCancel  = false;
+
         //Properties
         vm.doSave           = false;
         vm.schemaOnejoin    = {};
@@ -33,9 +34,12 @@
         ///////////////////////////////////
 
         function cancel() {
-            //angular.copy(backupForObject, vm.object);
-            //backupForObject = null;
-            $uibModalInstance.dismiss(false);
+            if(refreshOnCancel){
+                $uibModalInstance.close(vm.object);
+            }else{
+                $uibModalInstance.dismiss(false);
+            }
+
         }
 
         function confirmPush(count, title, text, object) {
@@ -64,7 +68,8 @@
         }
 
         function doSave(andClose) {
-            vm.isSubmit = true;
+            vm.isSubmit     = true;
+            refreshOnCancel = true;
 
             for (var formName in vm.forms) {
                 if (!vm.forms[formName].$valid) {
@@ -83,7 +88,8 @@
 
                 EntityService.insert(data).then(
                     function successCallback(response) {
-                        vm.doSave = false;
+                        vm.doSave       = false;
+                        vm.object.id    = response.data.id;
                         if(andClose) $uibModalInstance.close(response.data.data);
                     }, 
                     function errorCallback(response) {
@@ -150,6 +156,7 @@
                 id: vm.object.id
             }
 
+
             EntityService.single(data).then(
                 function(response){
                     vm.object = response.data.data;
@@ -173,7 +180,6 @@
                     entity: 'PIM\\PushToken',
                     count: true
                 };
-
 
 
                 EntityService.list(data).then(
