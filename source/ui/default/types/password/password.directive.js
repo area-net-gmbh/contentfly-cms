@@ -19,7 +19,9 @@
                 scope.newValue = '';
 
                 scope.$watch('newValue',function(data){
-                    scope.onChangeCallback({key: scope.key, value: scope.newValue});
+                    if(scope.newValue){
+                        scope.onChangeCallback({key: scope.key, value: scope.newValue});
+                    }
                 },true)
             }
         }

@@ -156,7 +156,10 @@ class User extends Base implements \JsonSerializable
     function jsonSerialize()
     {
         return array(
-            'alias' => $this->alias
+            'alias' => $this->alias,
+            'isActive' => $this->isActive,
+            'isAdmin' => $this->isAdmin,
+            'id' => $this->id
         );
     }
 }

@@ -760,6 +760,7 @@ class ApiController extends BaseController
                 case 'text':
                 case 'rte':
                 case 'boolean':
+                case 'password':
                     $object->$setter($value);
                     break;
             }
@@ -1135,6 +1136,7 @@ class ApiController extends BaseController
                         $object->$setter($value);
                     }
                     break;
+                case 'password':
                 case 'string':
                 case 'decimal':
                 case 'float':
@@ -1142,7 +1144,6 @@ class ApiController extends BaseController
                 case 'text':
                 case 'rte':
                 case 'boolean':
-                case 'password':
                 case 'entity':
                     if(strtoupper($value) == 'INC'){
                         $oldValue = $object->$getter();
