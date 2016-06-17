@@ -139,7 +139,7 @@ class Produkt extends Base
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
      * @ORM\JoinColumn(onDelete="SET NULL")
-     * @PIM\Config(label="Technisches Datenblatt", accept="*", tab="files")
+     * @PIM\Config(label="Technisches Datenblatt", accept="application/pdf", tab="files")
      */
     protected $technischesDatenblatt;
 
