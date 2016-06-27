@@ -26,7 +26,7 @@ class ProduktDetailbilder extends BaseSortable
 
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
-     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @PIM\Config(label="Detailbild", accept="image/*")
      */
     protected $bild;
