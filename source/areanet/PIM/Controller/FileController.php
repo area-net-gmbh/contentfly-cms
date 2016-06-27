@@ -31,7 +31,7 @@ class FileController extends BaseController
         $data = array();
 
         foreach($request->files as $key => $file){
-            $hash = md5_file($file->getRealPath());
+            $hash       = md5_file($file->getRealPath());
             $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
 
             $extension     = $file->getClientOriginalExtension();
@@ -52,6 +52,10 @@ class FileController extends BaseController
 
                 $processor = Processing::getInstance($file->getClientMimeType());
                 $processor->execute($backend, $fileObject);
+            }else{
+                $fileObject->setIsDeleted(false);
+                $this->em->persist($fileObject);
+                $this->em->flush();
             }
         }
 
@@ -102,26 +106,29 @@ class FileController extends BaseController
 
         }
         
+        $mimeType   = $fileObject->getType();
 
         $sizeObject = null;
         if($size){
-
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
             if(!$sizeObject){
                 throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize not found");
             }
+            if($sizeObject->getForceJpeg()){
+                $mimeType = 'image/jpeg';
+            }
         }
 
         $fileName   = $backend->getUri($fileObject, $sizeObject);
-
+      
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
-            header('Content-type: ' . $fileObject->getType());
-            header("Content-length: " . $fileObject->getSize());
+            header('Content-type: ' . $mimeType);
+            header("Content-length: " . filesize($fileName));
             header("X-Sendfile: ".$fileName);
             exit;
         }else{
-            header('Content-type: ' . $fileObject->getType());
-            header("Content-length: " . $fileObject->getSize());
+            header('Content-type: ' . $mimeType);
+            header("Content-length: " . filesize($fileName));
             readfile($fileName);
         }
     }

@@ -482,49 +482,19 @@ class ApiController extends BaseController
             $alias = $object->getAlias();
             $object->setAlias("$alias (gelöscht)");
         }
-
-        //if($entityPath == 'Areanet\PIM\Entity\File') {
-            $schema = $this->getSchema();
-
-            foreach($schema as $entity => $entityConfig){
-
-                $entityUpdatePath = 'Custom\Entity\\'.$entity;
-                if(substr($entity, 0, 3) == "PIM"){
-                    $entityUpdatePath = 'Areanet\PIM\Entity\\'.substr($entity, 4);
-                }
-
-                /*foreach($entityConfig['properties'] as $property => $propertyConfig){
-
-                    if($propertyConfig['type'] == 'file' && $entityPath == 'Areanet\PIM\Entity\File'  || $propertyConfig['type'] == 'join' && $propertyConfig['accept'] == $entityPath){
-                        $query = $this->em->createQuery("UPDATE $entityUpdatePath e SET e.$property = NULL, e.modified = CURRENT_TIMESTAMP() WHERE e.$property = ?1");
-
-                        $query->setParameter(1, $id);
-                        $query->execute();
-                    }elseif($propertyConfig['type'] == 'multifile' && $entityPath == 'Areanet\PIM\Entity\File' || $propertyConfig['type'] == 'multijoin' && $propertyConfig['accept'] == $entityPath){
-                        //$query = $this->em->createQuery('UPDATE '.$entityUpdatePath.' e SET e.modified = CURRENT_TIMESTAMP() WHERE ?1 MEMBER OF e.'.$property);
-                        //$query->setParameter(1, $id);
-                        //$query->execute();
-                        $foreignTable = $propertyConfig['foreign'];
-
-                        $tableName = 'file';
-                        if($entityPath != 'Areanet\PIM\Entity\File' ){
-                            $tableName = $this->em->getClassMetadata($propertyConfig['accept'])->getTableName();
-                        }
-                        $fieldName = $tableName.'_id';
-
-                        $statement = "DELETE FROM $foreignTable WHERE $fieldName = ?";
-                        $this->em->getConnection()->executeUpdate($statement, array($id));
-                    }
-                }
-                */
-            }
-
-        //}
-
+        
         $object->setIsDeleted(true);
 
-        $this->em->persist($object);
+        $this->em->remove($object);
+        $this->em->flush();
 
+        $object->setId($id);
+        $this->em->persist($object);
+        $this->em->getClassMetaData(get_class($object))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $this->em->getClassMetaData(get_class($object))->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+        $this->em->flush();
+
+        $schema = $this->getSchema();
         if($schema[ucfirst($entityName)]['settings']['isSortable']){
             $oldPos = $object->getSorting();
             //@todo: ACHTUNG BEI NESTED SET / KATEGORIEN
@@ -547,7 +517,7 @@ class ApiController extends BaseController
         $this->em->persist($log);
         $this->em->flush();
 
-        return new JsonResponse(array('message' => 'deleteAction'));
+        return new JsonResponse(array('message' => 'deleteAction: '.$id));
     }
 
 
