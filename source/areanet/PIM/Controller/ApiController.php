@@ -354,8 +354,7 @@ class ApiController extends BaseController
 
         $query   = $queryBuilder->getQuery();
         $objects = $query->getResult();
-
-
+        
         if($doCount){
             return new JsonResponse(array('message' => "listAction", 'data' => count($objects)));
         }
@@ -432,6 +431,7 @@ class ApiController extends BaseController
             $array[] = $objectData;
 
         }
+
 
 
         if($currentPage) {
