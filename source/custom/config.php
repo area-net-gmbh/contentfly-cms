@@ -1,56 +1,58 @@
 <?php
 use \Areanet\PIM\Classes\Config\Factory;
 
+$configFactory = Factory::getInstance();
+
 /*
  * Default Config
  */
 
-$config = new \Areanet\PIM\Classes\Config();
+$configDefault = new \Areanet\PIM\Classes\Config();
 
-$config->DB_HOST = '127.0.0.1';
-$config->DB_NAME = 'db';
-$config->DB_USER = 'user';
-$config->DB_PASS = 'pass';
+$configDefault->DB_HOST = '127.0.0.1';
+$configDefault->DB_NAME = 'db';
+$configDefault->DB_USER = 'user';
+$configDefault->DB_PASS = 'pass';
 
-$config->APP_DEBUG = true;
+$configDefault->APP_DEBUG = true;
 
-$config->APP_ENABLE_XSENDFILE = true;
+$configDefault->APP_ENABLE_XSENDFILE = true;
 
-$config->FRONTEND_ITEMS_PER_PAGE = 30;
-$config->FRONTEND_CUSTOM_LOGO = true;
+$configDefault->FRONTEND_ITEMS_PER_PAGE = 30;
+$configDefault->FRONTEND_CUSTOM_LOGO = true;
 
-$configFactory = Factory::getInstance();
-$configFactory->setConfig($config);
+$configDefault->FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
 
+$configFactory->setConfig($configDefault);
 
 
 /*
  * Config for Test-System
  */
-$config = new \Areanet\PIM\Classes\Config('dev.pim.areanet-buehner.de', $config);
+$configTest = new \Areanet\PIM\Classes\Config('dev.pim.areanet-buehner.de', $configDefault);
 
-$config->DB_HOST = 'db1242.mydbserver.com';
-$config->DB_NAME = 'usr_p212925_3';
-$config->DB_USER = 'p212925d1';
-$config->DB_PASS = 'Ufisisog.693';
+$configTest->DB_HOST = 'db1242.mydbserver.com';
+$configTest->DB_NAME = 'usr_p212925_3';
+$configTest->DB_USER = 'p212925d1';
+$configTest->DB_PASS = 'Ufisisog.693';
 
-$config->APP_ENABLE_XSENDFILE = false;
+$configTest->APP_ENABLE_XSENDFILE = false;
 
-$configFactory->setConfig($config);
+$configFactory->setConfig($configTest);
 
 /*
  * Config for Live-System
  */
-$config = new \Areanet\PIM\Classes\Config('live.pim.areanet-buehner.de', $config);
+$configLive = new \Areanet\PIM\Classes\Config('live.pim.areanet-buehner.de', $configDefault);
 
-$config->DB_HOST = 'db1247.mydbserver.com';
-$config->DB_NAME = 'usr_p212925_5';
-$config->DB_USER = 'p212925d3';
-$config->DB_PASS = 'BL9-cXC44e';
+$configLive->DB_HOST = 'db1247.mydbserver.com';
+$configLive->DB_NAME = 'usr_p212925_5';
+$configLive->DB_USER = 'p212925d3';
+$configLive->DB_PASS = 'BL9-cXC44e';
 
-$config->APP_ENABLE_XSENDFILE = false;
+$configLive->APP_ENABLE_XSENDFILE = false;
 
-$configFactory->setConfig($config);
+$configFactory->setConfig($configLive);
 
 
 

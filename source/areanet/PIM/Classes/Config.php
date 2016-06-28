@@ -105,14 +105,16 @@ class Config{
      */
     public $FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\Image');
 
-
     /**
-     * @todo: Implement Push-Modul
+     * @var string ImageMagick-Path
      */
+    public $IMAGEMAGICK_EXECUTABLE = 'convert';
+
     public $PUSH_GOOGLE_KEY = null;
     public $PUSH_APPLE_HOST = null;
     public $PUSH_APPLE_CERT = null;
     public $PUSH_APPLE_PASS = null;
+    public $PUSH_APPLE_SANDBOX = false;
 
 
 

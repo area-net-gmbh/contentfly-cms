@@ -31,31 +31,55 @@ class FileController extends BaseController
         $data = array();
 
         foreach($request->files as $key => $file){
-            $hash       = md5_file($file->getRealPath());
-            $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
+            if($request->get("id")){
 
-            $extension     = $file->getClientOriginalExtension();
-            $baseFilename  = str_replace($extension, "", $file->getClientOriginalName());
-            $filename      = $this->sanitizeFileName($baseFilename).".".$extension;
+                $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($request->get("id"));
 
-            if(!$fileObject) {
-                $fileObject = new File();
-                $fileObject->setName($filename);
+                if (!$fileObject) {
+                    throw new \Exception("Ungültige Bild-ID.");
+                }
+
+                $hash = md5_file($file->getRealPath());
+
                 $fileObject->setType($file->getClientMimeType());
                 $fileObject->setSize($file->getClientSize());
+
                 $fileObject->setHash($hash);
                 $this->em->persist($fileObject);
                 $this->em->flush();
 
                 $backend = Backend::getInstance();
-                $file->move($backend->getPath($fileObject), $filename);
+                $file->move($backend->getPath($fileObject), $fileObject->getName());
 
                 $processor = Processing::getInstance($file->getClientMimeType());
                 $processor->execute($backend, $fileObject);
-            }else{
-                $fileObject->setIsDeleted(false);
-                $this->em->persist($fileObject);
-                $this->em->flush();
+            }else {
+                $hash = md5_file($file->getRealPath());
+                $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
+
+                $extension = $file->getClientOriginalExtension();
+                $baseFilename = str_replace($extension, "", $file->getClientOriginalName());
+                $filename = $this->sanitizeFileName($baseFilename) . "." . $extension;
+
+                if (!$fileObject) {
+                    $fileObject = new File();
+                    $fileObject->setName($filename);
+                    $fileObject->setType($file->getClientMimeType());
+                    $fileObject->setSize($file->getClientSize());
+                    $fileObject->setHash($hash);
+                    $this->em->persist($fileObject);
+                    $this->em->flush();
+
+                    $backend = Backend::getInstance();
+                    $file->move($backend->getPath($fileObject), $filename);
+
+                    $processor = Processing::getInstance($file->getClientMimeType());
+                    $processor->execute($backend, $fileObject);
+                } else {
+                    $fileObject->setIsDeleted(false);
+                    $this->em->persist($fileObject);
+                    $this->em->flush();
+                }
             }
         }
 

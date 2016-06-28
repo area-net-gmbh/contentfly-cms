@@ -328,7 +328,12 @@ label.optional{
 
 .image-edit button.btn2{
     position: absolute;
-    right:50px;
+    right:45px;
+}
+
+.image-edit button.btn3{
+    position: absolute;
+    right:85px;
 }
 
 

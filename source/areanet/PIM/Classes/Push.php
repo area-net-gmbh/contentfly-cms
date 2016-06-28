@@ -1,11 +1,10 @@
 <?php
 namespace Areanet\PIM\Classes;
 
+use Areanet\PIM\Classes\ApnsPHP\Log\NoLogger;
 use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Entity\Base;
 use Doctrine\ORM\EntityManager;
-
-// @todo: Push-Modul optimieren, siehe Wüstenrot
 
 class Push{
 
@@ -64,21 +63,30 @@ class Push{
             return;
         }
 
-        $streamContext = stream_context_create();
-        stream_context_set_option($streamContext, 'ssl', 'local_cert', ROOT_DIR.'/custom/'.Config\Adapter::getConfig()->PUSH_APPLE_CERT);
-        stream_context_set_option($streamContext, 'ssl', 'passphrase', Config\Adapter::getConfig()->PUSH_APPLE_PASS);
+        $push = new \ApnsPHP_Push(
+            Config\Adapter::getConfig()->PUSH_APPLE_SANDBOX ? \ApnsPHP_Abstract::ENVIRONMENT_SANDBOX : \ApnsPHP_Abstract::ENVIRONMENT_PRODUCTION,
+            ROOT_DIR.'/custom/'.Config\Adapter::getConfig()->PUSH_APPLE_CERT
+        );
 
-        $apns = stream_socket_client('ssl://' . Config\Adapter::getConfig()->PUSH_APPLE_HOST, $error, $errorString, 60, STREAM_CLIENT_CONNECT, $streamContext);
+        $logger = new NoLogger();
+        $push->setLogger($logger);
 
-        $payload['aps'] = array('alert' => $title.' '.$text, 'badge' => 0, 'object' => $objectId);
-        $payload        = json_encode($payload);
+        $push->setProviderCertificatePassphrase(Config\Adapter::getConfig()->PUSH_APPLE_PASS);
+        $push->setRootCertificationAuthority(ROOT_DIR.'/data/entrust_root_certification_authority.pem');
+        $push->connect();
 
         foreach($tokens as $token){
-            $apnsMessage = chr(0) . pack('n', 32) . pack('H*', $token) . pack('n', strlen($payload)) . $payload;
-            fwrite($apns, $apnsMessage);
+            $message = new \ApnsPHP_Message($token);
+            $message->setText($title.' '.$text);
+            $message->setBadge(0);
+            $message->setCustomProperty('object', $objectId);
+
+            $push->add($message);
         }
 
-        fclose($apns);
+        $push->send();
+        $push->disconnect();
+        
     }
 
     protected function sendAndroid($tokens, $title, $text, $objectId)
@@ -87,34 +95,51 @@ class Push{
             return;
         }
 
-        $msg = array
-        (
-            'message' 	=> $text,
-            'title'		=> $title,
-            'object'    => $objectId,
-            'vibrate'	=> 1,
-            'sound'		=> 1
-        );
-        $fields = array
-        (
-            'registration_ids' 	=> $tokens,
-            'data'			    => $msg
-        );
+        $androidTokensChunked = array_chunk($tokens, 900);
 
-        $headers = array
-        (
-            'Authorization: key=' . Config\Adapter::getConfig()->PUSH_GOOGLE_KEY,
-            'Content-Type: application/json'
-        );
+        foreach($androidTokensChunked as $androidTokens) {
+            $msg = array(
+                'message'   => $text,
+                'title'     => $title,
+                'object'    => $objectId,
+                'vibrate'    => 1,
+                'sound'     => 1
+            );
 
-        $ch = curl_init();
-        curl_setopt( $ch,CURLOPT_URL, 'https://android.googleapis.com/gcm/send' );
-        curl_setopt( $ch,CURLOPT_POST, true );
-        curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
-        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
-        curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
-        $result = curl_exec($ch );
-        curl_close( $ch );
+            $fields = array(
+                'registration_ids'  => $androidTokens,
+                'data'              => $msg
+            );
+
+            $headers = array(
+                'Authorization: key=' . Config\Adapter::getConfig()->PUSH_GOOGLE_KEY,
+                'Content-Type: application/json'
+            );
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+
+            $result = curl_exec($ch);
+            $json   = json_decode($result);
+            if($json) {
+                for ($i = 0; $i < count($json->results); $i++) {
+                    if (isset($json->results[$i]->error)) {
+                        $pushToken = $this->em->getRepository('Areanet\PIM\Entity\PushToken')->findOneBy(array('token' => $androidTokens[$i]));
+                        if ($pushToken) {
+                            $this->em->remove($pushToken);
+                        }
+                    }
+                }
+                $this->em->flush();
+            }
+
+            curl_close($ch);
+
+        }
     }
 }

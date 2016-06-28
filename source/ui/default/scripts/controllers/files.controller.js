@@ -46,6 +46,7 @@
         vm.resetFilter = resetFilter;
         vm.selectFile = selectFile;
         vm.sortBy = sortBy;
+        vm.uploadFile = uploadFile;
         vm.uploadMultiFile = uploadMultiFile;
 
         //Startup
@@ -240,6 +241,36 @@
             }
 
             loadData();
+        }
+
+        function uploadFile(file, id, errFiles) {
+            vm.fileUploads = [file];
+            console.log("test1");
+            file.upload = Upload.upload({
+                url: '/file/upload',
+                headers: {'X-Token': localStorageService.get('token')},
+                data: {file: file, id: id}
+            });
+            console.log("test2");
+            file.upload.then(
+                function (response) {
+
+                    file.result = response.data;
+
+                    $timeout(function () {
+                        vm.fileUploads = null;
+                        loadData();
+                    }, 1000);
+
+                },
+                function (response) {
+                    if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
+                },
+                function (evt) {
+                    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                }
+            );
+
         }
 
         function uploadMultiFile(files, errFiles) {
