@@ -93,21 +93,21 @@ class Produkt extends Base
     protected $beschreibung;
 
     /**
-     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktMetainformationen")
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktMetainformationen", orphanRemoval=true)
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Metainformationen")
      */
     protected $metainformationen;
 
     /**
-     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktWebinformationen")
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktWebinformationen", orphanRemoval=true)
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Webinformationen")
      */
     protected $webinformationen;
 
     /**
-     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktPreise")
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktPreise", orphanRemoval=true)
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Preise")
      */
