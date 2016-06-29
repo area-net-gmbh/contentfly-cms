@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt")
- * @PIM\Config(label = "Produkte", tabs="{'img': 'Bilder', 'cross': 'Cross-Selling', 'filter': 'Filter', 'files': 'Dateien'}")
+ * @PIM\Config(label = "Produkte", labelProperty="artikel", sortBy="artikel", sortOrder="ASC", tabs="{'img': 'Bilder', 'cross': 'Cross-Selling', 'filter': 'Filter', 'files': 'Dateien'}")
  */
 class Produkt extends Base
 {

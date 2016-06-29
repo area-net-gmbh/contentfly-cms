@@ -482,7 +482,7 @@ class ApiController extends BaseController
             $alias = $object->getAlias();
             $object->setAlias("$alias (gelöscht)");
         }
-        
+
         $object->setIsDeleted(true);
 
         $this->em->remove($object);
@@ -513,6 +513,12 @@ class ApiController extends BaseController
         $log->setModelName(ucfirst($request->get('entity')));
         $log->setUser($app['auth.user']);
         $log->setMode('Gelöscht');
+
+        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
+            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+            $label = $object->$labelGetter();
+            $log->setModelLabel($label);
+        }
 
         $this->em->persist($log);
         $this->em->flush();
@@ -773,6 +779,12 @@ class ApiController extends BaseController
             $log->setModelName($entityName);
             $log->setUser($user);
             $log->setMode('Erstellt');
+
+            if($schema[ucfirst($entityName)]['settings']['labelProperty']){
+                $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+                $label = $object->$labelGetter();
+                $log->setModelLabel($label);
+            }
 
             $this->em->persist($log);
             $this->em->flush();
@@ -1158,6 +1170,12 @@ class ApiController extends BaseController
         if($user) $log->setUser($user);
         $log->setMode('Geändert');
 
+        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
+            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+            $label = $object->$labelGetter();
+            $log->setModelLabel($label);
+        }
+
         $this->em->persist($log);
         $this->em->flush();
     }
@@ -1466,6 +1484,7 @@ class ApiController extends BaseController
                 'sortBy' => 'id',
                 'sortOrder' => 'DESC',
                 'isSortable' => false,
+                'labelProperty' => null,
                 'type' => 'default',
                 'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false))
             );
@@ -1487,6 +1506,7 @@ class ApiController extends BaseController
 
                 if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
                     $settings['label']       = $classAnnotation->label ? $classAnnotation->label : $entity;
+                    $settings['labelProperty']= $classAnnotation->labelProperty ? $classAnnotation->labelProperty : $settings['labelProperty'];
                     $settings['readonly']    = $classAnnotation->readonly ? $classAnnotation->readonly : false;
                     $settings['isPush']      = ($classAnnotation->pushText && $classAnnotation->pushTitle);
                     $settings['pushTitle']   = $classAnnotation->pushTitle ? $classAnnotation->pushTitle : null;
