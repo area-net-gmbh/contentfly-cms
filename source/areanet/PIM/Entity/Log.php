@@ -30,6 +30,11 @@ class Log extends Base
      */
     protected $modelId;
 
+    /**
+     * @ORM\Column(name="model_label", type="string", nullable=true)
+     * @PIM\Config(showInList=40, label="Objekt-Titel")
+     */
+    protected $modelLabel;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
@@ -85,6 +90,24 @@ class Log extends Base
     {
         $this->isHidden = $isHidden;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getModelLabel()
+    {
+        return $this->modelLabel;
+    }
+
+    /**
+     * @param mixed $modelLabel
+     */
+    public function setModelLabel($modelLabel)
+    {
+        $this->modelLabel = $modelLabel;
+    }
+    
+    
 
     
 }

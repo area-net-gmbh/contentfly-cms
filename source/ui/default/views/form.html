@@ -1,5 +1,13 @@
 <div class="modal-header">
-    <h3 class="modal-title">{{vm.modaltitle}} <small ng-show="vm.object.created">Erstellt {{vm.object.created.LOCAL}} | Geändert {{vm.object.modified.LOCAL_TIME}} Uhr</small></h3>
+    <div class="col-sm-4">
+        <h3 class="modal-title">{{vm.modaltitle}}</h3><small ng-show="vm.object.created">Erstellt {{vm.object.created.LOCAL}} | Geändert {{vm.object.modified.LOCAL_TIME}} Uhr</small></p>
+    </div>
+    <div class="col-sm-8" style="text-align:right;">
+        <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(true)">Speichern und Schließen</button>
+    </div>
+
 </div>
 <div class="modal-body">
 
@@ -24,7 +32,9 @@
         </uib-tabset>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
-    <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(false)">Speichern</button>
-    <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(true)">Speichern und Schließen</button>
+    <div class="col-sm-12">
+        <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(true)">Speichern und Schließen</button>
+    </div>
 </div>

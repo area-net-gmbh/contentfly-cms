@@ -88,17 +88,22 @@
             vm.filterIsOpen = false;
         }
 
-        function doDelete(id){
+        function doDelete(object){
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
-            
+            console.log(object);
+            var modaltitle = 'Wollen Sie den <b>Eintrag ' + object.id + '</b> wirklich löschen?';
+            if(vm.schema.settings.labelProperty){
+                modaltitle = 'Wollen Sie <b>' + vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + '</b> wirklich löschen?';
+            }
+
             var modalInstance = $uibModal.open({
                 templateUrl: 'views/partials/modal.html',
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function(){ return 'Eintrag löschen'; },
-                    body: function(){ return 'Wollen Sie den Eintrag ' + id + ' wirklich löschen?'; },
+                    body: function(){ return modaltitle; },
                     hideCancelButton: false
                 }
             });
@@ -109,7 +114,7 @@
 
                         var data = {
                             entity: vm.entity,
-                            id: id
+                            id: object.id
                         };
 
                         EntityService.delete(data).then(
@@ -290,12 +295,19 @@
                 return;
             }
 
+            var modaltitle = 'Neues Objekt anlegen';
+            if(object && vm.schema.settings.labelProperty){
+                modaltitle = vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + ' bearbeiten';
+            }else if(object){
+                modaltitle = 'Objekt ' + object.id + ' bearbeiten';
+            }
+
             var modalInstance = $uibModal.open({
                 templateUrl: 'views/form.html',
                 controller: 'FormCtrl as vm',
                 resolve: {
                     entity: function(){ return vm.entity;},
-                    title: function(){ return object ? 'Objekt ' + object.id + ' bearbeiten' : 'Neues Objekt anlegen'; },
+                    title: function(){ return modaltitle; },
                     object: function(){ return object; }
                 },
                 size: 'xl',

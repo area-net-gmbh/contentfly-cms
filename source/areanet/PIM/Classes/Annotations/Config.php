@@ -41,6 +41,11 @@ final class Config extends Annotation
     /**
      * @var string
      */
+    public $labelProperty = '';
+
+    /**
+     * @var string
+     */
     public $type = '';
 
     /**
