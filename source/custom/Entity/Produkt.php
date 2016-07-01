@@ -121,10 +121,8 @@ class Produkt extends Base
     protected $alternativprodukte;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Custom\Entity\Produkt")
-     * @ORM\JoinTable(name="produkt_zubehoerprodukte",
-     *     joinColumns={@ORM\JoinColumn(name="produkt_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="produkt_zubehor_id", onDelete="CASCADE")})
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktZubehoerprodukte", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Produkt", mappedBy="zubehoerprodukt")
      * @PIM\Config(label="Zubehör-Produkte", tab="cross")
      */
     protected $zubehoerprodukte;
@@ -144,9 +142,9 @@ class Produkt extends Base
     protected $technischesDatenblatt;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\File")
-     * @ORM\JoinTable(name="produkt_dateien_digitalvorlagen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
-     * @PIM\Config(label="Digitalvorlagen", accept="application/pdf", tab="files")
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktDigitalvorlagen", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Areanet\PIM\Entity\File", mappedBy="datei")
+     * @PIM\Config(label="Digitalvorlagen", tab="files")
      */
     protected $digitalvorlagen;
 
