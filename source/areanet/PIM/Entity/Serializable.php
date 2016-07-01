@@ -7,7 +7,7 @@ abstract class Serializable implements \JsonSerializable{
         return $this->toValueObject();
     }
 
-    public function toValueObject($flatten = false, $level = 0)
+    public function toValueObject($flatten = false, $flattenedProperties = array(), $level = 0)
     {
 
         $result = new \stdClass();
@@ -43,12 +43,19 @@ abstract class Serializable implements \JsonSerializable{
                     }
                     elseif($this->$property instanceof Base && $property != 'user') {
                         $getterName = 'get' . ucfirst($property);
-                        $result->$property = $this->$getterName()->toValueObject($flatten, ($level + 1));
+                        $result->$property = $this->$getterName()->toValueObject($flatten, $flattenedProperties, ($level + 1));
                     }elseif($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
                         $data = array();
-                        foreach ($this->$property as $object) {
-                            $data[] = $object->toValueObject($flatten,  ($level + 1));
+                        if(in_array($property, $flattenedProperties)){
+                            foreach ($this->$property as $object) {
+                                $data[] =  $object->getId();
+                            }
+                        }else{
+                            foreach ($this->$property as $object) {
+                                $data[] = $object->toValueObject($flatten, $flattenedProperties,  ($level + 1));
+                            }
                         }
+
 
                         $result->$property = $data;
                     }else{
