@@ -18,6 +18,7 @@ abstract class Serializable implements \JsonSerializable{
         }
 
         foreach ($this as $property => $value) {
+           
             if(!$flatten){
                 $getter = 'get' . ucfirst($property);
                 if (method_exists($this, $getter)) {
