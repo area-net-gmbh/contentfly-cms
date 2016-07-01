@@ -37,6 +37,7 @@ $configTest->DB_USER = 'p212925d1';
 $configTest->DB_PASS = 'Ufisisog.693';
 
 $configTest->APP_ENABLE_XSENDFILE = false;
+$configTest->APP_ENABLE_SCHEMA_CACHE = true;
 
 $configFactory->setConfig($configTest);
 
@@ -51,6 +52,7 @@ $configLive->DB_USER = 'p212925d3';
 $configLive->DB_PASS = 'BL9-cXC44e';
 
 $configLive->APP_ENABLE_XSENDFILE = false;
+$configTest->APP_ENABLE_SCHEMA_CACHE = true;
 
 $configFactory->setConfig($configLive);
 

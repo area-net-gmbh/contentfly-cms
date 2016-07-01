@@ -40,6 +40,18 @@
                                 element.text(scope.object[property][firstProperty]);
                             }
                             break;
+                        case 'select':
+                            var value = scope.object[property];
+                            var options = scope.schema.properties[property].options;
+                            //console.log(options);
+                            for(var i = 0; i < options.length; i++){
+                                if(options[i].id == value){
+                                    element.text(options[i].name);
+                                    return;
+                                }
+                            }
+                            element.text(value);
+                            break;
                         default:
                             var content = strip_tags(scope.object[property]);
                             if(scope.schema.properties[property].listShorten){

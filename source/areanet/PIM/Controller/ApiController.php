@@ -31,7 +31,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ApiController extends BaseController
 {
-
     protected $_MIMETYPES = array(
         'images' => array('image/jpeg', 'image/png', 'image/gif'),
         'pdf' => array('application/pdf')
@@ -329,9 +328,11 @@ class ApiController extends BaseController
             }
         }
 
+
         $query   = $queryBuilder->getQuery();
-        //die($query->getSQL());
+
         $totalObjects = $query->getResult();
+        
         //die($currentPage*$itemsPerPage . " = " . $totalObjects);
         if($currentPage*$itemsPerPage > count($totalObjects)){
             $currentPage = ceil(count($totalObjects)/$itemsPerPage);
@@ -368,21 +369,6 @@ class ApiController extends BaseController
         foreach($objects as $object){
             $objectData = $object->toValueObject($flatten);
 
-            /*if($entityName == 'PIM\\File'){
-                $backend = Backend::getInstance();
-                $objectData->uris = array(
-                    'original' => $backend->getWebUri($object)
-                );
-
-                $processor = Processing::getInstance($object->getType());
-                if(!($processor instanceof Standard)){
-                    foreach($this->app['thumbnailSettings'] as $thumbnailSetting){
-                        $objectData->uris[$thumbnailSetting->getAlias()] =  $backend->getWebUri($object, $thumbnailSetting);
-                    }
-                }
-
-            }
-            */
 
             foreach($schema[$entityName]['properties'] as $key => $config){
                 if($flatten){
@@ -427,12 +413,11 @@ class ApiController extends BaseController
                     }
                 }
             }
-            
+
             $array[] = $objectData;
 
         }
-
-
+        
 
         if($currentPage) {
             return new JsonResponse(array('message' => "listAction", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => count($totalObjects)));
@@ -1442,6 +1427,16 @@ class ApiController extends BaseController
 
     protected function getSchema()
     {
+        $cacheFile = ROOT_DIR.'/data/cache/schema.cache';
+
+        if(Config\Adapter::getConfig()->APP_ENABLE_SCHEMA_CACHE){
+
+            if(file_exists($cacheFile)){
+                $data = unserialize(file_get_contents($cacheFile));
+                return $data;
+            }
+        }
+
         $entities = array();
 
         $entityFolder = __DIR__.'/../../../custom/Entity/';
@@ -1455,7 +1450,7 @@ class ApiController extends BaseController
         $entities[] = "PIM\\Log";
         $entities[] = "PIM\\PushToken";
         $entities[] = "PIM\\ThumbnailSetting";
-        
+
         $data     = array();
 
         foreach($entities as $entity){
@@ -1758,6 +1753,10 @@ class ApiController extends BaseController
                 'settings' => $settings,
                 'properties' => $properties
             );
+        }
+
+        if(Config\Adapter::getConfig()->APP_ENABLE_SCHEMA_CACHE){
+            file_put_contents($cacheFile, serialize($data));
         }
 
         return $data;
