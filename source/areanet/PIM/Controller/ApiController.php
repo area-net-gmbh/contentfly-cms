@@ -216,13 +216,16 @@ class ApiController extends BaseController
     {
         $data = array();
 
-        $entityName   = $request->get('entity');
-        $doCount      = $request->get('count', false);
-        $order        = $request->get('order', null);
-        $where        = $request->get('where', null);
-        $currentPage  = $request->get('currentPage');
-        $itemsPerPage = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
-        $flatten      = $request->get('flatten', false);
+        $entityName             = $request->get('entity');
+        $doCount                = $request->get('count', false);
+        $order                  = $request->get('order', null);
+        $where                  = $request->get('where', null);
+        $currentPage            = $request->get('currentPage');
+        $itemsPerPage           = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
+        $flatten                = $request->get('flatten', false);
+
+        //todo: dynamisch über Entity-Config
+        $flattenedProperties    = $request->get('flattenedProperties', array('produktVerknuepfungen'));
 
         if(substr($entityName, 0, 3) == 'PIM'){
             $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
@@ -370,7 +373,7 @@ class ApiController extends BaseController
 
         $array = array();
         foreach($objects as $object){
-            $objectData = $object->toValueObject($flatten);
+            $objectData = $object->toValueObject($flatten, $flattenedProperties);
 
 
             foreach($schema[$entityName]['properties'] as $key => $config){
@@ -1209,10 +1212,11 @@ class ApiController extends BaseController
      */
     public function allAction(Request $request)
     {
-        $timestamp    = $request->get('lastModified');
-        $filedata     = $request->get('filedata');
-        $check        = $request->get('check', false);
-        $flatten      = $request->get('flatten', false);
+        $timestamp              = $request->get('lastModified');
+        $filedata               = $request->get('filedata');
+        $check                  = $request->get('check', false);
+        $flatten                = $request->get('flatten', false);
+        $flattenedProperties    = $request->get('flattenedProperties', array());
 
         $lastModified = null;
         if(!empty($timestamp)) {
@@ -1261,7 +1265,7 @@ class ApiController extends BaseController
             $array = array();
             foreach($objects as $object){
 
-                $objectData = $object->toValueObject($flatten);
+                $objectData = $object->toValueObject($flatten, $flattenedProperties);
 
                 if(isset($schema[$entityShortcut])) {
 
