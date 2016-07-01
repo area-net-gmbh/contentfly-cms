@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Kategorie extends BaseTree
 {
+
     /**
      * @ORM\Column(type="string")
      * @PIM\Config(showInList=40, label="Titel")

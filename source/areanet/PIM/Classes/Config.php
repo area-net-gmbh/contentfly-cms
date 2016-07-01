@@ -45,7 +45,10 @@ class Config{
     public $DB_CHARSET  = 'utf8';
 
 
-
+    /**
+     * @var boolean Enable Schema Cache
+     */
+    public $APP_ENABLE_SCHEMA_CACHE = false;
 
 
     /**

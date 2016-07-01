@@ -15,7 +15,7 @@ class BaseTree extends BaseSortable
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\BaseTree", inversedBy="treeChilds")
      * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="SET NULL")
-     * @PIM\Config(showInList=60, label="Eltern-Objekt")
+     * @PIM\Config(showInList=60, label="Eltern-Objekt", isFilterable=true)
      */
     protected $treeParent;
 

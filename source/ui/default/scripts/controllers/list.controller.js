@@ -213,30 +213,41 @@
             for (var key in vm.schema.properties) {
 
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
-
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
+                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     var field = key;
-                    EntityService.list({entity: entity}).then(
-                        function successCallback(response) {
-                            var joinSchema = localStorageService.get('schema')[entity];
-                            vm.filterJoins[field] = response.data.data;
+                    if(localStorageService.get('schema')[entity].settings.type == 'tree') {
 
-                            for(var i = 0; i < vm.filterJoins[field].length; i++){
-                                if(!vm.filterJoins[field][i]['pim_filterTitle']){
-                                    vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
-                                }
+                        EntityService.tree({entity: entity}).then(
+                            function successCallback(response) {
+                                generateTree(entity, field, response.data.data, 0)
+                            },
+                            function errorCallback(response) {
                             }
+                        );
+                    }else {
+                        EntityService.list({entity: entity}).then(
+                            function successCallback(response) {
+                                var joinSchema = localStorageService.get('schema')[entity];
+                                vm.filterJoins[field] = response.data.data;
 
-                        },
-                        function errorCallback(response) {
-                        }
-                    );
+                                for (var i = 0; i < vm.filterJoins[field].length; i++) {
+                                    if (!vm.filterJoins[field][i]['pim_filterTitle']) {
+                                        vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                    }
+                                }
+
+                            },
+                            function errorCallback(response) {
+                            }
+                        );
+                    }
 
                 }
                 if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
 
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
+                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');;
                     var field = key;
+
                     if(localStorageService.get('schema')[entity].settings.type == 'tree'){
 
                         EntityService.tree({entity: entity}).then(

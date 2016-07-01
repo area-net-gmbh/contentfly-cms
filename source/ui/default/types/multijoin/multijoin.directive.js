@@ -118,7 +118,12 @@
                     modalInstance.result.then(
                         function (newObject) {
                             if(newObject){
-                                scope.value[index] = newObject;
+                                if(scope.config.mappedBy){
+                                    scope.value[index][scope.config.mappedBy] = newObject;
+                                }else{
+                                    scope.value[index] = newObject;
+                                }
+
                             }
                         },
                         function () {}
