@@ -20,6 +20,7 @@ abstract class BaseController
         $this->app = $app;
         $this->setEM($this->app['orm.em']);
         $this->setTwig($this->app['twig']);
+        
     }
 
     protected function setEM(EntityManager $em){

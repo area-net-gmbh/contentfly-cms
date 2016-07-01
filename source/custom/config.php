@@ -17,8 +17,9 @@ $configDefault->DB_PASS = 'pass';
 $configDefault->APP_DEBUG = true;
 
 $configDefault->APP_ENABLE_XSENDFILE = true;
+$configDefault->APP_ENABLE_SCHEMA_CACHE = true;
 
-$configDefault->FRONTEND_ITEMS_PER_PAGE = 30;
+$configDefault->FRONTEND_ITEMS_PER_PAGE = 25;
 $configDefault->FRONTEND_CUSTOM_LOGO = true;
 
 $configDefault->FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');

@@ -22,6 +22,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\Query;
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
@@ -234,7 +235,8 @@ class ApiController extends BaseController
 
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
-            ->select($entityName)
+            ->select("count(".$entityName.")")
+            //->select($entityName)
             ->from($entityNameToLoad, $entityName)
             ->where("$entityName.isDeleted = false")
             ->andWhere("$entityName.isIntern = false");
@@ -329,13 +331,12 @@ class ApiController extends BaseController
         }
 
 
-        $query   = $queryBuilder->getQuery();
+        $query      = $queryBuilder->getQuery();
+        $totalObjects = $query->getSingleScalarResult();
 
-        $totalObjects = $query->getResult();
-        
         //die($currentPage*$itemsPerPage . " = " . $totalObjects);
-        if($currentPage*$itemsPerPage > count($totalObjects)){
-            $currentPage = ceil(count($totalObjects)/$itemsPerPage);
+        if($currentPage*$itemsPerPage > $totalObjects){
+            $currentPage = ceil($totalObjects/$itemsPerPage);
         }
 
         if($currentPage) {
@@ -353,9 +354,11 @@ class ApiController extends BaseController
             $queryBuilder->orderBy($entityName.'.id', 'DESC');
         }
 
+        $queryBuilder->select($entityName);
+
         $query   = $queryBuilder->getQuery();
         $objects = $query->getResult();
-        
+
         if($doCount){
             return new JsonResponse(array('message' => "listAction", 'data' => count($objects)));
         }
@@ -417,10 +420,10 @@ class ApiController extends BaseController
             $array[] = $objectData;
 
         }
-        
+
 
         if($currentPage) {
-            return new JsonResponse(array('message' => "listAction", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => count($totalObjects)));
+            return new JsonResponse(array('message' => "listAction", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => $totalObjects));
         } else {
             return new JsonResponse(array('message' => "listAction", 'data' => $array));
         }
@@ -1432,6 +1435,7 @@ class ApiController extends BaseController
         if(Config\Adapter::getConfig()->APP_ENABLE_SCHEMA_CACHE){
 
             if(file_exists($cacheFile)){
+
                 $data = unserialize(file_get_contents($cacheFile));
                 return $data;
             }
