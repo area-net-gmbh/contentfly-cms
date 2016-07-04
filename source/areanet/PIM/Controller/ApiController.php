@@ -175,13 +175,15 @@ class ApiController extends BaseController
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Auszulesende Entity
-     * @apiParam {Boolean} group Nur Rückgabe der Anzahl der Objekte
-     * @apiParam {Object} order="{'id': 'DESC'}" Sortierung: <code>{'date': 'ASC/DESC',...}</code>
-     * @apiParam {Object} where Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
-     * @apiParam {Integer} currentPage Aktuelle Seite für Pagination
-     * @apiParam {Integer} itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE" Anzahl Objekte pro Seite bei Pagination
-     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
-     * @apiParamExample {json} Request-Beispiel:
+     * @apiParam {Boolean} [group] Nur Rückgabe der Anzahl der Objekte
+     * @apiParam {Object} [order="{'id': 'DESC'}"] Sortierung: <code>{'date': 'ASC/DESC',...}</code>
+     * @apiParam {Object} [where] Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
+     * @apiParam {Integer} [currentPage] Aktuelle Seite für Pagination
+     * @apiParam {Integer} [itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE"] Anzahl Objekte pro Seite bei Pagination
+     * @apiParam {Boolean} [flatten="false"] Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
+     * @apiParam {Array} [properties=null] Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)
+     * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
+     * @apiParamExample {json} Request-Beispiel mit Where-Abfrage:
      *     {
      *      "entity": "News",
      *      "currentPage": 1,
@@ -191,6 +193,12 @@ class ApiController extends BaseController
      *      "where": {
      *          "title": "foo",
      *          "isHidden": false
+     *      },
+     *      "properties": ["id", "title"]
+     * @apiParamExample {json} Request-Beispiel zuletzt aktualisierte Objekte
+     *     {
+     *      "entity": "News",
+     *      "lastModified": "2016-02-20 15:30:22"
      *     }
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -223,9 +231,17 @@ class ApiController extends BaseController
         $currentPage            = $request->get('currentPage');
         $itemsPerPage           = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
         $flatten                = $request->get('flatten', false);
+        $properties             = $request->get('properties', array());
+        $properties             = is_array($properties) ? $properties : array();
+        $lastModified           = $request->get('lastModified', null);
 
-        //todo: dynamisch über Entity-Config
-        $flattenedProperties    = $request->get('flattenedProperties', array('produktVerknuepfungen'));
+        if(!empty($lastModified)) {
+            try {
+                $lastModified = new \Datetime($lastModified);
+            } catch (\Exception $e) {
+
+            }
+        }
 
         if(substr($entityName, 0, 3) == 'PIM'){
             $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
@@ -239,11 +255,14 @@ class ApiController extends BaseController
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select("count(".$entityName.")")
-            //->select($entityName)
             ->from($entityNameToLoad, $entityName)
             ->where("$entityName.isDeleted = false")
             ->andWhere("$entityName.isIntern = false");
 
+        if($lastModified){
+            //$qb->where($qb->expr()->lte('modified', $lastModified));
+            $queryBuilder->andWhere($entityName.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
+        }
 
         if($where){
             $placeholdCounter = 0;
@@ -357,9 +376,16 @@ class ApiController extends BaseController
             $queryBuilder->orderBy($entityName.'.id', 'DESC');
         }
 
-        $queryBuilder->select($entityName);
+        if(count($properties) > 0){
+            $partialProperties = implode(',', $properties);
+            $queryBuilder->select('partial '.$entityName.'.{'.$partialProperties.'}');
+            $query  = $queryBuilder->getQuery();
+        }else{
+            $queryBuilder->select($entityName);
+            $query = $queryBuilder->getQuery();
+        }
 
-        $query   = $queryBuilder->getQuery();
+
         $objects = $query->getResult();
 
         if($doCount){
@@ -373,10 +399,13 @@ class ApiController extends BaseController
 
         $array = array();
         foreach($objects as $object){
-            $objectData = $object->toValueObject($flatten, $flattenedProperties);
-
+            
+            $objectData = $object->toValueObject($flatten, $properties);
 
             foreach($schema[$entityName]['properties'] as $key => $config){
+                if(count($properties) && !in_array($key, $properties)){
+                    continue;
+                }
                 if($flatten){
                     if (isset($config['type']) && $config['type'] == 'multifile') {
                         $getterName = 'get' . ucfirst($key);
@@ -426,9 +455,23 @@ class ApiController extends BaseController
 
 
         if($currentPage) {
-            return new JsonResponse(array('message' => "listAction", 'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => $totalObjects));
+            $data = array('message' => "listAction",  'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => $totalObjects);
+
+            if($lastModified){
+                $currentDate = new \Datetime();
+                $data['lastModified'] = $currentDate->format('Y-m-d H:i:s');
+            }
+
+            return new JsonResponse($data);
         } else {
-            return new JsonResponse(array('message' => "listAction", 'data' => $array));
+            $data = array('message' => "listAction", 'data' => $array);
+
+            if($lastModified){
+                $currentDate = new \Datetime();
+                $data['lastModified'] = $currentDate->format('Y-m-d H:i:s');
+            }
+
+            return new JsonResponse($data);
         }
     }
 
@@ -1182,7 +1225,7 @@ class ApiController extends BaseController
      * @apiDescription Gibt alle Objekte aller Entitys zurück
      *
      * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
-     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
+     * @apiParam {Boolean} [flatten="false"] Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "lastModified": "2016-02-20 15:30:22"
@@ -1216,7 +1259,6 @@ class ApiController extends BaseController
         $filedata               = $request->get('filedata');
         $check                  = $request->get('check', false);
         $flatten                = $request->get('flatten', false);
-        $flattenedProperties    = $request->get('flattenedProperties', array());
 
         $lastModified = null;
         if(!empty($timestamp)) {
@@ -1265,24 +1307,11 @@ class ApiController extends BaseController
             $array = array();
             foreach($objects as $object){
 
-                $objectData = $object->toValueObject($flatten, $flattenedProperties);
+                $objectData = $object->toValueObject($flatten);
 
                 if(isset($schema[$entityShortcut])) {
 
-                    /*if($entityShortcut == 'PIM\\File'){
-                        $backend = Backend::getInstance();
-                        $objectData->uris = array(
-                            'original' => $backend->getWebUri($object)
-                        );
 
-                        $processor = Processing::getInstance($object->getType());
-                        if(!($processor instanceof Standard)){
-                            foreach($this->app['thumbnailSettings'] as $thumbnailSetting){
-                                $objectData->uris[$thumbnailSetting->getAlias()] =  $backend->getWebUri($object, $thumbnailSetting);
-                            }
-                        }
-
-                    }*/
 
                     foreach ($schema[$entityShortcut]['properties'] as $key => $config) {
                         if($flatten){

@@ -131,7 +131,7 @@ define({ "api": [
           {
             "group": "Parameter",
             "type": "Boolean",
-            "optional": false,
+            "optional": true,
             "field": "flatten",
             "defaultValue": "false",
             "description": "<p>Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück</p>"
@@ -394,14 +394,14 @@ define({ "api": [
           {
             "group": "Parameter",
             "type": "Boolean",
-            "optional": false,
+            "optional": true,
             "field": "group",
             "description": "<p>Nur Rückgabe der Anzahl der Objekte</p>"
           },
           {
             "group": "Parameter",
             "type": "Object",
-            "optional": false,
+            "optional": true,
             "field": "order",
             "defaultValue": "{'id': 'DESC'}",
             "description": "<p>Sortierung: <code>{'date': 'ASC/DESC',...}</code></p>"
@@ -409,21 +409,21 @@ define({ "api": [
           {
             "group": "Parameter",
             "type": "Object",
-            "optional": false,
+            "optional": true,
             "field": "where",
             "description": "<p>Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code></p>"
           },
           {
             "group": "Parameter",
             "type": "Integer",
-            "optional": false,
+            "optional": true,
             "field": "currentPage",
             "description": "<p>Aktuelle Seite für Pagination</p>"
           },
           {
             "group": "Parameter",
             "type": "Integer",
-            "optional": false,
+            "optional": true,
             "field": "itemsPerPage",
             "defaultValue": "Config::FRONTEND_ITEMS_PER_PAGE",
             "description": "<p>Anzahl Objekte pro Seite bei Pagination</p>"
@@ -431,17 +431,38 @@ define({ "api": [
           {
             "group": "Parameter",
             "type": "Boolean",
-            "optional": false,
+            "optional": true,
             "field": "flatten",
             "defaultValue": "false",
             "description": "<p>Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Array",
+            "optional": true,
+            "field": "properties",
+            "defaultValue": "null",
+            "description": "<p>Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "lastModified",
+            "defaultValue": "yyyymmdd hh:mm:ii",
+            "description": "<p>Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.</p>"
           }
         ]
       },
       "examples": [
         {
-          "title": "Request-Beispiel:",
-          "content": "{\n \"entity\": \"News\",\n \"currentPage\": 1,\n \"order\": {\n     \"date\": \"DESC\"\n  },\n \"where\": {\n     \"title\": \"foo\",\n     \"isHidden\": false\n}",
+          "title": "Request-Beispiel mit Where-Abfrage:",
+          "content": "{\n \"entity\": \"News\",\n \"currentPage\": 1,\n \"order\": {\n     \"date\": \"DESC\"\n  },\n \"where\": {\n     \"title\": \"foo\",\n     \"isHidden\": false\n },\n \"properties\": [\"id\", \"title\"]",
+          "type": "json"
+        },
+        {
+          "title": "Request-Beispiel zuletzt aktualisierte Objekte",
+          "content": "{\n \"entity\": \"News\",\n \"lastModified\": \"2016-02-20 15:30:22\"\n}",
           "type": "json"
         }
       ]

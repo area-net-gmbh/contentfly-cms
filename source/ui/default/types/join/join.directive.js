@@ -164,11 +164,20 @@
                 function loadData(){
                     var where = scope.search ? {fulltext: scope.search} : {};
 
+                    var properties = ['id', 'modified', 'created', 'user'];
+                    if(scope.schema.settings.isSortable){
+                        properties.push('sorting');
+                    }
+                    for (var key in scope.schema.list ) {
+                        properties.push(scope.schema.list[key]);
+                    }
+
                     var data = {
                         entity: entity,
                         currentPage: scope.currentPage,
                         itemsPerPage: itemsPerPage,
-                        where: where
+                        where: where,
+                        properties: properties
                     };
                     EntityService.list(data).then(
                         function successCallback(response) {

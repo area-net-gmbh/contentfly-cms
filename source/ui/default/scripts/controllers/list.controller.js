@@ -175,6 +175,14 @@
             var sortSettings = {};
             sortSettings[vm.sortProperty] = vm.sortOrder;
 
+            var properties = ['id', 'modified', 'created', 'user'];
+            if(vm.schema.settings.isSortable){
+                properties.push('sorting');
+            }
+            for (key in vm.schema.list ) {
+                properties.push(vm.schema.list[key]);
+            }
+
             var filter = {};
             for (var key in vm.filter) {
                 if(vm.filter[key]){
@@ -187,6 +195,7 @@
                 currentPage: vm.schema.settings.isSortable ? 0 : vm.currentPage,
                 order: sortSettings,
                 where: filter,
+                properties: properties,
                 flatten:false
             };
             EntityService.list(data).then(
@@ -211,10 +220,11 @@
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
-
+                console.log(key + " = " + vm.schema.properties[key].isFilterable);
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
                     var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     var field = key;
+                    console.log("FILTER: " + entity);
                     if(localStorageService.get('schema')[entity].settings.type == 'tree') {
 
                         EntityService.tree({entity: entity}).then(
@@ -225,9 +235,19 @@
                             }
                         );
                     }else {
-                        EntityService.list({entity: entity}).then(
+                        var joinSchema = localStorageService.get('schema')[entity];
+
+                        var properties = ['id', 'modified', 'created', 'user'];
+                        if(joinSchema.settings.isSortable){
+                            properties.push('sorting');
+                        }
+                        for (var key in joinSchema.list ) {
+                            properties.push(joinSchema.list[key]);
+                        }
+
+                        EntityService.list({entity: entity, properties: properties}).then(
                             function successCallback(response) {
-                                var joinSchema = localStorageService.get('schema')[entity];
+
                                 vm.filterJoins[field] = response.data.data;
 
                                 for (var i = 0; i < vm.filterJoins[field].length; i++) {

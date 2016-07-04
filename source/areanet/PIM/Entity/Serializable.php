@@ -7,7 +7,7 @@ abstract class Serializable implements \JsonSerializable{
         return $this->toValueObject();
     }
 
-    public function toValueObject($flatten = false, $flattenedProperties = array(), $level = 0)
+    public function toValueObject($flatten = false, $properties = array(), $level = 0)
     {
 
         $result = new \stdClass();
@@ -18,7 +18,11 @@ abstract class Serializable implements \JsonSerializable{
         }
 
         foreach ($this as $property => $value) {
-           
+            
+            if(count($properties) && !in_array($property, $properties)){
+                continue;
+            }
+            
             if(!$flatten){
                 $getter = 'get' . ucfirst($property);
                 if (method_exists($this, $getter)) {
@@ -43,16 +47,17 @@ abstract class Serializable implements \JsonSerializable{
                     }
                     elseif($this->$property instanceof Base && $property != 'user') {
                         $getterName = 'get' . ucfirst($property);
-                        $result->$property = $this->$getterName()->toValueObject($flatten, $flattenedProperties, ($level + 1));
+                        $result->$property = $this->$getterName()->toValueObject($flatten, $properties, ($level + 1));
                     }elseif($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
                         $data = array();
-                        if(in_array($property, $flattenedProperties)){
+                        if(in_array($property, $properties)){
+
                             foreach ($this->$property as $object) {
                                 $data[] =  $object->getId();
                             }
                         }else{
                             foreach ($this->$property as $object) {
-                                $data[] = $object->toValueObject($flatten, $flattenedProperties,  ($level + 1));
+                                $data[] = $object->toValueObject($flatten, $properties,  ($level + 1));
                             }
                         }
 
