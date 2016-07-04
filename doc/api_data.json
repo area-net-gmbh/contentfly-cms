@@ -393,10 +393,10 @@
           },
           {
             "group": "Parameter",
-            "type": "Boolean",
+            "type": "Array",
             "optional": true,
-            "field": "group",
-            "description": "<p>Nur Rückgabe der Anzahl der Objekte</p>"
+            "field": "properties",
+            "description": "<p>Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)<code>['feld1', 'feld2', ...]</code></p>"
           },
           {
             "group": "Parameter",
@@ -408,10 +408,24 @@
           },
           {
             "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "groupBy",
+            "description": "<p>Gruppierung der Rückgabe nach Eigenschaft</p>"
+          },
+          {
+            "group": "Parameter",
             "type": "Object",
             "optional": true,
             "field": "where",
             "description": "<p>Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code></p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": true,
+            "field": "count",
+            "description": "<p>Nur Rückgabe der Anzahl der Objekte</p>"
           },
           {
             "group": "Parameter",
@@ -435,14 +449,6 @@
             "field": "flatten",
             "defaultValue": "false",
             "description": "<p>Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Array",
-            "optional": true,
-            "field": "properties",
-            "defaultValue": "null",
-            "description": "<p>Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)</p>"
           },
           {
             "group": "Parameter",

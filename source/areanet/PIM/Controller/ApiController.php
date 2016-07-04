@@ -175,13 +175,14 @@ class ApiController extends BaseController
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Auszulesende Entity
-     * @apiParam {Boolean} [group] Nur Rückgabe der Anzahl der Objekte
+     * @apiParam {Array} [properties] Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)<code>['feld1', 'feld2', ...]</code>
      * @apiParam {Object} [order="{'id': 'DESC'}"] Sortierung: <code>{'date': 'ASC/DESC',...}</code>
+     * @apiParam {String} [groupBy] Gruppierung der Rückgabe nach Eigenschaft
      * @apiParam {Object} [where] Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
+     * @apiParam {Boolean} [count] Nur Rückgabe der Anzahl der Objekte
      * @apiParam {Integer} [currentPage] Aktuelle Seite für Pagination
      * @apiParam {Integer} [itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE"] Anzahl Objekte pro Seite bei Pagination
      * @apiParam {Boolean} [flatten="false"] Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
-     * @apiParam {Array} [properties=null] Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)
      * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
      * @apiParamExample {json} Request-Beispiel mit Where-Abfrage:
      *     {
@@ -225,6 +226,7 @@ class ApiController extends BaseController
         $data = array();
 
         $entityName             = $request->get('entity');
+        $groupBy                = $request->get('groupBy', false);
         $doCount                = $request->get('count', false);
         $order                  = $request->get('order', null);
         $where                  = $request->get('where', null);
@@ -376,9 +378,17 @@ class ApiController extends BaseController
             $queryBuilder->orderBy($entityName.'.id', 'DESC');
         }
 
+        if($groupBy){
+            $queryBuilder->groupBy($entityName.".".$groupBy);
+        }
+
         if(count($properties) > 0){
+            //die($entityNameToLoad."-".$entityName);
             $partialProperties = implode(',', $properties);
-            $queryBuilder->select('partial '.$entityName.'.{'.$partialProperties.'}');
+            $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
+
+            //die($distinctSelect.'partial '.$entityName.'.{id,'.$partialProperties.'}');
+
             $query  = $queryBuilder->getQuery();
         }else{
             $queryBuilder->select($entityName);

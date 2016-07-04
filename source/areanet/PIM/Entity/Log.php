@@ -20,7 +20,7 @@ class Log extends Base
 
     /**
      * @ORM\Column(name="model_name", type="string")
-     * @PIM\Config(showInList=20,label="Objekt")
+     * @PIM\Config(showInList=20,label="Objekt", isFilterable=true)
      */
     protected $modelName;
 

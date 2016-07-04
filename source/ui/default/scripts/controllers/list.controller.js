@@ -220,11 +220,11 @@
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
-                console.log(key + " = " + vm.schema.properties[key].isFilterable);
+
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
                     var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     var field = key;
-                    console.log("FILTER: " + entity);
+
                     if(localStorageService.get('schema')[entity].settings.type == 'tree') {
 
                         EntityService.tree({entity: entity}).then(
@@ -234,7 +234,7 @@
                             function errorCallback(response) {
                             }
                         );
-                    }else {
+                    }else{
                         var joinSchema = localStorageService.get('schema')[entity];
 
                         var properties = ['id', 'modified', 'created', 'user'];
@@ -262,8 +262,7 @@
                         );
                     }
 
-                }
-                if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
+                }else if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
 
                     var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');;
                     var field = key;
@@ -298,6 +297,31 @@
                     }
 
 
+                }else if(vm.schema.properties[key].isFilterable){
+                    var field = key;
+
+                    var data = {
+                        entity: vm.entity,
+                        properties: [field],
+                        groupBy: field
+                    }
+
+                    data['order'] = {};
+                    data['order'][field] = "ASC";
+
+                    EntityService.list(data).then(
+                        function successCallback(response) {
+                            vm.filterJoins[field] = response.data.data;
+
+                            for(var i = 0; i < vm.filterJoins[field].length; i++){
+                                if(!vm.filterJoins[field][i]['pim_filterTitle']){
+                                    vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][field];
+                                }
+                            }
+                        },
+                        function errorCallback(response) {
+                        }
+                    );
                 }
 
 
