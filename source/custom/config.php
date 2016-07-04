@@ -17,7 +17,7 @@ $configDefault->DB_PASS = 'pass';
 $configDefault->APP_DEBUG = true;
 
 $configDefault->APP_ENABLE_XSENDFILE = true;
-$configDefault->APP_ENABLE_SCHEMA_CACHE = true;
+$configDefault->APP_ENABLE_SCHEMA_CACHE = false;
 
 $configDefault->FRONTEND_ITEMS_PER_PAGE = 25;
 $configDefault->FRONTEND_CUSTOM_LOGO = true;
