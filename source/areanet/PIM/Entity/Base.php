@@ -43,6 +43,7 @@ class Base extends Serializable
     /**
      * @ORM\Column(type="integer", options={"default" = 0}, nullable=true, nullable=true)
      * @PIM\Config(hide=true, label="Gelesen")
+     *
      */
     protected $views;
 

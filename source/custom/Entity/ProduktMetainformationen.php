@@ -22,13 +22,15 @@ class ProduktMetainformationen extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="Beschreibung")
+     * @PIM\Config(label="Beschreibung")
+     * @PIM\Textarea()
      */
     protected $beschreibung;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="Keywords")
+     * @PIM\Config(label="Keywords")
+     * @PIM\Textarea()
      */
     protected $keywords;
 

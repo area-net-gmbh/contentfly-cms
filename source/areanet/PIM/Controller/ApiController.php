@@ -12,6 +12,7 @@ use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\File\Processing\Standard;
 use Areanet\PIM\Classes\Push;
+use Areanet\PIM\Classes\TypeManager;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
@@ -1572,25 +1573,6 @@ class ApiController extends BaseController
             foreach ($props as $prop) {
 
 
-                $annotations = array(
-                    'showInList' => false,
-                    'listShorten' => 0,
-                    'readonly' => false,
-                    'hide' => false,
-                    'type' => "",
-                    'dbtype' => "",
-                    'label' => $prop->getName(),
-                    'accept' => '*',
-                    'rteOptions' => '',
-                    'filter' => '',
-                    'options' => array(),
-                    'foreign' => null,
-                    'tab' => null,
-                    'sortable' => false,
-                    'default' => $defaultValues[$prop->getName()],
-                    'isFilterable' => false
-                );
-
                 $reflectionProperty = new \ReflectionProperty($className, $prop->getName());
 
 
@@ -1598,92 +1580,39 @@ class ApiController extends BaseController
 
                 $customMany2ManyAnnotationsIterator = 1;
 
+                $allPropertyAnnotations = array();
+                foreach($propertyAnnotations as $propertyAnnotation){
+                    $allPropertyAnnotations[get_class($propertyAnnotation)] = $propertyAnnotation;
+
+                }
+                krsort($allPropertyAnnotations);
+
+                foreach(TypeManager::getTypes() as $type){
+                    if($type->doMatch($allPropertyAnnotations)){
+                        $properties[$prop->getName()] = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations);
+
+                        if(($tab = $type->getTab())){
+                            $settings['tabs'][$tab->key] = $tab->config;
+                        }
+                    }
+                }
+                
+                /*
                 foreach($propertyAnnotations as $propertyAnnotation){
 
                     if($propertyAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
 
-                        $annotations['isFilterable']  = $propertyAnnotation->isFilterable;
-                        $annotations['listShorten']  = $propertyAnnotation->listShorten;
-                        $annotations['showInList']  = $propertyAnnotation->showInList;
-                        $annotations['readonly']    = $propertyAnnotation->readonly;
-                        $annotations['hide']        = $propertyAnnotation->hide;
-                        $annotations['label']       = $propertyAnnotation->label ? $propertyAnnotation->label : $annotations['label'];
-                        $annotations['lines']       = $propertyAnnotation->lines;
+
                         if(!empty($propertyAnnotation->accept) && $propertyAnnotation->accept != '*'){
                             $annotations['accept']     = $propertyAnnotation->accept;
                         }
                         //$annotations['accept']      = !empty($propertyAnnotation->accept) ? $propertyAnnotation->accept : $annotations['accept'];
-                        $annotations['rteToolbar']  = $propertyAnnotation->rteToolbar ? $propertyAnnotation->rteToolbar : '';
-                        $annotations['filter']      = $propertyAnnotation->filter ? $propertyAnnotation->filter : '';
-                        $annotations['tab']         = $propertyAnnotation->tab && !$annotations['tab'] ? $propertyAnnotation->tab : $annotations['tab'];
 
-                        if($propertyAnnotation->type){
-                            $annotations['type'] = $propertyAnnotation->type;
-                        }
 
-                        if($annotations['type'] == 'onejoin'){
 
-                            $settings['tabs'][$annotations['accept']]['title'] = $annotations['label'];
-                        }
 
-                        if($annotations['type'] == 'select' && $propertyAnnotation->options){
-                            $options = explode(',', $propertyAnnotation->options);
-
-                            $optionsData = array();
-                            $count = 0;
-                            foreach($options as $option){
-                                $optionSplit = explode('=', $option);
-                                if(count($optionSplit) == 1){
-                                    $optionsData[] = array(
-                                        "id" => trim($optionSplit[0]),
-                                        "name" => trim($optionSplit[0])
-                                    );
-                                    $count++;
-                                }else{
-                                    $optionsData[] = array(
-                                        "id" => trim($optionSplit[0]),
-                                        "name" => trim($optionSplit[1])
-                                    );
-                                }
-                            }
-
-                            $annotations['options'] = $optionsData;
-                        }
-
-                        if($annotations['showInList']){
-                            $list[$annotations['showInList']] = $prop->getName();
-                        }
                     }
 
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\Column){
-                        $annotations['type']     = !empty($annotations['type']) ? $annotations['type'] : $propertyAnnotation->type;
-                        $annotations['dbtype']   = $propertyAnnotation->type;
-
-                        $annotations['length'] = $propertyAnnotation->length ? $propertyAnnotation->length : 524288;
-                        $annotations['unique'] = $propertyAnnotation->unique ? $propertyAnnotation->unique : false;
-
-                        if($annotations['type'] == "text"){
-                            $annotations['type'] = "textarea";
-                        }
-                        $annotations['nullable'] = $propertyAnnotation->nullable;
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\Id){
-                        $annotations['readonly'] = true;
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToOne){
-                        $annotations['type']     = 'onejoin';
-
-                        $entityPath     = explode('\\', $propertyAnnotation->targetEntity);
-                        $one2Oneentity  = $entityPath[(count($entityPath) - 1)];
-
-                        $annotations['accept']   = $one2Oneentity;
-                        $annotations['multiple'] = false;
-
-                        $settings['tabs'][$one2Oneentity] =array('title' =>  $annotations['label'], 'onejoin' => true, 'onejoin_field' => $prop->getName());
-                        $annotations['tab'] = $one2Oneentity;
-                    }
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToOne){
 
@@ -1692,10 +1621,7 @@ class ApiController extends BaseController
                                 $annotations['showInList'] = false;
                                 $annotations['hide'] = true;
                                 break;
-                            case 'Areanet\PIM\Entity\File':
-                                $annotations['type']     = 'file';
-                                $annotations['multiple'] = false;
-                                break;
+                 
                             default:
                                 $annotations['type']     = 'join';
                                 $annotations['accept']   = $propertyAnnotation->targetEntity;
@@ -1710,14 +1636,7 @@ class ApiController extends BaseController
 
                     }
 
-                    /*if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany){
-                        $annotations['nullable'] = true;
-                        $annotations['type']     = 'multijoin';
-                        $annotations['accept']   = $propertyAnnotation->targetEntity;
-                        $annotations['multiple'] = true;
-                        $targetEntity = new $propertyAnnotation->targetEntity();
-
-                    }*/
+                    
 
                     if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToMany){
                         $annotations['nullable'] = true;
@@ -1786,12 +1705,13 @@ class ApiController extends BaseController
 
 
                 }
+                */
+                
+                //if(!$annotations['tab']){
+                 //   $annotations['tab'] = 'default';
+                //}
 
-                if(!$annotations['tab']){
-                    $annotations['tab'] = 'default';
-                }
 
-                $properties[$prop->getName()] = $annotations;
             }
 
             ksort($list);

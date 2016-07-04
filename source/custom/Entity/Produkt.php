@@ -29,7 +29,8 @@ class Produkt extends Base
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @PIM\Config(showInList=95, label="Verfügbarkeit", type="select", options="1=grün: sofort lieferbar,2=gelb: nur wenige verfügbar,3=rot: leider ausverkauft")
+     * @PIM\Config(showInList=95, label="Verfügbarkeit")
+     * @PIM\Select(options="1=grün: sofort lieferbar,2=gelb: nur wenige verfügbar,3=rot: leider ausverkauft")
      */
     protected $verfuegbarkeit = 1;
 
@@ -53,7 +54,8 @@ class Produkt extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="Keywords")
+     * @PIM\Config(label="Keywords")
+     * @PIM\Textarea()
      */
     protected $keywords;
 

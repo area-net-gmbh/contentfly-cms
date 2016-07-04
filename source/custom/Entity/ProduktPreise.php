@@ -14,7 +14,8 @@ class ProduktPreise extends Base
 {
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(label="Kalk-Modus", type="select", options="normal=Normal, formular=Formular, versteckt=Versteckt")
+     * @PIM\Config(label="Kalk-Modus")
+     * @PIM\Select(options="normal=Normal, formular=Formular, versteckt=Versteckt")
      */
     protected $kalkModus = 'normal';
 
@@ -26,7 +27,8 @@ class ProduktPreise extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="Ab-Preis-Text")
+     * @PIM\Config(label="Ab-Preis-Text")
+     * @PIM\Textarea()
      */
     protected $abPreisText;
 

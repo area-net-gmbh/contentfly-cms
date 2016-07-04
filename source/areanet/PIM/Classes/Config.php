@@ -17,8 +17,6 @@ class Config{
 
 
 
-
-
     /**
      * @var string $DB_HOST Database Server Host
      */
@@ -80,6 +78,23 @@ class Config{
      * @var string Aktiviert XSendFile für Download (Apache-Modul muss installiert und aktiviert sein)
      */
     public $APP_ENABLE_XSENDFILE = false;
+
+    public $APP_SYSTEM_TYPES = array(
+        '\\Areanet\\PIM\\Classes\\Types\\BooleanType',
+        '\\Areanet\\PIM\\Classes\\Types\\IntegerType',
+        '\\Areanet\\PIM\\Classes\\Types\\DatetimeType',
+        '\\Areanet\\PIM\\Classes\\Types\\DecimalType',
+        '\\Areanet\\PIM\\Classes\\Types\\FloatType',
+        '\\Areanet\\PIM\\Classes\\Types\\TextType',
+        '\\Areanet\\PIM\\Classes\\Types\\TextareaType',
+        '\\Areanet\\PIM\\Classes\\Types\\PasswordType',
+        '\\Areanet\\PIM\\Classes\\Types\\StringType',
+        '\\Areanet\\PIM\\Classes\\Types\\SelectType',
+        '\\Areanet\\PIM\\Classes\\Types\\RteType',
+        '\\Areanet\\PIM\\Classes\\Types\\OnejoinType',
+        '\\Areanet\\PIM\\Classes\\Types\\JoinType',
+        '\\Areanet\\PIM\\Classes\\Types\\FileType'
+    );
 
 
 

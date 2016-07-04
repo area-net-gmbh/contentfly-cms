@@ -38,7 +38,8 @@ class File extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="Beschreibung")
+     * @PIM\Config(label="Beschreibung")
+     * @PIM\Textarea()
      */
     protected $description;
 

@@ -47,12 +47,7 @@ final class Config extends Annotation
      * @var string
      */
     public $type = '';
-
-    /**
-     * @var string
-     */
-    public $options = null;
-
+    
     /**
      * @var string
      */
@@ -103,8 +98,4 @@ final class Config extends Annotation
      */
     public $tab = 'default';
 
-    /**
-     * @var string
-     */
-    public $rteToolbar = "[['h1','h2','h3','p','pre', 'quote', 'undo','redo','clear', 'html'],['bold','italics', 'ul', 'ol', 'indent', 'outdent', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull']]";
 }

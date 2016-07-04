@@ -26,7 +26,8 @@ class User extends Base implements \JsonSerializable
 
     /**
      * @ORM\Column(type="string", length=100)
-     * @PIM\Config(type="password", label="Passwort")
+     * @PIM\Config(label="Passwort")
+     * @PIM\Password()
      */
     protected $pass;
 
