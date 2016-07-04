@@ -3,3 +3,5 @@
 source/data/files/*
 source/data/cache/*
 source/data/temp/*
+source/profiler/*
+source/backup/*
