@@ -16,7 +16,8 @@
         vm.doSave           = false;
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];
-        vm.object           = object ? object : {};
+        vm.object           = {};
+        vm.isLoading        = true;
         vm.isSubmit         = false;
         vm.fileUploads      = {};
         vm.forms            = {};
@@ -151,15 +152,20 @@
                 }
             });
 
-            var data = {
-                entity: entity,
-                id: vm.object.id
+            if(!object || !object.id){
+                vm.isLoading = false;
+                return;
             }
 
+            var data = {
+                entity: entity,
+                id: object.id
+            }
 
             EntityService.single(data).then(
                 function(response){
                     vm.object = response.data.data;
+                    vm.isLoading = false;
                 },
                 function(){}
             );

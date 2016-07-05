@@ -3,18 +3,32 @@
 namespace Areanet\PIM\Classes;
 
 
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\User;
+use Doctrine\ORM\EntityManager;
+
 abstract class Type
 {
-    private $tab = null;
+    private   $tab = null;
 
-    public function __construct()
+    /** @var EntityManager $em */
+    protected $em;
+
+    public $insertCallback = null;
+    public $updateCallback = null;
+
+    public function __construct(EntityManager $em)
     {
-        
+        $this->em   = $em;
     }
 
-    public function toDatabase()
+    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
+        $setter = 'set'.ucfirst($property);
+        $getter = 'get'.ucfirst($property);
 
+        $object->$setter($value);
     }
 
     public function renderJSON()
@@ -48,7 +62,6 @@ abstract class Type
             'dbtype' => $this->getAlias(),
             'label' => $key,
             'filter' => '',
-            'foreign' => null,
             'tab' => 'default',
             'sortable' => false,
             'default' => $defaultValue,

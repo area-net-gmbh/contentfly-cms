@@ -93,7 +93,9 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\RteType',
         '\\Areanet\\PIM\\Classes\\Types\\OnejoinType',
         '\\Areanet\\PIM\\Classes\\Types\\JoinType',
-        '\\Areanet\\PIM\\Classes\\Types\\FileType'
+        '\\Areanet\\PIM\\Classes\\Types\\FileType',
+        '\\Areanet\\PIM\\Classes\\Types\\MultifileType',
+        '\\Areanet\\PIM\\Classes\\Types\\MultijoinType'
     );
 
 

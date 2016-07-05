@@ -2,6 +2,8 @@
 namespace Areanet\PIM\Classes\Types;
 
 use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
 
 
 class SelectType extends Type
@@ -51,5 +53,18 @@ class SelectType extends Type
         $schema['options'] = $optionsData;
 
         return $schema;
+    }
+
+    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema)
+    {
+        $setter = 'set'.ucfirst($property);
+        $getter = 'get'.ucfirst($property);
+
+        if($schema[ucfirst($entityName)]['properties'][$property]['dbtype'] == 'integer'){
+            $object->$setter(intval($value));
+        }else{
+            $object->$setter($value);
+        }
+
     }
 }

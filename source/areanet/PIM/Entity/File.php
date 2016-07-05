@@ -20,13 +20,13 @@ class File extends Base
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(label="Alias-Name")
+     * @PIM\Config(label="Alias-Name", showInList=40)
      */
     protected $alias;
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(label="Titel")
+     * @PIM\Config(label="Titel", showInList=50)
      */
     protected $title;
 
@@ -45,7 +45,7 @@ class File extends Base
 
     /**
      * @ORM\Column(type="string")
-     * @PIM\Config(label="Dateityp", readonly=true, showInList=50)
+     * @PIM\Config(label="Dateityp", readonly=true, showInList=60)
      */
     protected $type;
 
@@ -57,7 +57,7 @@ class File extends Base
 
     /**
      * @ORM\Column(type="integer")
-     * @PIM\Config(label="Dateigröße", readonly=true, showInList=60)
+     * @PIM\Config(label="Dateigröße", readonly=true, showInList=70)
      */
     protected $size;
 
@@ -173,13 +173,6 @@ class File extends Base
     }
 
     
-
-    public function toValueObject()
-    {
-        $properties = parent::toValueObject();
-
-        return $properties;
-    }
 
     /**
      * @return mixed

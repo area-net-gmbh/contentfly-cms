@@ -18,14 +18,6 @@ use Knp\Provider\ConsoleServiceProvider;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
 
-foreach(Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType){
-    $typeClass = new $systemType();
-    if($typeClass->getAnnotationFile()){
-        \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/'.$typeClass->getAnnotationFile().'.php');
-    }
-    \Areanet\PIM\Classes\TypeManager::registerType($typeClass);
-}
-
 
 Config\Adapter::setHostname(HOST);
 date_default_timezone_set(Config\Adapter::getConfig()->APP_TIMEZONE);
@@ -74,8 +66,15 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
     ),
 ));
 
-$user = new \Areanet\PIM\Entity\User();
-$user->getAlias();
+
+foreach(Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType){
+    $typeClass = new $systemType($app['orm.em']);
+    if($typeClass->getAnnotationFile()){
+        \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/'.$typeClass->getAnnotationFile().'.php');
+    }
+    \Areanet\PIM\Classes\TypeManager::registerType($typeClass);
+}
+
 
 if(!is_dir(__DIR__.'/custom/Views/')){
     mkdir(__DIR__.'/custom/Views/');

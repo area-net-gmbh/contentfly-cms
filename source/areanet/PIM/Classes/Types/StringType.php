@@ -25,4 +25,6 @@ class StringType extends Type
 
         return ($annotation->type == 'string');
     }
+
+    
 }

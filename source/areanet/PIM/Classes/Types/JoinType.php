@@ -1,6 +1,8 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
 use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
 
 
 class JoinType extends Type
@@ -34,5 +36,16 @@ class JoinType extends Type
         $schema['multiple'] = false;
 
         return $schema;
+    }
+
+    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    {
+        $setter = 'set'.ucfirst($property);
+        $getter = 'get'.ucfirst($property);
+
+        $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+        $objectToJoin = $this->em->getRepository($entity)->find($value);
+        $object->$setter($objectToJoin);
+
     }
 }

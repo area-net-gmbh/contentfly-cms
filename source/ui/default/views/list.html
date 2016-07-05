@@ -23,7 +23,7 @@
             </button>
             <div uib-dropdown-menu aria-labelledby="dropdown-filter" class="form-inline">
 
-                    <div class="form-group" ng-hide="config.hide" ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type" >
+                    <div class="form-group" ng-hide="config.hide && !config.isFilterable" ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type" >
 
                         <label ng-switch-when="boolean">{{vm.schema.properties[key].label}}</label>
                         <select class="form-control" ng-switch-when="boolean" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
@@ -87,7 +87,15 @@
 <div class="row">
     <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
 
-        <p ng-hide="vm.objectsAvailable || vm.objectsNotAvailable">Daten werden geladen...</p>
+        <div class="form-loading" ng-hide="vm.objectsAvailable || vm.objectsNotAvailable">
+            <div class="loader-inner ball-pulse">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <p>Daten werden geladen...</p>
+        </div>
+
         <p ng-show="vm.objectsNotAvailable">Es sind derzeit leider keine Daten vorhanden.</p>
         <table class="table" ng-show="vm.objectsAvailable">
             <thead>
@@ -101,7 +109,7 @@
                 </tr>
             </thead>
             <tbody ng-if="!vm.schema.settings.isSortable">
-                <tr ui-sortable dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)">
+                <tr  dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)">
                     <td><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat></td>
                     <td ng-show="vm.schema.settings.isSortable"><pim-autoformat property="sorting" long="false" schema="vm.schema" object="object"></pim-autoformat></td>
                     <td ng-repeat="property in vm.schema.list"><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat></td>

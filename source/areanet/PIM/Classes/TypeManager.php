@@ -20,4 +20,12 @@ class TypeManager
     public static function getTypes(){
         return self::$types;
     }
+
+    public static function getType($alias){
+        if(!isset(self::$types[$alias])){
+            return null;
+        }
+
+        return self::$types[$alias];
+    }
 }

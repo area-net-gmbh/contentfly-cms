@@ -7,11 +7,11 @@ use Areanet\PIM\Entity\BaseSortable;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
-class MultifileType extends Type
+class MultijoinType extends Type
 {
     public function getAlias()
     {
-        return 'multifile';
+        return 'multijoin';
     }
 
     public function getAnnotationFile()
@@ -24,14 +24,14 @@ class MultifileType extends Type
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany']) && isset($propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'])){
             $annotations = $propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'];
-            if($annotations->targetEntity == 'Areanet\PIM\Entity\File'){
+            if($annotations->targetEntity != 'Areanet\PIM\Entity\File'){
                 return true;
             }
         }
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])){
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
-            if($annotations->targetEntity == 'Areanet\PIM\Entity\File'){
+            if($annotations->targetEntity != 'Areanet\PIM\Entity\File'){
                 return true;
             }
         }
@@ -44,23 +44,15 @@ class MultifileType extends Type
         $schema             = parent::processSchema($key, $defaultValue, $propertyAnnotations);
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
-        $schema['accept']   = '*';
         $schema['sortable'] = 'false';
 
-        if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'])){
-            $annotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'];
-
-            if($annotations->accept){
-                $schema['accept'] = $annotations->accept;
-            }
-        }
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'])) {
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'];
             $schema['acceptFrom'] = $annotations->targetEntity;
             $schema['mappedFrom'] = $annotations->mappedBy;
             $schema['foreign']    = $this->em->getClassMetadata($annotations->targetEntity)->getTableName();
-       
+
             $targetEntity = new $annotations->targetEntity();
             if($targetEntity instanceof BaseSortable){
                 $schema['sortable'] = true;
@@ -68,11 +60,17 @@ class MultifileType extends Type
 
             $annotations2       = $propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'];
             $schema['mappedBy'] = $annotations2->mappedBy;
-            
+            $schema['accept']   = $annotations2->targetEntity;
         }
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
+            $schema['accept'] = $annotations->targetEntity;
+
+            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'])) {
+                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
+                $schema['foreign'] = $annotations->name;
+            }
         }
 
         return $schema;
@@ -84,57 +82,63 @@ class MultifileType extends Type
         $getter = 'get'.ucfirst($property);
 
         $collection = new ArrayCollection();
+        $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+        $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
 
-        if($schema[ucfirst($entityName)]['properties'][$property]['sortable']){
-            $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-            $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-            $mappedBy   = $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'];
+        if($object->$getter()) {
+            if ($mappedBy) {
+                $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
 
-            if($object->$getter()) {
                 $object->$getter()->clear();
                 $query = $this->em->createQuery('DELETE FROM ' . $acceptFrom . ' e WHERE e.' . $mappedFrom . ' = ?1');
                 $query->setParameter(1, $object->getId());
                 $query->execute();
+            } else {
+                $object->$getter()->clear();
             }
-
-            $sorting = 0;
-            foreach($value as $id){
-                $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                if($objectToJoin->getIsDeleted()) continue;
-
-                $mappedEntity = new $acceptFrom();
-
-                $mappedSetter = 'set'.ucfirst($mappedFrom);
-                $mappedEntity->$mappedSetter($object);
-
-                $mappedBySetter = 'set'.ucfirst($mappedBy);
-                $mappedEntity->$mappedBySetter($objectToJoin);
-
-                $mappedEntity->setSorting($sorting);
-
-                $this->em->persist($mappedEntity);
-                $collection->add($mappedEntity);
-
-                $sorting++;
-            }
-
-            if($object->$getter()) $object->$getter()->clear();
-            $object->$setter($collection);
-        }else{
-            if(!is_array($value) || !count($value)){
-                if($object->$getter()) $object->$getter()->clear();
-                return;
-            }
-
-            foreach($value as $id){
-
-                $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
-            }
-
-            if($object->$getter()) $object->$getter()->clear();
-            $object->$setter($collection);
         }
 
+        if(!is_array($value) || !count($value)){
+            return;
+        }
+
+        $sorting = 0;
+        foreach($value as $id){
+            
+            $objectToJoin = $this->em->getRepository($entity)->find($id);
+
+            if(!$objectToJoin->getIsDeleted()){
+
+
+                if($mappedBy){
+                    $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
+                    $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                    $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+                    $mappedEntity   = new $acceptFrom();
+
+                    $mappedSetter = 'set'.ucfirst($mappedBy);
+                    $mappedEntity->$mappedSetter($objectToJoin);
+
+                    $mappedSetter = 'set'.ucfirst($mappedFrom);
+                    $mappedEntity->$mappedSetter($object);
+
+                    if($isSortable){
+                        $mappedEntity->setSorting($sorting++);
+                    }
+
+                    $this->em->persist($mappedEntity);
+                    $collection->add($mappedEntity);
+                }else{
+                    $collection->add($objectToJoin);
+                }
+
+            }
+        }
+
+        $object->$setter($collection);
     }
+
+
+
 }

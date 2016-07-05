@@ -169,11 +169,18 @@
             }
             vm.objectsAvailable = false;
 
+            var properties = ['id', 'modified', 'created', 'user'];
+
+            for (key in vm.schema.list ) {
+                properties.push(vm.schema.list[key]);
+            }
+            
             var data = {
                 entity: 'PIM\\File',
                 currentPage: vm.currentPage,
                 order: sortSettings,
-                where: filter
+                where: filter,
+                properties: properties
             };
 
             EntityService.list(data).then(

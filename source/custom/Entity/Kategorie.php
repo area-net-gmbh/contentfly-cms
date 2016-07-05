@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="kategorie")
- * @PIM\Config(label="Kategorien", tabs="{'produkte': 'Produkte'}")
+ * @PIM\Config(label="Kategorien", labelProperty="titel", tabs="{'produkte': 'Produkte'}")
  */
 class Kategorie extends BaseTree
 {

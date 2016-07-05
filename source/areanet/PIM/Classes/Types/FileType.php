@@ -1,6 +1,8 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
 use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
 
 
 class FileType extends Type
@@ -42,5 +44,23 @@ class FileType extends Type
         }
 
         return $schema;
+    }
+
+    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    {
+        $setter = 'set'.ucfirst($property);
+        $getter = 'get'.ucfirst($property);
+
+        if(empty($value)){
+            $object->$setter(null);
+            return;
+        }
+        $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($value);
+
+        if(!$objectToJoin) {
+            return;
+        }
+        $object->$setter($objectToJoin);
+
     }
 }

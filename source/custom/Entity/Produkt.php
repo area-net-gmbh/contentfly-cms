@@ -69,7 +69,7 @@ class Produkt extends Base
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktDetailbilder", mappedBy="produkt")
      * @PIM\ManyToMany(targetEntity="Areanet\PIM\Entity\File", mappedBy="bild")
-     * @PIM\Config(label="Detailbilder", tab="img")
+     * @PIM\Config(label="Detailbilder", tab="img", accept="image/*")
      */
     protected $bilder;
 
@@ -88,7 +88,7 @@ class Produkt extends Base
     protected $skizze;
 
     /**
-     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktBeschreibung")
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktBeschreibung", orphanRemoval=true)
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Beschreibung")
      */
@@ -153,7 +153,7 @@ class Produkt extends Base
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\KategorieProdukte", mappedBy="produkt")
      * @PIM\ManyToMany(targetEntity="Custom\Entity\Kategorie", mappedBy="kategorie")
-     * @PIM\Config(label="Kategorien", readonly=true, isFilterable=true)
+     * @PIM\Config(label="Kategorien", readonly=true, hide=true, isFilterable=true)
      */
     protected $kategorien;
 
