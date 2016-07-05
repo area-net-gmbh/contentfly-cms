@@ -92,7 +92,7 @@
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
-            console.log(object);
+
             var modaltitle = 'Wollen Sie den <b>Eintrag ' + object.id + '</b> wirklich löschen?';
             if(vm.schema.settings.labelProperty){
                 modaltitle = 'Wollen Sie <b>' + vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + '</b> wirklich löschen?';
@@ -172,6 +172,9 @@
 
 
         function loadData(){
+            vm.objectsAvailable = false;
+            vm.objectsNotAvailable = false;
+            
             var sortSettings = {};
             sortSettings[vm.sortProperty] = vm.sortOrder;
 
@@ -189,7 +192,7 @@
                     filter[key] = vm.filter[key];
                 }
             }
-            vm.objectsAvailable = false;
+
             var data = {
                 entity: vm.entity,
                 currentPage: vm.schema.settings.isSortable ? 0 : vm.currentPage,
@@ -224,7 +227,7 @@
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
                     var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     var field = key;
-
+                    
                     if(localStorageService.get('schema')[entity].settings.type == 'tree') {
 
                         EntityService.tree({entity: entity}).then(

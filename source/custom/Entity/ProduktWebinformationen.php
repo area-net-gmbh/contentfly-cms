@@ -20,19 +20,22 @@ class ProduktWebinformationen extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Marketing-Text")
+     * @PIM\Config(label="Marketing-Text")
+     * @PIM\Rte();
      */
     protected $marketingText;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="USP-Liste DE")
+     * @PIM\Config(label="USP-Liste DE")
+     * @PIM\Textarea()
      */
     protected $uspDe;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="USP-Liste AT")
+     * @PIM\Config(label="USP-Liste AT")
+     * @PIM\Textarea()
      */
     protected $uspAt;
 

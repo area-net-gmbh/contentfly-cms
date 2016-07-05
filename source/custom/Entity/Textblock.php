@@ -28,7 +28,8 @@ class Textblock extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", showInList=60, listShorten=100, label="Textblock")
+     * @PIM\Config(showInList=60, listShorten=100, label="Textblock")
+     * @PIM\Rte();
      */
     protected $textblock;
 

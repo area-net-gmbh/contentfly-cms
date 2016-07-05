@@ -4,37 +4,57 @@
     </div>
     <div class="col-sm-8" style="text-align:right;">
         <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
-        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(false)">Speichern</button>
-        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(true)">Speichern und Schließen</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
     </div>
 
 </div>
 <div class="modal-body">
 
-        <uib-tabset active="active">
-            <uib-tab  ng-repeat="(tabKey, tab) in vm.schema.settings.tabs" index="$index">
-                <uib-tab-heading ng-class="{tabInvalid: tabInvalid && vm.isSubmit}">
-                    {{tab.title}} <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"></span>
-                </uib-tab-heading>
+    <div class="saving" ng-show="vm.doSave">
+        <div class="loader-inner ball-pulse">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <p>Daten werden gespeichert...</p>
+    </div>
 
-                {{formName='form'+$index;""}}
+    <div class="form-loading" ng-show="vm.isLoading">
+        <div class="loader-inner ball-pulse">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <p>Daten werden geladen...</p>
+    </div>
 
-                <form name="vm.forms.form{{$index}}" class="form-horizontal" bind-validity="tabInvalid">
-                    <div ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'has-error': vm.isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schema.properties">
-                        <pim-form key="key" main-key="" config="config" object="vm.object" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
-                    </div>
-                    <div ng-if="tab.onejoin == true" class="form-group ng-class: {'has-error': isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schemaOnejoin[tabKey].properties">
-                        <pim-form key="key" main-key="tab.onejoin_field" config="config" object="vm.object[tab.onejoin_field]" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
-                    </div>
-                </form>
+    <uib-tabset active="active" ng-hide="vm.isLoading">
+        <uib-tab  ng-repeat="(tabKey, tab) in vm.schema.settings.tabs" index="$index">
+            <uib-tab-heading ng-class="{tabInvalid: tabInvalid && vm.isSubmit}">
+                {{tab.title}} <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"></span>
+            </uib-tab-heading>
 
-            </uib-tab>
-        </uib-tabset>
+            {{formName='form'+$index;""}}
+
+            <form name="vm.forms.form{{$index}}" class="form-horizontal" bind-validity="tabInvalid" >
+                <div  ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'has-error': vm.isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schema.properties">
+                    <pim-form key="key" main-key="" config="config" object="vm.object" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
+                </div>
+                <div ng-if="tab.onejoin == true" class="form-group ng-class: {'has-error': isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schemaOnejoin[tabKey].properties">
+                    <pim-form key="key" main-key="tab.onejoin_field" config="config" object="vm.object[tab.onejoin_field]" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
+                </div>
+            </form>
+
+
+
+        </uib-tab>
+    </uib-tabset>
 </div>
 <div class="modal-footer">
     <div class="col-sm-12">
         <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
-        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(false)">Speichern</button>
-        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave" ng-click="vm.save(true)">Speichern und Schließen</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
     </div>
 </div>

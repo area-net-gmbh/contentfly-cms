@@ -29,7 +29,8 @@ class Produkt extends Base
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @PIM\Config(showInList=95, label="Verfügbarkeit", type="select", options="1=grün: sofort lieferbar,2=gelb: nur wenige verfügbar,3=rot: leider ausverkauft")
+     * @PIM\Config(showInList=95, label="Verfügbarkeit")
+     * @PIM\Select(options="1=grün: sofort lieferbar,2=gelb: nur wenige verfügbar,3=rot: leider ausverkauft")
      */
     protected $verfuegbarkeit = 1;
 
@@ -53,7 +54,8 @@ class Produkt extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="textarea", label="Keywords")
+     * @PIM\Config(label="Keywords")
+     * @PIM\Textarea()
      */
     protected $keywords;
 
@@ -67,7 +69,7 @@ class Produkt extends Base
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktDetailbilder", mappedBy="produkt")
      * @PIM\ManyToMany(targetEntity="Areanet\PIM\Entity\File", mappedBy="bild")
-     * @PIM\Config(label="Detailbilder", tab="img")
+     * @PIM\Config(label="Detailbilder", tab="img", accept="image/*")
      */
     protected $bilder;
 
@@ -86,7 +88,7 @@ class Produkt extends Base
     protected $skizze;
 
     /**
-     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktBeschreibung")
+     * @ORM\OneToOne(targetEntity="Custom\Entity\ProduktBeschreibung", orphanRemoval=true)
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Beschreibung")
      */
@@ -151,7 +153,7 @@ class Produkt extends Base
     /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\KategorieProdukte", mappedBy="produkt")
      * @PIM\ManyToMany(targetEntity="Custom\Entity\Kategorie", mappedBy="kategorie")
-     * @PIM\Config(label="Kategorien", readonly=true, isFilterable=true)
+     * @PIM\Config(label="Kategorien", readonly=true, hide=true, isFilterable=true)
      */
     protected $kategorien;
 

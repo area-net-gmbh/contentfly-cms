@@ -18,8 +18,27 @@
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;
                 var entity       = null;
-                
+
+
+                scope.$watch('value',function(data){
+                    if(!scope.value){
+                        scope.choosenIds   = [];
+                    }else{
+                        scope.choosenIds   = [];
+                        for(var i = 0; i < scope.value.length; i++){
+                            if(scope.config.mappedBy){
+                                scope.choosenIds.push(scope.value[i][scope.config.mappedBy].id);
+                            }else{
+                                scope.choosenIds.push(scope.value[i].id);
+                            }
+
+                        }
+                    }
+
+                },true)
+
                 //Properties
+                scope.choosenIds    = [];
                 scope.chooserOpened = false;
                 scope.currentPage   = 1;
                 scope.propertyCount = 0;
@@ -81,6 +100,11 @@
                 }
 
                 function chooseObject(object){
+
+                    if(scope.choosenIds.indexOf(object.id) > -1){
+                        return;
+                    }
+
                     var newData = {};
 
                     if(scope.config.mappedBy){

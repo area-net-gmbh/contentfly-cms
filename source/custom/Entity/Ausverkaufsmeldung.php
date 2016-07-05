@@ -28,7 +28,8 @@ class Ausverkaufsmeldung extends Base
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(label="Farbe", type="select", options="#ff0000=rot (#FF0000),#0000ff=blau (#0000FF)")
+     * @PIM\Config(label="Farbe")
+     * @PIM\Select(options="#ff0000=rot (#FF0000),#0000ff=blau (#0000FF)")
      */
     protected $farbe;
 

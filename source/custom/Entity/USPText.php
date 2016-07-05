@@ -28,7 +28,8 @@ class USPText extends Base
 
     /**
      * @ORM\Column(type="text")
-     * @PIM\Config(type="rte", label="Bildunterschrift groß")
+     * @PIM\Config(label="Bildunterschrift groß")
+     * @PIM\Rte();
      */
     protected $hinweistext;
 

@@ -43,6 +43,7 @@ class Base extends Serializable
     /**
      * @ORM\Column(type="integer", options={"default" = 0}, nullable=true, nullable=true)
      * @PIM\Config(hide=true, label="Gelesen")
+     *
      */
     protected $views;
 
@@ -108,7 +109,7 @@ class Base extends Serializable
     {
         if($created instanceof \Datetime) {
             $this->created = $created;
-        } else {
+        } else if($created != null) {
             $this->created = new \Datetime($created);
         }
     }
@@ -128,7 +129,7 @@ class Base extends Serializable
     {
         if($modified instanceof \Datetime) {
             $this->modified = $modified;
-        } else {
+        } else if($modified != null) {
             $this->modified = new \Datetime($modified);
         }
     }

@@ -75,7 +75,8 @@ class ProduktBeschreibung extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Kalendarium")
+     * @PIM\Config(label="Kalendarium")
+     * @PIM\Rte();
      */
     protected $kalendarium;
 
@@ -87,7 +88,8 @@ class ProduktBeschreibung extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Kalenderfarben")
+     * @PIM\Config(label="Kalenderfarben")
+     * @PIM\Rte();
      */
     protected $kalenderfarben;
 
@@ -99,7 +101,8 @@ class ProduktBeschreibung extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Ausstattung")
+     * @PIM\Config(label="Ausstattung")
+     * @PIM\Rte();
      */
     protected $ausstattung;
 
@@ -111,7 +114,8 @@ class ProduktBeschreibung extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Ausführung")
+     * @PIM\Config(label="Ausführung")
+     * @PIM\Rte();
      */
     protected $ausfuehrung;
 
@@ -123,7 +127,8 @@ class ProduktBeschreibung extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Ländervarianten")
+     * @PIM\Config(label="Ländervarianten")
+     * @PIM\Rte();
      */
     protected $laendervarianten;
 
@@ -135,7 +140,8 @@ class ProduktBeschreibung extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Config(type="rte", label="Verarbeitung")
+     * @PIM\Config(label="Verarbeitung")
+     * @PIM\Rte();
      */
     protected $verarbeitung;
 

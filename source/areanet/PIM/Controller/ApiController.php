@@ -12,6 +12,7 @@ use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\File\Processing\Standard;
 use Areanet\PIM\Classes\Push;
+use Areanet\PIM\Classes\TypeManager;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
@@ -383,11 +384,8 @@ class ApiController extends BaseController
         }
 
         if(count($properties) > 0){
-            //die($entityNameToLoad."-".$entityName);
             $partialProperties = implode(',', $properties);
             $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
-
-            //die($distinctSelect.'partial '.$entityName.'.{id,'.$partialProperties.'}');
 
             $query  = $queryBuilder->getQuery();
         }else{
@@ -406,10 +404,8 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => "Not found"), 404);
         }
 
-
         $array = array();
         foreach($objects as $object){
-            
             $objectData = $object->toValueObject($flatten, $properties);
 
             foreach($schema[$entityName]['properties'] as $key => $config){
@@ -535,7 +531,7 @@ class ApiController extends BaseController
         $object->setId($id);
         $this->em->persist($object);
         $this->em->getClassMetaData(get_class($object))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-        $this->em->getClassMetaData(get_class($object))->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+        //$this->em->getClassMetaData(get_class($object))->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
         $this->em->flush();
 
         $schema = $this->getSchema();
@@ -610,7 +606,7 @@ class ApiController extends BaseController
         return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => ($object)));
     }
 
-    protected function insert($entityName, $data, $user)
+    public function insert($entityName, $data, $user)
     {
         $schema              = $this->getSchema();
 
@@ -622,175 +618,28 @@ class ApiController extends BaseController
         //Todo: Validierung!
 
 
+
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
             $getter = 'get'.ucfirst($property);
 
-            //Todo: dynamisch alle Joins
             if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
                 throw new \Exception("Unkown property $property for entity $entityPath", 500);
             }
-            switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
-                case 'file':
-                    if(empty($value)){
-                        $object->$setter(null);
-                        continue;
-                    }
-                    $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($value);
 
-                    if(!$objectToJoin) {
-                        continue;
-                    }
-                    $object->$setter($objectToJoin);
-
-                    break;
-                case 'multifile':
-                    $collection = new ArrayCollection();
-
-                    if($schema[ucfirst($entityName)]['properties'][$property]['sortable']){
-                        $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                        $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-                        $mappedBy   = $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'];
-
-                        $sorting = 0;
-                        foreach($value as $id){
-                            $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                            if($objectToJoin->getIsDeleted()) continue;
-
-                            $mappedEntity = new $acceptFrom();
-
-                            $mappedSetter = 'set'.ucfirst($mappedFrom);
-                            $mappedEntity->$mappedSetter($object);
-
-                            $mappedBySetter = 'set'.ucfirst($mappedBy);
-                            $mappedEntity->$mappedBySetter($objectToJoin);
-
-                            $mappedEntity->setSorting($sorting);
-
-                            $this->em->persist($mappedEntity);
-                            $collection->add($mappedEntity);
-
-                            $sorting++;
-                        }
-
-                        $object->$getter()->clear();
-                        $object->$setter($collection);
-                    }else {
-
-                        if (!is_array($value) || !count($value)) {
-                            $object->$setter($collection);
-                            continue;
-                        }
-
-                        foreach ($value as $id) {
-                            $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                            $collection->add($objectToJoin);
-                        }
-
-                        $object->$setter($collection);
-                    }
-
-                    break;
-                case 'join':
-                    $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-                    $objectToJoin = $this->em->getRepository($entity)->find($value);
-                    $object->$setter($objectToJoin);
-                    break;
-                case 'multijoin':
-                    $collection = new ArrayCollection();
-                    $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-
-                    if(!is_array($value) || !count($value)){
-                        continue;
-                    }
-
-                    foreach($value as $id){
-                        $objectToJoin = $this->em->getRepository($entity)->find($id);
-                        if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
-                    }
-
-                    $object->$setter($collection);
-
-                    break;
-                case 'matrixchooser':
-                    $collection = new ArrayCollection();
-
-                    $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                    $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-
-
-                    if(!is_array($value) || !count($value)){
-                        continue;
-                    }
-
-                    foreach($value as $subobject){
-                        $mappedEntity   = new $acceptFrom();
-
-                        $target1Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target1Entity'];
-                        $mapped1By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped1By'];
-                        $target2Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target2Entity'];
-                        $mapped2By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped2By'];
-
-                        $object1ToJoin  = $this->em->getRepository($target1Entity)->find($subobject[$mapped1By]);
-                        if(!$object1ToJoin){
-                            continue;
-                        }
-                        $mapped1Setter = 'set'.ucfirst($mapped1By);
-                        $mappedEntity->$mapped1Setter($object1ToJoin);
-
-                        $object2ToJoin  = $this->em->getRepository($target2Entity)->find($subobject[$mapped2By]);
-                        if(!$object2ToJoin){
-                            continue;
-                        }
-                        $mapped2Setter = 'set'.ucfirst($mapped2By);
-                        $mappedEntity->$mapped2Setter($object2ToJoin);
-
-                        $mappedSetter = 'set'.ucfirst($mappedFrom);
-                        $mappedEntity->$mappedSetter($object);
-
-                        $this->em->persist($mappedEntity);
-                        $collection->add($mappedEntity);
-                    }
-
-                    $object->$setter($collection);
-
-                    break;
-                case 'onejoin':
-                    $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-
-                    $joinObject = $this->insert($joinEntity, $value, $user);
-                    $object->$setter($joinObject);
-
-                    break;
-                case 'integer':
-                    $object->$setter(intval($value));
-                    break;
-                case 'select':
-                    if($schema[ucfirst($entityName)]['properties'][$property]['dbtype'] == 'integer'){
-                        $object->$setter(intval($value));
-                    }else{
-                        $object->$setter($value);
-                    }
-                    break;
-                case 'string':
-                case 'datetime':
-                case 'decimal':
-                case 'float':
-                case 'textarea':
-                case 'text':
-                case 'rte':
-                case 'boolean':
-                case 'password':
-                    $object->$setter($value);
-                    break;
+            $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
+            $typeObject = TypeManager::getType($type);
+            if(!$typeObject){
+                throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
+
+            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
 
         }
 
         if($object instanceof Base){
             $object->setUser($user);
         }
-
 
         try {
 
@@ -927,7 +776,7 @@ class ApiController extends BaseController
      * @param User $user
      * @return JsonResponse
      */
-    protected function update($entityName, $id, $data, $disableModifiedTime, $user = null)
+    public function update($entityName, $id, $data, $disableModifiedTime, $user = null)
     {
         $schema              = $this->getSchema();
 
@@ -949,242 +798,18 @@ class ApiController extends BaseController
             $setter = 'set'.ucfirst($property);
             $getter = 'get'.ucfirst($property);
 
-            //Todo: dynamisch alle Joins?
             if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
                 throw new \Exception("Unkown property $property for entity $entityPath", 500);
             }
-            switch($schema[ucfirst($entityName)]['properties'][$property]['type']){
-                case 'file':
-                    if(empty($value)){
-                        $object->$setter(null);
-                        continue;
-                    }
-                    $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($value);
 
-                    if(!$objectToJoin) {
-                        continue;
-                    }
-                    $object->$setter($objectToJoin);
-
-                    break;
-                case 'multifile':
-                    $collection = new ArrayCollection();
-
-                    if($schema[ucfirst($entityName)]['properties'][$property]['sortable']){
-                        $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                        $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-                        $mappedBy   = $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'];
-
-                        $object->$getter()->clear();
-                        $query = $this->em->createQuery('DELETE FROM '.$acceptFrom.' e WHERE e.'.$mappedFrom.' = ?1');
-                        $query->setParameter(1, $id);
-                        $query->execute();
-
-                        $sorting = 0;
-                        foreach($value as $id){
-                            $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                            if($objectToJoin->getIsDeleted()) continue;
-
-                            $mappedEntity = new $acceptFrom();
-
-                            $mappedSetter = 'set'.ucfirst($mappedFrom);
-                            $mappedEntity->$mappedSetter($object);
-
-                            $mappedBySetter = 'set'.ucfirst($mappedBy);
-                            $mappedEntity->$mappedBySetter($objectToJoin);
-
-                            $mappedEntity->setSorting($sorting);
-
-                            $this->em->persist($mappedEntity);
-                            $collection->add($mappedEntity);
-
-                            $sorting++;
-                        }
-
-                        $object->$getter()->clear();
-                        $object->$setter($collection);
-                    }else{
-                        if(!is_array($value) || !count($value)){
-                            $object->$getter()->clear();
-                            continue;
-                        }
-
-                        foreach($value as $id){
-
-                            $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                            if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
-                        }
-
-                        $object->$getter()->clear();
-                        $object->$setter($collection);
-                    }
-
-
-                    break;
-                case 'join':
-                    $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-                    $objectToJoin = $this->em->getRepository($entity)->find($value);
-                    $object->$setter($objectToJoin);
-                    break;
-                case 'multijoin':
-                    $collection = new ArrayCollection();
-                    $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-                    $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
-
-                    if($mappedBy){
-                        $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                        $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-
-                        $object->$getter()->clear();
-                        $query = $this->em->createQuery('DELETE FROM '.$acceptFrom.' e WHERE e.'.$mappedFrom.' = ?1');
-                        $query->setParameter(1, $id);
-                        $query->execute();
-                    }else{
-                        $object->$getter()->clear();
-                    }
-
-                    if(!is_array($value) || !count($value)){
-                        continue;
-                    }
-
-                    $sorting = 0;
-                    foreach($value as $id){
-
-
-                        $objectToJoin = $this->em->getRepository($entity)->find($id);
-
-                        if(!$objectToJoin->getIsDeleted()){
-
-
-                            if($mappedBy){
-                                $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
-                                $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                                $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-                                $mappedEntity   = new $acceptFrom();
-
-                                $mappedSetter = 'set'.ucfirst($mappedBy);
-                                $mappedEntity->$mappedSetter($objectToJoin);
-
-                                $mappedSetter = 'set'.ucfirst($mappedFrom);
-                                $mappedEntity->$mappedSetter($object);
-
-                                if($isSortable){
-                                    $mappedEntity->setSorting($sorting++);
-                                }
-
-                                $this->em->persist($mappedEntity);
-                                $collection->add($mappedEntity);
-                            }else{
-                                $collection->add($objectToJoin);
-                            }
-
-                        }
-                    }
-
-                    $object->$setter($collection);
-
-                    break;
-                case 'matrixchooser':
-                    $collection = new ArrayCollection();
-
-                    $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                    $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-
-                    $object->$getter()->clear();
-                    $query = $this->em->createQuery('DELETE FROM '.$acceptFrom.' e WHERE e.'.$mappedFrom.' = ?1');
-                    $query->setParameter(1, $id);
-                    $query->execute();
-
-                    $object->$setter($collection);
-
-                    if(!is_array($value) || !count($value)){
-                        continue;
-                    }
-
-                    foreach($value as $subobject){
-                        $mappedEntity   = new $acceptFrom();
-
-                        $target1Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target1Entity'];
-                        $mapped1By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped1By'];
-                        $target2Entity  = $schema[ucfirst($entityName)]['properties'][$property]['target2Entity'];
-                        $mapped2By      = $schema[ucfirst($entityName)]['properties'][$property]['mapped2By'];
-
-                        $object1ToJoin  = $this->em->getRepository($target1Entity)->find($subobject[$mapped1By]);
-                        if(!$object1ToJoin){
-                            continue;
-                        }
-                        $mapped1Setter = 'set'.ucfirst($mapped1By);
-                        $mappedEntity->$mapped1Setter($object1ToJoin);
-
-                        $object2ToJoin  = $this->em->getRepository($target2Entity)->find($subobject[$mapped2By]);
-                        if(!$object2ToJoin){
-                            continue;
-                        }
-                        $mapped2Setter = 'set'.ucfirst($mapped2By);
-                        $mappedEntity->$mapped2Setter($object2ToJoin);
-
-                        $mappedSetter = 'set'.ucfirst($mappedFrom);
-                        $mappedEntity->$mappedSetter($object);
-
-                        $this->em->persist($mappedEntity);
-                        $collection->add($mappedEntity);
-                    }
-
-                    $object->$setter($collection);
-
-                    break;
-                case 'onejoin':
-                    $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-
-
-                    if(!empty($value['id'])){
-                        $this->update($joinEntity, $value['id'], $value, false, $user);
-                    }else{
-                        $joinObject = $this->insert($joinEntity, $value, $user);
-                        $object->$setter($joinObject);
-                    }
-                    break;
-                case 'datetime':
-                    //echo($setter." = ".$value);
-                    if(!is_array($value) && $value){
-                        $object->$setter($value);
-                    }else{
-                        $object->$setter(null);
-                    }
-                    break;
-                case 'integer':
-                    $object->$setter(intval($value));
-                    break;
-                case 'select':
-                    if($schema[ucfirst($entityName)]['properties'][$property]['dbtype'] == 'integer'){
-                        $object->$setter(intval($value));
-                    }else{
-                        $object->$setter($value);
-                    }
-                    break;
-                case 'password':
-                case 'string':
-                case 'decimal':
-                case 'float':
-                case 'textarea':
-                case 'text':
-                case 'rte':
-                case 'boolean':
-                case 'entity':
-                    if(strtoupper($value) == 'INC'){
-                        $oldValue = $object->$getter();
-                        $oldValue++;
-                        $object->$setter($oldValue);
-                    }elseif(strtoupper($value) == 'DEC'){
-                        $oldValue = $object->$getter();
-                        $oldValue--;
-                        $object->$setter($oldValue);
-                    }else{
-                        $object->$setter($value);
-                    }
-
-                    break;
+            $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
+            $typeObject = TypeManager::getType($type);
+            if(!$typeObject){
+                throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
+
+            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
+
         }
         $object->setUser($user);
 
@@ -1321,8 +946,6 @@ class ApiController extends BaseController
 
                 if(isset($schema[$entityShortcut])) {
 
-
-
                     foreach ($schema[$entityShortcut]['properties'] as $key => $config) {
                         if($flatten){
                             if (isset($config['type']) && $config['type'] == 'multifile') {
@@ -1386,18 +1009,11 @@ class ApiController extends BaseController
                             $base64 = base64_encode($data);
 
                             $src = 'data: '.$object->getType().';base64,'.$base64;
-                            //die("test:".$src);
                             $objectData->filedata->$size = $base64;
-                            //die("test: ".$objectData->filedata->$size);
                         }
                     }
                 }
-
-                if($object->getId() == '2949'){
-                    //$test = $object->getWebInformationen()->toValueObject();
-
-                }
-
+    
                 $array[] = $objectData;
 
             }
@@ -1572,25 +1188,6 @@ class ApiController extends BaseController
             foreach ($props as $prop) {
 
 
-                $annotations = array(
-                    'showInList' => false,
-                    'listShorten' => 0,
-                    'readonly' => false,
-                    'hide' => false,
-                    'type' => "",
-                    'dbtype' => "",
-                    'label' => $prop->getName(),
-                    'accept' => '*',
-                    'rteOptions' => '',
-                    'filter' => '',
-                    'options' => array(),
-                    'foreign' => null,
-                    'tab' => null,
-                    'sortable' => false,
-                    'default' => $defaultValues[$prop->getName()],
-                    'isFilterable' => false
-                );
-
                 $reflectionProperty = new \ReflectionProperty($className, $prop->getName());
 
 
@@ -1598,200 +1195,35 @@ class ApiController extends BaseController
 
                 $customMany2ManyAnnotationsIterator = 1;
 
+                $allPropertyAnnotations = array();
                 foreach($propertyAnnotations as $propertyAnnotation){
-
-                    if($propertyAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
-
-                        $annotations['isFilterable']  = $propertyAnnotation->isFilterable;
-                        $annotations['listShorten']  = $propertyAnnotation->listShorten;
-                        $annotations['showInList']  = $propertyAnnotation->showInList;
-                        $annotations['readonly']    = $propertyAnnotation->readonly;
-                        $annotations['hide']        = $propertyAnnotation->hide;
-                        $annotations['label']       = $propertyAnnotation->label ? $propertyAnnotation->label : $annotations['label'];
-                        $annotations['lines']       = $propertyAnnotation->lines;
-                        if(!empty($propertyAnnotation->accept) && $propertyAnnotation->accept != '*'){
-                            $annotations['accept']     = $propertyAnnotation->accept;
-                        }
-                        //$annotations['accept']      = !empty($propertyAnnotation->accept) ? $propertyAnnotation->accept : $annotations['accept'];
-                        $annotations['rteToolbar']  = $propertyAnnotation->rteToolbar ? $propertyAnnotation->rteToolbar : '';
-                        $annotations['filter']      = $propertyAnnotation->filter ? $propertyAnnotation->filter : '';
-                        $annotations['tab']         = $propertyAnnotation->tab && !$annotations['tab'] ? $propertyAnnotation->tab : $annotations['tab'];
-
-                        if($propertyAnnotation->type){
-                            $annotations['type'] = $propertyAnnotation->type;
-                        }
-
-                        if($annotations['type'] == 'onejoin'){
-
-                            $settings['tabs'][$annotations['accept']]['title'] = $annotations['label'];
-                        }
-
-                        if($annotations['type'] == 'select' && $propertyAnnotation->options){
-                            $options = explode(',', $propertyAnnotation->options);
-
-                            $optionsData = array();
-                            $count = 0;
-                            foreach($options as $option){
-                                $optionSplit = explode('=', $option);
-                                if(count($optionSplit) == 1){
-                                    $optionsData[] = array(
-                                        "id" => trim($optionSplit[0]),
-                                        "name" => trim($optionSplit[0])
-                                    );
-                                    $count++;
-                                }else{
-                                    $optionsData[] = array(
-                                        "id" => trim($optionSplit[0]),
-                                        "name" => trim($optionSplit[1])
-                                    );
-                                }
-                            }
-
-                            $annotations['options'] = $optionsData;
-                        }
-
-                        if($annotations['showInList']){
-                            $list[$annotations['showInList']] = $prop->getName();
-                        }
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\Column){
-                        $annotations['type']     = !empty($annotations['type']) ? $annotations['type'] : $propertyAnnotation->type;
-                        $annotations['dbtype']   = $propertyAnnotation->type;
-
-                        $annotations['length'] = $propertyAnnotation->length ? $propertyAnnotation->length : 524288;
-                        $annotations['unique'] = $propertyAnnotation->unique ? $propertyAnnotation->unique : false;
-
-                        if($annotations['type'] == "text"){
-                            $annotations['type'] = "textarea";
-                        }
-                        $annotations['nullable'] = $propertyAnnotation->nullable;
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\Id){
-                        $annotations['readonly'] = true;
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToOne){
-                        $annotations['type']     = 'onejoin';
-
-                        $entityPath     = explode('\\', $propertyAnnotation->targetEntity);
-                        $one2Oneentity  = $entityPath[(count($entityPath) - 1)];
-
-                        $annotations['accept']   = $one2Oneentity;
-                        $annotations['multiple'] = false;
-
-                        $settings['tabs'][$one2Oneentity] =array('title' =>  $annotations['label'], 'onejoin' => true, 'onejoin_field' => $prop->getName());
-                        $annotations['tab'] = $one2Oneentity;
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToOne){
-
-                        switch($propertyAnnotation->targetEntity){
-                            case 'Areanet\PIM\Entity\User':
-                                $annotations['showInList'] = false;
-                                $annotations['hide'] = true;
-                                break;
-                            case 'Areanet\PIM\Entity\File':
-                                $annotations['type']     = 'file';
-                                $annotations['multiple'] = false;
-                                break;
-                            default:
-                                $annotations['type']     = 'join';
-                                $annotations['accept']   = $propertyAnnotation->targetEntity;
-                                $annotations['multiple'] = false;
-
-                                if($settings['type'] == 'tree' && $prop->getName() == 'treeParent'){
-                                    $annotations['accept'] = $className;
-                                }
-
-                                break;
-                        }
-
-                    }
-
-                    /*if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany){
-                        $annotations['nullable'] = true;
-                        $annotations['type']     = 'multijoin';
-                        $annotations['accept']   = $propertyAnnotation->targetEntity;
-                        $annotations['multiple'] = true;
-                        $targetEntity = new $propertyAnnotation->targetEntity();
-
-                    }*/
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\ManyToMany){
-                        $annotations['nullable'] = true;
-                        switch($propertyAnnotation->targetEntity){
-                            case 'Areanet\PIM\Entity\File':
-                                $annotations['type']     = 'multifile';
-                                $annotations['multiple'] = true;
-                                break;
-                            default:
-                                $annotations['type']     = 'multijoin';
-                                $annotations['accept']   = $propertyAnnotation->targetEntity;
-                                $annotations['multiple'] = true;
-                                break;
-                        }
-
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\JoinTable){
-                        $annotations['foreign'] = $propertyAnnotation->name;
-                    }
-
-                    if($propertyAnnotation instanceof ManyToMany) {
-                        $annotations['type'] = 'multijoin';
-                        $annotations['multiple'] = true;
-
-                        if ($customMany2ManyAnnotationsIterator == 1){
-                            $targetEntity = new $propertyAnnotation->targetEntity();
-                            if($targetEntity instanceof File){
-                                $annotations['type'] = 'multifile';
-                                $annotations['multiple'] = true;
-                                $annotations['accept'] = 'image/*';
-                                $annotations['foreign'] = 'produkt_bilder';
-                                $annotations['sortable'] = true;
-                                $annotations['mappedBy'] = $propertyAnnotation->mappedBy;
-                            }else{
-                                $annotations['accept'] = $propertyAnnotation->targetEntity;
-                                $annotations['mappedBy'] = $propertyAnnotation->mappedBy;
-                            }
-
-
-                        }else {
-                            $annotations['accept'.$customMany2ManyAnnotationsIterator] = $propertyAnnotation->targetEntity;
-                            $annotations['mappedBy'.$customMany2ManyAnnotationsIterator] = $propertyAnnotation->mappedBy;
-                        }
-
-                        $customMany2ManyAnnotationsIterator++;
-                    }
-
-                    if($propertyAnnotation instanceof \Doctrine\ORM\Mapping\OneToMany   ){
-                        $annotations['acceptFrom'] = $propertyAnnotation->targetEntity;
-                        $annotations['mappedFrom'] = $propertyAnnotation->mappedBy;
-
-                        $targetEntity = new $propertyAnnotation->targetEntity();
-                        if($targetEntity instanceof  BaseSortable){
-                            $annotations['sortable']    = true;
-                        }
-                    }
-
-                    if($propertyAnnotation instanceof MatrixChooser){
-                        $annotations['type'] = 'matrixchooser';
-                        $annotations['target1Entity'] = $propertyAnnotation->target1Entity;
-                        $annotations['mapped1By'] = $propertyAnnotation->mapped1By;
-                        $annotations['target2Entity'] = $propertyAnnotation->target2Entity;
-                        $annotations['mapped2By'] = $propertyAnnotation->mapped2By;
-                    }
-
+                    $allPropertyAnnotations[get_class($propertyAnnotation)] = $propertyAnnotation;
 
                 }
+                krsort($allPropertyAnnotations);
 
-                if(!$annotations['tab']){
-                    $annotations['tab'] = 'default';
+                foreach(TypeManager::getTypes() as $type){
+                    if($type->doMatch($allPropertyAnnotations)){
+                        $propertySchema                 = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations);
+                        $properties[$prop->getName()]   = $propertySchema;
+
+                        if(($tab = $type->getTab())){
+                            $settings['tabs'][$tab->key] = $tab->config;
+                        }
+
+                        if($prop->getName() == 'treeParent'){
+                            $properties[$prop->getName()]['accept'] = $className;
+                        }
+                        
+                    }
                 }
 
-                $properties[$prop->getName()] = $annotations;
+
+                if(isset($properties[$prop->getName()]['showInList']) && $properties[$prop->getName()]['showInList'] !== false){
+                    $list[$properties[$prop->getName()]['showInList']] = $prop->getName();
+                }
+
+                
             }
 
             ksort($list);

@@ -38,7 +38,8 @@ class Log extends Base
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
-     * @PIM\Config(showInList=50, label="Aktion", type="select", options="Geändert, Gelöscht, Erstellt" )
+     * @PIM\Config(showInList=50, label="Aktion")
+     * @PIM\Select(options="Geändert, Gelöscht, Erstellt")
      */
     protected $mode;
 

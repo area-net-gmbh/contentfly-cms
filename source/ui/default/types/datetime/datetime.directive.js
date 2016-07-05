@@ -24,6 +24,10 @@
                     scope.isOpened = true;
                 }
 
+                scope.$watch('value',function(data){
+                    scope.dateValue = scope.value ? moment(scope.value.ISO8601).toDate() : null;
+                },true)
+
                 scope.$watch('dateValue',function(data){
                     scope.onChangeCallback({key: scope.key, value: scope.dateValue ? scope.dateValue.toISOString() : null});
                 },true)
