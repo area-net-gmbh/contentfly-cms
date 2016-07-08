@@ -188,11 +188,16 @@ class FileController extends BaseController
             header("X-Sendfile: ".$fileName);
             exit;
         }else{
-            header('Content-type: ' . $mimeType);
-            header("Content-length: " . filesize($fileName));
-            readfile($fileName);
-        }
 
+            $stream = function () use ($fileName) {
+                readfile($fileName);
+            };
+
+            return $this->app->stream($stream, 200, array(
+                'Content-Type'   => $mimeType,
+                'Content-length' => filesize($fileName)
+            ));
+        }
 
     }
 
