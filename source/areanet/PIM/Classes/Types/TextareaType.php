@@ -16,17 +16,22 @@ class TextareaType extends Type
     }
 
     public function doMatch($propertyAnnotations){
-        if(!isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Textarea'])) {
+        if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Textarea'])) {
+            return true;
+        }
+
+        if(!isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'])) {
             return false;
         }
 
-        return true;
+        $annotation = $propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'];
+
+        return ($annotation->type == 'text');
     }
 
     public function processSchema($key, $defaultValue, $propertyAnnotations)
     {
         $schema = parent::processSchema($key, $defaultValue, $propertyAnnotations);
-        $propertyAnnotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Textarea'];
 
         return $schema;
     }

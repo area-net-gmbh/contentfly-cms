@@ -44,7 +44,7 @@ class MultijoinType extends Type
         $schema             = parent::processSchema($key, $defaultValue, $propertyAnnotations);
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
-        $schema['sortable'] = 'false';
+        $schema['sortable'] = false;
 
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'])) {

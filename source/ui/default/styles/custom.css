@@ -587,11 +587,15 @@ li.grid:hover .image-edit{
 }
 
 .chooser .td-small, .join .td-small{
-    width:80px !important;
+    width:100px !important;
 }
 
 .align-right{
     text-align:right;
+}
+
+.disabled{
+    opacity:0.5;
 }
 
 #login{

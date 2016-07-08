@@ -17,6 +17,12 @@ class BaseSortable extends Base
     protected $sorting = 0;
 
     /**
+     * @ORM\Column(type="boolean", options={"default" = true}, nullable=true)
+     * @PIM\Config(label="Aktiv")
+     */
+    protected $isActive = 1;
+
+    /**
      * @return mixed
      */
     public function getSorting()
@@ -32,5 +38,20 @@ class BaseSortable extends Base
         $this->sorting = $sorting;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getIsActive()
+    {
+        return $this->isActive;
+    }
 
+    /**
+     * @param mixed $isActive
+     */
+    public function setIsActive($isActive)
+    {
+        $this->isActive = $isActive;
+    }
+    
 }

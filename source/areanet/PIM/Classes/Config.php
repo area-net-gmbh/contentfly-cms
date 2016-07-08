@@ -42,6 +42,10 @@ class Config{
      */
     public $DB_CHARSET  = 'utf8';
 
+    /**
+     * @var string $DB_NESTED_LEVELS Loading x nested levels
+     */
+    public $DB_NESTED_LEVELS  = 3;
 
     /**
      * @var boolean Enable Schema Cache
@@ -85,7 +89,6 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\DatetimeType',
         '\\Areanet\\PIM\\Classes\\Types\\DecimalType',
         '\\Areanet\\PIM\\Classes\\Types\\FloatType',
-        '\\Areanet\\PIM\\Classes\\Types\\TextType',
         '\\Areanet\\PIM\\Classes\\Types\\TextareaType',
         '\\Areanet\\PIM\\Classes\\Types\\PasswordType',
         '\\Areanet\\PIM\\Classes\\Types\\StringType',
