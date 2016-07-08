@@ -531,7 +531,6 @@ class ApiController extends BaseController
         $object->setId($id);
         $this->em->persist($object);
         $this->em->getClassMetaData(get_class($object))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-        //$this->em->getClassMetaData(get_class($object))->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
         $this->em->flush();
 
         $schema = $this->getSchema();
