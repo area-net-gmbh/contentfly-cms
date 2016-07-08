@@ -19,10 +19,21 @@ class FileSystem implements BackendInterface
         return '/data/files/'.$file->getId();
     }
 
-    public function getUri(File $file, $size = null)
+    public function getUri(File $file, $size = null, $variant = null)
     {
         $fileName = $file->getName();
         $sizeUri  = '';
+
+        switch($variant){
+            case '1x':
+            case '2x':
+                $variant = $variant.'@';
+                break;
+            default:
+                $variant = '';
+                break;
+        }
+
         if($size){
             if($size instanceof ThumbnailSetting){
                 if($size->getForceJpeg()) {
@@ -38,13 +49,24 @@ class FileSystem implements BackendInterface
 
         if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
 
-        return ROOT_DIR.'/data/files/'.$file->getId().'/'.$sizeUri.$fileName;
+        return ROOT_DIR.'/data/files/'.$file->getId().'/'.$variant.$sizeUri.$fileName;
     }
 
-    public function getWebUri(File $file, $size = null)
+    public function getWebUri(File $file, $size = null, $variant = null)
     {
         $fileName = $file->getName();
         $sizeUri  = '';
+
+        switch($variant){
+            case '1x':
+            case '2x':
+                $variant = $variant.'@';
+                break;
+            default:
+                $variant = '';
+                break;
+        }
+
         if($size){
             if($size instanceof ThumbnailSetting){
                 if($size->getForceJpeg()) {
@@ -58,7 +80,7 @@ class FileSystem implements BackendInterface
             }
         }
 
-        return 'files/get/'.$file->getId().'/'.$sizeUri.$fileName;
+        return 'files/get/'.$file->getId().'/'.$variant.$sizeUri.$fileName;
     }
 
 

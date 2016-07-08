@@ -34,7 +34,7 @@ class Image implements ProcessingInterface
         return array('image/jpeg', 'image/gif', 'image/png');
     }
 
-    public function execute(BackendInterface $backend, File $fileObject, $fileSizeAlias = null)
+    public function execute(BackendInterface $backend, File $fileObject, $fileSizeAlias = null, $variant = null)
     {
         if(!isset($this->mimeMapping[$fileObject->getType()])){
             return;
@@ -62,41 +62,111 @@ class Image implements ProcessingInterface
                 continue;
             }
 
-            $orig_width  = imagesx($img);
-            $orig_height = imagesy($img);
+            $imgName        = $backend->getPath($fileObject).'/'.$fileObject->getName();
+            $imgThumbName   = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
 
-            $thumb = null;
-
-            if($thumbnailSetting->getWidth() && $thumbnailSetting->getHeight()){
-                if($thumbnailSetting->getDoCut()){
-                    $thumb = $this->resizeByCutting($fileObject, $img, $thumbnailSetting);
-                }else{
-                    if($orig_width > $orig_height){
-                        $thumb = $this->resizeByWidth($fileObject, $img, $thumbnailSetting);
-                    }else{
-                        $thumb = $this->resizeByHeight($fileObject, $img, $thumbnailSetting);
-                    }
-                }
-            }elseif($thumbnailSetting->getWidth()){
-                $thumb = $this->resizeByWidth($fileObject, $img, $thumbnailSetting);
-            }elseif($thumbnailSetting->getHeight()){
-                $thumb = $this->resizeByHeight($fileObject, $img, $thumbnailSetting);
-            }elseif($thumbnailSetting->getPercent()){
-                $thumb = $this->resizePercentual($fileObject, $img, $thumbnailSetting);
+            if($thumbnailSetting->getForceJpeg()){
+                $imgThumbNameList = explode('.', $imgThumbName);
+                $imgThumbNameList[(count($imgThumbNameList) -  1)] = 'jpg';
+                $imgThumbName = implode('.', $imgThumbNameList);
             }
 
-            if($thumb){
-                $imgThumbName = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
+            if(!$variant || !file_exists($imgThumbName)) {
+
+                $orig_width = imagesx($img);
+                $orig_height = imagesy($img);
+
+                $thumb = null;
+
+                if ($thumbnailSetting->getWidth() && $thumbnailSetting->getHeight()) {
+                    if ($thumbnailSetting->getDoCut()) {
+                        $thumb = $this->resizeByCutting($fileObject, $img, $thumbnailSetting);
+                    } else {
+                        if ($orig_width > $orig_height) {
+                            $thumb = $this->resizeByWidth($fileObject, $img, $thumbnailSetting);
+                        } else {
+                            $thumb = $this->resizeByHeight($fileObject, $img, $thumbnailSetting);
+                        }
+                    }
+                } elseif ($thumbnailSetting->getWidth()) {
+                    $thumb = $this->resizeByWidth($fileObject, $img, $thumbnailSetting);
+                } elseif ($thumbnailSetting->getHeight()) {
+                    $thumb = $this->resizeByHeight($fileObject, $img, $thumbnailSetting);
+                } elseif ($thumbnailSetting->getPercent()) {
+                    $thumb = $this->resizePercentual($fileObject, $img, $thumbnailSetting);
+                }
+
+                if ($thumb) {
+                    $imgThumbName = $backend->getPath($fileObject) . '/' . $thumbnailSetting->getAlias() . '-' . $fileObject->getName();
+                    if ($thumbnailSetting->getForceJpeg()) {
+                        $imgThumbNameList = explode('.', $imgThumbName);
+                        $imgThumbNameList[(count($imgThumbNameList) - 1)] = 'jpg';
+                        $imgThumbName = implode('.', $imgThumbNameList);
+                        imagejpeg($thumb, $imgThumbName, $this->qualityMapping['image/jpeg']);
+                    } else {
+                        $saveMethodName($thumb, $imgThumbName, $this->qualityMapping[$fileObject->getType()]);
+                    }
+
+                    imagedestroy($thumb);
+                }
+            }
+
+
+            if($thumbnailSetting->getIsResponsive() &&  $variant != '1x' || $variant == '2x' ) {
+                $quality        = $this->qualityMapping[$fileObject->getType()];
+                $imgName        = $backend->getPath($fileObject).'/'.$fileObject->getName();
+                $imgThumbName   = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
+
                 if($thumbnailSetting->getForceJpeg()){
                     $imgThumbNameList = explode('.', $imgThumbName);
                     $imgThumbNameList[(count($imgThumbNameList) -  1)] = 'jpg';
                     $imgThumbName = implode('.', $imgThumbNameList);
-                    imagejpeg($thumb, $imgThumbName, $this->qualityMapping['image/jpeg']);
-                }else{
-                    $saveMethodName($thumb, $imgThumbName, $this->qualityMapping[$fileObject->getType()]);
                 }
 
-                imagedestroy($thumb);
+                if($thumbnailSetting->getForceJpeg()){
+                    $loadMethodName = 'imagecreatefromjpeg';
+                    $saveMethodName = 'imagejpeg';
+                    $quality        = $this->qualityMapping['image/jpeg'];
+                }
+
+                $img   = $loadMethodName($imgThumbName);
+                $thumb = $this->resizeByPercent($fileObject, $img, 2/3*100);
+
+                $imgThumbNameList = explode("/", $imgThumbName);
+                $imgThumbNameList[count($imgThumbNameList) - 1] = "2x@" . $imgThumbNameList[count($imgThumbNameList) - 1];
+                $imgThumbName2x = implode('/', $imgThumbNameList);
+
+                $saveMethodName($thumb, $imgThumbName2x, $quality);
+
+            }
+
+            if($thumbnailSetting->getIsResponsive() &&  $variant != '2x' || $variant == '1x' ) {
+
+                $quality        = $this->qualityMapping[$fileObject->getType()];
+                $imgName        = $backend->getPath($fileObject).'/'.$fileObject->getName();
+                $imgThumbName   = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
+
+                if($thumbnailSetting->getForceJpeg()){
+                    $imgThumbNameList = explode('.', $imgThumbName);
+                    $imgThumbNameList[(count($imgThumbNameList) -  1)] = 'jpg';
+                    $imgThumbName = implode('.', $imgThumbNameList);
+                }
+
+                if($thumbnailSetting->getForceJpeg()){
+                    $loadMethodName = 'imagecreatefromjpeg';
+                    $saveMethodName = 'imagejpeg';
+                    $quality        = $this->qualityMapping['image/jpeg'];
+                }
+
+                $img   = $loadMethodName($imgThumbName);
+                $thumb = $this->resizeByPercent($fileObject, $img, 1/3*100);
+
+                $imgThumbNameList = explode("/", $imgThumbName);
+                $imgThumbNameList[count($imgThumbNameList) - 1] = "1x@" . $imgThumbNameList[count($imgThumbNameList) - 1];
+                $imgThumbName2x = implode('/', $imgThumbNameList);
+               
+                $saveMethodName($thumb, $imgThumbName2x, $quality);
+
             }
 
         }
@@ -237,6 +307,11 @@ class Image implements ProcessingInterface
 
     protected function resizePercentual($fileObject, $img, ThumbnailSetting $thumbnailSetting){
         $sizePerCent = $thumbnailSetting->getPercent();
+
+        return $this->resizeByPercent($fileObject, $img, $thumbnailSetting->getPercent());
+    }
+
+    protected function resizeByPercent($fileObject, $img, $sizePerCent){
         $sizeFactor  = $sizePerCent/100;
 
         $orig_width  = imagesx($img);

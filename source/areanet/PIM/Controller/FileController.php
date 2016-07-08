@@ -88,11 +88,12 @@ class FileController extends BaseController
 
     /**
      * @apiVersion 1.3.0
-     * @api {get} /file/get/:id/[:size]/[:alias] get
+     * @api {get} /file/get/:id/[:size]/[:variant]/[:alias] get
      * @apiName Get
      * @apiGroup File
      * @apiParam {string} id ID oder Dateiname
      * @apiParam {string} size=null Optional: Alias der gewünschten Thumbnail-Größe, muss im PIM-Backend oder als PIM-Standard ("pim_list", "pim_small") entsprechend definiert sein
+     * @apiParam {string} variant=null Optional: 1x = 1/3 Größe von Originalbild / 2x = 2/3 Größe von Originalbild / 3x = Originalbild
      * @apiParam {string} alias=null Optional: Beliebiger Dateiname für SEO (Die Datei wird lediglich über die ID geladen)
      * @apiExample {curl} Abfrage anhand ID
      *     /file/get/12
@@ -100,39 +101,40 @@ class FileController extends BaseController
      *     /file/get/12/sample.jpg
      * @apiExample {curl} Thumbnails anhand ID und Dateiname
      *     /file/get/12/small/sample.jpg
+     * @apiExample {curl} Thumbnails anhand ID, Dateiname und Responsive
+     *     /file/get/12/small/3x/sample.jpg (Original-Bild)
+     * @apiExample {curl} Thumbnails anhand ID, Dateiname und Responsive
+     *     /file/get/12/small/2x/sample.jpg (2/3 Größe von Original-Bild)
+     * @apiExample {curl} Thumbnails anhand ID, Dateiname und Responsive
+     *     /file/get/12/small/1x/sample.jpg (1/3 Größe von Original-Bild)
      *
      * @apiDescription Download/Darstellung von Dateien, der Aufruf kann über folgende Kombinationen erfolgen
      *
      * - /file/get/ID
      * - /file/get/ID/ALIAS
      * - /file/get/ID/SIZE/ALIAS
+     * - /file/get/ID/SIZE/VARIANT/ALIAS
      *
      * Der Parameter ALIAS (z.B. beliebiger Dateiname) kann frei für SEO-Zwecke gesetzt werden und hat keinen Einfluss auf die Abfrage des entsprechenden Objektes. Für die Abfrage spielt lediglich die ID eine Rolle.
      */
-    public function getAction($id, $alias = null, $size = null){
-        $fileObject = null;
+    public function getAction($id, $alias = null, $size = null, $variant = null){
 
+        $fileObject = null;
+        $t1 = microtime();
         $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
         if(!$fileObject){
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileObject not found");
         }
 
-        $backend = Backend::getInstance();
-
-        if(!file_exists($backend->getUri($fileObject, $size))){
-            $processor = Processing::getInstance($fileObject->getType());
-            if($processor instanceof Processing\Standard){
-                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize for FileObject not found");
-            }else{
-                $processor->execute($backend, $fileObject, $size);
-            }
-
-        }
-        
         $mimeType   = $fileObject->getType();
-
+        $backend    = Backend::getInstance();
+        $fileUri    = $backend->getUri($fileObject, $size, $variant);
+        $reExecute  =  false;
         $sizeObject = null;
+
+        $fileMTime = filemtime($fileUri);
+
         if($size){
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
             if(!$sizeObject){
@@ -141,10 +143,44 @@ class FileController extends BaseController
             if($sizeObject->getForceJpeg()){
                 $mimeType = 'image/jpeg';
             }
+
+            if(file_exists($fileUri)) {
+
+                $sizeTime = $sizeObject->getModified()->getTimestamp();
+                if ($sizeTime > $fileMTime) {
+                    $reExecute = true;
+
+                }
+            }
         }
 
-        $fileName   = $backend->getUri($fileObject, $sizeObject);
-      
+        if(!file_exists($fileUri) || $reExecute){
+            $processor = Processing::getInstance($fileObject->getType());
+            if($processor instanceof Processing\Standard){
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize for FileObject not found");
+            }else{
+                $processor->execute($backend, $fileObject, $size, $variant);
+            }
+        }
+
+        $fileName   = $backend->getUri($fileObject, $sizeObject, $variant);
+        if(!file_exists($fileName)){
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("File not found");   
+        }
+
+
+        header("Expires: ".gmdate("D, d M Y H:i:s", $fileMTime+1800)." GMT");
+
+        header("Cache-Control: max-age=1800");
+        header("Vary: Accept-Encoding");
+
+        if (array_key_exists('HTTP_IF_MODIFIED_SINCE', $_SERVER)) {
+            if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $fileMTime) {
+                header("HTTP/1.1 304 Not Modified");
+                exit;
+            }
+        }
+
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
             header('Content-type: ' . $mimeType);
             header("Content-length: " . filesize($fileName));
@@ -155,7 +191,10 @@ class FileController extends BaseController
             header("Content-length: " . filesize($fileName));
             readfile($fileName);
         }
+
+
     }
+
 
     protected function sanitizeFileName($string, $force_lowercase = true, $anal = false) {
         $strip = array("~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]",
