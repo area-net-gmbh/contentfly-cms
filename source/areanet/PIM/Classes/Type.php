@@ -98,6 +98,9 @@ abstract class Type
                 $schema['tab'] = $annotations->tab;
             }
 
+            if($annotations->readonly){
+                $schema['readonly'] = $annotations->readonly;
+            }
 
 
             //\Doctrine\ORM\Mapping\Column

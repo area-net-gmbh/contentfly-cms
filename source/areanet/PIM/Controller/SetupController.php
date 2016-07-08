@@ -13,14 +13,14 @@ class SetupController extends BaseController
     {
        
         $user = new User();
-        $user->setAlias("admin3");
-        $user->setPass("admin3");
+        $user->setAlias("admin");
+        $user->setPass("admin");
         $user->setIsAdmin(true);
 
         $this->em->persist($user);
         $this->em->flush();
 
-        /*
+
         $size = new ThumbnailSetting();
         $size->setAlias('pim_list');
         $size->setWidth(200);
@@ -36,7 +36,7 @@ class SetupController extends BaseController
         $this->em->persist($size);
 
         $this->em->flush();
-        */
+   
         return new Response('Das Setup wurde erfolgreich durchgeführt!', 201);
     }
 }
