@@ -133,7 +133,10 @@ class FileController extends BaseController
         $reExecute  =  false;
         $sizeObject = null;
 
-        $fileMTime = filemtime($fileUri);
+        $fileMTime = 0;
+        if(file_exists($fileUri)) {
+            $fileMTime = filemtime($fileUri);
+        }
 
         if($size){
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
@@ -144,14 +147,12 @@ class FileController extends BaseController
                 $mimeType = 'image/jpeg';
             }
 
-            if(file_exists($fileUri)) {
+            $sizeTime = $sizeObject->getModified()->getTimestamp();
+            if ($sizeTime > $fileMTime) {
+                $reExecute = true;
 
-                $sizeTime = $sizeObject->getModified()->getTimestamp();
-                if ($sizeTime > $fileMTime) {
-                    $reExecute = true;
-
-                }
             }
+
         }
 
         if(!file_exists($fileUri) || $reExecute){
