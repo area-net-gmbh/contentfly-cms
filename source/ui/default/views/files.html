@@ -92,12 +92,12 @@
         <p>Dateien werden geladen...</p>
     </div>
 
-    <ul class="dynamic-grid" angular-grid="pics" grid-width="200" gutter-size="10" angular-grid-id="gallery" refresh-on-img-load="false"  ng-init="vm.loadData()">
+    <ul class="dynamic-grid" angular-grid="pics" ag-options="vm.angularGridOptions" grid-width="200" gutter-size="10" angular-grid-id="gallery" refresh-on-img-load="false"  ng-init="vm.loadData()">
         <li ng-click="vm.selectFile(object)" pagination-id="files" dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" class="grid image-edit ng-class: {'isSelectable': vm.modaltitle}">
             <ng-switch on="object.type">
-                <img ng-switch-when="image/jpeg" src="/data/files/{{object.id}}/pim_small-{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
-                <img ng-switch-when="image/png" src="/data/files/{{object.id}}/pim_small-{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
-                <img ng-switch-when="image/gif" src="/data/files/{{object.id}}/pim_small-{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
+                <img ng-switch-when="image/jpeg" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
+                <img ng-switch-when="image/png" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
+                <img ng-switch-when="image/gif" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
                 <div ng-switch-default pim-fileicon type="{{object.type}}" aria-hidden="true"></div>
             </ng-switch>
             <button title="Datei löschen" ng-hide="modaltitle" class="btn btn-danger" ng-click="vm.delete(object.id, object.name)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>

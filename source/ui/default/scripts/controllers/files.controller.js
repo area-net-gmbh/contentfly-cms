@@ -20,6 +20,9 @@
         vm.totalItems = 0;
         vm.currentPage = 1;
 
+        vm.angularGridOptions = {
+            refreshOnImgLoad : true
+        };
 
         vm.entity = 'PIM\\File';
 
@@ -109,7 +112,9 @@
                     entity: function(){ return vm.entity;},
                     title: function(){ return 'Objekt bearbeiten'; },
                     object: function(){ return object; }
-                }
+                },
+                size: 'xl',
+                backdrop: 'static'
             });
 
             modalInstance.result.then(
