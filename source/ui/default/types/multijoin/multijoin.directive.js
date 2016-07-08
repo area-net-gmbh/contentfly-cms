@@ -21,8 +21,7 @@
 
 
                 scope.$watch('value',function(data){
-                    console.log("MANY2MANY " + scope.key);
-                    console.log(data);
+                
                     if(!scope.value){
                         scope.choosenIds   = [];
                     }else{
