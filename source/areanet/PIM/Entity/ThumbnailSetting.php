@@ -61,6 +61,12 @@ class ThumbnailSetting extends Base
     */
     protected $forceJpeg=0;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(showInList=80, label="Responsive-Varianten")
+     */
+    protected $isResponsive=0;
+
 
 
     /**
@@ -178,10 +184,24 @@ class ThumbnailSetting extends Base
     {
         $this->forceJpeg = $forceJpeg;
     }
-    
-    
 
-    
+    /**
+     * @return mixed
+     */
+    public function getIsResponsive()
+    {
+        return $this->isResponsive;
+    }
+
+    /**
+     * @param mixed $isResponsive
+     */
+    public function setIsResponsive($isResponsive)
+    {
+        $this->isResponsive = $isResponsive;
+    }
+
+        
 
 
 }

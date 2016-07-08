@@ -2,7 +2,7 @@ define({ "api": [
   {
     "version": "1.3.0",
     "type": "get",
-    "url": "/file/get/:id/[:size]/[:alias]",
+    "url": "/file/get/:id/[:size]/[:variant]/[:alias]",
     "title": "get",
     "name": "Get",
     "group": "File",
@@ -23,6 +23,14 @@ define({ "api": [
             "field": "size",
             "defaultValue": "null",
             "description": "<p>Optional: Alias der gewünschten Thumbnail-Größe, muss im PIM-Backend oder als PIM-Standard (&quot;pim_list&quot;, &quot;pim_small&quot;) entsprechend definiert sein</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "string",
+            "optional": false,
+            "field": "variant",
+            "defaultValue": "null",
+            "description": "<p>Optional: 1x = 1/3 Größe von Originalbild / 2x = 2/3 Größe von Originalbild / 3x = Originalbild</p>"
           },
           {
             "group": "Parameter",
@@ -50,9 +58,24 @@ define({ "api": [
         "title": "Thumbnails anhand ID und Dateiname",
         "content": "/file/get/12/small/sample.jpg",
         "type": "curl"
+      },
+      {
+        "title": "Thumbnails anhand ID, Dateiname und Responsive",
+        "content": "/file/get/12/small/3x/sample.jpg (Original-Bild)",
+        "type": "curl"
+      },
+      {
+        "title": "Thumbnails anhand ID, Dateiname und Responsive",
+        "content": "/file/get/12/small/2x/sample.jpg (2/3 Größe von Original-Bild)",
+        "type": "curl"
+      },
+      {
+        "title": "Thumbnails anhand ID, Dateiname und Responsive",
+        "content": "/file/get/12/small/1x/sample.jpg (1/3 Größe von Original-Bild)",
+        "type": "curl"
       }
     ],
-    "description": "<p>Download/Darstellung von Dateien, der Aufruf kann über folgende Kombinationen erfolgen</p> <ul> <li>/file/get/ID</li> <li>/file/get/ID/ALIAS</li> <li>/file/get/ID/SIZE/ALIAS</li> </ul> <p>Der Parameter ALIAS (z.B. beliebiger Dateiname) kann frei für SEO-Zwecke gesetzt werden und hat keinen Einfluss auf die Abfrage des entsprechenden Objektes. Für die Abfrage spielt lediglich die ID eine Rolle.</p>",
+    "description": "<p>Download/Darstellung von Dateien, der Aufruf kann über folgende Kombinationen erfolgen</p> <ul> <li>/file/get/ID</li> <li>/file/get/ID/ALIAS</li> <li>/file/get/ID/SIZE/ALIAS</li> <li>/file/get/ID/SIZE/VARIANT/ALIAS</li> </ul> <p>Der Parameter ALIAS (z.B. beliebiger Dateiname) kann frei für SEO-Zwecke gesetzt werden und hat keinen Einfluss auf die Abfrage des entsprechenden Objektes. Für die Abfrage spielt lediglich die ID eine Rolle.</p>",
     "filename": "source/areanet/PIM/Controller/FileController.php",
     "groupTitle": "File"
   },

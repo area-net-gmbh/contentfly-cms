@@ -32,7 +32,7 @@ class FileControllerProvider extends BaseControllerProvider
         $controllers->get('/get/{id}', "file.controller:getAction");
         $controllers->get('/get/{id}/{alias}', "file.controller:getAction");
         $controllers->get('/get/{id}/{size}/{alias}', "file.controller:getAction");
-        
+        $controllers->get('/get/{id}/{size}/{variant}/{alias}', "file.controller:getAction");
         return $controllers;
     }
 

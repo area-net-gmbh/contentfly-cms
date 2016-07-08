@@ -252,13 +252,11 @@
 
         function uploadFile(file, id, errFiles) {
             vm.fileUploads = [file];
-            console.log("test1");
             file.upload = Upload.upload({
                 url: '/file/upload',
                 headers: {'X-Token': localStorageService.get('token')},
                 data: {file: file, id: id}
             });
-            console.log("test2");
             file.upload.then(
                 function (response) {
 

@@ -8,7 +8,7 @@ use Areanet\PIM\Entity\ThumbnailSetting;
 
 class Standard implements ProcessingInterface
 {
-    public function execute(BackendInterface $backend, File $fileObject)
+    public function execute(BackendInterface $backend, File $fileObject, $fileSizeAlias = null, $variant = null)
     {
 
     }
