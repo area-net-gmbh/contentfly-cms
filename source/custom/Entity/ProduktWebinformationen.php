@@ -40,11 +40,12 @@ class ProduktWebinformationen extends Base
     protected $uspAt;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Custom\Entity\Ausverkaufsmeldung")
-     * @ORM\JoinTable(name="produktwebinformation_ausverkaufsmeldungen", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktWebinformationenAusverkaufsmeldungen", mappedBy="produktwebinformation")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Ausverkaufsmeldung", mappedBy="ausverkaufsmeldung")
      * @PIM\Config(label="Ausverkaufsmeldungen")
      */
     protected $ausverkaufsmeldungen;
+    
 
     /**
      * @ORM\ManyToMany(targetEntity="Custom\Entity\Hinweistext")

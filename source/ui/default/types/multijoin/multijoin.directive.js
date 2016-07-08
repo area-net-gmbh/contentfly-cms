@@ -21,6 +21,8 @@
 
 
                 scope.$watch('value',function(data){
+                    console.log("MANY2MANY " + scope.key);
+                    console.log(data);
                     if(!scope.value){
                         scope.choosenIds   = [];
                     }else{
@@ -48,8 +50,8 @@
                 scope.sortableOptions = {
                     stop: function(e,ui){
                         triggerUpdate();
-                    }
-
+                    },
+                    disabled: !scope.config.sortable
                 };
 
                 scope.totalPages    = 1;
@@ -61,6 +63,7 @@
                 scope.change        = change;
                 scope.chooseObject  = chooseObject;
                 scope.closeChooser  = closeChooser;
+                scope.disableObject = disableObject;
                 scope.editObject    = editObject;
                 scope.keyPressed    = keyPressed;
                 scope.loadData      = loadData;
@@ -109,6 +112,9 @@
 
                     if(scope.config.mappedBy){
                         newData[scope.config.mappedBy] =  object;
+                        if(scope.config.sortable){
+                            newData['isActive'] = true;
+                        }
                     }else{
                         newData = object;
                     }
@@ -121,6 +127,44 @@
 
                 function closeChooser(){
                     scope.chooserOpened = false;
+                }
+
+                function disableObject(index){
+                    var id     = scope.value[index].id;
+                    var object = scope.value[index];
+
+                    if(!scope.config.mappedBy || typeof object.isActive == "undefined"){
+                        return;
+                    }
+
+                    object.isActive = !object.isActive;
+
+                    var entityAcceptFrom = null;
+                    if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
+                        entityAcceptFrom = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
+                    }else{
+                        var fullEntity = null;
+                        fullEntity = scope.config.acceptFrom.split('\\');
+                        entityAcceptFrom = fullEntity[(fullEntity.length - 1)];
+                    }
+
+                    var data = {
+                        entity: entityAcceptFrom,
+                        id: id,
+                        data: {
+                            isActive:object.isActive
+                        }
+                    };
+
+                    EntityService.update(data).then(
+                        function successCallback(response) {
+                            
+                        },
+                        function errorCallback(response) {
+
+                        }
+                    );
+
                 }
 
                 function editObject(index){

@@ -123,6 +123,13 @@ class Produkt extends Base
     protected $alternativprodukte;
 
     /**
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktAusverkaufprodukte", mappedBy="produkt")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Produkt", mappedBy="ausverkaufprodukt")
+     * @PIM\Config(label="Ausverkauf-Produkte", tab="cross")
+     */
+    protected $ausverkaufprodukte;
+
+    /**
      * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktZubehoerprodukte", mappedBy="produkt")
      * @PIM\ManyToMany(targetEntity="Custom\Entity\Produkt", mappedBy="zubehoerprodukt")
      * @PIM\Config(label="Zubehör-Produkte", tab="cross")
@@ -349,6 +356,24 @@ class Produkt extends Base
     {
         $this->alternativprodukte = $alternativprodukte;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getAusverkaufprodukte()
+    {
+        return $this->ausverkaufprodukte;
+    }
+
+    /**
+     * @param mixed $ausverkaufprodukte
+     */
+    public function setAusverkaufprodukte($ausverkaufprodukte)
+    {
+        $this->ausverkaufprodukte = $ausverkaufprodukte;
+    }
+
+    
 
     /**
      * @return mixed

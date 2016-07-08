@@ -1,6 +1,8 @@
 <?php
 namespace Areanet\PIM\Entity;
 
+use Areanet\PIM\Classes\Config\Adapter;
+
 abstract class Serializable implements \JsonSerializable{
 
     function jsonSerialize()
@@ -13,7 +15,7 @@ abstract class Serializable implements \JsonSerializable{
 
         $result = new \stdClass();
 
-        if($level > 2){
+        if($level > Adapter::getConfig()->DB_NESTED_LEVELS){
             $result->id = $this->getId();
             return $result;
         }
