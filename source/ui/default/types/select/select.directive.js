@@ -24,7 +24,13 @@
                     scope.value = scope.value.toString();
                 }
                 
-                scope.newValue = scope.value
+
+                scope.$watch('value',function(data){
+                    if(parseInt(scope.value)){
+                        scope.value = scope.value.toString();
+                    }
+                    scope.newValue = scope.value;
+                },true)
 
                 scope.$watch('newValue',function(data){
                     scope.onChangeCallback({key: scope.key, value: scope.newValue});

@@ -6,7 +6,7 @@
         .directive('pimMultifile', pimMultifile);
 
 
-    function pimMultifile($uibModal, Upload, $timeout, localStorageService) {
+    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService) {
         return {
             restrict: 'E',
             scope: {
@@ -23,6 +23,7 @@
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
+                scope.disableObject = disableObject;
                 scope.removeFile    = removeFile;
                 scope.uploadFile    = uploadFile;
 
@@ -98,6 +99,44 @@
 
                         },
                         function () {}
+                    );
+
+                }
+
+                function disableObject(index){
+                    var id     = scope.value[index].id;
+                    var object = scope.value[index];
+
+                    if(!scope.config.mappedBy || typeof object.isActive == "undefined"){
+                        return;
+                    }
+
+                    object.isActive = !object.isActive;
+
+                    var entityAcceptFrom = null;
+                    if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
+                        entityAcceptFrom = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
+                    }else{
+                        var fullEntity = null;
+                        fullEntity = scope.config.acceptFrom.split('\\');
+                        entityAcceptFrom = fullEntity[(fullEntity.length - 1)];
+                    }
+
+                    var data = {
+                        entity: entityAcceptFrom,
+                        id: id,
+                        data: {
+                            isActive:object.isActive
+                        }
+                    };
+
+                    EntityService.update(data).then(
+                        function successCallback(response) {
+
+                        },
+                        function errorCallback(response) {
+
+                        }
                     );
 
                 }

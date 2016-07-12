@@ -27,6 +27,20 @@ class Hinweistext extends Base
     protected $text;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @PIM\Config(showInList=60, label="von")
+     * @PIM\Select(options="1=Januar,2=Februar,3=März,4=April,5=Mai,6=Juni,7=Juli,8=August,9=September,10=Oktober,11=November,12=Dezember")
+     */
+    protected $vonMonat;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @PIM\Config(showInList=70, label="bis")
+     * @PIM\Select(options="1=Januar,2=Februar,3=März,4=April,5=Mai,6=Juni,7=Juli,8=August,9=September,10=Oktober,11=November,12=Dezember")
+     */
+    protected $bisMonat;
+
+    /**
      * @return mixed
      */
     public function getTitel()
@@ -57,6 +71,39 @@ class Hinweistext extends Base
     {
         $this->text = $text;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getVonMonat()
+    {
+        return $this->vonMonat;
+    }
+
+    /**
+     * @param mixed $vonMonat
+     */
+    public function setVonMonat($vonMonat)
+    {
+        $this->vonMonat = $vonMonat;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBisMonat()
+    {
+        return $this->bisMonat;
+    }
+
+    /**
+     * @param mixed $bisMonat
+     */
+    public function setBisMonat($bisMonat)
+    {
+        $this->bisMonat = $bisMonat;
+    }
+
 
 
 }

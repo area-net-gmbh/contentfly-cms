@@ -45,7 +45,6 @@ class ProduktWebinformationen extends Base
      * @PIM\Config(label="Ausverkaufsmeldungen")
      */
     protected $ausverkaufsmeldungen;
-    
 
     /**
      * @ORM\ManyToMany(targetEntity="Custom\Entity\Hinweistext")
@@ -53,6 +52,13 @@ class ProduktWebinformationen extends Base
      * @PIM\Config(label="Hinweistexte")
      */
     protected $hinweistexte;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Custom\Entity\ProduktWebinformationenTextbloecke", mappedBy="produktwebinformation")
+     * @PIM\ManyToMany(targetEntity="Custom\Entity\Textblock", mappedBy="textblock")
+     * @PIM\Config(label="Textblöcke")
+     */
+    protected $textbloecke;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
@@ -266,6 +272,23 @@ class ProduktWebinformationen extends Base
         $this->hinweistexte = $hinweistexte;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTextbloecke()
+    {
+        return $this->textbloecke;
+    }
+
+    /**
+     * @param mixed $textbloecke
+     */
+    public function setTextbloecke($textbloecke)
+    {
+        $this->textbloecke = $textbloecke;
+    }
+
+    
     /**
      * @return mixed
      */

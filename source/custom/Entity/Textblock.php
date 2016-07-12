@@ -34,6 +34,13 @@ class Textblock extends Base
     protected $textblock;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @PIM\Config(label="Bild", accept="image/*")
+     */
+    protected $bild;
+
+    /**
      * @return mixed
      */
     public function getAlias()
@@ -80,6 +87,24 @@ class Textblock extends Base
     {
         $this->textblock = $textblock;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getBild()
+    {
+        return $this->bild;
+    }
+
+    /**
+     * @param mixed $bild
+     */
+    public function setBild($bild)
+    {
+        $this->bild = $bild;
+    }
+
+    
 
     
 
