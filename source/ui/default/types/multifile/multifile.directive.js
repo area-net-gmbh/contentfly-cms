@@ -60,13 +60,20 @@
                             if (fileData) {
 
                                 scope.value = scope.value ? scope.value : [];
+
+
+                                var newData = {};
+
                                 if(scope.config.mappedBy){
-                                    var subObject = {};
-                                    subObject[scope.config.mappedBy] = fileData;
-                                    scope.value.push(subObject);
+                                    newData[scope.config.mappedBy] =  fileData;
+                                    if(scope.config.sortable){
+                                        newData['isActive'] = true;
+                                    }
                                 }else{
-                                    scope.value.push(fileData);
+                                    newData = fileData;
                                 }
+
+                                scope.value.push(newData);
 
 
                                 triggerUpdate();
