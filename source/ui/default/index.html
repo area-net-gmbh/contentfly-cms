@@ -43,6 +43,7 @@
             <li><h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
                 <ul>
                     <li><a href="#/files">Dateien</a></li>
+                    <li><a href="#/list/PIM/Folder">Ordner</a></li>
                 </ul>
             </li>
             <li ng-show="user.isAdmin"><h3><span class="glyphicon glyphicon-cog"></span>Administration</h3>
@@ -99,6 +100,7 @@
 
     <!-- App Services -->
     <script src="scripts/services/entity.service.js"></script>
+    <script src="scripts/services/file.service.js"></script>
 
     <!-- App Types -->
     <script src="types/string/string.directive.js"></script>

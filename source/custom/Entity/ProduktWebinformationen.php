@@ -3,6 +3,7 @@ namespace Custom\Entity;
 
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Classes\Annotations as PIM;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -95,6 +96,19 @@ class ProduktWebinformationen extends Base
      * @PIM\Config(label="B-Ware Rabatt")
      */
     protected $bWareRabatt;
+
+
+    /**
+     * ProduktWebinformationen constructor.
+     * @param $teaserText
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        
+        $this->hinweistexte = new ArrayCollection();
+    }
+
 
     /**
      * @return mixed

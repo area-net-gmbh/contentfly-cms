@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\PIM\Classes\Exceptions\Config;
+namespace Areanet\PIM\Classes\Exceptions\Entity;
 
 
 /**
  * Class NotFoundException
  *
- * @package Areanet\PIM\Classes\Exceptions\Config
+ * @package Areanet\PIM\Classes\Exceptions\Entity
  */
 
 class EntityNotFoundException extends \Exception

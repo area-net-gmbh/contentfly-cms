@@ -128,6 +128,13 @@ class Config{
      */
     public $FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\Image');
 
+
+    /**
+     * @var boolean Filenhash must be unique
+     */
+    public $FILE_HASH_MUST_UNIQUE = true;
+    
+    
     /**
      * @var string ImageMagick-Path
      */

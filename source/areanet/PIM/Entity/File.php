@@ -6,17 +6,26 @@ use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="pim_file")
+ * @ORM\Table(name="pim_file", uniqueConstraints={@ORM\UniqueConstraint(name="file_unique", columns={"name", "folder_id", "isDeleted"})})
  * @PIM\Config(label="Dateien", tabs="{'tags': 'Tags'}")
  */
 
 class File extends Base
 {
+
     /**
      * @ORM\Column(type="string")
      * @PIM\Config(label="Name", readonly=true, showInList=30)
      */
     protected $name;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Folder")
+     * @ORM\JoinColumn(name="folder_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
+     * @PIM\Config(showInList=80, label="Ordner", isFilterable=true)
+     */
+    protected $folder;
+
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -50,7 +59,7 @@ class File extends Base
     protected $type;
 
     /**
-     * @ORM\Column(type="string", unique=true)
+     * @ORM\Column(type="string")
      * @PIM\Config(hide=true)
      */
     protected $hash;
@@ -70,9 +79,26 @@ class File extends Base
     /**
      * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\Tag")
      * @ORM\JoinTable(name="pim_file_tags", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
-     * @PIM\Config(label="Tags", tab="tags")
+     * @PIM\Config(label="Tags", tab="tags", isFilterable=true)
      */
     protected $tags;
+
+    /**
+     * @return mixed
+     */
+    public function getFolder()
+    {
+        return $this->folder;
+    }
+
+    /**
+     * @param mixed $folder
+     */
+    public function setFolder($folder)
+    {
+        $this->folder = $folder;
+    }
+
 
     /**
      * @return mixed

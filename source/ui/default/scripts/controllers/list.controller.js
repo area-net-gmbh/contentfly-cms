@@ -112,6 +112,9 @@
                 function (doDelete) {
                     if(doDelete){
 
+                        vm.objectsAvailable = false;
+                        vm.objectsNotAvailable = false;
+
                         var data = {
                             entity: vm.entity,
                             id: object.id
@@ -225,15 +228,21 @@
             for (var key in vm.schema.properties) {
 
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
-                    var field = key;
-                    
+                    var entity = null;
+                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
+                        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
+                    }else{
+                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+                    }
+
                     if(localStorageService.get('schema')[entity].settings.type == 'tree') {
 
                         EntityService.tree({entity: entity}).then(
-                            function successCallback(response) {
-                                generateTree(entity, field, response.data.data, 0)
-                            },
+                            (function(entity, key) {
+                                return function(response) {
+                                    generateTree(entity, key, response.data.data, 0)
+                                }
+                            })(entity, key),
                             function errorCallback(response) {
                             }
                         );
@@ -249,51 +258,58 @@
                         }
 
                         EntityService.list({entity: entity, properties: properties}).then(
-                            function successCallback(response) {
+                            (function(entity, key) {
+                                return function(response) {
+                                    vm.filterJoins[key] = response.data.data;
 
-                                vm.filterJoins[field] = response.data.data;
-
-                                for (var i = 0; i < vm.filterJoins[field].length; i++) {
-                                    if (!vm.filterJoins[field][i]['pim_filterTitle']) {
-                                        vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                    for (var i = 0; i < vm.filterJoins[key].length; i++) {
+                                        if (!vm.filterJoins[key][i]['pim_filterTitle']) {
+                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                        }
                                     }
                                 }
-
-                            },
+                            })(entity, key),
                             function errorCallback(response) {
                             }
                         );
                     }
 
                 }else if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
+                    var entity = null;
+                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
+                        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
+                    }else{
+                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+                    }
 
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');;
                     var field = key;
 
                     if(localStorageService.get('schema')[entity].settings.type == 'tree'){
 
                         EntityService.tree({entity: entity}).then(
-                            function successCallback(response) {
-                                generateTree(entity, field, response.data.data, 0)
-                            },
+                            (function(entity, key) {
+                                return function(response) {
+                                    generateTree(entity, key, response.data.data, 0)
+                                }
+                            })(entity, key),
                             function errorCallback(response) {
                             }
                         );
                     }else{
 
                         EntityService.list({entity: entity}).then(
-                            function successCallback(response) {
-                                var joinSchema = localStorageService.get('schema')[entity];
-                                vm.filterJoins[field] = response.data.data;
+                            (function(entity, key) {
+                                return function(response) {
+                                    var joinSchema = localStorageService.get('schema')[entity];
+                                    vm.filterJoins[key] = response.data.data;
 
-                                for(var i = 0; i < vm.filterJoins[field].length; i++){
-                                    if(!vm.filterJoins[field][i]['pim_filterTitle']){
-                                        vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                    for(var i = 0; i < vm.filterJoins[key].length; i++){
+                                        if(!vm.filterJoins[key][i]['pim_filterTitle']){
+                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                        }
                                     }
                                 }
-
-
-                            },
+                            })(entity, key),
                             function errorCallback(response) {
                             }
                         );
@@ -313,15 +329,17 @@
                     data['order'][field] = "ASC";
 
                     EntityService.list(data).then(
-                        function successCallback(response) {
-                            vm.filterJoins[field] = response.data.data;
+                        (function(entity, key) {
+                            return function(response) {
+                                vm.filterJoins[key] = response.data.data;
 
-                            for(var i = 0; i < vm.filterJoins[field].length; i++){
-                                if(!vm.filterJoins[field][i]['pim_filterTitle']){
-                                    vm.filterJoins[field][i]['pim_filterTitle'] = vm.filterJoins[field][i][field];
+                                for(var i = 0; i < vm.filterJoins[key].length; i++){
+                                    if(!vm.filterJoins[key][i]['pim_filterTitle']){
+                                        vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][key];
+                                    }
                                 }
                             }
-                        },
+                        })(entity, key),
                         function errorCallback(response) {
                         }
                     );

@@ -2,6 +2,7 @@
 namespace Areanet\PIM\Controller;
 
 use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Entity\Folder;
 use Areanet\PIM\Entity\ThumbnailSetting;
 use Areanet\PIM\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,6 +21,11 @@ class SetupController extends BaseController
         $this->em->persist($user);
         $this->em->flush();
 
+        $folder = new Folder();
+        $folder->setId(1);
+        $folder->setTitle('Allgemein');
+        $this->em->getClassMetaData(get_class($folder))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $this->em->persist($folder);
 
         $size = new ThumbnailSetting();
         $size->setAlias('pim_list');

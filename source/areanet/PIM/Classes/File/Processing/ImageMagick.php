@@ -86,6 +86,7 @@ class ImageMagick implements ProcessingInterface
                     $convertSetting = '-geometry "' . $thumbnailSetting->getPercent() . '%"';
                 }
 
+
                 exec($imExecutable . ' +profile "*" -verbose ' . $convertSetting . ' -quality 90 -sharpen 1x2 -colorspace sRGB ' . $backgroundSetting . ' "' . $imgName . '" "' . $imgThumbName . '"');
             }
 
@@ -102,7 +103,7 @@ class ImageMagick implements ProcessingInterface
                 $imgThumbNameList = explode("/", $imgThumbName);
                 $imgThumbNameList[count($imgThumbNameList) - 1] = "1x@".$imgThumbNameList[count($imgThumbNameList) - 1];
                 $imgThumbName1x = implode('/', $imgThumbNameList);
-                $test = exec($imExecutable.' +profile "*" -verbose -geometry "'.(1/3*100).'%" "'.$imgThumbName.'" "'.$imgThumbName1x.'"');
+                exec($imExecutable.' +profile "*" -verbose -geometry "'.(1/3*100).'%" "'.$imgThumbName.'" "'.$imgThumbName1x.'"');
             }
         }
     }

@@ -22,7 +22,8 @@ $configDefault->APP_ENABLE_SCHEMA_CACHE = false;
 $configDefault->FRONTEND_ITEMS_PER_PAGE = 25;
 $configDefault->FRONTEND_CUSTOM_LOGO = true;
 
-$configDefault->FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
+$configDefault->FILE_PROCESSORS  = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
+$configDefault->FILE_HASH_MUST_UNIQUE = false;
 
 $configFactory->setConfig($configDefault);
 
