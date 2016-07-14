@@ -5,7 +5,7 @@
         .module('app')
         .controller('FormCtrl', FormCtrl);
 
-    function FormCtrl($scope, $cookies, $uibModalInstance, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment, EntityService) {
+    function FormCtrl($scope, $cookies, $uibModalInstance, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment, EntityService, FileService) {
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
@@ -131,7 +131,7 @@
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function () {
-                                    return 'Fehler beim Anlegen des Datensatzes';
+                                    return response.data.type == 'Areanet\\PIM\\Classes\\Exceptions\\File\\FileExistsException' ? 'Datei überschreiben?' : 'Fehler beim Anlegen des Datensatzes';
                                 },
                                 body: function () {
                                     return response.data.message;
@@ -139,6 +139,22 @@
                                 hideCancelButton: true
                             }
                         });
+
+                        if(response.data.type == 'Areanet\\PIM\\Classes\\Exceptions\\File\\FileExistsException') {
+                            modalInstance.result.then(
+                                function (doOverwrite) {
+                                    if (doOverwrite) {
+                                        FileService.overwrite(vm.object['id'], response.data.file_id).then(
+                                            function successCallback(response){},
+                                            function errorCallback(response){}
+                                        );
+                                        $uibModalInstance.close(vm.object);
+                                    }
+                                },
+                                function () {
+                                }
+                            );
+                        }
                     }
                 );
             }

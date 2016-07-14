@@ -10,6 +10,7 @@
         var oldPageNumber = 1;
 
         //Properties
+        vm.doUpload = false;
         vm.objects = [];
         vm.objectsAvailable = false;
         vm.objectsNotAvailable = false;
@@ -53,7 +54,7 @@
         vm.uploadMultiFile = uploadMultiFile;
 
         //Startup
-        init();
+        loadFilters();
 
         /////////////////////////
 
@@ -75,6 +76,9 @@
             modalInstance.result.then(
                 function (doDelete) {
                     if(doDelete){
+
+                        angular.element('#fileitem_' + id).hide();
+                        vm.objectsAvailable = false;
 
                         var data = {
                             entity: vm.entity,
@@ -120,7 +124,7 @@
             modalInstance.result.then(
                 function (isSaved) {
                     if(isSaved){
-                        //$scope.loadData();
+                        loadData();
                     }
                 },
                 function () {}
@@ -141,23 +145,19 @@
             loadData();
         }
 
-        function init(){
-            for (var key in vm.schema.properties) {
-                if(vm.schema.properties[key].type == 'join'){
-                    var entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-                    var field  = key;
+        function generateTree(entity, field, data, depth){
+            var joinSchema = localStorageService.get('schema')[entity];
 
-                    var data = {
-                        entity: entity
-                    };
+            vm.filterJoins[field] = vm.filterJoins[field] ? vm.filterJoins[field] : [];
 
-                    EntityService.list(data).then(
-                        function successCallback(response) {
-                            vm.filterJoins[field] = (response.data.data);
-                        },
-                        function errorCallback(response) {
-                        }
-                    );
+            for(var i = 0; i < data.length; i++){
+                var filler = '--'.repeat(depth);
+                filler = filler ? filler + ' ' : filler
+                data[i]['pim_filterTitle'] = filler + data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                vm.filterJoins[field].push(data[i]);
+                if(data[i]['treeChilds']){
+                    var subDepth = depth + 1;
+                    generateTree(entity, field, data[i]['treeChilds'], subDepth);
                 }
             }
         }
@@ -214,6 +214,131 @@
 
         }
 
+        function loadFilters(){
+            for (var key in vm.schema.properties) {
+
+                if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
+                    var entity = null;
+                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
+                        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
+                    }else{
+                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+                    }
+
+                    if(localStorageService.get('schema')[entity].settings.type == 'tree') {
+
+                        EntityService.tree({entity: entity}).then(
+                            (function(entity, key) {
+                                return function(response) {
+                                    generateTree(entity, key, response.data.data, 0)
+                                }
+                            })(entity, key),
+                            function errorCallback(response) {
+                            }
+                        );
+                    }else{
+                        var joinSchema = localStorageService.get('schema')[entity];
+
+                        var properties = ['id', 'modified', 'created', 'user'];
+                        if(joinSchema.settings.isSortable){
+                            properties.push('sorting');
+                        }
+                        for (var key in joinSchema.list ) {
+                            properties.push(joinSchema.list[key]);
+                        }
+
+                        EntityService.list({entity: entity, properties: properties}).then(
+                            (function(entity, key) {
+                                return function(response) {
+                                    vm.filterJoins[key] = response.data.data;
+
+                                    for (var i = 0; i < vm.filterJoins[key].length; i++) {
+                                        if (!vm.filterJoins[key][i]['pim_filterTitle']) {
+                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                        }
+                                    }
+                                }
+                            })(entity, key),
+                            function errorCallback(response) {
+                            }
+                        );
+                    }
+
+                }else if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
+                    var entity = null;
+                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
+                        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
+                    }else{
+                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+                    }
+
+                    var field = key;
+
+                    if(localStorageService.get('schema')[entity].settings.type == 'tree'){
+
+                        EntityService.tree({entity: entity}).then(
+                            (function(entity, key) {
+                                return function(response) {
+                                    generateTree(entity, key, response.data.data, 0)
+                                }
+                            })(entity, key),
+                            function errorCallback(response) {
+                            }
+                        );
+                    }else{
+
+                        EntityService.list({entity: entity}).then(
+                            (function(entity, key) {
+                                return function(response) {
+                                    var joinSchema = localStorageService.get('schema')[entity];
+                                    vm.filterJoins[key] = response.data.data;
+
+                                    for(var i = 0; i < vm.filterJoins[key].length; i++){
+                                        if(!vm.filterJoins[key][i]['pim_filterTitle']){
+                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                        }
+                                    }
+                                }
+                            })(entity, key),
+                            function errorCallback(response) {
+                            }
+                        );
+                    }
+
+
+                }else if(vm.schema.properties[key].isFilterable){
+                    var field = key;
+
+                    var data = {
+                        entity: vm.entity,
+                        properties: [field],
+                        groupBy: field
+                    }
+
+                    data['order'] = {};
+                    data['order'][field] = "ASC";
+
+                    EntityService.list(data).then(
+                        (function(entity, key) {
+                            return function(response) {
+                                vm.filterJoins[key] = response.data.data;
+
+                                for(var i = 0; i < vm.filterJoins[key].length; i++){
+                                    if(!vm.filterJoins[key][i]['pim_filterTitle']){
+                                        vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][key];
+                                    }
+                                }
+                            }
+                        })(entity, key),
+                        function errorCallback(response) {
+                        }
+                    );
+                }
+
+
+            }
+        }
+
         function paginationChanged(newPageNumber) {
             if(oldPageNumber == newPageNumber){
                 return;
@@ -257,10 +382,11 @@
 
         function uploadFile(file, id, errFiles) {
             vm.fileUploads = [file];
+
             file.upload = Upload.upload({
                 url: '/file/upload',
                 headers: {'X-Token': localStorageService.get('token')},
-                data: {file: file, id: id}
+                data: {file: file, id: id, folder: vm.filter['folder']}
             });
             file.upload.then(
                 function (response) {
@@ -286,32 +412,98 @@
         function uploadMultiFile(files, errFiles) {
             vm.fileUploads = files;
 
-
             angular.forEach(files, function(file) {
-                file.upload = Upload.upload({
-                    url: '/file/upload',
-                    headers: {'X-Token': localStorageService.get('token')},
-                    data: {file: file}
-                });
 
-                file.upload.then(
-                    function (response) {
+                var data = {
+                    entity: 'PIM\\File',
+                    where: {
+                        name: file.name,
+                        folder: vm.filter['folder'] ? vm.filter['folder'] : -1
+                    }
+                };
 
-                        file.result = response.data;
 
-                        $timeout(function () {
-                            vm.fileUploads = null;
-                            loadData();
-                        }, 1000);
+                EntityService.list(data).then(
+                    function successCallback(response) {
+                        var fileId = response.data.data[0].id;
 
+                        var modalInstance = $uibModal.open({
+                            templateUrl: 'views/partials/modal.html',
+                            controller: 'ModalCtrl as vm',
+                            resolve: {
+                                title: function(){ return 'Bestehende Datei überschreiben?'; },
+                                body: function(){ return 'Eine Datei mit diesem Namen ist bereits vorhanden. Wollen Sie die Datei überschreiben?'; },
+                                hideCancelButton: false
+                            }
+                        });
+
+                        modalInstance.result.then(
+                            function (doOverwrite) {
+                                if(doOverwrite){
+                                    file.upload = Upload.upload({
+                                        url: '/file/upload',
+                                        headers: {'X-Token': localStorageService.get('token')},
+                                        data: {file: file, folder: vm.filter['folder'], id: fileId}
+                                    });
+
+                                    file.upload.then(
+                                        function (response) {
+
+                                            file.result = response.data;
+
+                                            $timeout(function () {
+                                                vm.fileUploads = null;
+                                                loadData();
+                                            }, 1000);
+
+                                        },
+                                        function (response) {
+                                            if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
+                                        },
+                                        function (evt) {
+                                            file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                                        }
+                                    );
+                                }
+                            },
+                            function () {
+                                vm.fileUploads = null;
+                            }
+                        );
                     },
-                    function (response) {
-                        if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
-                    },
-                    function (evt) {
-                        file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                    function errorCallback(response) {
+                        file.upload = Upload.upload({
+                            url: '/file/upload',
+                            headers: {'X-Token': localStorageService.get('token')},
+                            data: {file: file, folder: vm.filter['folder']}
+                        });
+
+                        file.upload.then(
+                            function (response) {
+
+                                file.result = response.data;
+
+                                $timeout(function () {
+                                    vm.fileUploads = null;
+                                    loadData();
+                                }, 1000);
+
+                            },
+                            function (response) {
+                                if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
+                            },
+                            function (evt) {
+                                file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                            },
+                            function(response){
+                                console.log("error");
+                            }
+                        );
                     }
                 );
+
+
+
             });
 
         }

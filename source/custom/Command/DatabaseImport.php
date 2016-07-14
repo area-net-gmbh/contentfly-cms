@@ -6,6 +6,7 @@ use Custom\Entity\Filteroption;
 use Custom\Entity\Hinweistext;
 use Custom\Entity\Produkt;
 use Custom\Entity\ProduktAlternativprodukte;
+use Custom\Entity\ProduktAusverkaufprodukte;
 use Custom\Entity\ProduktBeschreibung;
 use Custom\Entity\ProduktPreise;
 use Custom\Entity\ProduktWebinformationen;
@@ -55,7 +56,6 @@ class DatabaseImport extends CustomCommand
 
         $query = $this->em->createQuery('DELETE FROM Custom\Entity\Filteroption');
         $query->execute();
-
 
         $numImported    = 0;
 
@@ -111,8 +111,9 @@ class DatabaseImport extends CustomCommand
         }
         $output->writeln('');
 
-        //Import Alternativartikel
-        $output->writeln('Import Alternativartikel...');
+        //Import Ausverkaufartikel
+        $importDB = $this->initDB();
+        $output->writeln('Import Ausverkaufartikel...');
         $sql = "SELECT * FROM var_alternativartikel";
         $stmt = $importDB->query($sql);
 
@@ -121,17 +122,18 @@ class DatabaseImport extends CustomCommand
                 continue;
             }
             $output->write('.');
-            $alternativArtikel = new ProduktAlternativprodukte();
-            $alternativArtikel->setProdukt($mapping[$row['artikel_id']]);
-            $alternativArtikel->setAlternativprodukt($mapping[$row['alternative_id']]);
-            $alternativArtikel->setSorting($row['sortkey']);
-            $this->em->persist($alternativArtikel);
+            $ausverkaufArtikel = new ProduktAusverkaufprodukte();
+            $ausverkaufArtikel->setProdukt($mapping[$row['artikel_id']]);
+            $ausverkaufArtikel->setAusverkaufprodukt($mapping[$row['alternative_id']]);
+            $ausverkaufArtikel->setSorting($row['sortkey']);
+            $this->em->persist($ausverkaufArtikel);
 
         }
         $output->writeln('');
         $this->em->flush();
 
         //Import Artikelseiten
+        $importDB = $this->initDB();
         $output->writeln('Import Artikelseiten...');
         $sql = "SELECT * FROM var_artikelseiten WHERE block_teaser_text <> '' ORDER BY ts DESC";
         $stmt = $importDB->query($sql);
@@ -154,8 +156,10 @@ class DatabaseImport extends CustomCommand
             $mapping[$row['artikel']]->setWebinformationen($webinfos);
         }
         $output->writeln('');
+        $this->em->flush();
 
         //Import Artikelverfügbarkeit
+        $importDB = $this->initDB();
         $output->writeln('Import Artikelverfügbarkeit...');
         $sql = "SELECT * FROM var_artikelstati";
         $stmt = $importDB->query($sql);
@@ -172,21 +176,76 @@ class DatabaseImport extends CustomCommand
         $this->em->clear();
 
         //Import Hinweistexte
+        $importDB = $this->initDB();
         $output->writeln('Import Hinweistexte...');
         $sql = "SELECT * FROM const_zusatzinfos";
         $stmt = $importDB->query($sql);
+        $hinweistexteGespeichert = array();
 
         while ($row = $stmt->fetch()) {
             $output->write('.');
             $hinweistext = new Hinweistext();
+            $hinweistext->setId($row['id']);
             $hinweistext->setTitel($row['titel']);
             $hinweistext->setText($row['text']);
             $this->em->persist($hinweistext);
+
+            $this->em->getClassMetaData(get_class($hinweistext))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+
+            $hinweistexteGespeichert[$row['id']] = $hinweistext;
         }
         $output->writeln('');
         $this->em->flush();
 
+        //Import Hinweistexte2Artikel
+        $importDB = $this->initDB();
+        $output->writeln('Import Hinweistexte2Artikel...');
+        $sql = "SELECT * FROM artikel2zusatzinfos";
+        $stmt = $importDB->query($sql);
+
+        while ($row = $stmt->fetch()) {
+            $queryBuilder = $this->em->createQueryBuilder();
+
+            $queryBuilder
+                ->select("partial p.{id}")
+                ->from("Custom\\Entity\\Produkt", "p")
+                ->where("p.artikel LIKE :artikel");
+            $queryBuilder->setParameter('artikel', $row['artikel_maske']);
+
+            $query      = $queryBuilder->getQuery();
+            $produkte   = $query->getResult();
+            $tempAdded  = array();
+            foreach($produkte as $produkt){
+                $output->write('.');
+                if(!isset($hinweistexteGespeichert[$row['zusatzinfos_id']]) || in_array($produkt->getId()."-".$row['zusatzinfos_id'], $tempAdded)) continue;
+                $produktWebinfos = $produkt->getWebinformationen();
+                $hinweistexte    = $produktWebinfos->getHinweistexte();
+
+                $isAdded = false;
+                foreach($hinweistexte as $hinweistext){
+                    if($hinweistext->getId() == $row['zusatzinfos_id']){
+                        $isAdded = true;
+                    }
+                }
+
+                if(!$isAdded){
+                    $hinweistexte->add($hinweistexteGespeichert[$row['zusatzinfos_id']]);
+                    $hinweistexteGespeichert[$row['zusatzinfos_id']]->setVonMonat($row['von_monat']);
+                    $hinweistexteGespeichert[$row['zusatzinfos_id']]->setBisMonat($row['bis_monat']);
+                    $this->em->persist($hinweistexteGespeichert[$row['zusatzinfos_id']]);
+                }
+                $produktWebinfos->setHinweistexte($hinweistexte);
+                $this->em->persist($produktWebinfos);
+
+                $tempAdded[] = $produkt->getId()."-".$row['zusatzinfos_id'];
+
+            }
+        }
+        $this->em->flush();
+        $hinweistexteGespeichert = null;
+
         //Import Filteroptionen
+        $importDB = $this->initDB();
         $output->writeln('Import Filteroptionen 1...');
         $sql = "SELECT * FROM const_uebersichten2artikel_neu";
         $stmt = $importDB->query($sql);

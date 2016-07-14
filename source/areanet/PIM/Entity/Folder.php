@@ -1,4 +1,11 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: ms
+ * Date: 13.07.16
+ * Time: 09:34
+ */
+
 namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -6,14 +13,15 @@ use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="pim_tag")
+ * @ORM\Table(name="pim_folder")
+ * @PIM\Config(label="Ordner")
  */
-class Tag extends Base
-{
 
+class Folder extends BaseTree
+{
     /**
-     * @ORM\Column(type="string")
-     * @PIM\Config(label="Name", showInList=20, unique=true)
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Titel", showInList=30)
      */
     protected $title;
 
@@ -32,6 +40,6 @@ class Tag extends Base
     {
         $this->title = $title;
     }
-
-
+    
+    
 }

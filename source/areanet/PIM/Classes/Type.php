@@ -65,7 +65,8 @@ abstract class Type
             'tab' => 'default',
             'sortable' => false,
             'default' => $defaultValue,
-            'isFilterable' => false
+            'isFilterable' => false,
+            'unique' => false
         );
 
         if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'])){
@@ -76,6 +77,10 @@ abstract class Type
 
             if($annotations->label){
                 $schema['label'] = $annotations->label;
+            }
+
+            if($annotations->unique){
+                $schema['unique'] = $annotations->unique;
             }
 
             if($annotations->isFilterable){

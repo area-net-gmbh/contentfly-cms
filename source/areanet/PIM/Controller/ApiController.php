@@ -7,6 +7,7 @@ use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
 use Areanet\PIM\Classes\Exceptions\Config\EntityNotFoundException;
+use Areanet\PIM\Classes\Exceptions\File\FileExistsException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\File\Processing;
@@ -274,28 +275,54 @@ class ApiController extends BaseController
             foreach($where as $field => $value){
 
                 if(!isset($schema[$entityName]['properties'][$field])){
+
                     continue;
                 }
 
                 if($schema[$entityName]['properties'][$field]['type'] == 'multijoin'){
-                    if($schema[$entityName]['properties'][$field]['mappedBy']){
-                        $searchJoinedEntity = $schema[$entityName]['properties'][$field]['accept'];
-                        $searchJoinedObject = $this->em->getRepository($searchJoinedEntity)->find($value);
-                        $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
+                    $value = intval($value);
 
-                        $queryBuilder->leftJoin("$entityName.$field", 'joined');
-                        $queryBuilder->andWhere("joined.$mappedBy = :$field");
-                        $queryBuilder->setParameter($field, $searchJoinedObject);
-                        $placeholdCounter++;
+                    if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
+                        if($value == -1) {
+                            $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
+                            $queryBuilder->leftJoin("$entityName.$field", 'joined');
+                            $queryBuilder->andWhere("joined.$mappedBy IS NULL");
+                        }else{
+                            $searchJoinedEntity = $schema[$entityName]['properties'][$field]['accept'];
+                            $searchJoinedObject = $this->em->getRepository($searchJoinedEntity)->find($value);
+                            $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
+
+                            $queryBuilder->leftJoin("$entityName.$field", 'joined');
+                            $queryBuilder->andWhere("joined.$mappedBy = :$field");
+                            $queryBuilder->setParameter($field, $searchJoinedObject);
+                            $placeholdCounter++;
+                        }
+
                     }else{
+
                         $queryBuilder->leftJoin("$entityName.$field", 'k');
-                        $queryBuilder->andWhere("k.id = :$field");
-                        $queryBuilder->setParameter($field, $value);
-                        $placeholdCounter++;
+                        if($value == -1){
+                            $queryBuilder->andWhere("k.id IS NULL");
+                        }else{
+                            $queryBuilder->andWhere("k.id = :$field");
+                            $queryBuilder->setParameter($field, $value);
+                            $placeholdCounter++;
+                        }
+
                     }
 
                 }else{
                     switch($schema[$entityName]['properties'][$field]['type']){
+                        case 'join':
+                            $value = intval($value);
+                            if($value == -1){
+                                $queryBuilder->andWhere("$entityName.$field IS NULL");
+                            }else{
+                                $queryBuilder->andWhere("$entityName.$field = :$field");
+                                $queryBuilder->setParameter($field, $value);
+                                $placeholdCounter++;
+                            }
+                        break;
                         case 'boolean':
                             if(strtolower($value) == 'false'){
                                 $value = 0;
@@ -304,15 +331,30 @@ class ApiController extends BaseController
                             }else{
                                 $value = boolval($value);
                             }
+
+                            $queryBuilder->andWhere("$entityName.$field = :$field");
+                            $queryBuilder->setParameter($field, $value);
+                            $placeholdCounter++;
+
                             break;
                         case 'integer':
                             $value = intval($value);
+
+                            $queryBuilder->andWhere("$entityName.$field = :$field");
+                            $queryBuilder->setParameter($field, $value);
+                            $placeholdCounter++;
+
+                            break;
+                        default:
+
+                            $queryBuilder->andWhere("$entityName.$field = :$field");
+                            $queryBuilder->setParameter($field, $value);
+                            $placeholdCounter++;
+
                             break;
                     }
 
-                    $queryBuilder->andWhere("$entityName.$field = :$field");
-                    $queryBuilder->setParameter($field, $value);
-                    $placeholdCounter++;
+
                 }
 
             }
@@ -503,45 +545,9 @@ class ApiController extends BaseController
         $entityName = ucfirst($request->get('entity'));
         $id         = $request->get('id');
 
-        $entityPath = 'Custom\Entity\\'.$entityName;
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }
-
-        $object = $this->em->getRepository($entityPath)->find($id);
-        if(!$object){
-            return new JsonResponse(array('message' => "Das Objekt wurde nicht gefunden."), 404);
-        }
-
-        if($entityPath == 'Areanet\PIM\Entity\User'){
-
-            if($object->getAlias() == 'admin'){
-                return new JsonResponse(array('message' => "Der Hauptadministrator kann nicht gelöscht werden."), 400);
-            }
-
-            $alias = $object->getAlias();
-            $object->setAlias("$alias (gelöscht)");
-        }
-
-        $object->setIsDeleted(true);
-
-        $this->em->remove($object);
-        $this->em->flush();
-
-        $object->setId($id);
-        $this->em->persist($object);
-        $this->em->getClassMetaData(get_class($object))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-        $this->em->flush();
+        $object = $this->delete($entityName, $id, $app);
 
         $schema = $this->getSchema();
-        if($schema[ucfirst($entityName)]['settings']['isSortable']){
-            $oldPos = $object->getSorting();
-            //@todo: ACHTUNG BEI NESTED SET / KATEGORIEN
-            $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos");
-            $query->execute();
-        }
-
-        $this->em->flush();
 
         /**
          * Log delete actions
@@ -563,6 +569,90 @@ class ApiController extends BaseController
         $this->em->flush();
 
         return new JsonResponse(array('message' => 'deleteAction: '.$id));
+    }
+
+    public function delete($entityName, $id, Application $app){
+        $schema = $this->getSchema();
+
+        $entityPath = 'Custom\Entity\\'.$entityName;
+        if(substr($entityName, 0, 3) == "PIM"){
+            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        }
+
+        $object = $this->em->getRepository($entityPath)->find($id);
+        if(!$object){
+            return new JsonResponse(array('message' => "Das Objekt wurde nicht gefunden."), 404);
+        }
+
+        if($entityPath == 'Areanet\PIM\Entity\User'){
+
+            if($object->getAlias() == 'admin'){
+                return new JsonResponse(array('message' => "Der Hauptadministrator kann nicht gelöscht werden."), 400);
+            }
+
+            $alias = $object->getAlias();
+            $object->setAlias("$alias (gelöscht)");
+        }
+
+        $parent = null;
+        if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
+            $subObjects = $this->em->getRepository($entityPath)->findBy(array('treeParent' => $object->getId()));
+            if($subObjects){
+                foreach($subObjects as $subObject){
+                    $this->delete($entityName, $subObject->getId(), $app);
+                }
+            }
+            $parent = $object->getTreeParent();
+        }
+
+        if($entityName == 'PIM\\File') {
+            $name = $object->getName().'-'.md5(time().$app['auth.user']->getId());
+            $object->setName($name);
+
+            //todo: Auslagern in /file/delete-API
+            $backend    = Backend::getInstance();
+
+            $path   = $backend->getPath($object);
+            foreach (new \DirectoryIterator($path) as $fileInfo) {
+                if ($fileInfo->isDot() || !$fileInfo->isFile()) continue;
+                unlink($fileInfo->getPathname());
+            }
+            @rmdir($path);
+        }
+
+        $object->setIsDeleted(true);
+
+        $this->em->remove($object);
+        $this->em->flush();
+
+        $object->setId($id);
+        $this->em->persist($object);
+
+
+        $this->em->getClassMetaData(get_class($object))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
+            $this->em->getClassMetaData('Areanet\PIM\Entity\BaseTree')->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        }
+        $this->em->flush();
+
+        if($schema[ucfirst($entityName)]['settings']['isSortable']){
+            $oldPos = $object->getSorting();
+            if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
+                if(!$parent){
+                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
+                }else{
+                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = ".$parent->getId());
+                }
+
+            }else{
+                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0");
+            }
+            $query->execute();
+        }
+
+        $this->em->flush();
+
+        return $object;
     }
 
 
@@ -614,8 +704,6 @@ class ApiController extends BaseController
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
         $object     = new $entityPath();
-        //Todo: Validierung!
-
 
 
         foreach($data as $property => $value){
@@ -632,6 +720,11 @@ class ApiController extends BaseController
                 throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
 
+            if($schema[ucfirst($entityName)]['properties'][$property]['unique']){
+                $object = $this->em->getRepository($entityPath)->findOneBy(array($property => $value, 'isDeleted' => false));
+                if($object) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
+            }
+
             $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
 
         }
@@ -644,9 +737,19 @@ class ApiController extends BaseController
 
             $this->em->persist($object);
 
+
             if($schema[ucfirst($entityName)]['settings']['isSortable']){
-                //@todo: ACHTUNG BEI NESTED SET / KATEGORIEN
-                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false");
+                if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
+                    $parent = $object->getTreeParent();
+                    if(!$parent){
+                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent IS NULL");
+                    }else {
+                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent = ".$parent->getId());
+                    }
+                }else{
+                    $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false");
+                }
+
                 $query->execute();
             }
 
@@ -822,9 +925,13 @@ class ApiController extends BaseController
 
         }catch(UniqueConstraintViolationException $e){
             if($entityPath == 'Areanet\PIM\Entity\User'){
-                throw new EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
+                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
+            }elseif($entityPath == 'Areanet\PIM\Entity\File') {
+                $existingFile = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId(), 'isDeleted' => false));
+
+                throw new FileExistsException("Die Datei ist in diesem Ordner bereits vorhanden. Wollen Sie die bestehende Datei überschreiben?", $existingFile->getId());
             }else{
-                throw new EntityDuplicateException("Ein gleicher Eintrag ist bereits vorhanden.");
+                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein gleicher Eintrag ist bereits vorhanden.");
             }
         }
 
@@ -1107,6 +1214,7 @@ class ApiController extends BaseController
             $entities[] = $fileInfo->getBasename('.php');
         }
         $entities[] = "PIM\\File";
+        $entities[] = "PIM\\Folder";
         $entities[] = "PIM\\Tag";
         $entities[] = "PIM\\User";
         $entities[] = "PIM\\Log";

@@ -176,20 +176,23 @@ body.emotionalBackground{
     padding-top:40px;
 }
 
-#pim-content .header h3{
+#pim-content .header h3,
+.modal-content .header h3{
     color:#4E5E6A;
     font-weight:normal;
     font-weight: 300;
     float:left;
 }
 
-#pim-content .header ul {
+#pim-content .header ul,
+.modal-content .header ul{
     margin:0;
     margin-top:16px;
     margin-left:20px;
 }
 
-#pim-content .header button{
+#pim-content .header button,
+.modal-content .header button{
     margin-top:16px;
 }
 

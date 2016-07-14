@@ -25,9 +25,19 @@ $app->error(function (\Exception $e, $code) use($app) {
         return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 200));
     }else{
         if($app['debug']){
-            return $app->json(array("message" => $e->getMessage(), 'debug' => $e->getTrace()), $code);
+            if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $code);
+            }else{
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $code);
+            }
+
         }else{
-            return $app->json(array("message" => $e->getMessage()), $code);
+            if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->file->getId()), $code);
+            }else{
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $code);
+            }
+
         }
     }
 

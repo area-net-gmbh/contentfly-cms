@@ -32,7 +32,17 @@
                     <label ng-show="vm.filterJoins[key]" ng-switch-when="join">{{vm.schema.properties[key].label}}</label>
                     <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="join" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                         <option value="">alle</option>
+                        <option value="-1">ohne Zuordnung</option>
+                        <option disabled>──────────</option>
                         <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.title}}</option>
+                    </select>
+
+                    <label ng-show="vm.filterJoins[key]" ng-switch-when="multijoin">{{vm.schema.properties[key].label}}</label>
+                    <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="multijoin" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                        <option value="">alle anzeigen</option>
+                        <option value="-1">ohne Zuordnung</option>
+                        <option disabled>──────────</option>
+                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
                     </select>
 
                     <label ng-switch-when="select">{{vm.schema.properties[key].label}}</label>
@@ -70,7 +80,7 @@
     </div>
 
     <div class="col-sm-2">
-        <button class="btn btn-primary btn-sm" ng-hide="vm.modaltitle" type="file" ngf-select="vm.uploadMultiFile($files, $invalidFiles)"
+        <button class="btn btn-primary btn-sm" ng-disabled="vm.fileUploads" type="file" ngf-select="vm.uploadMultiFile($files, $invalidFiles)"
                 multiple ngf-accept="'{{config.accept}}'"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Upload</button>
     </div>
 </div>
@@ -93,7 +103,7 @@
     </div>
 
     <ul class="dynamic-grid" angular-grid="pics" ag-options="vm.angularGridOptions" grid-width="200" gutter-size="10" angular-grid-id="gallery" refresh-on-img-load="false"  ng-init="vm.loadData()">
-        <li ng-click="vm.selectFile(object)" pagination-id="files" dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" class="grid image-edit ng-class: {'isSelectable': vm.modaltitle}">
+        <li id="fileitem_{{object.id}}" ng-click="vm.selectFile(object)" pagination-id="files" dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" class="grid image-edit ng-class: {'isSelectable': vm.modaltitle}">
             <ng-switch on="object.type">
                 <img ng-switch-when="image/jpeg" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
                 <img ng-switch-when="image/png" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
@@ -105,6 +115,7 @@
             <button title="Datei austauschen" ng-hide="modaltitle" class="btn btn-default btn3" type="file" ngf-select="vm.uploadFile($file, object.id, $invalidFiles)"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
             <p><b>{{object.title || object.alias || object.name}}</b> (ID {{object.id}})<br>
                 Dateiname: {{object.alias || object.name}}<br>
+                Ordner: <pim-autoformat property="folder"  schema="vm.schema" object="object"></pim-autoformat><br>
                 Typ: {{object.type}}<br>
                 Dateigröße: {{object.size}}<br>
                 Hochgeladen: <pim-autoformat property="created" long="true" schema="vm.schema" object="object"></pim-autoformat><br>
@@ -112,5 +123,7 @@
             </p>
         </li>
     </ul>
+
+    <div class="col-sm-12" ng-show="vm.objectsNotAvailable && !vm.objectsAvailable"><p>Es sind leider keine Dateien vorhanden.</p></div>
 </div>
 </div>

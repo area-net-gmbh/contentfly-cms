@@ -55,14 +55,32 @@ class FileController extends BaseController
                 $processor->execute($backend, $fileObject);
             }else {
                 $hash = md5_file($file->getRealPath());
-                $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
 
-                $extension = $file->getClientOriginalExtension();
-                $baseFilename = str_replace($extension, "", $file->getClientOriginalName());
-                $filename = $this->sanitizeFileName($baseFilename) . "." . $extension;
+                $fileObject = null;
+                if(Config\Adapter::getConfig()->FILE_HASH_MUST_UNIQUE){
+                    $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash, 'isDeleted' => false));
+                    die("test");
+                }
+
+
+                $extension      = $file->getClientOriginalExtension();
+                $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
+                $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
 
                 if (!$fileObject) {
+
+
                     $fileObject = new File();
+
+
+                    $folder = null;
+                    if($request->get("folder")){
+                        $folder = $this->em->getRepository('Areanet\PIM\Entity\Folder')->find($request->get("folder"));
+                        if($folder){
+                            $fileObject->setFolder($folder);
+                        }
+                    }
+
                     $fileObject->setName($filename);
                     $fileObject->setType($file->getClientMimeType());
                     $fileObject->setSize($file->getClientSize());
@@ -200,10 +218,61 @@ class FileController extends BaseController
         }
 
     }
+    
+    public function overwriteAction(Request $request)
+    {
+        $sourceId   = $request->get("sourceId");
+        $destId     = $request->get("destId");
+
+        if(!$sourceId || !$destId){
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- or Dest-Id missing.");
+        }
+
+        $fileSource = $this->em->getRepository('Areanet\PIM\Entity\File')->find($sourceId);
+        $fileDest   = $this->em->getRepository('Areanet\PIM\Entity\File')->find($destId);
+
+        if(!$fileSource || !$fileDest){
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- or Dest-File not found.");
+        }
+
+        if($fileSource->getName() != $fileDest->getName()){
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- and Dest-Filename not matching.");
+        }
+
+        $backend    = Backend::getInstance();
+
+        //Alte Daten löschen
+        $pathDest   = $backend->getPath($fileDest);
+        foreach (new \DirectoryIterator($pathDest) as $fileInfo) {
+            if ($fileInfo->isDot() || !$fileInfo->isFile()) continue;
+            unlink($fileInfo->getPathname());
+        }
+
+        //Neue Daten verschieben
+        $pathSource  = $backend->getPath($fileSource);
+
+        foreach (new \DirectoryIterator($pathSource) as $fileInfo) {
+            if ($fileInfo->isDot() || !$fileInfo->isFile()) continue;
+            $destName = $pathDest.'/'.$fileInfo->getBasename();
+            rename($fileInfo->getPathname(), $destName);
+        }
+
+        @rmdir($pathSource);
+
+        $fileSource->setIsDeleted(true);
+        $this->em->persist($fileSource);
+
+        $now = new \DateTime();
+        $fileDest->setModified($now);
+        $this->em->persist($fileDest);
+        $this->em->flush();
+
+        return new JsonResponse(array('message' => 'File overwritten', 'sourceId' => $sourceId, 'destId' => $destId));
+    }
 
 
     protected function sanitizeFileName($string, $force_lowercase = true, $anal = false) {
-        $strip = array("~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]",
+        $strip = array("~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "=", "+", "[", "{", "]",
             "}", "\\", "|", ";", ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;", "&#8211;", "&#8212;",
             "â€”", "â€“", ",", "<", ".", ">", "/", "?");
         $clean = trim(str_replace($strip, "", strip_tags($string)));
