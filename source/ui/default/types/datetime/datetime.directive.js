@@ -30,10 +30,12 @@
 
                 scope.$watch('dateValue',function(data){
                     if(scope.dateValue == null){
-                       return;
+                        scope.onChangeCallback({key: scope.key, value: null});
+                    }else{
+                        var momentJS = moment(scope.dateValue.toISOString());
+                        scope.onChangeCallback({key: scope.key, value: momentJS.format('YYYY-MM-DD')});
                     }
-                    var momentJS = moment(scope.dateValue.toISOString());
-                    scope.onChangeCallback({key: scope.key, value: momentJS.format('YYYY-MM-DD')});
+
                 },true)
             }
         }
