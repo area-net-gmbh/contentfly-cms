@@ -45,6 +45,10 @@ $configTest->DB_PASS = 'Ufisisog.693';
 $configTest->APP_ENABLE_XSENDFILE = false;
 $configTest->APP_ENABLE_SCHEMA_CACHE = true;
 
+$configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
+$configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
+$configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
+
 $configFactory->setConfig($configTest);
 
 /*
@@ -59,6 +63,10 @@ $configLive->DB_PASS = 'BL9-cXC44e';
 
 $configLive->APP_ENABLE_XSENDFILE = false;
 $configTest->APP_ENABLE_SCHEMA_CACHE = true;
+
+$configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
+$configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
+$configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
 
 $configFactory->setConfig($configLive);
 
