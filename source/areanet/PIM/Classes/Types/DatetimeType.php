@@ -33,9 +33,13 @@ class DatetimeType extends Type
         $setter = 'set'.ucfirst($property);
         $getter = 'get'.ucfirst($property);
 
-        $datetime = new \DateTime($value);
+        if($value){
+            $datetime = new \DateTime($value);
+            $object->$setter($datetime);
+        }else{
+            $object->$setter(null);
+        }
 
-        $object->$setter($datetime);
 
     }
 }
