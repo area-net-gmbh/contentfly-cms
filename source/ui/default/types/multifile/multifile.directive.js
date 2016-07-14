@@ -93,7 +93,8 @@
                             entity: function(){ return 'PIM\\File';},
                             title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
                             object: function(){ return scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index]; }
-                        }
+                        },
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(

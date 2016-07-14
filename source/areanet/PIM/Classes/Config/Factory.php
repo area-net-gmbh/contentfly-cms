@@ -34,6 +34,7 @@ class Factory{
     {
 
         if(!isset($this->configSettings[$host])){
+
             return $this->configSettings['default'];
         }
 

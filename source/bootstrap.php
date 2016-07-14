@@ -6,7 +6,7 @@ require_once __DIR__.'/custom/config.php';
 require_once __DIR__.'/version.php';
 
 
-define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'cli');
+define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'default');
 
 use Silex\Application;
 use \Areanet\PIM\Classes\Config;

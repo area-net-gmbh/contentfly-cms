@@ -16,14 +16,14 @@ $configDefault->DB_PASS = 'pass';
 
 $configDefault->APP_DEBUG = true;
 
-$configDefault->APP_ENABLE_XSENDFILE = true;
+$configDefault->APP_ENABLE_XSENDFILE    = true;
 $configDefault->APP_ENABLE_SCHEMA_CACHE = false;
 
 $configDefault->FRONTEND_ITEMS_PER_PAGE = 25;
-$configDefault->FRONTEND_CUSTOM_LOGO = true;
+$configDefault->FRONTEND_CUSTOM_LOGO    = true;
 
-$configDefault->FILE_PROCESSORS  = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
-$configDefault->FILE_HASH_MUST_UNIQUE = false;
+$configDefault->FILE_PROCESSORS         = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
+$configDefault->FILE_HASH_MUST_UNIQUE   = false;
 
 $configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 28;
 $configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 29;
@@ -43,13 +43,13 @@ $configTest->DB_NAME = 'usr_p212925_3';
 $configTest->DB_USER = 'p212925d1';
 $configTest->DB_PASS = 'Ufisisog.693';
 
-$configTest->APP_ENABLE_XSENDFILE = false;
-$configTest->APP_ENABLE_SCHEMA_CACHE = true;
+$configTest->APP_ENABLE_XSENDFILE       = false;
+$configTest->APP_ENABLE_SCHEMA_CACHE    = true;
 
-$configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
-$configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
-$configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
-$configDefault->CUSTOM_IMPORT_FOLDER                    = '/html/import/';
+$configTest->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
+$configTest->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
+$configTest->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
+$configTest->CUSTOM_IMPORT_FOLDER                    = '/html/import/';
 
 $configFactory->setConfig($configTest);
 
@@ -63,13 +63,13 @@ $configLive->DB_NAME = 'usr_p212925_5';
 $configLive->DB_USER = 'p212925d3';
 $configLive->DB_PASS = 'BL9-cXC44e';
 
-$configLive->APP_ENABLE_XSENDFILE = false;
-$configTest->APP_ENABLE_SCHEMA_CACHE = true;
+$configLive->APP_ENABLE_XSENDFILE       = false;
+$configLive->APP_ENABLE_SCHEMA_CACHE    = true;
 
-$configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
-$configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
-$configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
-$configDefault->CUSTOM_IMPORT_FOLDER                    = '/html/import/';
+$configLive->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
+$configLive->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
+$configLive->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
+$configLive->CUSTOM_IMPORT_FOLDER                    = '/html/import/';
 
 $configFactory->setConfig($configLive);
 

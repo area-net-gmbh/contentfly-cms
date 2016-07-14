@@ -102,6 +102,7 @@
                 }
 
                 function editFile(){
+                    
                     var modalInstance = $uibModal.open({
                         templateUrl: 'views/form.html',
                         controller: 'FormCtrl as vm',
@@ -109,7 +110,8 @@
                             entity: function(){ return 'PIM\\File';},
                             title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
                             object: function(){ return scope.value; }
-                        }
+                        },
+                        size: 'xl'
                     });
 
                     modalInstance.result.then(
