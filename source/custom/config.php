@@ -28,6 +28,7 @@ $configDefault->FILE_HASH_MUST_UNIQUE = false;
 $configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 28;
 $configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 29;
 $configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 30;
+$configDefault->CUSTOM_IMPORT_FOLDER                    = ROOT_DIR.'/data/';
 
 $configFactory->setConfig($configDefault);
 
@@ -48,6 +49,7 @@ $configTest->APP_ENABLE_SCHEMA_CACHE = true;
 $configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
 $configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
 $configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
+$configDefault->CUSTOM_IMPORT_FOLDER                    = '/html/import/';
 
 $configFactory->setConfig($configTest);
 
@@ -67,6 +69,7 @@ $configTest->APP_ENABLE_SCHEMA_CACHE = true;
 $configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 11;
 $configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 12;
 $configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 13;
+$configDefault->CUSTOM_IMPORT_FOLDER                    = '/html/import/';
 
 $configFactory->setConfig($configLive);
 
