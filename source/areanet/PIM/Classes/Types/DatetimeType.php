@@ -33,17 +33,9 @@ class DatetimeType extends Type
         $setter = 'set'.ucfirst($property);
         $getter = 'get'.ucfirst($property);
 
-        if(strtoupper($value) == 'INC'){
-            $oldValue = $object->$getter();
-            $oldValue++;
-            $object->$setter($oldValue);
-        }elseif(strtoupper($value) == 'DEC'){
-            $oldValue = $object->$getter();
-            $oldValue--;
-            $object->$setter($oldValue);
-        }else{
-            $object->$setter(intval($value));
-        }
+        $datetime = new \DateTime($value);
+
+        $object->$setter($datetime);
 
     }
 }

@@ -12,6 +12,7 @@
         localStorageService.remove('frontend');
         localStorageService.remove('user');
         localStorageService.remove('version');
+        localStorageService.remove('savedFilter');
         localStorageService.clearAll();
         $rootScope.userLoggedIn = false;
         $location.path('/login');

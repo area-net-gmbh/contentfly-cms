@@ -54,12 +54,24 @@
         vm.uploadMultiFile = uploadMultiFile;
 
         //Startup
+        init();
         loadFilters();
 
         /////////////////////////
 
         function closeFilter (){
             vm.filterIsOpen = false;
+        }
+
+        function calculateFilterBadge(){
+            var badgeCount = 0;
+            for (var key in vm.filter) {
+                if(vm.filter[key]){
+                    badgeCount++;
+                }
+            }
+
+            vm.filterBadge = badgeCount;
         }
 
         function doDelete(id, name){
@@ -140,14 +152,14 @@
 
         function executeFilter() {
 
-            var badgeCount = 0;
-            for (var key in vm.filter) {
-                if(vm.filter[key]){
-                    badgeCount++;
-                }
-            }
+            calculateFilterBadge();
 
-            vm.filterBadge = badgeCount;
+            var savedFilter = localStorageService.get('savedFilter');
+            if(!savedFilter){
+                savedFilter = {};
+            }
+            savedFilter['PIM\\File'] = vm.filter;
+            localStorageService.set('savedFilter', savedFilter);
 
             loadData();
         }
@@ -166,6 +178,14 @@
                     var subDepth = depth + 1;
                     generateTree(entity, field, data[i]['treeChilds'], subDepth);
                 }
+            }
+        }
+
+        function init(){
+            var savedFilter = localStorageService.get('savedFilter');
+            if(savedFilter && savedFilter['PIM\\File']){
+                vm.filter = savedFilter['PIM\\File'];
+                calculateFilterBadge();
             }
         }
 

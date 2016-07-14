@@ -373,7 +373,7 @@
 
             var modaltitle = 'Neues Objekt anlegen';
             if(object && vm.schema.settings.labelProperty){
-                modaltitle = vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + ' bearbeiten';
+                modaltitle = vm.schema.settings.label + ' ' + (object[vm.schema.settings.labelProperty] ? object[vm.schema.settings.labelProperty] : 'ID' + object.id) + ' bearbeiten';
             }else if(object){
                 modaltitle = 'Objekt ' + object.id + ' bearbeiten';
             }
