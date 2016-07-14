@@ -1,9 +1,10 @@
 <?php
+define('ROOT_DIR', __DIR__);
+
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/custom/config.php';
 require_once __DIR__.'/version.php';
 
-define('ROOT_DIR', __DIR__);
 
 define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'cli');
 
