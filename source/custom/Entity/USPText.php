@@ -10,10 +10,16 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="usptext")
- * @PIM\Config(label = "Allgemeine PopUp-Texte")
+ * @PIM\Config(label = "Allgemeine PopUp-Texte", labelProperty="alias")
  */
 class USPText extends Base
 {
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(showInList=20, label="Alias")
+     */
+    protected $alias;
+
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
      * @ORM\JoinColumn(onDelete="SET NULL")
@@ -47,7 +53,21 @@ class USPText extends Base
      */
     protected $hinweistext;
 
+    /**
+     * @return mixed
+     */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
 
+    /**
+     * @param mixed $alias
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+    }
 
 
 

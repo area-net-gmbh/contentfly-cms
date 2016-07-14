@@ -29,7 +29,11 @@
                 },true)
 
                 scope.$watch('dateValue',function(data){
-                    scope.onChangeCallback({key: scope.key, value: scope.dateValue ? scope.dateValue.toISOString() : null});
+                    if(scope.dateValue == null){
+                       return;
+                    }
+                    var momentJS = moment(scope.dateValue.toISOString());
+                    scope.onChangeCallback({key: scope.key, value: momentJS.format('YYYY-MM-DD')});
                 },true)
             }
         }
