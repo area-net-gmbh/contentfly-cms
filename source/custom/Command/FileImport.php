@@ -154,7 +154,7 @@ class FileImport extends CustomCommand
 
         $count = 0;
         foreach (new \DirectoryIterator($filePath) as $fileInfo) {
-            if($fileInfo->isDot() || !$fileInfo->isFile()) continue;
+            if($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(), 0, 1) == '.') continue;
 
             $count++;
             $output->write('.');
@@ -233,7 +233,7 @@ class FileImport extends CustomCommand
 
         $count = 0;
         foreach (new \DirectoryIterator($filePath) as $fileInfo) {
-            if ($fileInfo->isDot() || !$fileInfo->isDir()) continue;
+            if ($fileInfo->isDot() || !$fileInfo->isDir() || substr($fileInfo->getFilename(), 0, 1) == '.') continue;
 
             $artikel = $fileInfo->getBasename();
 
@@ -241,7 +241,7 @@ class FileImport extends CustomCommand
             $count++;
 
             foreach (new \DirectoryIterator($fileInfo->getPathName()) as $subfileInfo) {
-                if ($subfileInfo->isDot() || !$subfileInfo->isFile()) continue;
+                if ($subfileInfo->isDot() || !$subfileInfo->isFile() || substr($fileInfo->getFilename(), 0, 1) == '.') continue;
 
                 $fileName = $subfileInfo->getFilename();
 
@@ -311,7 +311,7 @@ class FileImport extends CustomCommand
 
         $count = 0;
         foreach (new \DirectoryIterator($filePath) as $fileInfo) {
-            if ($fileInfo->isDot() || !$fileInfo->isFile()) continue;
+            if ($fileInfo->isDot() || !$fileInfo->isFile() || substr($fileInfo->getFilename(), 0, 1) == '.') continue;
 
 
             $artikel  = $fileInfo->getBasename('.'.$fileInfo->getExtension());

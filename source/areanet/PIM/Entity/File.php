@@ -7,7 +7,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_file", uniqueConstraints={@ORM\UniqueConstraint(name="file_unique", columns={"name", "folder_id", "isDeleted"})})
- * @PIM\Config(label="Dateien", tabs="{'tags': 'Tags'}")
+ * @PIM\Config(label="Dateien", labelProperty="name", sortBy="name", sortOrder="ASC", tabs="{'tags': 'Tags'}")
  */
 
 class File extends Base

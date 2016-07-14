@@ -591,7 +591,7 @@ class ApiController extends BaseController
             }
 
             $alias = $object->getAlias();
-            $object->setAlias("$alias (gelöscht)");
+            $object->setAlias("$alias-".md5($app['auth.user']->getId().time()));
         }
 
         $parent = null;
@@ -721,8 +721,8 @@ class ApiController extends BaseController
             }
 
             if($schema[ucfirst($entityName)]['properties'][$property]['unique']){
-                $object = $this->em->getRepository($entityPath)->findOneBy(array($property => $value, 'isDeleted' => false));
-                if($object) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
+                $objectDuplicated = $this->em->getRepository($entityPath)->findOneBy(array($property => $value, 'isDeleted' => false));
+                if($objectDuplicated) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
             }
 
             $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);

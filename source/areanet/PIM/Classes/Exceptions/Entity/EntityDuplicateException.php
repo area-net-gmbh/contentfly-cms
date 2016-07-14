@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\PIM\Classes\Exceptions\E;
+namespace Areanet\PIM\Classes\Exceptions\Entity;
 
 
 /**
