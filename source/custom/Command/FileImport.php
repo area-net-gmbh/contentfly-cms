@@ -38,7 +38,7 @@ class FileImport extends CustomCommand
     protected $cachedTitles = array();
 
     /** @var string */
-    protected $rootDir = ROOT_DIR.'/data/';
+    protected $rootDir = null;
     
     protected function configure()
     {
@@ -54,7 +54,7 @@ class FileImport extends CustomCommand
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Root-Import-Ordner',
-                $this->rootDir
+                Adapter::getConfig()->CUSTOM_IMPORT_FOLDER
             )
             ->addOption(
                 'oBilder',
