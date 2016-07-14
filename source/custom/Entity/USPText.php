@@ -15,25 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
 class USPText extends Base
 {
     /**
-     * @ORM\Column(type="string")
-     * @PIM\Config(showInList=40, label="Thumbnail-Text")
-     */
-    protected $titel;
-
-    /**
-     * @ORM\Column(type="string")
-     * @PIM\Config(label="Bildüberschrift groß")
-     */
-    protected $hinweistitel;
-
-    /**
-     * @ORM\Column(type="text")
-     * @PIM\Config(label="Bildunterschrift groß")
-     * @PIM\Rte();
-     */
-    protected $hinweistext;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Thumbnail", accept="image/*")
@@ -41,11 +22,34 @@ class USPText extends Base
     protected $thumbnail;
 
     /**
+     * @ORM\Column(type="string")
+     * @PIM\Config(showInList=40, label="Thumbnail-Text")
+     */
+    protected $titel;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Bildüberschrift groß")
+     */
+    protected $hinweistitel;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Bild groß", accept="image/*")
      */
     protected $bild;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Config(label="Bildunterschrift groß")
+     * @PIM\Rte();
+     */
+    protected $hinweistext;
+
+
+
+
 
     /**
      * @return mixed

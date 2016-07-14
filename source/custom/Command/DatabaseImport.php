@@ -6,6 +6,7 @@ use Custom\Entity\Filteroption;
 use Custom\Entity\Hinweistext;
 use Custom\Entity\Produkt;
 use Custom\Entity\ProduktAlternativprodukte;
+use Custom\Entity\ProduktAusverkaufprodukte;
 use Custom\Entity\ProduktBeschreibung;
 use Custom\Entity\ProduktPreise;
 use Custom\Entity\ProduktWebinformationen;
@@ -110,9 +111,9 @@ class DatabaseImport extends CustomCommand
         }
         $output->writeln('');
 
-        //Import Alternativartikel
+        //Import Ausverkaufartikel
         $importDB = $this->initDB();
-        $output->writeln('Import Alternativartikel...');
+        $output->writeln('Import Ausverkaufartikel...');
         $sql = "SELECT * FROM var_alternativartikel";
         $stmt = $importDB->query($sql);
 
@@ -121,11 +122,11 @@ class DatabaseImport extends CustomCommand
                 continue;
             }
             $output->write('.');
-            $alternativArtikel = new ProduktAlternativprodukte();
-            $alternativArtikel->setProdukt($mapping[$row['artikel_id']]);
-            $alternativArtikel->setAlternativprodukt($mapping[$row['alternative_id']]);
-            $alternativArtikel->setSorting($row['sortkey']);
-            $this->em->persist($alternativArtikel);
+            $ausverkaufArtikel = new ProduktAusverkaufprodukte();
+            $ausverkaufArtikel->setProdukt($mapping[$row['artikel_id']]);
+            $ausverkaufArtikel->setAusverkaufprodukt($mapping[$row['alternative_id']]);
+            $ausverkaufArtikel->setSorting($row['sortkey']);
+            $this->em->persist($ausverkaufArtikel);
 
         }
         $output->writeln('');

@@ -25,6 +25,10 @@ $configDefault->FRONTEND_CUSTOM_LOGO = true;
 $configDefault->FILE_PROCESSORS  = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
 $configDefault->FILE_HASH_MUST_UNIQUE = false;
 
+$configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 28;
+$configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 29;
+$configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 30;
+
 $configFactory->setConfig($configDefault);
 
 
