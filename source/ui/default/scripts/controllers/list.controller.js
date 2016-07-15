@@ -252,6 +252,7 @@
                         if(joinSchema.settings.isSortable){
                             properties.push('sorting');
                         }
+                        
                         for (var keySchema in joinSchema.list ) {
                             properties.push(joinSchema.list[keySchema]);
                         }
