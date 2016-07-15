@@ -226,7 +226,6 @@
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
-
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
                     var entity = null;
                     if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
@@ -253,8 +252,9 @@
                         if(joinSchema.settings.isSortable){
                             properties.push('sorting');
                         }
-                        for (var key in joinSchema.list ) {
-                            properties.push(joinSchema.list[key]);
+                        
+                        for (var keySchema in joinSchema.list ) {
+                            properties.push(joinSchema.list[keySchema]);
                         }
 
                         EntityService.list({entity: entity, properties: properties}).then(
@@ -267,6 +267,7 @@
                                             vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
                                         }
                                     }
+                                    console.log(key + " = " + vm.filterJoins[key]);
                                 }
                             })(entity, key),
                             function errorCallback(response) {
