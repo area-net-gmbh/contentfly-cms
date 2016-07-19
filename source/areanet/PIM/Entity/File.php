@@ -71,6 +71,18 @@ class File extends Base
     protected $size;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @PIM\Config(label="Breite", readonly=true, showInList=80)
+     */
+    protected $width;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @PIM\Config(label="Höhe", readonly=true, showInList=90)
+     */
+    protected $height;
+
+    /**
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(hide=true, label="Versteckt")
      */
@@ -116,6 +128,38 @@ class File extends Base
         $this->name = $name;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @param mixed $width
+     */
+    public function setWidth($width)
+    {
+        $this->width = $width;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    /**
+     * @param mixed $height
+     */
+    public function setHeight($height)
+    {
+        $this->height = $height;
+    }
+    
     /**
      * @return mixed
      */
