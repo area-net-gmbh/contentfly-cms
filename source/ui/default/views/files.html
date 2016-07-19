@@ -117,6 +117,7 @@
                 Dateiname: {{object.alias || object.name}}<br>
                 Ordner: <pim-autoformat property="folder"  schema="vm.schema" object="object"></pim-autoformat><br>
                 Typ: {{object.type}}<br>
+                <span ng-show="object.width && object.height">Bildgröße: {{object.width}}x{{object.height}}px<br></span>
                 Dateigröße: {{object.size}}<br>
                 Hochgeladen: <pim-autoformat property="created" long="true" schema="vm.schema" object="object"></pim-autoformat><br>
                 Geändert: <pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat>

@@ -41,6 +41,15 @@ class FileController extends BaseController
 
                 $hash = md5_file($file->getRealPath());
 
+                list($width, $height) = getimagesize($file->getRealPath());
+                
+                if($width){
+                    $fileObject->setWidth($width);
+                }
+                if($height){
+                    $fileObject->setHeight($height);
+                }
+
                 $fileObject->setType($file->getClientMimeType());
                 $fileObject->setSize($file->getClientSize());
 
@@ -62,6 +71,7 @@ class FileController extends BaseController
                     die("test");
                 }
 
+                list($width, $height) = getimagesize($file->getRealPath());
 
                 $extension      = $file->getClientOriginalExtension();
                 $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
@@ -80,6 +90,13 @@ class FileController extends BaseController
                             $fileObject->setFolder($folder);
                         }
                     }
+                    
+                    if($width){
+                        $fileObject->setWidth($width);
+                    }
+                    if($height){
+                        $fileObject->setHeight($height);
+                    }
 
                     $fileObject->setName($filename);
                     $fileObject->setType($file->getClientMimeType());
@@ -94,6 +111,14 @@ class FileController extends BaseController
                     $processor = Processing::getInstance($file->getClientMimeType());
                     $processor->execute($backend, $fileObject);
                 } else {
+
+                    if($width){
+                        $fileObject->setWidth($width);
+                    }
+                    if($height){
+                        $fileObject->setHeight($height);
+                    }
+                    
                     $fileObject->setIsDeleted(false);
                     $this->em->persist($fileObject);
                     $this->em->flush();
@@ -261,6 +286,15 @@ class FileController extends BaseController
 
         $fileSource->setIsDeleted(true);
         $this->em->persist($fileSource);
+
+        list($width, $height) = getimagesize($pathDest.'/'.$fileInfo->getBasename());
+
+        if($width){
+            $fileDest->setWidth($width);
+        }
+        if($height){
+            $fileDest->setHeight($height);
+        }
 
         $now = new \DateTime();
         $fileDest->setModified($now);

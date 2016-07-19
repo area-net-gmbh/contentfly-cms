@@ -179,6 +179,8 @@ class FileImport extends CustomCommand
                 $fileObject->setFolder($folderObject);
             }
 
+
+            
             $fileObject->setAlias($alias);
             $fileObject->setType(mime_content_type($fileInfo->getPathName()));
             $fileObject->setSize(filesize($fileInfo->getPathName()));
@@ -356,6 +358,15 @@ class FileImport extends CustomCommand
 
     protected function processFile(\DirectoryIterator $fileInfo, File $fileObject, $doCopy = false){
 
+        list($width, $height) = getimagesize($fileInfo->getRealPath());
+
+        if($width){
+            $fileObject->setWidth($width);
+        }
+        if($height){
+            $fileObject->setHeight($height);
+        }
+        
         if($doCopy){
             copy($fileInfo->getPathName(), $this->backend->getPath($fileObject).'/'.$fileObject->getName());
         }else{
