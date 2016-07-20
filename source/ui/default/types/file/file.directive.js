@@ -6,7 +6,7 @@
         .directive('pimFile', pimFile);
 
 
-    function pimFile($uibModal, Upload, $timeout, localStorageService){
+    function pimFile($uibModal, Upload, $timeout, localStorageService, $rootScope){
         return {
             restrict: 'E',
             scope: {
@@ -20,7 +20,8 @@
                 //Properties
                 scope.fileUpload    = {};
                 scope.errorMsg      = null;
-
+                scope.formImageSquarePreview = $rootScope.frontend.formImageSquarePreview;
+                
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;

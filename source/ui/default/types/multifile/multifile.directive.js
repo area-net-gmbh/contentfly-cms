@@ -6,7 +6,7 @@
         .directive('pimMultifile', pimMultifile);
 
 
-    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService) {
+    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService, $rootScope) {
         return {
             restrict: 'E',
             scope: {
@@ -18,8 +18,8 @@
             link: function (scope, element, attrs) {
 
                 //Properties
-                
-                
+                scope.formImageSquarePreview = $rootScope.frontend.formImageSquarePreview;
+
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;

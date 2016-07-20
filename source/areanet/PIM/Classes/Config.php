@@ -119,6 +119,11 @@ class Config{
     public $FRONTEND_CUSTOM_LOGO = false;
 
     /**
+     * @var boolean Square previewed images in forms
+     */
+    public $FRONTEND_FORM_IMAGE_SQUARE_PREVIEW = true;
+
+    /**
      * @var integer URL/Path for login in the backend
      */
     public $FRONTEND_ITEMS_PER_PAGE = 20;
