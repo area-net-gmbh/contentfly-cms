@@ -171,11 +171,20 @@ class FileController extends BaseController
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileObject not found");
         }
 
+        $sizeObject = null;
+        if($size){
+            $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
+
+            if(!$sizeObject){
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize not found");
+            }
+        }
+
         $mimeType   = $fileObject->getType();
         $backend    = Backend::getInstance();
-        $fileUri    = $backend->getUri($fileObject, $size, $variant);
+        $fileUri    = $backend->getUri($fileObject, $sizeObject, $variant);
+
         $reExecute  =  false;
-        $sizeObject = null;
 
         $fileMTime = 0;
         $etagFile  = null;
@@ -186,9 +195,7 @@ class FileController extends BaseController
 
         if($size){
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
-            if(!$sizeObject){
-                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize not found");
-            }
+
             if($sizeObject->getForceJpeg()){
                 $mimeType = 'image/jpeg';
             }
@@ -205,7 +212,7 @@ class FileController extends BaseController
             if($processor instanceof Processing\Standard){
                 throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize for FileObject not found");
             }else{
-                $processor->execute($backend, $fileObject, $size, $variant);
+                $processor->execute($backend, $fileObject, $sizeObject, $variant);
             }
 
             $fileMTime = filemtime($fileUri);
@@ -233,9 +240,9 @@ class FileController extends BaseController
 
         $matching_last_modified = $client_last_modified == $server_last_modified;
         $matching_etag          = $client_etag && strpos($client_etag, $etagFile) !== false;
-        
+
         if (($client_last_modified && $client_etag) ?  $matching_last_modified && $matching_etag : $matching_last_modified || $matching_etag){
-            //return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age=86400, public'));
+            return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age=86400, public'));
         }
 
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
