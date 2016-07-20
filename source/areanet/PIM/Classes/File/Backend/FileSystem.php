@@ -36,6 +36,7 @@ class FileSystem implements BackendInterface
 
         if($size){
             if($size instanceof ThumbnailSetting){
+
                 if($size->getForceJpeg()) {
                     $imgThumbNameList = explode('.', $fileName);
                     $imgThumbNameList[(count($imgThumbNameList) - 1)] = 'jpg';
@@ -45,6 +46,7 @@ class FileSystem implements BackendInterface
             }else{
                 $sizeUri = $size.'-';
             }
+
         }
 
         if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
