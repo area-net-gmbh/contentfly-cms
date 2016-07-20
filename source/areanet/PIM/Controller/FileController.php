@@ -233,10 +233,9 @@ class FileController extends BaseController
 
         $matching_last_modified = $client_last_modified == $server_last_modified;
         $matching_etag          = $client_etag && strpos($client_etag, $etagFile) !== false;
-
+        
         if (($client_last_modified && $client_etag) ?  $matching_last_modified && $matching_etag : $matching_last_modified || $matching_etag){
-
-            return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age=86400, public'));
+            //return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age=86400, public'));
         }
 
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
