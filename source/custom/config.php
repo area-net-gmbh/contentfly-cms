@@ -44,7 +44,7 @@ $configTest->DB_NAME = 'usr_p212925_3';
 $configTest->DB_USER = 'p212925d1';
 $configTest->DB_PASS = 'Ufisisog.693';
 
-$configTest->APP_ENABLE_XSENDFILE       = false;
+$configTest->APP_ENABLE_XSENDFILE       = true;
 $configTest->APP_ENABLE_SCHEMA_CACHE    = true;
 
 $configTest->CUSTOM_IMPORT_FOLDER_BILDER             = 11;

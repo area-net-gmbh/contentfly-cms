@@ -11,6 +11,7 @@ use Silex\Application;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class FileController extends BaseController
@@ -177,8 +178,10 @@ class FileController extends BaseController
         $sizeObject = null;
 
         $fileMTime = 0;
+        $etagFile  = null;
         if(file_exists($fileUri)) {
             $fileMTime = filemtime($fileUri);
+            $etagFile  = md5($fileUri . $fileMTime);
         }
 
         if($size){
@@ -195,7 +198,6 @@ class FileController extends BaseController
                 $reExecute = true;
 
             }
-
         }
 
         if(!file_exists($fileUri) || $reExecute){
@@ -205,29 +207,46 @@ class FileController extends BaseController
             }else{
                 $processor->execute($backend, $fileObject, $size, $variant);
             }
+
+            $fileMTime = filemtime($fileUri);
+            $etagFile  = md5($fileUri . $fileMTime);
         }
 
         $fileName   = $backend->getUri($fileObject, $sizeObject, $variant);
         if(!file_exists($fileName)){
-            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("File not found");   
+
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("File not found");
         }
 
+        $client_etag =
+            !empty($_SERVER['HTTP_IF_NONE_MATCH'])
+                ?   trim($_SERVER['HTTP_IF_NONE_MATCH'])
+                :   null
+        ;
+        $client_last_modified =
+            !empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+                ?   trim($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+                :   null
+        ;
 
-        header("Expires: ".gmdate("D, d M Y H:i:s", $fileMTime+1800)." GMT");
+        $server_last_modified   = gmdate('D, d M Y H:i:s', $fileMTime) . ' GMT';
 
-        header("Cache-Control: max-age=1800");
-        header("Vary: Accept-Encoding");
+        $matching_last_modified = $client_last_modified == $server_last_modified;
+        $matching_etag          = $client_etag && strpos($client_etag, $etagFile) !== false;
 
-        if (array_key_exists('HTTP_IF_MODIFIED_SINCE', $_SERVER)) {
-            if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $fileMTime) {
-                header("HTTP/1.1 304 Not Modified");
-                exit;
-            }
+        if (($client_last_modified && $client_etag) ?  $matching_last_modified && $matching_etag : $matching_last_modified || $matching_etag){
+
+            return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age=86400, public'));
         }
 
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
-            header('Content-type: ' . $mimeType);
+            header('Pragma: public');
+            header('Cache-Control: max-age=86400, public');
+            header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 86400));
             header("Content-length: " . filesize($fileName));
+            header("Content-type: ".$mimeType);
+            header("Last-Modified: ".$server_last_modified);
+            header("ETag: ".$etagFile);
             header("X-Sendfile: ".$fileName);
             exit;
         }else{
@@ -238,7 +257,12 @@ class FileController extends BaseController
 
             return $this->app->stream($stream, 200, array(
                 'Content-Type'   => $mimeType,
-                'Content-length' => filesize($fileName)
+                'Content-length' => filesize($fileName),
+                'Cache-Control' => 'max-age=86400, public',
+                'Pragma' => 'public',
+                'ETag' => $etagFile,
+                'Last-Modified' => $server_last_modified,
+                'Expires' => gmdate('D, d M Y H:i:s \G\M\T', time() + 86400)
             ));
         }
 

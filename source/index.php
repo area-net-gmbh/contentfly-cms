@@ -22,8 +22,9 @@ $app->get('/setup', "setup.controller:setupAction");
 
 $app->error(function (\Exception $e, $code) use($app) {
     if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
-        return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 200));
+        return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 404));
     }else{
+
         if($app['debug']){
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $code);
@@ -33,7 +34,7 @@ $app->error(function (\Exception $e, $code) use($app) {
 
         }else{
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->file->getId()), $code);
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId), $code);
             }else{
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $code);
             }
