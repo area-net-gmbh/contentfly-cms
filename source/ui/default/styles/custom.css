@@ -630,3 +630,14 @@ li.grid:hover .image-edit{
     color:#666666;
     opacity: 0.5;
 }
+
+#login .panel-footer{
+    background-color: transparent;
+    border:none;
+}
+
+#login .panel-footer, #login .panel-footer *{
+    font-size:11px;
+    color:#999999;
+    text-align: center;
+}
