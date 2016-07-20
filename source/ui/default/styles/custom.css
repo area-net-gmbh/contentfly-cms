@@ -346,10 +346,16 @@ label.optional{
     width:200px;
     height:200px;
     overflow:hidden;
-    background-size: cover;
+    background-size: contain;
+    background-repeat: no-repeat;
     background-position: center center;
     border:1px solid #999999;
 }
+
+.image-form.squareImage.image-edit{
+    background-size: cover;
+}
+
 
 
 .image-edit button{

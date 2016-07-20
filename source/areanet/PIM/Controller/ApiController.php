@@ -1187,7 +1187,8 @@ class ApiController extends BaseController
     {
 
         $frontend = array(
-            'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
+            'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,
+            'formImageSquarePreview' => Config\Adapter::getConfig()->FRONTEND_FORM_IMAGE_SQUARE_PREVIEW
         );
 
         return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
