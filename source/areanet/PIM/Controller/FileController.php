@@ -194,6 +194,7 @@ class FileController extends BaseController
         }
 
         if($size){
+
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
 
             if($sizeObject->getForceJpeg()){
@@ -208,11 +209,13 @@ class FileController extends BaseController
         }
 
         if(!file_exists($fileUri) || $reExecute){
+
             $processor = Processing::getInstance($fileObject->getType());
             if($processor instanceof Processing\Standard){
                 throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize for FileObject not found");
             }else{
-                $processor->execute($backend, $fileObject, $sizeObject, $variant);
+
+                $processor->execute($backend, $fileObject, $size, $variant);
             }
 
             $fileMTime = filemtime($fileUri);
