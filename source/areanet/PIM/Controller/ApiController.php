@@ -920,6 +920,7 @@ class ApiController extends BaseController
                 throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
 
+
             $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
 
         }
