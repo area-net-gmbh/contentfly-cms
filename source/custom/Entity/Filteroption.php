@@ -24,6 +24,7 @@ class Filteroption extends BaseSortable
 
     /**
      * @ORM\ManyToOne(targetEntity="Custom\Entity\Filter")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @PIM\Config(label="Filter", showInList=50, isFilterable=true)
      */
     protected $filter;

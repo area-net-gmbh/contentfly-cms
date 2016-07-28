@@ -189,12 +189,21 @@
                 properties.push(vm.schema.list[key]);
             }
 
+            if(vm.schema.settings.type == 'tree'){
+                vm.schema.settings.isSortable = false;
+            }
+
             var filter = {};
             for (var key in vm.filter) {
                 if(vm.filter[key]){
                     filter[key] = vm.filter[key];
+                    if(key == 'treeParent' && vm.filter[key]){
+                        vm.schema.settings.isSortable = true;
+                    }
                 }
             }
+
+
 
             var data = {
                 entity: vm.entity,
