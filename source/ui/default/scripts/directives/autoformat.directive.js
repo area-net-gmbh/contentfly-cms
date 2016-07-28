@@ -12,23 +12,32 @@
             link: function(scope, element, attrs){
                 
                 var property = attrs.property;
+                var mappedBy = attrs.mappedBy;
+                var debug = attrs.debug;
                 var long     = attrs.long ? attrs.long : false;
                 var type     = scope.schema.properties[property] ? scope.schema.properties[property].type : null;
+
+                //if(debug) console.log("MAPPEDBY 1: " + property + " = " + mappedBy);
 
                 scope.$watch('object', function() {
                     
                     if(scope.object == null || type == null){
                         return;
                     }
+                    //if(debug) console.log("MAPPEDBY 2: " + property + " = " + mappedBy);
+                    var object = scope.object;
+                    //if(mappedBy){
+                    //    object = scope.object[mappedBy];
+                    //}
 
                     switch(type) {
                         case 'datetime':
                             //var value = $filter('date')(scope.object[property], 'dd.MM.yyyy');
-                            var value = long ? scope.object[property].LOCAL_TIME : scope.object[property].LOCAL;
+                            var value = long ? object[property].LOCAL_TIME : object[property].LOCAL;
                             element.text(value);
                             break;
                         case 'boolean':
-                            element.text(scope.object[property] ? 'Ja' : 'Nein');
+                            element.text(object[property] ? 'Ja' : 'Nein');
                             break;
                         case 'join':
                             var fullEntity    = scope.schema.properties[property].accept.split('\\');
@@ -38,14 +47,14 @@
                             }
                             var joinSchema    = localStorageService.get('schema')[entity];
 
-                            if(scope.object[property]){
+                            if(object[property]){
                                 var firstProperty = joinSchema.list[Object.keys(joinSchema.list)[0]];
                             
-                                element.text(scope.object[property][firstProperty]);
+                                element.text(object[property][firstProperty]);
                             }
                             break;
                         case 'select':
-                            var value = scope.object[property];
+                            var value = object[property];
                             var options = scope.schema.properties[property].options;
                             //console.log(options);
                             for(var i = 0; i < options.length; i++){
@@ -57,7 +66,7 @@
                             element.text(value);
                             break;
                         default:
-                            var content = strip_tags(scope.object[property]);
+                            var content = strip_tags(object[property]);
                             if(scope.schema.properties[property].listShorten){
                                 if(content.length > scope.schema.properties[property].listShorten){
                                     element.text(content.substr(0, scope.schema.properties[property].listShorten) + '...');
@@ -74,7 +83,7 @@
 
                     switch(property) {
                         case 'user':
-                            var alias = scope.object[property] ? scope.object[property].alias : 'admin';
+                            var alias = object[property] ? object[property].alias : 'admin';
                             element.text(alias);
                             break;
                         default:
