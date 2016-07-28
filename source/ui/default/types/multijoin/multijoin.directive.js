@@ -171,12 +171,17 @@
                     var id     = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy].id : scope.value[index].id;
                     var object = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index];
 
+                    var modaltitle = 'Objekt ' + object.id + ' bearbeiten';
+                    if(scope.schema.settings.labelProperty){
+                        modaltitle = scope.schema.settings.label + ' ' + (object[scope.schema.settings.labelProperty] ? object[scope.schema.settings.labelProperty] : 'ID' + scope.value.id) + ' bearbeiten';
+                    }
+
                     var modalInstance = $uibModal.open({
                         templateUrl: 'views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
-                            title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
+                            title: function(){ return modaltitle; },
                             object: function(){ return object; }
                         },
                         size: 'xl'

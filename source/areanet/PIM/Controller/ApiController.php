@@ -158,7 +158,7 @@ class ApiController extends BaseController
     }
 
     protected function loadTree($entity, $parent){
-        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent), array('sorting' => 'ASC'));
+        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isDeleted' => false, 'isIntern' => false), array('sorting' => 'ASC'));
         $array   = array();
         foreach($objects as $object){
             $data = $object->toValueObject(true);
@@ -618,6 +618,16 @@ class ApiController extends BaseController
                 unlink($fileInfo->getPathname());
             }
             @rmdir($path);
+        }
+
+        foreach($schema[ucfirst($entityName)]['properties'] as $key => $config){
+            if($config['unique']){
+                $getter = 'get'.ucfirst($key);
+                $setter = 'set'.ucfirst($key);
+
+                $oldVal = $object->$getter();
+                $object->$setter($oldVal.'-'.md5($app['auth.user']->getId().time()));
+            }
         }
 
         $object->setIsDeleted(true);
