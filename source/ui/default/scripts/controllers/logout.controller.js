@@ -6,7 +6,7 @@
         .controller('LogoutCtrl', LogoutCtrl);
 
     function LogoutCtrl($scope, $rootScope, $location, localStorageService, $cookies){
-
+        
         localStorageService.remove('token');
         localStorageService.remove('schema');
         localStorageService.remove('frontend');

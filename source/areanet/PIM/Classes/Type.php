@@ -120,6 +120,10 @@ abstract class Type
                     $schema['unique'] = $annotations->unique;
                 }
 
+                if($annotations->type){
+                    $schema['dbtype'] = $annotations->type;
+                }
+
                 $schema['nullable'] = $annotations->nullable ? $annotations->nullable : false;
             }
 

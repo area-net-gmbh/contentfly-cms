@@ -57,6 +57,7 @@ class OnejoinType extends Type
             $controller->update($joinEntity, $value['id'], $value, false, $user);
         }else{
             $joinObject = $controller->insert($joinEntity, $value, $user);
+
             $object->$setter($joinObject);
         }
 

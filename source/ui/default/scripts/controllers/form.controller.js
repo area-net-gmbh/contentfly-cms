@@ -122,7 +122,13 @@
                 EntityService.update(data).then(
                     function successCallback(response) {
                         vm.doSave = false;
-                        if(andClose) $uibModalInstance.close(vm.object);
+
+                        if(andClose){
+                            for(var key in objectDataToSave){
+                                vm.object[key] = objectDataToSave[key];
+                            }
+                            $uibModalInstance.close(vm.object);
+                        }
                     },
                     function errorCallback(response) {
                         vm.doSave = false;
