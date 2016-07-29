@@ -29,7 +29,7 @@ $configDefault->FILE_HASH_MUST_UNIQUE   = false;
 $configDefault->CUSTOM_IMPORT_FOLDER_BILDER             = 28;
 $configDefault->CUSTOM_IMPORT_FOLDER_DATENBLAETTER      = 29;
 $configDefault->CUSTOM_IMPORT_FOLDER_DIGITALVORLAGEN    = 30;
-$configDefault->CUSTOM_IMPORT_FOLDER                    = ROOT_DIR.'/data/';
+$configDefault->CUSTOM_IMPORT_FOLDER                    = ROOT_DIR.'/../data/';
 
 $configFactory->setConfig($configDefault);
 
