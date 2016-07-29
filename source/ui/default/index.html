@@ -22,6 +22,7 @@
             <a href="#/dashboard"><img class="logo" ng-attr-src="{{frontend.customLogo ? '/custom/Resources/logo.png' : 'img/appcms_logo.png'}}"></a>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right ">
+                    <li ng-show="newVersion"><a href="#/logout" class="bg-danger"><span class="glyphicon glyphicon-info-sign"></span> Neue Version {{newVersion}} verfügbar, bitte aus-/einloggen!</a></li>
                     <li uib-dropdown>
                         <a href id="simple-dropdown" uib-dropdown-toggle>{{user.alias}} <span class="glyphicon glyphicon-user"></span></a>
                         <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
