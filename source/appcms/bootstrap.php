@@ -47,7 +47,7 @@ $app->register(new ConsoleServiceProvider(), array(
 
 
 $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
-    'orm.proxies_dir' => __DIR__.'/data/cache/doctrine',
+    'orm.proxies_dir' => __DIR__.'/../data/cache/doctrine',
     'orm.em.options' => array(
         'connection' => 'pim',
         'mappings' => array(
