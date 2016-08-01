@@ -6,11 +6,11 @@ server:
     locale: de_DE.UTF-8
 vagrant_local:
     install: '1'
-    vm: { base_box: trusty64, hostname: default, ip: 192.160.12.53, memory: '512', sharedfolder: ./, useVagrantCloud: '0', syncType: '0' }
+    vm: { base_box: trusty64, hostname: default, ip: 192.160.14.15, memory: '512', sharedfolder: ./, useVagrantCloud: '0', syncType: '0' }
 apache:
     install: '1'
     docroot: /vagrant
-    servername: local.pim.buehner-kalender.de
+    servername: appcms.dev
 mysql:
     install: '1'
     root_password: ''
