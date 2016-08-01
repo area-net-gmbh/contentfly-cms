@@ -41,6 +41,24 @@ class Hinweistext extends Base
     protected $bisMonat;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(label="wichtig")
+     */
+    protected $wichtig;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @PIM\Config(label="rot")
+     */
+    protected $rot;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @PIM\Config(label="SortKey")
+     */
+    protected $sortkey;
+
+    /**
      * @return mixed
      */
     public function getTitel()
@@ -102,6 +120,54 @@ class Hinweistext extends Base
     public function setBisMonat($bisMonat)
     {
         $this->bisMonat = $bisMonat;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWichtig()
+    {
+        return $this->wichtig;
+    }
+
+    /**
+     * @param mixed $wichtig
+     */
+    public function setWichtig($wichtig)
+    {
+        $this->wichtig = $wichtig;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRot()
+    {
+        return $this->rot;
+    }
+
+    /**
+     * @param mixed $rot
+     */
+    public function setRot($rot)
+    {
+        $this->rot = $rot;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSortkey()
+    {
+        return $this->sortkey;
+    }
+
+    /**
+     * @param mixed $sortkey
+     */
+    public function setSortkey($sortkey)
+    {
+        $this->sortkey = $sortkey;
     }
 
 
