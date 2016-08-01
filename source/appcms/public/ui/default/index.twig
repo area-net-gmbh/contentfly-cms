@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" lang="de" ng-app="app">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <title>Backend</title>
+    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.min.css" >
+    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.xl.css" >
+    <link rel="stylesheet" href="/ui/default/styles/custom.css">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/font-awesome/font-awesome.min.css">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/textAngular/textAngular.css" media="screen">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/loaders/loaders.min.css">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/chartjs/angular-chart.min.css">
+
+    {% for cssFile in cssFiles %}
+        <link rel="stylesheet prefetch" href="/custom/ui/default/styles/{{ cssFile }}">
+    {% endfor %}
+
+    <script>
+        {{ script|raw  }}
+    </script>
+</head>
+<body ng-class="{emotionalBackground: !userLoggedIn}">
+{% verbatim %}
+<nav ng-cloak ng-show="userLoggedIn" id="pim-header" class="navbar navbar-default navbar-fixed-top devmode-{{devmode}} ">
+    <div class="container-fluid">
+        <a href="#/dashboard"><img class="logo" ng-attr-src="{{frontend.customLogo ? '/custom/Resources/logo.png' : '/ui/default/img/appcms_logo.png'}}"></a>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right ">
+                <li uib-dropdown>
+                    <a href id="simple-dropdown" uib-dropdown-toggle>{{user.alias}} <span class="glyphicon glyphicon-user"></span></a>
+                    <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                        <li><a class="dropdown" href="#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<nav ng-cloak ng-show="userLoggedIn" id="pim-nav">
+    <ul>
+        <li><h3><span class="glyphicon glyphicon-th-large"></span>Inhalte</h3>
+            <ul>
+                <li ng-repeat="(entity, label) in entities"><a href="#/list/{{entity}}">{{label}}</a></li>
+            </ul>
+        </li>
+        <li><h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
+            <ul>
+                <li><a href="#/files">Dateien</a></li>
+                <li><a href="#/list/PIM/Folder">Ordner</a></li>
+
+            </ul>
+        </li>
+        <li ng-show="user.isAdmin"><h3><span class="glyphicon glyphicon-cog"></span>Administration</h3>
+            <ul>
+                <li><a href="#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
+                <li><a href="#/list/PIM/Log">Protokollierung</a></li>
+                <li><a href="#/list/PIM/User">Benutzer</a></li>
+                <pim-plugin key="NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </li>
+        <li class="version">Version {{version}}</li>
+
+    </ul>
+</nav>
+
+<div id="pim-content" class="container-fluid ng-class:{ 'pim-content-login': !userLoggedIn };">
+    <div ng-view></div>
+</div>
+
+<div class="splash" ng-cloak="">
+    <div class="loader-inner ball-pulse">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <p>Anwendung wird geladen...</p>
+</div>
+{% endverbatim %}
+<!-- Angular Files -->
+<script src="/ui/default/vendor/jquery/jquery-2.1.4.min.js"></script>
+<script src="/ui/default/vendor/jquery/jquery-ui.min.js"></script>
+<script src="/ui/default/vendor/angular/angular.js"></script>
+<script src="/ui/default/vendor/angular/angular-route.min.js"></script>
+<script src="/ui/default/vendor/angular/angular-cookies.min.js"></script>
+<script src="/ui/default/vendor/angular/angular-local-storage.min.js"></script>
+<script src="/ui/default/vendor/angular/ui-bootstrap-tpls-0.14.3.min.js"></script>
+<script src="/ui/default/vendor/angular/ng-file-upload-all.min.js"></script>
+<script src="/ui/default/vendor/angular/dirPagination.js"></script>
+<script src="/ui/default/vendor/textAngular/textAngular-rangy.min.js"></script>
+<script src="/ui/default/vendor/textAngular/textAngular-sanitize.min.js"></script>
+<script src="/ui/default/vendor/textAngular/textAngular.min.js"></script>
+<script src="/ui/default/vendor/momentjs/moment.min.js"></script>
+<script src="/ui/default/vendor/angular/angular-moment.min.js"></script>
+<script src="/ui/default/vendor/angulargrid/angulargrid.min.js"></script>
+<script src="/ui/default/vendor/chartjs/chart.min.js"></script>
+<script src="/ui/default/vendor/chartjs/angular-chart.min.js"></script>
+<script src="/ui/default/vendor/angular/ui.sortable.js"></script>
+
+
+<!-- Global App Files -->
+<script src="/ui/default/scripts/app.config.js"></script>
+<script src="/ui/default/scripts/app.module.js"></script>
+<script src="/ui/default/scripts/app.routes.js"></script>
+<script src="/ui/default/scripts/app.js"></script>
+
+<!-- App Services -->
+<script src="/ui/default/scripts/services/entity.service.js"></script>
+<script src="/ui/default/scripts/services/file.service.js"></script>
+
+<!-- App Types -->
+<script src="/ui/default/types/string/string.directive.js"></script>
+<script src="/ui/default/types/boolean/boolean.directive.js"></script>
+<script src="/ui/default/types/textarea/textarea.directive.js"></script>
+<script src="/ui/default/types/rte/rte.directive.js"></script>
+<script src="/ui/default/types/decimal/decimal.directive.js"></script>
+<script src="/ui/default/types/integer/integer.directive.js"></script>
+<script src="/ui/default/types/datetime/datetime.directive.js"></script>
+<script src="/ui/default/types/file/file.directive.js"></script>
+<script src="/ui/default/types/multifile/multifile.directive.js"></script>
+<script src="/ui/default/types/password/password.directive.js"></script>
+<script src="/ui/default/types/join/join.directive.js"></script>
+<script src="/ui/default/types/multijoin/multijoin.directive.js"></script>
+<script src="/ui/default/types/entity/entity.directive.js"></script>
+<script src="/ui/default/types/matrixchooser/matrixchooser.directive.js"></script>
+<script src="/ui/default/types/select/select.directive.js"></script>
+
+<!-- App Directives -->
+<script src="/ui/default/scripts/directives/form.directive.js"></script>
+<script src="/ui/default/scripts/directives/autoformat.directive.js"></script>
+<script src="/ui/default/scripts/directives/fileicon.directive.js"></script>
+<script src="/ui/default/scripts/directives/clearinput.directive.js"></script>
+<script src="/ui/default/scripts/directives/bindValidity.directive.js"></script>
+<script src="/ui/default/scripts/directives/enter.directive.js"></script>
+<script src="/ui/default/scripts/directives/plugin.directive.js"></script>
+
+<!-- App Controllers -->
+<script src="/ui/default/scripts/controllers/partials/modal.controller.js"></script>
+<script src="/ui/default/scripts/controllers/partials/file-edit.controller.js"></script>
+<script src="/ui/default/scripts/controllers/partials/video-add.controller.js"></script>
+<script src="/ui/default/scripts/controllers/login.controller.js"></script>
+<script src="/ui/default/scripts/controllers/logout.controller.js"></script>
+<script src="/ui/default/scripts/controllers/list.controller.js"></script>
+<script src="/ui/default/scripts/controllers/form.controller.js"></script>
+<script src="/ui/default/scripts/controllers/files.controller.js"></script>
+<script src="/ui/default/scripts/controllers/dashboard.controller.js"></script>
+
+<!-- Dynamic Scripts -->
+{% for jsFile in jsFiles %}
+<script src="/custom/ui/default/scripts/{{ jsFile }}"></script>
+{% endfor %}
+</body>
+</html>
