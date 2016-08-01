@@ -130,15 +130,8 @@ class ProduktPreise extends Base
      */
     public function setBeginnHerbstpreise($beginnHerbstpreise)
     {
-        if($beginnHerbstpreise) {
-            if ($beginnHerbstpreise instanceof \Datetime) {
-                $this->beginnHerbstpreise = $beginnHerbstpreise;
-            } else {
-                $this->beginnHerbstpreise = new \Datetime($beginnHerbstpreise);
-            }
-        }else{
-            $this->beginnHerbstpreise = null;
-        }
+
+        $this->beginnHerbstpreise = $beginnHerbstpreise;
     }
 
     /**
@@ -154,15 +147,8 @@ class ProduktPreise extends Base
      */
     public function setEndeHerbstpreise($endeHerbstpreise)
     {
-        if($endeHerbstpreise) {
-            if ($endeHerbstpreise instanceof \Datetime) {
-                $this->endeHerbstpreise = $endeHerbstpreise;
-            } else {
-                $this->endeHerbstpreise = new \Datetime($endeHerbstpreise);
-            }
-        }else{
-            $this->endeHerbstpreise = null;
-        }
+
+        $this->endeHerbstpreise = $endeHerbstpreise;
     }
 
 

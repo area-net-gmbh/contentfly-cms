@@ -25,10 +25,10 @@ end
 Vagrant.configure("2") do |config|
 
     config.vm.provider :virtualbox do |v|
-        v.name = "buehnerpim"
+        v.name = "appcms"
         v.customize [
             "modifyvm", :id,
-            "--name", "buehnerpim",
+            "--name", "appcms",
             "--memory", 512,
             "--natdnshostresolver1", "on",
             "--cpus", 1,
@@ -37,9 +37,9 @@ Vagrant.configure("2") do |config|
 
     config.vm.box = "ubuntu/trusty64"
     
-    config.vm.network :private_network, ip: "192.160.12.53"
+    config.vm.network :private_network, ip: "192.160.14.15"
     config.ssh.forward_agent = true
-    config.vm.hostname = "local.pim.buehner-kalender.de"
+    config.vm.hostname = "appcms.dev"
 
 
     # If ansible is in your path it will provision from your HOST machine
