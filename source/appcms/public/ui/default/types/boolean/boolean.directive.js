@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isvalid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/boolean/boolean.html'
+                return '/ui/default/types/boolean/boolean.html'
             },
             link: function(scope, element, attrs){
 

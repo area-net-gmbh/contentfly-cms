@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/string/string.html'
+                return '/ui/default/types/string/string.html'
             },
             link: function(scope, element, attrs){
                 if(scope.value === undefined && scope.config.default != null){

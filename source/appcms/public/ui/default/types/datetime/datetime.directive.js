@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/datetime/datetime.html'
+                return '/ui/default/types/datetime/datetime.html'
             },
             link: function(scope, element, attrs){
                 //object[key] ? moment(object[key].ISO8601).toDate() : new Date();

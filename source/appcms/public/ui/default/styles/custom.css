@@ -71,6 +71,10 @@ body {
 
 }
 
+div[pim-block-extend]{
+    display:none;
+}
+
 body.emotionalBackground{
     background-image: url('../img/bg_login.jpg');
     background-size:cover;
@@ -346,16 +350,10 @@ label.optional{
     width:200px;
     height:200px;
     overflow:hidden;
-    background-size: contain;
-    background-repeat: no-repeat;
+    background-size: cover;
     background-position: center center;
     border:1px solid #999999;
 }
-
-.image-form.squareImage.image-edit{
-    background-size: cover;
-}
-
 
 
 .image-edit button{
@@ -629,15 +627,4 @@ li.grid:hover .image-edit{
     display: inline-block;
     color:#666666;
     opacity: 0.5;
-}
-
-#login .panel-footer{
-    background-color: transparent;
-    border:none;
-}
-
-#login .panel-footer, #login .panel-footer *{
-    font-size:11px;
-    color:#999999;
-    text-align: center;
 }

@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/join/join.html'
+                return '/ui/default/types/join/join.html'
             },
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;
@@ -48,7 +48,7 @@
 
                 function addNewObject(){
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
@@ -95,17 +95,12 @@
 
                 function editObject(){
 
-                    var modaltitle = 'Objekt ' + scope.value.id + ' bearbeiten';
-                    if(scope.schema.settings.labelProperty){
-                        modaltitle = scope.schema.settings.label + ' ' + (scope.value[scope.schema.settings.labelProperty] ? scope.value[scope.schema.settings.labelProperty] : 'ID' + scope.value.id) + ' bearbeiten';
-                    }
-
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
-                            title: function(){ return modaltitle; },
+                            title: function(){ return 'Objekt ' + scope.value.id + ' bearbeiten'; },
                             object: function(){ return scope.value; }
                         },
                         size: 'xl'

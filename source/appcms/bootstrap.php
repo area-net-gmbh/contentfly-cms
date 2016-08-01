@@ -82,15 +82,22 @@ if(!is_dir(__DIR__.'/../custom/Views/')){
 }
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/../custom/Views/',
+    'twig.path' =>  __DIR__.'/public/ui/default/', __DIR__.'/../custom/Views/'
 ));
+
 
 
 $app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
 
+$app['consoleManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\ConsoleManager($app);
+});
+
+$app['uiManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\UIManager($app);
+});
 
 //Config Image-Processing
-
 $queryBuilder = $app['orm.em']->createQueryBuilder();
 $queryBuilder
     ->select('thumbnailSetting')

@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/select/select.html'
+                return '/ui/default/types/select/select.html'
             },
             link: function(scope, element, attrs){
                 if((scope.value === undefined || scope.value == null) && scope.config.default != null){

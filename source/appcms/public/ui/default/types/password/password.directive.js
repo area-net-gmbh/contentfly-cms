@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', object: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/password/password.html'
+                return '/ui/default/types/password/password.html'
             },
             link: function(scope, element, attrs){
                 scope.newValue = '';

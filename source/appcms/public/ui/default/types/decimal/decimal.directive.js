@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/decimal/decimal.html'
+                return '/ui/default/types/decimal/decimal.html'
             },
             link: function(scope, element, attrs){
                 if(scope.value === undefined && scope.config.default != null){

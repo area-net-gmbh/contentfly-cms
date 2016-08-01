@@ -4,7 +4,9 @@ namespace Areanet\PIM\Classes\Controller\Provider;
 use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 abstract class BaseControllerProvider implements ControllerProviderInterface
@@ -25,7 +27,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
     protected function setUpMiddleware(Application $app)
     {
-        $app->before(function (Request $request) {
+        $app->before(function (Request $request)use ($app) {
             if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
                 $data = null;
                 if($request->getContent()) {
@@ -40,6 +42,38 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
                 //die("test");
                 //throw new \Exception("Inavlid Content-Type", 500);
             }
+
+            $event = new \Areanet\PIM\Classes\Event();
+            $event->setParam('request', $request);
+            $event->setParam('app', $app);
+
+            $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
+            $app['dispatcher']->dispatch('pim.before.'.$controllerAction, $event);
+
+            $controllerParts  = explode('.', $controllerAction);
+            array_pop($controllerParts);
+            $controller = implode('.', $controllerParts);
+            $app['dispatcher']->dispatch('pim.before.'.$controller, $event);
+
+            $app['dispatcher']->dispatch('pim.before', $event);
+        });
+
+        $app->after(function (Request $request, Response $response) use ($app) {
+
+            $event = new \Areanet\PIM\Classes\Event();
+            $event->setParam('request', $request);
+            $event->setParam('response', $response);
+            $event->setParam('app', $app);
+
+            $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
+            $app['dispatcher']->dispatch('pim.after.'.$controllerAction, $event);
+
+            $controllerParts  = explode('.', $controllerAction);
+            array_pop($controllerParts);
+            $controller = implode('.', $controllerParts);
+            $app['dispatcher']->dispatch('pim.after.'.$controller, $event);
+
+            $app['dispatcher']->dispatch('pim.after', $event);
         });
     }
 

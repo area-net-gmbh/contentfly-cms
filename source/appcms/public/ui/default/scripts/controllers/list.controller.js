@@ -99,7 +99,7 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/modal.html',
+                templateUrl: '/ui/default/views/partials/modal.html',
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function(){ return 'Eintrag löschen'; },
@@ -126,7 +126,7 @@
                             },
                             function errorCallback(response) {
                                 var modalInstance = $uibModal.open({
-                                    templateUrl: 'views/partials/modal.html',
+                                    templateUrl: '/ui/default/views/partials/modal.html',
                                     controller: 'ModalCtrl as vm',
                                     resolve: {
                                         title: function(){ return 'Fehler beim Löschen'; },
@@ -189,21 +189,12 @@
                 properties.push(vm.schema.list[key]);
             }
 
-            if(vm.schema.settings.type == 'tree'){
-                vm.schema.settings.isSortable = false;
-            }
-
             var filter = {};
             for (var key in vm.filter) {
                 if(vm.filter[key]){
                     filter[key] = vm.filter[key];
-                    if(key == 'treeParent' && vm.filter[key]){
-                        vm.schema.settings.isSortable = true;
-                    }
                 }
             }
-
-
 
             var data = {
                 entity: vm.entity,
@@ -235,6 +226,7 @@
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
+
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
                     var entity = null;
                     if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
@@ -261,9 +253,8 @@
                         if(joinSchema.settings.isSortable){
                             properties.push('sorting');
                         }
-                        
-                        for (var keySchema in joinSchema.list ) {
-                            properties.push(joinSchema.list[keySchema]);
+                        for (var key in joinSchema.list ) {
+                            properties.push(joinSchema.list[key]);
                         }
 
                         EntityService.list({entity: entity, properties: properties}).then(
@@ -276,7 +267,6 @@
                                             vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
                                         }
                                     }
-                                    console.log(key + " = " + vm.filterJoins[key]);
                                 }
                             })(entity, key),
                             function errorCallback(response) {
@@ -389,7 +379,7 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/form.html',
+                templateUrl: '/ui/default/views/form.html',
                 controller: 'FormCtrl as vm',
                 resolve: {
                     entity: function(){ return vm.entity;},

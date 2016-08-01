@@ -76,7 +76,7 @@
 
         function doDelete(id, name){
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/modal.html',
+                templateUrl: '/ui/default/views/partials/modal.html',
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function(){ return 'Datei löschen'; },
@@ -103,7 +103,7 @@
                             },
                             function errorCallback(response) {
                                 var modalInstance = $uibModal.open({
-                                    templateUrl: 'views/partials/modal.html',
+                                    templateUrl: '/ui/default/views/partials/modal.html',
                                     controller: 'ModalCtrl as vm',
                                     resolve: {
                                         title: function(){ return 'Fehler beim Löschen'; },
@@ -129,7 +129,7 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/form.html',
+                templateUrl: '/ui/default/views/form.html',
                 controller: 'FormCtrl as  vm',
                 resolve: {
                     entity: function(){ return vm.entity;},
@@ -455,7 +455,7 @@
                         var fileId = response.data.data[0].id;
 
                         var modalInstance = $uibModal.open({
-                            templateUrl: 'views/partials/modal.html',
+                            templateUrl: '/ui/default/views/partials/modal.html',
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function(){ return 'Bestehende Datei überschreiben?'; },

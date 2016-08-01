@@ -45,7 +45,7 @@
 
         function confirmPush(count, title, text, object) {
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/modal.html',
+                templateUrl: '/ui/default/views/partials/modal.html',
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function () {
@@ -97,7 +97,7 @@
                         vm.doSave = false;
 
                         var modalInstance = $uibModal.open({
-                            templateUrl: 'views/partials/modal.html',
+                            templateUrl: '/ui/default/views/partials/modal.html',
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function () {
@@ -122,18 +122,12 @@
                 EntityService.update(data).then(
                     function successCallback(response) {
                         vm.doSave = false;
-
-                        if(andClose){
-                            for(var key in objectDataToSave){
-                                vm.object[key] = objectDataToSave[key];
-                            }
-                            $uibModalInstance.close(vm.object);
-                        }
+                        if(andClose) $uibModalInstance.close(vm.object);
                     },
                     function errorCallback(response) {
                         vm.doSave = false;
                         var modalInstance = $uibModal.open({
-                            templateUrl: 'views/partials/modal.html',
+                            templateUrl: '/ui/default/views/partials/modal.html',
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function () {

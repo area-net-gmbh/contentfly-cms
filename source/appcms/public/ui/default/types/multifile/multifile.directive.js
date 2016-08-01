@@ -6,20 +6,20 @@
         .directive('pimMultifile', pimMultifile);
 
 
-    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService, $rootScope) {
+    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService) {
         return {
             restrict: 'E',
             scope: {
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function () {
-                return 'types/multifile/multifile.html'
+                return '/ui/default/types/multifile/multifile.html'
             },
             link: function (scope, element, attrs) {
 
                 //Properties
-                scope.formImageSquarePreview = $rootScope.frontend.formImageSquarePreview;
-
+                
+                
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
@@ -38,7 +38,7 @@
 
                 function addFile() {
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/files.html',
+                        templateUrl: '/ui/default/views/files.html',
                         controller: 'FilesCtrl as vm',
                         resolve: {
                             modaltitle: function () {
@@ -87,7 +87,7 @@
                 function editFile(index, id, title) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return 'PIM\\File';},

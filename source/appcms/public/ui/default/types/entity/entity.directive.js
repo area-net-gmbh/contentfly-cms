@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/entity/entity.html'
+                return '/ui/default/types/entity/entity.html'
             },
             link: function(scope, element, attrs){
                 var schema = localStorageService.get('schema')
