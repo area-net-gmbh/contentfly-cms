@@ -1207,7 +1207,7 @@ class ApiController extends BaseController
 
     protected function getSchema()
     {
-        $cacheFile = ROOT_DIR.'/data/cache/schema.cache';
+        $cacheFile = ROOT_DIR.'/../data/cache/schema.cache';
 
         if(Config\Adapter::getConfig()->APP_ENABLE_SCHEMA_CACHE){
 
