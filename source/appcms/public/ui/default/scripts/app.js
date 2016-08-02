@@ -5,8 +5,22 @@
         .module('app')
         .run(run);
 
-    function run($rootScope, $location, $cookies, localStorageService){
+    function run($rootScope, $location, $cookies, localStorageService, $http){
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
+
+            $http({
+                method: 'GET',
+                url: '/api/config'
+            }).then(function successCallback(response) {
+                if($rootScope.version != response.data.version){
+                    $rootScope.newVersion = response.data.version;
+                }else{
+                    $rootScope.newVersion = null;
+                }
+            }, function errorCallback(response) {
+                $rootScope.newVersion = null;
+            });
+
             if(next.secure){
                 //localStorageService.set('localStorageKey','Add this!');
                 if (localStorageService.get('token') == null) {

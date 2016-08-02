@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="format-detection" content="telephone=no">
-    <title>Backend</title>
+    <title>{{ frontend.title }}</title>
     <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.min.css" >
     <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.xl.css" >
     <link rel="stylesheet" href="/ui/default/styles/custom.css">
@@ -14,7 +14,7 @@
     <link rel="stylesheet prefetch" href="/ui/default/vendor/chartjs/angular-chart.min.css">
 
     {% for cssFile in cssFiles %}
-        <link rel="stylesheet prefetch" href="/custom/ui/default/styles/{{ cssFile }}">
+        <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}">
     {% endfor %}
 
     <script>
@@ -23,51 +23,74 @@
 </head>
 <body ng-class="{emotionalBackground: !userLoggedIn}">
 {% verbatim %}
+<pim-plugin key="INDEX_BODY_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <nav ng-cloak ng-show="userLoggedIn" id="pim-header" class="navbar navbar-default navbar-fixed-top devmode-{{devmode}} ">
     <div class="container-fluid">
-        <a href="#/dashboard"><img class="logo" ng-attr-src="{{frontend.customLogo ? '/custom/Resources/logo.png' : '/ui/default/img/appcms_logo.png'}}"></a>
+        <pim-plugin key="INDEX_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <a href="#/dashboard"><img class="logo" ng-attr-src="{{frontend.customLogo ? '/custom/Frontend/ui/default/img/logo.png' : '/ui/default/img/appcms_logo.png'}}"></a>
+        <pim-plugin key="INDEX_HEADER_LOGO_APPEND" uiblocks="uiblocks"></pim-plugin>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <pim-plugin key="INDEX_HEADER_NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
             <ul class="nav navbar-nav navbar-right ">
+                <li ng-show="newVersion"><a href="#/logout" class="bg-danger"><span class="glyphicon glyphicon-info-sign"></span> Neue Version {{newVersion}} verfügbar, bitte aus-/einloggen!</a></li>
+                <pim-plugin key="INDEX_HEADER_NAVIGATION_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li uib-dropdown>
                     <a href id="simple-dropdown" uib-dropdown-toggle>{{user.alias}} <span class="glyphicon glyphicon-user"></span></a>
                     <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                        <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_PREPEND" uiblocks="uiblocks"></pim-plugin>
                         <li><a class="dropdown" href="#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
+                        <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_APPEND" uiblocks="uiblocks"></pim-plugin>
                     </ul>
                 </li>
+                <pim-plugin key="INDEX_HEADER_NAVIGATION_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
+            <pim-plugin key="INDEX_HEADER_NAVIGATION_APPEND" uiblocks="uiblocks"></pim-plugin>
         </div>
+        <pim-plugin key="INDEX_HEADER_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
 </nav>
 
 <nav ng-cloak ng-show="userLoggedIn" id="pim-nav">
+    <pim-plugin key="INDEX_NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <ul>
+        <pim-plugin key="INDEX_NAVIGATION_ENTITIES_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <li><h3><span class="glyphicon glyphicon-th-large"></span>Inhalte</h3>
             <ul>
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li ng-repeat="(entity, label) in entities"><a href="#/list/{{entity}}">{{label}}</a></li>
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
+        <pim-plugin key="INDEX_NAVIGATION_MEDIA_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <li><h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
             <ul>
+                <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li><a href="#/files">Dateien</a></li>
                 <li><a href="#/list/PIM/Folder">Ordner</a></li>
-
+                <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
+        <pim-plugin key="INDEX_NAVIGATION_ADMIN_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <li ng-show="user.isAdmin"><h3><span class="glyphicon glyphicon-cog"></span>Administration</h3>
             <ul>
+                <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li><a href="#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
                 <li><a href="#/list/PIM/Log">Protokollierung</a></li>
                 <li><a href="#/list/PIM/User">Benutzer</a></li>
-                <pim-plugin key="NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
+        <pim-plugin key="INDEX_NAVIGATION_VERSION_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <li class="version">Version {{version}}</li>
-
+        <pim-plugin key="INDEX_NAVIGATION_VERSION_APPEND" uiblocks="uiblocks"></pim-plugin>
     </ul>
+    <pim-plugin key="INDEX_NAVIGATION_APPEND" uiblocks="uiblocks"></pim-plugin>
 </nav>
 
 <div id="pim-content" class="container-fluid ng-class:{ 'pim-content-login': !userLoggedIn };">
+    <pim-plugin key="INDEX_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div ng-view></div>
+    <pim-plugin key="INDEX_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin
 </div>
 
 <div class="splash" ng-cloak="">
@@ -78,6 +101,7 @@
     </div>
     <p>Anwendung wird geladen...</p>
 </div>
+<pim-plugin key="INDEX_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
 {% endverbatim %}
 <!-- Angular Files -->
 <script src="/ui/default/vendor/jquery/jquery-2.1.4.min.js"></script>
@@ -149,7 +173,7 @@
 
 <!-- Dynamic Scripts -->
 {% for jsFile in jsFiles %}
-<script src="/custom/ui/default/scripts/{{ jsFile }}"></script>
+<script src="/custom/Frontend/ui/default/scripts/{{ jsFile }}"></script>
 {% endfor %}
 </body>
 </html>

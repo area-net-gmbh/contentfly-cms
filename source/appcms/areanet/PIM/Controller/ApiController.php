@@ -74,20 +74,21 @@ class ApiController extends BaseController
      */
     public function singleAction(Request $request)
     {
+
         $data = array();
 
         $entityName = $request->get('entity');
-        $id     = $request->get('id');
+        $id = $request->get('id');
 
-        if(substr($entityName, 0, 3) == 'PIM'){
-            $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }else{
+        if (substr($entityName, 0, 3) == 'PIM') {
+            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
+        } else {
             $entityName = ucfirst($request->get('entity'));
-            $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
+            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
         $object = $this->em->getRepository($entityNameToLoad)->find($id);
-        if(!$object){
+        if (!$object) {
             return new JsonResponse(array('message' => "Object not found"), 404);
         }
 
@@ -107,6 +108,7 @@ class ApiController extends BaseController
         }*/
 
         return new JsonResponse(array('message' => "singleAction", 'data' => $object));
+
     }
 
     /**
@@ -549,6 +551,14 @@ class ApiController extends BaseController
 
         $schema = $this->getSchema();
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
+
         /**
          * Log delete actions
          */
@@ -567,6 +577,14 @@ class ApiController extends BaseController
 
         $this->em->persist($log);
         $this->em->flush();
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
 
         return new JsonResponse(array('message' => 'deleteAction: '.$id));
     }
@@ -694,6 +712,14 @@ class ApiController extends BaseController
         $entityName          = ucfirst($request->get('entity'));
         $data                = $request->get('data');
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.before.insert', $event);
+
         try {
             $object = $this->insert($entityName, $data, $app['auth.user']);
         }catch(EntityDuplicateException $e){
@@ -701,6 +727,14 @@ class ApiController extends BaseController
         }catch(Exception $e){
             return new JsonResponse(array('message' => $e->getMessage()), $e->getCode());
         }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('object',  $object);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
         return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => ($object)));
     }
@@ -814,6 +848,7 @@ class ApiController extends BaseController
             if(!$uniqueObjectLoaded) throw new Exception("Unbekannter Fehler", 500);
         }
 
+
         return $object;
     }
 
@@ -849,6 +884,15 @@ class ApiController extends BaseController
         $data                = $request->get('data');
         $disableModifiedTime = $request->get('disableModifiedTime');
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.before.udpdate', $event);
+
         try{
             $this->update($entityName, $id, $data, $disableModifiedTime, $app['auth.user']);
         }catch(EntityDuplicateException $e){
@@ -856,6 +900,15 @@ class ApiController extends BaseController
         }catch(EntityNotFoundException $e){
             return new JsonResponse(array('message' => "Not found"), 404);
         }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
 
         return new JsonResponse(array('message' => 'updateAction', 'id' => $id));
 
@@ -1199,10 +1252,14 @@ class ApiController extends BaseController
 
         $frontend = array(
             'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,
-            'formImageSquarePreview' => Config\Adapter::getConfig()->FRONTEND_FORM_IMAGE_SQUARE_PREVIEW
+            'formImageSquarePreview' => Config\Adapter::getConfig()->FRONTEND_FORM_IMAGE_SQUARE_PREVIEW,
+            'title'  => Config\Adapter::getConfig()->FRONTEND_TITLE,
+            'welcome'  => Config\Adapter::getConfig()->FRONTEND_WELCOME,
         );
 
-        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
+        $uiblocks = $this->app['uiManager']->getBlocks();
+
+        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
     }
 
     protected function getSchema()

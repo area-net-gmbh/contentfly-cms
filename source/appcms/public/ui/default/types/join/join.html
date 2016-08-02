@@ -1,4 +1,5 @@
-<label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}}</label>
+<pim-plugin key="TYPE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}} <pim-plugin key="TYPE_LABEL_APPEND" uiblocks="uiblocks"></pim-plugin></label>
 <div class="col-sm-10">
     <div ng-hide="config.readonly">
         <button type="button" class="btn btn-default btn-sm" ng-hide="chooserOpened" ng-click="openChooser()">Auswählen</button>
@@ -37,6 +38,7 @@
         </div>
     </div>
     <div>
+        <pim-plugin key="TYPE_FIELD_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <table ng-show="value.id" ng-hide="chooserOpened" class="join col-sm-12"  >
             <thead ng-show="value.id">
                 <tr>
@@ -56,6 +58,8 @@
                 </tr>
             </tbody>
         </table>
+        <pim-plugin key="TYPE_FIELD_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
 
 </div>
+<pim-plugin key="TYPE_APPEND" uiblocks="uiblocks"></pim-plugin>

@@ -43,37 +43,43 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
                 //throw new \Exception("Inavlid Content-Type", 500);
             }
 
-            $event = new \Areanet\PIM\Classes\Event();
-            $event->setParam('request', $request);
-            $event->setParam('app', $app);
+            if(!is_object($request->get('_controller'))) {
+                $event = new \Areanet\PIM\Classes\Event();
+                $event->setParam('request', $request);
+                $event->setParam('app', $app);
+                $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
+                if (empty($controllerAction)) {
+                    return;
+                }
 
-            $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
-            $app['dispatcher']->dispatch('pim.before.'.$controllerAction, $event);
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.before.' . $controllerParts[0] . '.' . $controllerParts[2], $event);
 
-            $controllerParts  = explode('.', $controllerAction);
-            array_pop($controllerParts);
-            $controller = implode('.', $controllerParts);
-            $app['dispatcher']->dispatch('pim.before.'.$controller, $event);
-
-            $app['dispatcher']->dispatch('pim.before', $event);
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.before.' . $controllerParts[0], $event);
+                $app['dispatcher']->dispatch('pim.controller.before', $event);
+            }
         });
 
         $app->after(function (Request $request, Response $response) use ($app) {
 
-            $event = new \Areanet\PIM\Classes\Event();
-            $event->setParam('request', $request);
-            $event->setParam('response', $response);
-            $event->setParam('app', $app);
+            if(!is_object($request->get('_controller'))) {
+                $event = new \Areanet\PIM\Classes\Event();
+                $event->setParam('request', $request);
+                $event->setParam('response', $response);
+                $event->setParam('app', $app);
 
-            $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
-            $app['dispatcher']->dispatch('pim.after.'.$controllerAction, $event);
+                $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
+                if (empty($controllerAction)) {
+                    return;
+                }
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.after.' . $controllerParts[0] . '.' . $controllerParts[2], $event);
 
-            $controllerParts  = explode('.', $controllerAction);
-            array_pop($controllerParts);
-            $controller = implode('.', $controllerParts);
-            $app['dispatcher']->dispatch('pim.after.'.$controller, $event);
-
-            $app['dispatcher']->dispatch('pim.after', $event);
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.after.' . $controllerParts[0], $event);
+                $app['dispatcher']->dispatch('pim.controller.after', $event);
+            }
         });
     }
 

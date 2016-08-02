@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Controller;
 
+use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Entity\User;
 
@@ -32,10 +33,14 @@ class UiController extends BaseController
             $cssFilesToInclude[] = $cssFile;
         }
 
-        return $this->app['twig']->render('index.twig', array(
+        return $this->app['twig']->render('app.twig', array(
             'script'   => $dynInlineScript,
             'jsFiles'  => $jsFilesToInclude,
-            'cssFiles' => $cssFilesToInclude
+            'cssFiles' => $cssFilesToInclude,
+            'frontend' => array(
+                'title' => Config\Adapter::getConfig()->FRONTEND_TITLE,
+                'welcome' => Config\Adapter::getConfig()->FRONTEND_WELCOME
+            )
         ));
         //return $this->app->redirect('ui/default', 303);
     }

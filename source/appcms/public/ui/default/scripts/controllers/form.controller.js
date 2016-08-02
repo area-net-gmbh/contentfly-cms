@@ -183,7 +183,33 @@
                     vm.object = response.data.data;
                     vm.isLoading = false;
                 },
-                function(){}
+                function(data){
+                    console.log(data);
+                    var modalInstance = $uibModal.open({
+                        templateUrl: '/ui/default/views/partials/modal.html',
+                        controller: 'ModalCtrl as vm',
+                        resolve: {
+                            title: function () {
+                                return data.statusText;
+                            },
+                            body: function () {
+                                return data.data.message;
+                            },
+                            hideCancelButton: function () {
+                                return false;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(
+                        function(doDelete) {
+                            $uibModalInstance.close();
+                        },
+                        function(){
+                            $uibModalInstance.close();
+                        }
+                    );
+                }
             );
         }
 

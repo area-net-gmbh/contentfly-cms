@@ -29,14 +29,14 @@ $app->error(function (\Exception $e, $code) use($app) {
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $code);
             }else{
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $code);
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $code);
             }
 
         }else{
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId), $code);
             }else{
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $code);
+                return $app->json(array("message" => 'Es ist ein Fehler aufgetreten. Bitte informieren Sie Ihren Administrator.', "type" => get_class($e)), $code);
             }
 
         }
@@ -44,9 +44,7 @@ $app->error(function (\Exception $e, $code) use($app) {
 
 });
 
-$app->get('/', 'ui.controller:showAction');
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
-
 
 $app->mount('/api', new \Areanet\PIM\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));
 $app->mount('/auth', new \Areanet\PIM\Classes\Controller\Provider\Base\AuthControllerProvider('/auth'));

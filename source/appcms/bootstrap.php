@@ -82,7 +82,7 @@ if(!is_dir(__DIR__.'/../custom/Views/')){
 }
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' =>  __DIR__.'/public/ui/default/', __DIR__.'/../custom/Views/'
+    'twig.path' =>   array(__DIR__.'/../custom/Views/', __DIR__.'/public/ui/default/')
 ));
 
 

@@ -50,7 +50,7 @@
 
         for (var route in uiRoutes){
             $routeProvider.when(route, {
-                templateUrl: '/custom/ui/default/views/' + uiRoutes[route]['templateName'],
+                templateUrl: '/custom/Frontend/ui/default/views/' + uiRoutes[route]['templateName'],
                 controller: uiRoutes[route]['controllerName'] + ' as vm',
                 secure: uiRoutes[route]['secure']
             })

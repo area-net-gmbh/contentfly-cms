@@ -359,6 +359,7 @@
             }).then(function successCallback(response) {
                 localStorageService.set('schema', response.data.data);
                 localStorageService.set('devmode', response.data.devmode);
+                localStorageService.set('uiblocks', response.data.uiblocks);
                 vm.schema = response.data.data[vm.entity];
                 loadData();
             }, function errorCallback(response) {
