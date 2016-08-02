@@ -1,15 +1,15 @@
-# BÜHNER-PIM V1.1
+# APP-CMS
 
-## 1. Setup!
+## Startuo
 
 * vagrant up (Vagrant-Installation siehe unten)
 * vagrant ssh
 ```
-> cd /vagrant/source
+> cd /vagrant/source/appcms
 > php vendor/bin/doctrine orm:schema:update --force
 ```
-* http://local.dev.buehner-kalender.de/setup 
-* http://local.dev.buehner-kalender.de/ (admin|admin)
+* http://appcms.dev/setup 
+* http://appcms.dev (admin|admin)
 
 ## API-Doc
 
