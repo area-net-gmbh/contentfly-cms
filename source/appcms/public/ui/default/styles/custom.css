@@ -65,6 +65,10 @@
     clear:both;
 }
 
+.alignRight{
+    text-align: right;
+}
+
 body {
     padding-top: 70px;
     background-color:#F2F4F9;
@@ -108,6 +112,7 @@ body.emotionalBackground{
     width:200px;
     z-index:30;
     padding-top:36px;
+    overflow: scroll;
 }
 
 #pim-nav ul{

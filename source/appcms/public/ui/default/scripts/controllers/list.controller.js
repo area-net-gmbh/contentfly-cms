@@ -71,7 +71,6 @@
         vm.closeFilter          = closeFilter;
         vm.delete               = doDelete;
         vm.executeFilter        = executeFilter;
-        vm.loadSchema           = loadSchema;
         vm.openForm             = openForm;
         vm.paginationChanged    = paginationChanged;
         vm.resetFilter          = resetFilter;
@@ -348,25 +347,7 @@
 
             }
         }
-
-
-        function loadSchema(){
-            //todo: Schema-Service
-            $http({
-                method: 'GET',
-                url: '/api/schema',
-                headers: { 'X-Token': localStorageService.get('token') },
-            }).then(function successCallback(response) {
-                localStorageService.set('schema', response.data.data);
-                localStorageService.set('devmode', response.data.devmode);
-                localStorageService.set('uiblocks', response.data.uiblocks);
-                vm.schema = response.data.data[vm.entity];
-                loadData();
-            }, function errorCallback(response) {
-                vm.error = response.data.message;
-            });
-        }
-
+        
         function openForm(object){
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;

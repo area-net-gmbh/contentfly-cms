@@ -35,6 +35,11 @@
                 resolve: { pimEntity: function(){return true;} },
                 secure: true
             })
+            .when('/settings', {
+                templateUrl: '/ui/default/views/settings.html',
+                controller: 'SettingsCtrl as vm',
+                secure: true
+            })
             .when('/files', {
                 templateUrl: '/ui/default/views/files.html',
                 controller: 'FilesCtrl as vm',

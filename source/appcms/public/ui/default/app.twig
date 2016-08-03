@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ frontend.title }}</title>
     <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.min.css" >
     <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.xl.css" >
@@ -77,6 +78,7 @@
                 <li><a href="#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
                 <li><a href="#/list/PIM/Log">Protokollierung</a></li>
                 <li><a href="#/list/PIM/User">Benutzer</a></li>
+                <li><a href="#/settings">Einstellungen</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
@@ -170,6 +172,7 @@
 <script src="/ui/default/scripts/controllers/form.controller.js"></script>
 <script src="/ui/default/scripts/controllers/files.controller.js"></script>
 <script src="/ui/default/scripts/controllers/dashboard.controller.js"></script>
+<script src="/ui/default/scripts/controllers/settings.controller.js"></script>
 
 <!-- Dynamic Scripts -->
 {% for jsFile in jsFiles %}

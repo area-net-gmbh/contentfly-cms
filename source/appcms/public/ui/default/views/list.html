@@ -86,10 +86,7 @@
         <pim-plugin key="LIST_HEADER_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
 
-    <div class="col-sm-1">
-        <button ng-show="devmode" class="btn btn-default btn-sm" ng-click="vm.loadSchema()">Reload Schema</button>
-    </div>
-    <div class="col-sm-1" >
+    <div class="col-sm-2 alignRight">
         <button ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" class="btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt anlegen</button>
     </div>
 </div>
