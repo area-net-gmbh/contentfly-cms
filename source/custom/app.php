@@ -25,7 +25,6 @@ $app['dispatcher']->addListener('pim.entity.after.insert', function (\Areanet\PI
 });
 
 $app->get('/', function () use ($app) {
-
     return $app['twig']->render('index.twig', array(
         'foo' => 'bar'
     ));

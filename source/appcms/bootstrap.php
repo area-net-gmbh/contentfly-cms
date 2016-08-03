@@ -63,8 +63,8 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
                 'path' => __DIR__.'/../custom/Entity',
                 'use_simple_annotation_reader' => false
             ),
-        ),
-    ),
+        )
+    )
 ));
 
 
