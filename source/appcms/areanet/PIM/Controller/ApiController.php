@@ -496,6 +496,11 @@ class ApiController extends BaseController
                         }
                         $objectData->$key = $multiData;
                     }
+
+                    if (isset($config['type']) && $config['type'] == 'join') {
+                        $getterName = 'get' . ucfirst($key);
+                        $objectData->$key = $object->$getterName();
+                    }
                 }
             }
 
@@ -774,6 +779,7 @@ class ApiController extends BaseController
         }
 
         if($object instanceof Base){
+            $object->setUserCreated($user);
             $object->setUser($user);
         }
 
@@ -1286,6 +1292,7 @@ class ApiController extends BaseController
         $entities[] = "PIM\\Folder";
         $entities[] = "PIM\\Tag";
         $entities[] = "PIM\\User";
+        $entities[] = "PIM\\Group";
         $entities[] = "PIM\\Log";
         $entities[] = "PIM\\PushToken";
         $entities[] = "PIM\\ThumbnailSetting";
@@ -1378,8 +1385,11 @@ class ApiController extends BaseController
                 }
                 krsort($allPropertyAnnotations);
 
+                $lastMatchedPriority = -1;
+
                 foreach(TypeManager::getTypes() as $type){
-                    if($type->doMatch($allPropertyAnnotations)){
+                    if($type->doMatch($allPropertyAnnotations) && $type->getPriority() >= $lastMatchedPriority){
+
                         $propertySchema                 = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations);
                         $properties[$prop->getName()]   = $propertySchema;
 
@@ -1390,6 +1400,8 @@ class ApiController extends BaseController
                         if($prop->getName() == 'treeParent'){
                             $properties[$prop->getName()]['accept'] = $className;
                         }
+
+                        $lastMatchedPriority = $type->getPriority();
                         
                     }
                 }

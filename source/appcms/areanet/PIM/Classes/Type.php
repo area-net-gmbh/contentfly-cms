@@ -23,6 +23,11 @@ abstract class Type
         $this->em   = $em;
     }
 
+    public function getPriority()
+    {
+        return 0;
+    }
+
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);

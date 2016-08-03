@@ -91,27 +91,7 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' =>   array(__DIR__.'/../custom/Views/', __DIR__.'/public/ui/default/')
 ));
 
-
-
-$app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
-
-$app['consoleManager'] = $app->share(function ($app) {
-    return new \Areanet\PIM\Classes\Manager\ConsoleManager($app);
-});
-
-$app['uiManager'] = $app->share(function ($app) {
-    return new \Areanet\PIM\Classes\Manager\UIManager($app);
-});
-
 //Config Image-Processing
-$queryBuilder = $app['orm.em']->createQueryBuilder();
-$queryBuilder
-    ->select('thumbnailSetting')
-    ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting')
-    ->where("thumbnailSetting.isDeleted = false");
-$query   = $queryBuilder->getQuery();
-$thumbnailSettings = $query->getResult();
-
 
 $app['thumbnailSettings'] = function ($app) {
     $queryBuilder = $app['orm.em']->createQueryBuilder();
@@ -132,6 +112,18 @@ foreach(Config\Adapter::getConfig()->FILE_PROCESSORS as $fileProcessorSetting){
 
     Areanet\PIM\Classes\File\Processing::registerProcessor($fileProcessor);
 }
+
+$app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
+
+$app['consoleManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\ConsoleManager($app);
+});
+
+$app['uiManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\UIManager($app);
+});
+
+
 
 //Config Spatial ORM-Types
 Doctrine\DBAL\Types\Type::addType('point', '\Areanet\PIM\Classes\ORM\Spatial\PointType');

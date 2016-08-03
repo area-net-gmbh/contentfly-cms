@@ -4,7 +4,7 @@ namespace Custom\Traits;
 trait User{
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(showInList=40, label="Firma")
      */
     protected $company;

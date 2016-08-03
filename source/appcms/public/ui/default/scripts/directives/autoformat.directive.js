@@ -31,16 +31,17 @@
                             element.text(scope.object[property] ? 'Ja' : 'Nein');
                             break;
                         case 'join':
+
                             var fullEntity    = scope.schema.properties[property].accept.split('\\');
                             var entity        = fullEntity[(fullEntity.length - 1)];
                             if(fullEntity[0] == 'Areanet'){
                                 entity = 'PIM\\' + entity;
                             }
-                            var joinSchema    = localStorageService.get('schema')[entity];
 
+                            var joinSchema    = localStorageService.get('schema')[entity];
+                        
                             if(scope.object[property]){
                                 var firstProperty = joinSchema.list[Object.keys(joinSchema.list)[0]];
-                            
                                 element.text(scope.object[property][firstProperty]);
                             }
                             break;

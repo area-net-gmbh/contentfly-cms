@@ -252,8 +252,8 @@
                         if(joinSchema.settings.isSortable){
                             properties.push('sorting');
                         }
-                        for (var key in joinSchema.list ) {
-                            properties.push(joinSchema.list[key]);
+                        for (var key2 in joinSchema.list ) {
+                            properties.push(joinSchema.list[key2]);
                         }
 
                         EntityService.list({entity: entity, properties: properties}).then(

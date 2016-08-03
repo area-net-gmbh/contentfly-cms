@@ -8,6 +8,11 @@ use Areanet\PIM\Entity\Base;
 
 class SelectType extends Type
 {
+    public function getPriority()
+    {
+        return 10;
+    }
+    
     public function getAlias()
     {
         return 'select';

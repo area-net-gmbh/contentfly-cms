@@ -21,6 +21,13 @@ class User extends Base implements \JsonSerializable
     protected $isAdmin;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Group")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
+     * @PIM\Config(showInList=80, label="Gruppe", isFilterable=true)
+     */
+    protected $group;
+
+    /**
      * @ORM\Column(type="string", length=100, unique=true)
      * @PIM\Config(showInList=30, label="Benutzer")
      */
@@ -37,7 +44,7 @@ class User extends Base implements \JsonSerializable
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(showInList=10, label="Aktiv")
      */
-    protected $isActive;
+    protected $isActive = true;
 
     /**
      * @ORM\Column(type="string", length=100)
@@ -146,6 +153,22 @@ class User extends Base implements \JsonSerializable
         $this->isActive = $isActive;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
+    }
+
 
 
 
@@ -162,6 +185,7 @@ class User extends Base implements \JsonSerializable
             'alias' => $this->alias,
             'isActive' => $this->isActive,
             'isAdmin' => $this->isAdmin,
+            'group' => $this->getGroup(),
             'id' => $this->id
         );
     }

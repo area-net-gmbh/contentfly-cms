@@ -55,6 +55,13 @@ class Base extends Serializable
     protected $user;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
+     * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id")
+     * @PIM\Config(label="erstellt von", hide=true)
+     */
+    protected $userCreated;
+    
+    /**
      * @ORM\Column(type="boolean")
      * @PIM\Config(hide=true)
      */
@@ -160,6 +167,23 @@ class Base extends Serializable
         $this->user = $user;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getUserCreated()
+    {
+        return $this->userCreated;
+    }
+
+    /**
+     * @param mixed $userCreated
+     */
+    public function setUserCreated($userCreated)
+    {
+        $this->userCreated = $userCreated;
+    }
+
+    
     /**
      * @return mixed
      */

@@ -17,7 +17,7 @@
             },
             link: function(scope, element, attrs){
                 scope.newValue = '';
-
+                
                 scope.$watch('newValue',function(data){
                     if(scope.newValue){
                         scope.onChangeCallback({key: scope.key, value: scope.newValue});
