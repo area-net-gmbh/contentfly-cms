@@ -25,6 +25,13 @@ $app['dispatcher']->addListener('pim.entity.after.insert', function (\Areanet\PI
 });
 
 $app->get('/', function () use ($app) {
+
+    
+
+    $products = $app['orm.em']->getRepository('Custom\Entity\Produkt')->findBy(array('isDeleted' => false));
+    foreach($products as $product){
+        die($product->getUser()->getAlias());
+    }
     return $app['twig']->render('index.twig', array(
         'foo' => 'bar'
     ));

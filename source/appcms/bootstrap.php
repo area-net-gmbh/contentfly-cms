@@ -45,6 +45,11 @@ $app->register(new ConsoleServiceProvider(), array(
     'console.project_directory' => __DIR__
 ));
 
+$app['entityResolver'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\ORM\EntityResolver();
+});
+
+
 
 $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
     'orm.proxies_dir' => __DIR__.'/../data/cache/doctrine',
@@ -66,6 +71,7 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
         )
     )
 ));
+
 
 
 foreach(Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType){

@@ -46,6 +46,7 @@ class Config{
      * @var string $DB_NESTED_LEVELS Loading x nested levels
      */
     public $DB_NESTED_LEVELS  = 3;
+    
 
     /**
      * @var boolean Enable Schema Cache

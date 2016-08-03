@@ -12,6 +12,8 @@ use Areanet\PIM\Classes\Annotations as PIM;
 class User extends Base implements \JsonSerializable
 {
     
+    use \Custom\Traits\User;
+    
     /**
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(showInList=20, label="Admin")
