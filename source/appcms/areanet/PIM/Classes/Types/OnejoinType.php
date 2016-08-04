@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
@@ -39,9 +40,11 @@ class OnejoinType extends Type
         $schema['accept']   = $one2Oneentity;
         $schema['multiple'] = false;
         $schema['tab']      = $one2Oneentity;
+        
+        if(Permission::isReadable($this->app['auth.user'], $one2Oneentity)){
+            $this->addTab($one2Oneentity, array('title' => $schema['label'], 'onejoin' => true, 'onejoin_field' => $key));
+        }
 
-        $this->addTab($one2Oneentity, array('title' =>  $schema['label'], 'onejoin' => true, 'onejoin_field' => $key));
-                
         return $schema;
     }
 

@@ -99,10 +99,9 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\JoinType',
         '\\Areanet\\PIM\\Classes\\Types\\FileType',
         '\\Areanet\\PIM\\Classes\\Types\\MultifileType',
-        '\\Areanet\\PIM\\Classes\\Types\\MultijoinType'
+        '\\Areanet\\PIM\\Classes\\Types\\MultijoinType',
+        '\\Areanet\\PIM\\Classes\\Types\\PermissionsType'
     );
-
-
 
     /**
      * @var string Load Frontend UI in folder /ui/...

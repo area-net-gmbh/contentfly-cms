@@ -69,6 +69,10 @@
     text-align: right;
 }
 
+.alignCenter{
+    text-align: center;
+}
+
 body {
     padding-top: 70px;
     background-color:#F2F4F9;
@@ -547,6 +551,63 @@ li.grid:hover .image-edit{
 
 .header-analytics{
     margin-bottom: 20px;
+}
+
+/** permission **/
+.permission{
+    width:100%;
+    border-collapse: collapse;
+}
+
+.permission th{
+    background-color:#eaedf2;
+}
+
+.permission th, .permission td{
+    border-top: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+    padding:2px;
+}
+
+.permission tbody tr:hover{
+    background-color:#efefef;
+}
+
+.permission tbody tr:hover td.permission-label{
+    font-weight: bold;
+}
+
+.permission select{
+    width:100px;
+    display:inline-block;
+    background-color: transparent;
+}
+
+.permission-button{
+    text-align: center;
+    cursor:pointer;
+    border-right: 2px solid #FFFFFF;
+    width:80px;
+}
+
+.permission-button span{
+    color: #FFFFFF;
+}
+
+.permission-button:hover{
+    opacity: 0.8;
+}
+
+.permission-0{
+    background-color: #d43f3a;
+}
+
+.permission-1{
+    background-color:#f25801;
+}
+
+.permission-2{
+    background-color: #396000;
 }
 
 /** CHOOSER **/

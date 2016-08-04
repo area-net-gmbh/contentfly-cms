@@ -10,9 +10,7 @@ define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'defau
 
 use Silex\Application;
 use \Areanet\PIM\Classes\Config;
-
 use Knp\Provider\ConsoleServiceProvider;
-
 
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/Config.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
@@ -73,9 +71,8 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
 ));
 
 
-
 foreach(Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType){
-    $typeClass = new $systemType($app['orm.em']);
+    $typeClass = new $systemType($app);
     if($typeClass->getAnnotationFile()){
         \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/'.$typeClass->getAnnotationFile().'.php');
     }

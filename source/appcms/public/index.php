@@ -20,6 +20,13 @@ $app['setup.controller'] = $app->share(function() use ($app) {
 $app->get('/setup', "setup.controller:setupAction");
 
 
+use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\Debug\ExceptionHandler;
+
+ExceptionHandler::register();
+ErrorHandler::register();
+
+
 $app->error(function (\Exception $e, $code) use($app) {
     if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
         return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 404));
@@ -29,7 +36,7 @@ $app->error(function (\Exception $e, $code) use($app) {
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $code);
             }else{
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $code);
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $code);
             }
 
         }else{

@@ -163,10 +163,12 @@
         function init(){
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
+
                     vm.schemaOnejoin[config.tab] = schemaComplete[config.tab];
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
             });
+
 
             if(!object || !object.id){
                 vm.isLoading = false;

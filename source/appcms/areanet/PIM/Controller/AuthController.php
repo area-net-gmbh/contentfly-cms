@@ -74,7 +74,7 @@ class AuthController extends BaseController
         $this->em->persist($token);
         $this->em->flush();
 
-        return new JsonResponse(array('message' => 'Login successful', 'token' => $token->getToken(), 'user' => array('alias' => $user->getAlias(), 'isAdmin' => $user->getIsAdmin())));
+        return new JsonResponse(array('message' => 'Login successful', 'token' => $token->getToken(), 'user' => array('alias' => $user->getAlias(), 'group' => $user->getGroup(), 'isAdmin' => $user->getIsAdmin())));
     }
 
     /**

@@ -1,0 +1,34 @@
+<pim-plugin key="TYPE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<div class="col-sm-12">
+    <table class="permission">
+        <thead>
+            <tr>
+                <th>Objekt</th>
+                <th class="alignCenter">Lesen</th>
+                <th class="alignCenter">Bearbeiten</th>
+                <th class="alignCenter">Löschen</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="config in matrix | orderBy:'label'">
+                <td class="permission-label">{{config.label}}</td>
+                <td class="permission-button  permission-{{config.readable}}" ng-click="changePermission(config.index, 'readable')">
+                    <span ng-show="config.readable == 0">nein</span>
+                    <span ng-show="config.readable == 1">eigene</span>
+                    <span ng-show="config.readable == 2">alle</span>
+                </td>
+                <td class="permission-button permission-{{config.writable}}" ng-click="changePermission(config.index, 'writable')">
+                    <span ng-show="config.writable == 0">nein</span>
+                    <span ng-show="config.writable == 1">eigene</span>
+                    <span ng-show="config.writable == 2">alle</span>
+                </td>
+                <td class="permission-button permission-{{config.deletable}}" ng-click="changePermission(config.index, 'deletable')">
+                    <span ng-show="config.deletable == 0">nein</span>
+                    <span ng-show="config.deletable == 1">eigene</span>
+                    <span ng-show="config.deletable == 2">alle</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<pim-plugin key="TYPE_APPEND" uiblocks="uiblocks"></pim-plugin>

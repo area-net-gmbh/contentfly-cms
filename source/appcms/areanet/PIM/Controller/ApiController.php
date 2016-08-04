@@ -12,6 +12,7 @@ use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\File\Processing\Standard;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Classes\TypeManager;
 use Areanet\PIM\Entity\Base;
@@ -1300,6 +1301,7 @@ class ApiController extends BaseController
         $data     = array();
 
         foreach($entities as $entity){
+            
             if(substr($entity,0,3) == "PIM"){
                 $className = 'Areanet\PIM\Entity\\'.substr($entity, 4);
             }else{
@@ -1327,7 +1329,8 @@ class ApiController extends BaseController
                 'isSortable' => false,
                 'labelProperty' => null,
                 'type' => 'default',
-                'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false))
+                'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false)),
+                'readable' => Permission::isReadable($this->app['auth.user'], $entity)
             );
 
             if($object instanceof BaseSortable){

@@ -234,6 +234,10 @@
                         entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     }
 
+                    if(!localStorageService.get('schema')[entity].settings.readable){
+                        continue;
+                    }
+
                     if(localStorageService.get('schema')[entity].settings.type == 'tree') {
 
                         EntityService.tree({entity: entity}).then(
@@ -282,6 +286,10 @@
                     }
 
                     var field = key;
+
+                    if(!localStorageService.get('schema')[entity].settings.readable){
+                        continue;
+                    }
 
                     if(localStorageService.get('schema')[entity].settings.type == 'tree'){
 

@@ -66,8 +66,8 @@
         <li><h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
             <ul>
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li><a href="#/files">Dateien</a></li>
-                <li><a href="#/list/PIM/Folder">Ordner</a></li>
+                <li ng-show="schema['PIM\\File'].settings.readable"><a href="#/files">Dateien</a></li>
+                <li ng-show="schema['PIM\\Folder'].settings.readable"><a href="#/list/PIM/Folder">Ordner</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
@@ -153,6 +153,7 @@
 <script src="/ui/default/types/entity/entity.directive.js"></script>
 <script src="/ui/default/types/matrixchooser/matrixchooser.directive.js"></script>
 <script src="/ui/default/types/select/select.directive.js"></script>
+<script src="/ui/default/types/permissions/permissions.directive.js"></script>
 
 <!-- App Directives -->
 <script src="/ui/default/scripts/directives/form.directive.js"></script>

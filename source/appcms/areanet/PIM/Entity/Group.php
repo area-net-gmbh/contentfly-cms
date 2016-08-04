@@ -7,7 +7,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_group")
- * @PIM\Config(label="Gruppe")
+ * @PIM\Config(label="Gruppe", tabs="{'permissions': 'Berechtigungen'}")
  */
 class Group extends Base
 {
@@ -18,6 +18,13 @@ class Group extends Base
      * @PIM\Config(showInList=30, label="Name")
      */
     protected $name;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Areanet\PIM\Entity\Permission", mappedBy="group")
+     * @PIM\Config(tab="permissions", label="Berechtigungen")
+     * @PIM\Permissions()
+     */
+    protected $permissions;
 
     /**
      * @return mixed
@@ -34,6 +41,24 @@ class Group extends Base
     {
         $this->name = $name;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
+
+    /**
+     * @param mixed $permissions
+     */
+    public function setPermissions($permissions)
+    {
+        $this->permissions = $permissions;
+    }
+
+
 
     
 

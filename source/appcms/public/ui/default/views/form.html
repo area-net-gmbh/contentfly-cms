@@ -37,7 +37,7 @@
     <uib-tabset active="active" ng-hide="vm.isLoading">
         <pim-plugin key="FORM_TAB_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <uib-tab  ng-repeat="(tabKey, tab) in vm.schema.settings.tabs" index="$index">
-            <uib-tab-heading ng-class="{tabInvalid: tabInvalid && vm.isSubmit}">
+            <uib-tab-heading ng-class="{tabInvalid: tabInvalid && vm.isSubmit}" >
                 <pim-plugin key="FORM_TAB_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>{{tab.title}} <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"><pim-plugin key="FORM_TAB_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin></span>
             </uib-tab-heading>
 

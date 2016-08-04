@@ -41,12 +41,7 @@ class ApiControllerProvider extends BaseControllerProvider
         $controllers->post('/update', "api.controller:updateAction")->before($checkAuth);
         $controllers->post('/multiupdate', "api.controller:multiupdateAction")->before($checkAuth);
         $controllers->post('/insert', "api.controller:insertAction")->before($checkAuth);
-
-        if(Config\Adapter::getConfig()->APP_DEBUG){
-            $controllers->get('/schema', "api.controller:schemaAction");
-        }else{
-            $controllers->get('/schema', "api.controller:schemaAction")->before($checkAuth);
-        }
+        $controllers->get('/schema', "api.controller:schemaAction")->before($checkAuth);
 
         $controllers->get('/config', "api.controller:configAction");
 

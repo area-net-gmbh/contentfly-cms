@@ -7,6 +7,7 @@ use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\User;
 use Doctrine\ORM\EntityManager;
+use Silex\Application;
 
 abstract class Type
 {
@@ -15,12 +16,16 @@ abstract class Type
     /** @var EntityManager $em */
     protected $em;
 
+    /** @var Application $app */
+    protected $app;
+
     public $insertCallback = null;
     public $updateCallback = null;
 
-    public function __construct(EntityManager $em)
+    public function __construct(Application $app)
     {
-        $this->em   = $em;
+        $this->em   = $app['orm.em'];
+        $this->app  = $app;
     }
 
     public function getPriority()
