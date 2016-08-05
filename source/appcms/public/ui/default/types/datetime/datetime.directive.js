@@ -6,7 +6,7 @@
         .directive('pimDatetime', pimDatetime);
 
 
-    function pimDatetime(){
+    function pimDatetime(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,7 +16,9 @@
                 return '/ui/default/types/datetime/datetime.html'
             },
             link: function(scope, element, attrs){
-                //object[key] ? moment(object[key].ISO8601).toDate() : new Date();
+
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 scope.dateValue = scope.value ? moment(scope.value.ISO8601).toDate() : null;
                 scope.isOpened  = false;
 

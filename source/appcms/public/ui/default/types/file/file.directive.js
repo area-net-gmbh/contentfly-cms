@@ -18,14 +18,20 @@
             link: function(scope, element, attrs){
 
                 //Properties
-                scope.fileUpload    = {};
                 scope.errorMsg      = null;
+                scope.fileUpload    = {};
+                scope.readable      = true;
+                scope.uploadable    = true;
 
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
                 scope.removeFile    = removeFile;
                 scope.uploadFile    = uploadFile;
+
+
+                //Startup
+                init();
 
                 /////////////////////////
 
@@ -122,6 +128,15 @@
                         },
                         function () {}
                     );
+                }
+
+                function init(){
+                    var permissions = localStorageService.get('permissions')
+
+                    scope.readable   = permissions['PIM\\File'].readable;
+                    scope.uploadable = permissions['PIM\\File'].writable;
+                    scope.writable   = parseInt(attrs.writable) > 0;
+                    
                 }
 
                 function removeFile () {

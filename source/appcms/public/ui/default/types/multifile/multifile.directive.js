@@ -10,7 +10,7 @@
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', value: '=',  isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function () {
                 return '/ui/default/types/multifile/multifile.html'
@@ -18,8 +18,9 @@
             link: function (scope, element, attrs) {
 
                 //Properties
-                
-                
+                scope.readable      = true;
+                scope.uploadable    = true;
+
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
@@ -33,6 +34,9 @@
                     },
                     disabled:!scope.config.sortable
                 };
+
+                //Startup
+                init();
 
                 ///////////////////////////
 
@@ -147,6 +151,37 @@
                         }
                     );
 
+                }
+
+                function init(){
+
+                    var permissions = localStorageService.get('permissions')
+
+                    scope.readable      = permissions['PIM\\File'].readable;
+                    scope.uploadable    = permissions['PIM\\File'].writable;
+
+                    var permissions = localStorageService.get('permissions');
+                    if(scope.config.acceptFrom){
+                        var entityForm = null;
+                        if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
+                            entityForm = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
+                        }else{
+                            var fullEntity = null;
+                            fullEntity = scope.config.acceptFrom.split('\\');
+                            entityForm = fullEntity[(fullEntity.length - 1)];
+                        }
+
+
+                        scope.deletable         = permissions[entityForm].deletable;
+                        scope.writable_object   = permissions['PIM\\File'].writable;
+                        scope.writable          = parseInt(attrs.writable) > 0 && permissions[entityForm].writable > 0;
+                    }else{
+
+                        scope.writable_object   = permissions['PIM\\File'].writable;
+                        scope.deletable         = parseInt(attrs.writable) > 0;
+                        scope.writable          = parseInt(attrs.writable) > 0;
+                    }
+                    
                 }
 
                 function removeFile(index) {

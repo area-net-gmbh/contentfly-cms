@@ -3,7 +3,7 @@
     <pim-plugin key="TYPE_FIELD_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="checkbox">
         <label for="{{key}}" class="ng-class: {optional: config.nullable}">
-            <input type="checkbox"  id="{{key}}" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly" ng-model="value">
+            <input type="checkbox"  id="{{key}}" name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-disabled="config.readonly || !writable" ng-model="value">
             {{config.label}}<pim-plugin key="TYPE_LABEL_APPEND" uiblocks="uiblocks"></pim-plugin></label>
     </div>
     <pim-plugin key="TYPE_FIELD_APPEND" uiblocks="uiblocks"></pim-plugin>

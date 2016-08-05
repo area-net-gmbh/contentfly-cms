@@ -6,7 +6,7 @@
         .directive('pimInteger', pimInteger);
 
 
-    function pimInteger(){
+    function pimInteger(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,6 +16,8 @@
                 return '/ui/default/types/integer/integer.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 if(scope.value === undefined && scope.config.default != null){
                     scope.value = parseInt(scope.config.default);
                 }

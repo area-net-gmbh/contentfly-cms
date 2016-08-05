@@ -6,7 +6,7 @@
         .directive('pimPassword', pimPassword);
 
 
-    function pimPassword(){
+    function pimPassword(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,6 +16,8 @@
                 return '/ui/default/types/password/password.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 scope.newValue = '';
                 
                 scope.$watch('newValue',function(data){

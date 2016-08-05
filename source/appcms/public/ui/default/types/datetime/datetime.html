@@ -3,8 +3,8 @@
 <div class="col-sm-10">
     <pim-plugin key="TYPE_FIELD_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <p class="input-group">
-          <input autocomplete="off" type="text" class="form-control" name="{{key}}" uib-datepicker-popup="dd.MM.yyyy" on-open-focus="true" ng-model="dateValue" is-open="isOpened"  ng-required="!config.nullable && !config.readonly && !config.hide" close-text="Close" />
-          <span class="input-group-btn">
+          <input autocomplete="off" type="text" class="form-control" name="{{key}}" uib-datepicker-popup="dd.MM.yyyy" on-open-focus="true" ng-model="dateValue" is-open="isOpened"  ng-readonly="config.readonly || !writable"  ng-required="!config.nullable && !config.readonly && !config.hide" close-text="Close" />
+          <span class="input-group-btn" ng-hide="config.readonly || !writable">
             <button type="button" class="btn btn-default" ng-click="openDatePicker()"><i class="glyphicon glyphicon-calendar"></i></button>
           </span>
     </p>

@@ -6,7 +6,7 @@
         .directive('pimDecimal', pimDecimal);
 
 
-    function pimDecimal(){
+    function pimDecimal(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,6 +16,8 @@
                 return '/ui/default/types/decimal/decimal.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 if(scope.value === undefined && scope.config.default != null){
                     scope.value = parseFloat(scope.config.default).toFixed(2);
                 }

@@ -27,7 +27,6 @@ class OnejoinType extends Type
         return true;
     }
 
-
     public function processSchema($key, $defaultValue, $propertyAnnotations){
         $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations);
         $propertyAnnotations    = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToOne'];
@@ -41,9 +40,8 @@ class OnejoinType extends Type
         $schema['multiple'] = false;
         $schema['tab']      = $one2Oneentity;
         
-        if(Permission::isReadable($this->app['auth.user'], $one2Oneentity)){
-            $this->addTab($one2Oneentity, array('title' => $schema['label'], 'onejoin' => true, 'onejoin_field' => $key));
-        }
+
+        $this->addTab($one2Oneentity, array('title' => $schema['label'], 'onejoin' => true, 'onejoin_field' => $key));
 
         return $schema;
     }

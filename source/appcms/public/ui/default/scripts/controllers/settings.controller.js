@@ -31,12 +31,14 @@
                 localStorageService.set('version', response.data.version);
                 localStorageService.set('uiblocks', response.data.uiblocks);
                 localStorageService.set('frontend', response.data.frontend);
+                localStorageService.set('permissions', response.data.permissions);
 
                 $rootScope.version = localStorageService.get('version');
                 $rootScope.devmode = localStorageService.get('devmode');
                 $rootScope.frontend = localStorageService.get('frontend');
                 $rootScope.schema = localStorageService.get('schema');
                 $rootScope.uiblocks = localStorageService.get('uiblocks');
+                $rootScope.permissions = localStorageService.get('permissions');
 
                 var entities = {};
                 for (var entity in $rootScope.schema) {

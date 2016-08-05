@@ -63,11 +63,12 @@
             </ul>
         </li>
         <pim-plugin key="INDEX_NAVIGATION_MEDIA_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <li><h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
+        <li ng-show="permissions['PIM\\File'].readable || permissions['PIM\\Folder'].readable || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND">
+            <h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
             <ul>
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li ng-show="schema['PIM\\File'].settings.readable"><a href="#/files">Dateien</a></li>
-                <li ng-show="schema['PIM\\Folder'].settings.readable"><a href="#/list/PIM/Folder">Ordner</a></li>
+                <li ng-show="permissions['PIM\\File'].readable"><a href="#/files">Dateien</a></li>
+                <li ng-show="permissions['PIM\\Folder'].readable"><a href="#/list/PIM/Folder">Ordner</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>

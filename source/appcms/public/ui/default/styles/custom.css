@@ -674,8 +674,10 @@ li.grid:hover .image-edit{
 }
 
 .disabled{
-    opacity:0.35;
+    opacity:0.75;
 }
+
+
 
 #login{
     background-color: rgba(255, 255, 255, 0.7) !important;

@@ -6,7 +6,7 @@
         .directive('pimString', pimString);
 
 
-    function pimString(){
+    function pimString(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,6 +16,9 @@
                 return '/ui/default/types/string/string.html'
             },
             link: function(scope, element, attrs){
+
+                scope.writable = parseInt(attrs.writable) > 0;
+                
                 if(scope.value === undefined && scope.config.default != null){
                     scope.value = (scope.config.default);
                 }

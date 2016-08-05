@@ -6,7 +6,7 @@
         .directive('pimTextarea', pimTextarea);
 
 
-    function pimTextarea(){
+    function pimTextarea(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,6 +16,8 @@
                 return '/ui/default/types/textarea/textarea.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 if(scope.value === undefined && scope.config.default != null){
                     scope.value = (scope.config.default);
                 }

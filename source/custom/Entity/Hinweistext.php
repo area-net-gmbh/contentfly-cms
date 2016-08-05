@@ -23,6 +23,7 @@ class Hinweistext extends Base
     /**
      * @ORM\Column(type="text", nullable=true)
      * @PIM\Config(showInList=40, listShorten=200, label="Text")
+     * @PIM\Rte()
      */
     protected $text;
 

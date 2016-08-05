@@ -6,7 +6,7 @@
         .directive('pimSelect', pimSelect);
 
 
-    function pimSelect(){
+    function pimSelect(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,6 +16,8 @@
                 return '/ui/default/types/select/select.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 if((scope.value === undefined || scope.value == null) && scope.config.default != null){
                     scope.value = (scope.config.default);
                 }

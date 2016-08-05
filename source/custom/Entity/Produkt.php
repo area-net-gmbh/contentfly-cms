@@ -135,6 +135,13 @@ class Produkt extends Base
      * @PIM\Config(label="Zubehör-Produkte", tab="cross")
      */
     protected $zubehoerprodukte;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Custom\Entity\Produkt")
+     * @ORM\JoinTable(name="produkt_testprodukte", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")}, inverseJoinColumns={@ORM\JoinColumn(name="testprodukt_id", referencedColumnName="id", onDelete="CASCADE")})
+     * @PIM\Config(label="Testprodukte", tab="cross")
+     */
+    protected $testprodukte;
     
     /**
      * @ORM\ManyToMany(targetEntity="Custom\Entity\Filteroption")
@@ -163,6 +170,24 @@ class Produkt extends Base
      * @PIM\Config(label="Kategorien", readonly=true, hide=true, isFilterable=true)
      */
     protected $kategorien;
+
+    /**
+     * @return mixed
+     */
+    public function getTestprodukte()
+    {
+        return $this->testprodukte;
+    }
+
+    /**
+     * @param mixed $testprodukte
+     */
+    public function setTestprodukte($testprodukte)
+    {
+        $this->testprodukte = $testprodukte;
+    }
+
+
 
 
     /**

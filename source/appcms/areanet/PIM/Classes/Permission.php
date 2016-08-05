@@ -7,13 +7,28 @@ use Silex\Application;
 class Permission
 {
     public static function isReadable(User $user, $entityName){
-        if($user->getIsAdmin()) return true;
+        return self::is('readable', $user, $entityName);
+    }
 
-        if($user->getGroup() == null) return false;
+    public static function isWritable(User $user, $entityName){
+        return self::is('writable', $user, $entityName);
+    }
+
+    public static function isDeletable(User $user, $entityName){
+        return self::is('deletable', $user, $entityName);
+    }
+
+    protected static function is($mode, User $user, $entityName)
+    {
+        $method= 'get'.ucfirst($mode);
+
+        if($user->getIsAdmin()) return 2;
+
+        if($user->getGroup() == null) return 0;
 
         foreach($user->getGroup()->getPermissions() as $permission){
             if($permission->getEntityName() == $entityName){
-                return $permission->getReadable();
+                return $permission->$method();
             }
         }
 

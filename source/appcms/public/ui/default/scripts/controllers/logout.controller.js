@@ -12,6 +12,7 @@
         localStorageService.remove('frontend');
         localStorageService.remove('user');
         localStorageService.remove('version');
+        localStorageService.remove('permissions');
         localStorageService.remove('savedFilter');
         localStorageService.remove('uiblocks');
         localStorageService.clearAll();

@@ -6,7 +6,7 @@
         .directive('pimBoolean', pimBoolean);
 
 
-    function pimBoolean(){
+    function pimBoolean(localStorageService){
         return {
             restrict: 'E',
             scope: {
@@ -16,6 +16,7 @@
                 return '/ui/default/types/boolean/boolean.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
 
                 if(scope.value === undefined && scope.config.default != null){
                     scope.value = Boolean(scope.config.default);

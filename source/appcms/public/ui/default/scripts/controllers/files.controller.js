@@ -7,51 +7,43 @@
 
     function FilesCtrl($scope, $cookies, localStorageService, $uibModalInstance, $routeParams, $timeout, $http, $uibModal, pimEntity, Upload, angularGridInstance, modaltitle, property, EntityService){
         var vm = this;
+
         var oldPageNumber = 1;
+        var schema = localStorageService.get('schema');
 
         //Properties
-        vm.doUpload = false;
-        vm.objects = [];
-        vm.objectsAvailable = false;
-        vm.objectsNotAvailable = false;
-
-        vm.modaltitle = modaltitle;
-
-        vm.itemsPerPage = 0;
-        vm.totalItems = 0;
-        vm.currentPage = 1;
-
-        vm.angularGridOptions = {
-            refreshOnImgLoad : true
-        };
-
-        vm.entity = 'PIM\\File';
-
-        vm.fileUploads = null;
-
-        var schema = localStorageService.get('schema');
-        vm.schema = schema[vm.entity];
-
-        vm.sortProperty = vm.schema.settings.sortBy;
-        vm.sortOrder    = vm.schema.settings.sortOrder;
-
-        vm.filter = {};
-        vm.filterIsOpen = false;
-        vm.filterBadge = 0;
-        vm.filterJoins = {};
+        vm.angularGridOptions   = { refreshOnImgLoad : true };
+        vm.currentPage          = 1;
+        vm.doUpload             = false;
+        vm.entity               = 'PIM\\File';
+        vm.fileUploads          = null;
+        vm.filter               = {};
+        vm.filterIsOpen         = false;
+        vm.filterBadge          = 0;
+        vm.filterJoins          = {};
+        vm.itemsPerPage         = 0;
+        vm.modaltitle           = modaltitle;
+        vm.permissions          = localStorageService.get('permissions');
+        vm.objects              = [];
+        vm.objectsAvailable     = false;
+        vm.objectsNotAvailable  = false;
+        vm.schema               = schema[vm.entity];
+        vm.sortProperty         = vm.schema.settings.sortBy;
+        vm.sortOrder            = vm.schema.settings.sortOrder;
+        vm.totalItems           = 0;
 
         //Functions
-        vm.closeFilter = closeFilter;
-        vm.delete = doDelete;
-        vm.loadData = loadData;
-        vm.openForm = openForm;
-        vm.executeFilter = executeFilter;
-        vm.paginationChanged = paginationChanged;
-        vm.resetFilter = resetFilter;
-        vm.selectFile = selectFile;
-        vm.sortBy = sortBy;
-        vm.uploadFile = uploadFile;
-        vm.uploadMultiFile = uploadMultiFile;
+        vm.closeFilter          = closeFilter;
+        vm.delete               = doDelete;
+        vm.loadData             = loadData;
+        vm.openForm             = openForm;
+        vm.executeFilter        = executeFilter;
+        vm.paginationChanged    = paginationChanged;
+        vm.resetFilter          = resetFilter;
+        vm.selectFile           = selectFile;
+        vm.sortBy               = sortBy;
+        vm.uploadFile           = uploadFile;
+        vm.uploadMultiFile      = uploadMultiFile;
 
         //Startup
         init();
@@ -252,6 +244,10 @@
                         entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     }
 
+                    if(!localStorageService.get('permissions')[entity].readable){
+                        continue;
+                    }
+
                     if(localStorageService.get('schema')[entity].settings.type == 'tree') {
 
                         EntityService.tree({entity: entity}).then(
@@ -301,6 +297,10 @@
 
                     var field = key;
 
+                    if(!localStorageService.get('permissions')[entity].readable){
+                        continue;
+                    }
+
                     if(localStorageService.get('schema')[entity].settings.type == 'tree'){
 
                         EntityService.tree({entity: entity}).then(
@@ -341,6 +341,7 @@
                         properties: [field],
                         groupBy: field
                     }
+                    
 
                     data['order'] = {};
                     data['order'][field] = "ASC";

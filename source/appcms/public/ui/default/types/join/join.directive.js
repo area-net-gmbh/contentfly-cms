@@ -20,14 +20,17 @@
                 var entity       = null;
 
                 //Properties
-                scope.chooserOpened = false;
-                scope.currentPage   = 1;
-                scope.propertyCount = 0;
-                scope.objects       = [];
-                scope.schema        = null;
-                scope.selectedIndex = 0;
-                scope.totalPages    = 1;
-
+                scope.chooserOpened     = false;
+                scope.currentPage       = 1;
+                scope.deletable         = false;
+                scope.hide              = false;
+                scope.propertyCount     = 0;
+                scope.objects           = [];
+                scope.schema            = null;
+                scope.selectedIndex     = 0;
+                scope.totalPages        = 1;
+                scope.writable          = false;
+                scope.writable_object   = false;
 
                 //Functions
                 scope.addNewObject  = addNewObject;
@@ -124,7 +127,13 @@
                         fullEntity = scope.config.accept.split('\\');
                         entity = fullEntity[(fullEntity.length - 1)];
                     }
-                    
+
+                    var permissions = localStorageService.get('permissions');
+
+                    scope.hide              = !permissions[entity].readable;
+                    scope.writable_object   = permissions[entity].writable;
+                    scope.writable          = parseInt(attrs.writable) > 0;
+
                     scope.schema    = localStorageService.get('schema')[entity];
 
                     scope.propertyCount = Object.keys(scope.schema.list).length;

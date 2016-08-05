@@ -1266,7 +1266,26 @@ class ApiController extends BaseController
 
         $uiblocks = $this->app['uiManager']->getBlocks();
 
-        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
+        $schema         = $this->getSchema();
+        $permissions    = $this->getPermissions();
+
+        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $schema, 'permissions' => $permissions));
+    }
+
+    protected function getPermissions()
+    {
+        $schema = $this->getSchema();
+
+        $permissions = array();
+        foreach($schema as $entityName => $config){
+            $permissions[$entityName] = array(
+                'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
+                'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
+                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName)
+            );
+        }
+
+        return $permissions;
     }
 
     protected function getSchema()
@@ -1329,8 +1348,7 @@ class ApiController extends BaseController
                 'isSortable' => false,
                 'labelProperty' => null,
                 'type' => 'default',
-                'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false)),
-                'readable' => Permission::isReadable($this->app['auth.user'], $entity)
+                'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false))
             );
 
             if($object instanceof BaseSortable){

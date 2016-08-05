@@ -10,6 +10,7 @@
         var oldPageNumber   = 1;
 
         //Properties
+        vm.permissions         = localStorageService.get('permissions');
         vm.objects             = [];
         vm.objectsAvailable    = false;
         vm.objectsNotAvailable = false;
@@ -234,7 +235,7 @@
                         entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     }
 
-                    if(!localStorageService.get('schema')[entity].settings.readable){
+                    if(!vm.permissions[entity].readable){
                         continue;
                     }
 
@@ -287,7 +288,7 @@
 
                     var field = key;
 
-                    if(!localStorageService.get('schema')[entity].settings.readable){
+                    if(!vm.permissions[entity].readable){
                         continue;
                     }
 
@@ -331,6 +332,7 @@
                         properties: [field],
                         groupBy: field
                     }
+                    
 
                     data['order'] = {};
                     data['order'][field] = "ASC";

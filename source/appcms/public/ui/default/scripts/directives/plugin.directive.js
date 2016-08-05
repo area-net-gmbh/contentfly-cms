@@ -13,6 +13,8 @@
             replace: false,
             link: function(scope, element, attrs) {
                 scope.$watch('uiblocks', function(meeting) {
+                    return;
+                    
                     if(!$rootScope.uiblocks || element.attr('pim-plugin-rendered')) return;
                     if($rootScope.uiblocks[attrs.key]){
                         for(var i = 0; i < $rootScope.uiblocks[attrs.key].length; i++){

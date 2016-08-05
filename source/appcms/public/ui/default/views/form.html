@@ -36,7 +36,7 @@
 
     <uib-tabset active="active" ng-hide="vm.isLoading">
         <pim-plugin key="FORM_TAB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <uib-tab  ng-repeat="(tabKey, tab) in vm.schema.settings.tabs" index="$index">
+        <uib-tab  ng-repeat="(tabKey, tab) in vm.schema.settings.tabs" index="$index" ng-show="!tab.onejoin || permissions[tabKey] && permissions[tabKey].readable">
             <uib-tab-heading ng-class="{tabInvalid: tabInvalid && vm.isSubmit}" >
                 <pim-plugin key="FORM_TAB_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>{{tab.title}} <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"><pim-plugin key="FORM_TAB_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin></span>
             </uib-tab-heading>
@@ -46,10 +46,11 @@
             <form name="vm.forms.form{{$index}}" class="form-horizontal" bind-validity="tabInvalid" >
                 <pim-plugin key="FORM_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <div  ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'has-error': vm.isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schema.properties">
-                    <pim-form key="key" main-key="" config="config" object="vm.object" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
+                    <pim-form key="key" main-key="" writable="{{vm.permissions[vm.entity].writable}}" config="config" object="vm.object" has-visible-field="hasVisibleField" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
+
                 </div>
                 <div ng-if="tab.onejoin == true" class="form-group ng-class: {'has-error': isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide"   ng-repeat="(key, config) in vm.schemaOnejoin[tabKey].properties">
-                    <pim-form key="key" main-key="tab.onejoin_field" config="config" object="vm.object[tab.onejoin_field]" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
+                    <pim-form key="key" main-key="tab.onejoin_field" writable="{{vm.permissions[tabKey].writable}}" config="config" object="vm.object[tab.onejoin_field]" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
                 </div>
                 <pim-plugin key="FORM_APPEND" uiblocks="uiblocks"></pim-plugin>
             </form>

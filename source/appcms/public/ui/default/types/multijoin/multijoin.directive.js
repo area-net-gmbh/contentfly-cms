@@ -10,7 +10,7 @@
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', value: '=', isValid: '=',  isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
                 return '/ui/default/types/multijoin/multijoin.html'
@@ -18,7 +18,6 @@
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;
                 var entity       = null;
-
 
                 scope.$watch('value',function(data){
                 
@@ -42,9 +41,11 @@
                 scope.choosenIds    = [];
                 scope.chooserOpened = false;
                 scope.currentPage   = 1;
+                scope.deletable     = false;
+                scope.hide          = false;
                 scope.propertyCount = 0;
                 scope.objects       = [];
-                scope.schema        = null;;
+                scope.schema        = null;
                 scope.selectedIndex = 0;
                 scope.sortableOptions = {
                     stop: function(e,ui){
@@ -52,10 +53,10 @@
                     },
                     disabled: !scope.config.sortable
                 };
-
                 scope.totalPages    = 1;
-
                 scope.value = scope.value ? scope.value : [];
+                scope.writable = false;
+                scope.writable_object= false;
 
                 //Functions
                 scope.addNewObject  = addNewObject;
@@ -205,6 +206,31 @@
                         var fullEntity = null;
                         fullEntity = scope.config.accept.split('\\');
                         entity = fullEntity[(fullEntity.length - 1)];
+                    }
+
+
+
+                    var permissions = localStorageService.get('permissions');
+                    if(scope.config.acceptFrom){
+                        var entityForm = null;
+                        if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
+                            entityForm = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
+                        }else{
+                            var fullEntity = null;
+                            fullEntity = scope.config.acceptFrom.split('\\');
+                            entityForm = fullEntity[(fullEntity.length - 1)];
+                        }
+                        scope.hide = !permissions[entity].readable || !permissions[entityForm].readable;
+
+
+                        scope.deletable         = permissions[entityForm].deletable;
+                        scope.writable_object   = permissions[entity].writable;
+                        scope.writable          = parseInt(attrs.writable) > 0 && permissions[entityForm].writable > 0;
+                    }else{
+                        scope.hide              = !permissions[entity].readable;
+                        scope.writable_object   = permissions[entity].writable;
+                        scope.deletable         = parseInt(attrs.writable) > 0;
+                        scope.writable          = parseInt(attrs.writable) > 0;
                     }
 
                     scope.schema = localStorageService.get('schema')[entity];

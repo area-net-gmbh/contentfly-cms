@@ -14,6 +14,7 @@
 
         //Properties
         vm.doSave           = false;
+        vm.entity           = entity;
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];
         vm.object           = {};
@@ -22,7 +23,9 @@
         vm.fileUploads      = {};
         vm.forms            = {};
         vm.modaltitle       = title;
-        vm.password = {};
+        vm.password         = {};
+        vm.permissions      = localStorageService.get('permissions');
+
 
         //Functions
         vm.save                 = save;
@@ -169,9 +172,9 @@
                 }
             });
 
-
-            if(!object || !object.id){
+            if(!object || !object.id || !vm.permissions[entity].readable){
                 vm.isLoading = false;
+                cancel();
                 return;
             }
 
@@ -186,7 +189,7 @@
                     vm.isLoading = false;
                 },
                 function(data){
-                    console.log(data);
+
                     var modalInstance = $uibModal.open({
                         templateUrl: '/ui/default/views/partials/modal.html',
                         controller: 'ModalCtrl as vm',
