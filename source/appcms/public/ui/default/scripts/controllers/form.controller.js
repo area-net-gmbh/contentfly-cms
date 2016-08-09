@@ -25,8 +25,7 @@
         vm.modaltitle       = title;
         vm.password         = {};
         vm.permissions      = localStorageService.get('permissions');
-
-
+        
         //Functions
         vm.save                 = save;
         vm.cancel               = cancel;
@@ -95,7 +94,7 @@
                         vm.doSave       = false;
                         vm.object.id    = response.data.id;
                         if(andClose) $uibModalInstance.close(response.data.data);
-                    }, 
+                    },
                     function errorCallback(response) {
                         vm.doSave = false;
 

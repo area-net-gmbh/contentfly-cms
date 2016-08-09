@@ -90,7 +90,7 @@
         <button ng-hide="!vm.permissions[vm.entity].writable || vm.schema.settings.readonly" class="btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt anlegen</button>
     </div>
 </div>
-<pim-plugin key="LIST_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<pim-plugin key="LIST_CONTENT_PREPEND" uiblocks="uiblocks">
 <div class="row">
     <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
 
@@ -105,7 +105,7 @@
 
         <p ng-show="vm.objectsNotAvailable">Es sind derzeit leider keine Daten vorhanden.</p>
         <pim-plugin key="LIST_TABLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <table class="table" ng-show="vm.objectsAvailable">
+        <table id="list" class="table" ng-show="vm.objectsAvailable">
             <thead>
                 <tr>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
@@ -120,20 +120,28 @@
                 </tr>
             </thead>
             <tbody ng-if="!vm.schema.settings.isSortable">
-                <tr  dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)">
+                <tr   dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)" >
                     <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                    <td><pim-plugin key="LIST_TABLE_BODY_COL_ID_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_ID_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
+                    <td><pim-plugin key="LIST_TABLE_BODY_COL_ID_APPEND" uiblocks="uiblocks"></pim-plugin>#{{object.loading}}#<pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_ID_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-show="vm.schema.settings.isSortable"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="sorting" long="false" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-repeat="property in vm.schema.list"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td><pim-plugin key="LIST_TABLE_BODY_COL_USER_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_USER_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>
                     <td>
-                        <div class="pull-right">
+                        <div class="pull-right" ng-show="object.loading">
+                            <div class="loader-inner ball-pulse">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="pull-right" ng-hide="object.loading">
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                             <button type="button" ng-hide="!vm.permissions[vm.entity].deletable || vm.schema.settings.readonly" ng-click="vm.delete(object)"  class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                             <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.openForm(object)" class="btn btn-primary btn-sm"><span class="glyphicon ng-class: {'glyphicon-pencil' : vm.permissions[vm.entity].writable, 'glyphicon-eye-open' : !vm.permissions[vm.entity].writable}"  aria-hidden="true"></span></button>
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
+
                         </div>
                     </td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND2" uiblocks="uiblocks"></pim-plugin>
@@ -148,7 +156,14 @@
                     <td><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_APPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td><pim-plugin key="LIST_TABLE_BODY_COL_USER_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_USER_APPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td>
-                        <div class="pull-right">
+                        <div class="pull-right ldn" ng-show="object.loading">
+                            <div class="loader-inner ball-pulse">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="pull-right"  ng-hide="object.loading">
                             <span ng-show="vm.schema.settings.isSortable && vm.sortProperty == 'sorting'" class="btn btn-default btn-sm glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                             <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.delete(object)" ng-show="vm.permissions[vm.entity].deletable" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>

@@ -5,7 +5,7 @@
         .module('app')
         .controller('ListCtrl', ListCtrl);
 
-    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService, $document){
+    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService, $document, $location){
         var vm              = this;
         var oldPageNumber   = 1;
 
@@ -26,6 +26,11 @@
         }
 
         vm.schema  = localStorageService.get('schema')[vm.entity];
+
+        if(!vm.schema){
+            $location.path('/');
+            return;
+        }
 
         vm.sortProperty = vm.schema.settings.sortBy;
         vm.sortOrder    = vm.schema.settings.sortOrder;
@@ -67,7 +72,6 @@
         vm.filterBadge  = 0;
         vm.filterJoins  = {};
 
-
         //Functions
         vm.closeFilter          = closeFilter;
         vm.delete               = doDelete;
@@ -93,6 +97,8 @@
                 return;
             }
 
+            object.loading = true;
+
             var modaltitle = 'Wollen Sie den <b>Eintrag ' + object.id + '</b> wirklich löschen?';
             if(vm.schema.settings.labelProperty){
                 modaltitle = 'Wollen Sie <b>' + vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + '</b> wirklich löschen?';
@@ -110,6 +116,8 @@
 
             modalInstance.result.then(
                 function (doDelete) {
+                    object.loading = false;
+                    
                     if(doDelete){
 
                         vm.objectsAvailable = false;
@@ -134,11 +142,14 @@
                                         hideCancelButton: true
                                     }
                                 });
+                                loadData();
                             }
                         );
                     }
                 },
-                function () {}
+                function () {
+                    object.loading = false;
+                }
             );
         }
 
@@ -220,6 +231,11 @@
                 function errorCallback(response) {
                     vm.objectsAvailable = false;
                     vm.objectsNotAvailable = true;
+
+
+                    if(response.status == 403){
+                        $location.path('/error');
+                    }
                 }
             );
         }
@@ -359,6 +375,7 @@
         }
         
         function openForm(object){
+
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
@@ -370,6 +387,9 @@
                 modaltitle = 'Objekt ' + object.id + ' bearbeiten';
             }
 
+
+            object.loading = true;
+
             var modalInstance = $uibModal.open({
                 templateUrl: '/ui/default/views/form.html',
                 controller: 'FormCtrl as vm',
@@ -380,11 +400,15 @@
                 },
                 size: 'xl',
                 backdrop: 'static'
-            })
+            });
+
+            modalInstance.rendered.then(function() {
+                object.loading = false;
+            });
 
             modalInstance.result.then(
                 function (isSaved) {
-                    
+
                     if(isSaved){
                         loadData();
                     }

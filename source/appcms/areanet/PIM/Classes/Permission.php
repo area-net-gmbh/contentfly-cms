@@ -31,7 +31,6 @@ class Permission
                 return $permission->$method();
             }
         }
-
         return false;
     }
 }

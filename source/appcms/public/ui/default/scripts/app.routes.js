@@ -12,6 +12,11 @@
                 controller: 'DashboardCtrl as vm',
                 secure: true
             })
+            .when('/error', {
+                templateUrl: '/ui/default/views/error.html',
+                controller: 'ErrorCtrl as vm',
+                secure: true
+            })
             .when('/login', {
                 //todo: Dynamic Template-URL from SCHEMA?!
                 templateUrl: '/ui/default/views/login.html',

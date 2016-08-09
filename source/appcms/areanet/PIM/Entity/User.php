@@ -9,7 +9,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
  * @ORM\Table(name="pim_user")
  * @PIM\Config(label="Benutzer")
  */
-class User extends Base implements \JsonSerializable
+class User extends Base
 {
     
     use \Custom\Traits\User;
@@ -171,22 +171,14 @@ class User extends Base implements \JsonSerializable
 
 
 
-
-    /**
-     * Specify data which should be serialized to JSON
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
-     */
-    function jsonSerialize()
+    public function toValueObject(User $user = null, $schema = null, $entityName, $flatten = false, $propertiesToLoad = array(), $level = 0)
     {
-        return array(
-            'alias' => $this->alias,
-            'isActive' => $this->isActive,
-            'isAdmin' => $this->isAdmin,
-            'group' => $this->getGroup(),
-            'id' => $this->id
-        );
+        $data = parent::toValueObject($user, $schema, $entityName, $flatten, $propertiesToLoad , $level);
+
+        unset($data->salt);
+        unset($data->pass);
+        unset($data->user);
+        
+        return $data;
     }
 }
