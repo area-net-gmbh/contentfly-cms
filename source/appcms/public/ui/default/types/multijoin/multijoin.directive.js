@@ -320,7 +320,7 @@
 
                     if(scope.config.mappedBy){
                         for (var index in scope.value) {
-                            values.push(scope.value[index][scope.config.mappedBy].id);
+                            if(scope.value[index][scope.config.mappedBy]) values.push(scope.value[index][scope.config.mappedBy].id);
                         }
                     }else{
                         for (var index in scope.value) {

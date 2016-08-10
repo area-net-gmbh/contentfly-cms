@@ -90,25 +90,19 @@ class ApiController extends BaseController
             $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
+        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
+        }
+
         $object = $this->em->getRepository($entityNameToLoad)->find($id);
+
         if (!$object) {
             return new JsonResponse(array('message' => "Object not found"), 404);
         }
 
-        /*if($object instanceof File){
-            $backend = Backend::getInstance();
-            $object->uris = array(
-                'original' => $backend->getWebUri($object)
-            );
-
-            $processor = Processing::getInstance($object->getType());
-            if(!($processor instanceof Standard)){
-                foreach($this->app['thumbnailSettings'] as $thumbnailSetting){
-                    $object->uris[$thumbnailSetting->getAlias()] =  $backend->getWebUri($object, $thumbnailSetting);
-                }
-            }
-
-        }*/
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
+        }
 
         return new JsonResponse(array('message' => "singleAction", 'data' => $object->toValueObject($this->app['auth.user'], $schema, $entityName, false)));
 
@@ -262,7 +256,7 @@ class ApiController extends BaseController
         }
 
 
-        if(!Permission::isReadable($this->app['auth.user'], $entityName)){
+        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
         }
 
@@ -274,6 +268,11 @@ class ApiController extends BaseController
             ->from($entityNameToLoad, $entityName)
             ->where("$entityName.isDeleted = false")
             ->andWhere("$entityName.isIntern = false");
+
+        if($permission == \Areanet\PIM\Entity\Permission::OWN){
+            $queryBuilder->andWhere("$entityName.userCreated = :userCreated");
+            $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+        }
 
         if($lastModified){
             //$qb->where($qb->expr()->lte('modified', $lastModified));

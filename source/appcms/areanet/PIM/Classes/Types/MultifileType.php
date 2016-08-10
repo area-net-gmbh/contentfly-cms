@@ -95,10 +95,6 @@ class MultifileType extends Type
             if(!Permission::isWritable($user, $acceptFrom)){
                 throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
             }
-
-            if(!Permission::isWritable($user, $mappedFrom)){
-                throw new AccessDeniedHttpException("Zugriff auf $mappedFrom verweigert.");
-            }
             
             if($object->$getter()) {
                 $object->$getter()->clear();

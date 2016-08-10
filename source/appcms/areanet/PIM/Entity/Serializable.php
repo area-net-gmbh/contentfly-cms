@@ -54,36 +54,45 @@ abstract class Serializable implements \JsonSerializable{
                             );
                         }
                     }elseif($this->$property instanceof Base) {
+
+
                         $config['accept'] = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                        $permission = \Areanet\PIM\Entity\Permission::ALL;
+
+                        $getterName = 'get' . ucfirst($property);
+                        $subobject = $this->$getterName();
 
                         if($config['type'] == 'file'){
                             $config['accept'] = 'PIM\\File';
 
-                            if (!Permission::isReadable($user, 'PIM\\File')) {
-                                unset($result->$property);
+                            if (!($permission = Permission::isReadable($user, 'PIM\\File'))) {
+                                $result->$property = array('id' => $subobject->getId(), 'pim_blocked' => true);
                                 continue;
                             }
+
                         }else {
-                            if (!Permission::isReadable($user, $config['accept'])) {
-                                unset($result->$property);
+                            if (!($permission = Permission::isReadable($user, $config['accept']))) {
+                                $result->$property = array('id' => $subobject->getId(), 'pim_blocked' => true);
                                 continue;
                             }
                         }
 
-                        $getterName = 'get' . ucfirst($property);
+                        if($permission == \Areanet\PIM\Entity\Permission::OWN && $subobject->getUserCreated() != $user){
+                            $result->$property = array('id' => $subobject->getId(), 'pim_blocked' => true);
+                            continue;
+                        }
 
-
-                        $result->$property = $this->$getterName()->toValueObject($user, $schema, $config['accept'], $flatten, array(), ($level + 1));
+                        $result->$property = $subobject->toValueObject($user, $schema, $config['accept'], $flatten, array(), ($level + 1));
 
                     }elseif($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
-                        $data = array();
-
-                        $subEntity = null;
+                        $data       = array();
+                        $permission = \Areanet\PIM\Entity\Permission::ALL;
+                        $subEntity  = null;
 
                         if($config['type'] == 'multifile'){
                             $subEntity = 'PIM\\File';
 
-                            if (!Permission::isReadable($user, 'PIM\\File')) {
+                            if (!($permission = Permission::isReadable($user, 'PIM\\File'))) {
                                 unset($result->$property);
                                 continue;
                             }
@@ -92,7 +101,7 @@ abstract class Serializable implements \JsonSerializable{
                                 $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
                                 $subEntity              = $config['acceptFrom'];
 
-                                if(!Permission::isReadable($user, $config['acceptFrom'])){
+                                if(!($permission = Permission::isReadable($user, $config['acceptFrom']))){
                                     unset($result->$property);
                                     continue;
                                 }
@@ -109,7 +118,7 @@ abstract class Serializable implements \JsonSerializable{
                                 $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
                                 $subEntity              = $config['accept'];
                                 
-                                if (!Permission::isReadable($user, $config['accept'])) {
+                                if (!($permission = Permission::isReadable($user, $config['accept']))) {
                                     unset($result->$property);
                                     continue;
                                 }
@@ -118,7 +127,7 @@ abstract class Serializable implements \JsonSerializable{
                                     $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
                                     $subEntity              = $config['acceptFrom'];
                                     
-                                    if(!Permission::isReadable($user, $config['acceptFrom'])){
+                                    if(!($permission = Permission::isReadable($user, $config['acceptFrom']))){
                                         unset($result->$property);
                                         continue;
                                     }
@@ -129,12 +138,19 @@ abstract class Serializable implements \JsonSerializable{
 
                         if (in_array($property, $propertiesToLoad)) {
                             foreach ($this->$property as $object) {
+                                if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $user){
+                                    continue;
+                                }
                                 $data[] = $object->getId();
                             }
                         } else {
 
 
                             foreach ($this->$property as $object) {
+                                if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $user){
+                                    continue;
+                                }
+
                                 $data[] = $object->toValueObject($user, $schema, $subEntity, $flatten, $propertiesToLoad, ($level + 1));
                             }
                         }
@@ -149,22 +165,24 @@ abstract class Serializable implements \JsonSerializable{
 
                 if (method_exists($this, $getter)) {
                     if ($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
+                        $permission = \Areanet\PIM\Entity\Permission::ALL;
+
                         if($config['type'] == 'multifile'){
-                            if (!Permission::isReadable($user, 'PIM\\File')) {
+                            if (!($permission = Permission::isReadable($user, 'PIM\\File'))) {
                                 unset($result->$property);
                                 continue;
                             }
                         }else {
                             $config['accept'] = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
 
-                            if (!Permission::isReadable($user, $config['accept'])) {
+                            if (!($permission = Permission::isReadable($user, $config['accept']))) {
                                 unset($result->$property);
                                 continue;
                             }
 
                             if (isset($config['acceptFrom'])) {
                                 $config['acceptFrom'] = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
-                                if(!Permission::isReadable($user, $config['acceptFrom'])){
+                                if(!($permission = Permission::isReadable($user, $config['acceptFrom']))){
                                     unset($result->$property);
                                     continue;
                                 }
@@ -174,26 +192,36 @@ abstract class Serializable implements \JsonSerializable{
 
                         $data = array();
                         foreach($this->$getter() as $object){
+                            if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $user){
+                                continue;
+                            }
                             $data[] =  $object->getId();
                         }
                         $result->$property = $data;
                     }elseif($this->$property instanceof Base){
                         $config['accept'] = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
-
+                        $permission = \Areanet\PIM\Entity\Permission::ALL;
 
                         if($config['type'] == 'file'){
-                            if (!Permission::isReadable($user, 'PIM\\File')) {
+                            if (!($permission = Permission::isReadable($user, 'PIM\\File'))) {
                                 unset($result->$property);
                                 continue;
                             }
                         }else {
-                            if (!Permission::isReadable($user, $config['accept'])) {
+                            if (!($permission = Permission::isReadable($user, $config['accept']))) {
                                 unset($result->$property);
                                 continue;
                             }
                         }
 
-                        $result->$property = $this->$getter()->getId();
+                        $subobject = $this->$getter();
+
+                        if($permission == \Areanet\PIM\Entity\Permission::OWN && $subobject->getUserCreated() != $user){
+                            unset($result->$property);
+                            continue;
+                        }
+
+                        $result->$property = $subobject->getId();
                     }else{
                         $result->$property = $this->$getter();
 

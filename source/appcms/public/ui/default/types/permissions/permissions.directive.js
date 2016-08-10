@@ -62,7 +62,7 @@
                 }
                 
                 function init(){
-                    var excludedEntities = ['PIM\\Log', 'PIM\\Tag', 'PIM\\PushToken', 'PIM\\User', 'PIM\\Group', 'PIM\\ThumbnailSetting'];
+                    var excludedEntities = ['PIM\\Log', 'PIM\\Tag', 'PIM\\PushToken', 'PIM\\Group', 'PIM\\ThumbnailSetting'];
 
                     var index = 0;
                     for (var entityName in scope.schema) {

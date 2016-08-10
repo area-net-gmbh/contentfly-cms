@@ -194,7 +194,7 @@
                     var values = [];
                     for (var index in scope.value) {
                         if(scope.config.mappedBy){
-                            values.push(scope.value[index][scope.config.mappedBy].id);
+                            if(scope.value[index][scope.config.mappedBy]) values.push(scope.value[index][scope.config.mappedBy].id);
                         }else{
                             values.push(scope.value[index].id);
                         }

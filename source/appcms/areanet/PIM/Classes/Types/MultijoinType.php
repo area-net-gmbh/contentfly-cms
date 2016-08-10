@@ -99,11 +99,7 @@ class MultijoinType extends Type
                 if(!Permission::isWritable($user, $acceptFrom)){
                     throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
                 }
-                
-                if(!Permission::isWritable($user, $mappedFrom)){
-                    throw new AccessDeniedHttpException("Zugriff auf $mappedFrom verweigert.");
-                }
-                
+                                
                 $object->$getter()->clear();
                 $query = $this->em->createQuery('DELETE FROM ' . $acceptFrom . ' e WHERE e.' . $mappedFrom . ' = ?1');
                 $query->setParameter(1, $object->getId());

@@ -51,7 +51,7 @@
                 <tbody ui-sortable="sortableOptions" ng-model="value" ng-show="value.length" ng-init="mappedBy = config.mappedBy">
                     <tr ng-repeat="object in value" ng-class="{disabled:config.sortable && !object.isActive}">
                         <td class="td-small">{{mappedBy ?  object[mappedBy].id : object.id}}</td>
-                        <td ng-repeat="property in schema.list">{{mappedBy ? (object[mappedBy][property].id ? object[mappedBy][property].id : object[mappedBy][property]) : (object[property].id ? object[property].id : object[property])}}<!--pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat--></td>
+                        <td ng-repeat="property in schema.list"><i ng-show="object[mappedBy] ? object[mappedBy].pim_blocked : object.pim_blocked">gesperrt</i><pim-autoformat property="{{property}}" schema="schema" object="object[mappedBy] ? object[mappedBy] : object"></pim-autoformat></td>
                         <td class="td-small align-right" ng-hide="config.readonly">
                             <span  ng-show="config.sortable && writable" class="glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>
                             <button ng-show="config.sortable && writable" class="btn btn-default btn-xs" type="button" ng-click="disableObject($index)"><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span></button>
