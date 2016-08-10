@@ -2,11 +2,11 @@
 <div class="row header">
     <div class="col-lg-9 col-lg-offset-0 col-xl-8 col-xl-offset-1">
         <pim-plugin key="LIST_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <h3>{{vm.schema.settings.label}} anzeigen</h3>
+        <h3>{{::vm.schema.settings.label}} anzeigen</h3>
         <pim-plugin key="LIST_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
         <div class="btn-group btn-sorting" uib-dropdown>
             <button class="btn btn-default" id="dropdown-sorting" type="button" uib-dropdown-toggle>
-                {{vm.schema.properties[vm.sortProperty].label}}
+                {{::vm.schema.properties[vm.sortProperty].label}}
             </button>
             <button type="button" class="btn btn-default" ng-click="vm.sortBy(vm.sortProperty)">
                 <span ng-show="vm.sortOrder === 'ASC'" class="glyphicon glyphicon-arrow-up"></span>
@@ -129,14 +129,7 @@
                     <td><pim-plugin key="LIST_TABLE_BODY_COL_USER_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_USER_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>
                     <td>
-                        <div class="pull-right" ng-show="object.loading">
-                            <div class="loader-inner ball-pulse">
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                            </div>
-                        </div>
-                        <div class="pull-right" ng-hide="object.loading">
+                        <div class="pull-right">
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                             <button type="button" ng-hide="!vm.permissions[vm.entity].deletable || vm.schema.settings.readonly" ng-click="vm.delete(object)"  class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                             <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.openForm(object)" class="btn btn-primary btn-sm"><span class="glyphicon ng-class: {'glyphicon-pencil' : vm.permissions[vm.entity].writable, 'glyphicon-eye-open' : !vm.permissions[vm.entity].writable}"  aria-hidden="true"></span></button>
@@ -156,14 +149,7 @@
                     <td><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_APPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td><pim-plugin key="LIST_TABLE_BODY_COL_USER_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_USER_APPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td>
-                        <div class="pull-right ldn" ng-show="object.loading">
-                            <div class="loader-inner ball-pulse">
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                            </div>
-                        </div>
-                        <div class="pull-right"  ng-hide="object.loading">
+                        <div class="pull-right">
                             <span ng-show="vm.schema.settings.isSortable && vm.sortProperty == 'sorting'" class="btn btn-default btn-sm glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                             <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.delete(object)" ng-show="vm.permissions[vm.entity].deletable" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>

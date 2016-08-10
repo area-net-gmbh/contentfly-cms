@@ -93,11 +93,10 @@
         }
 
         function doDelete(object){
+
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
-
-            object.loading = true;
 
             var modaltitle = 'Wollen Sie den <b>Eintrag ' + object.id + '</b> wirklich löschen?';
             if(vm.schema.settings.labelProperty){
@@ -110,13 +109,14 @@
                 resolve: {
                     title: function(){ return 'Eintrag löschen'; },
                     body: function(){ return modaltitle; },
+                    object: function(){ return object; },
                     hideCancelButton: false
                 }
             });
 
             modalInstance.result.then(
                 function (doDelete) {
-                    object.loading = false;
+
                     
                     if(doDelete){
 
@@ -148,7 +148,7 @@
                     }
                 },
                 function () {
-                    object.loading = false;
+
                 }
             );
         }
@@ -376,6 +376,7 @@
         
         function openForm(object){
 
+
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
@@ -387,9 +388,6 @@
                 modaltitle = 'Objekt ' + object.id + ' bearbeiten';
             }
 
-
-            object.loading = true;
-
             var modalInstance = $uibModal.open({
                 templateUrl: '/ui/default/views/form.html',
                 controller: 'FormCtrl as vm',
@@ -398,23 +396,21 @@
                     title: function(){ return modaltitle; },
                     object: function(){ return object; }
                 },
-                size: 'xl',
-                backdrop: 'static'
+                size: 'xl'
             });
 
-            modalInstance.rendered.then(function() {
-                object.loading = false;
-            });
 
             modalInstance.result.then(
                 function (isSaved) {
-
                     if(isSaved){
                         loadData();
                     }
                 },
-                function () {}
+                function () {
+                }
             );
+            
+
         }
 
         function paginationChanged(newPageNumber) {

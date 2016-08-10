@@ -58,7 +58,7 @@
         <li><h3><span class="glyphicon glyphicon-th-large"></span>Inhalte</h3>
             <ul>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li ng-repeat="(entity, label) in entities"><a href="#/list/{{entity}}">{{label}}</a></li>
+                <li ng-repeat="(entity, label) in ::entities"><a href="#/list/{{entity}}">{{label}}</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
@@ -85,7 +85,7 @@
             </ul>
         </li>
         <pim-plugin key="INDEX_NAVIGATION_VERSION_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <li class="version">Version {{version}}</li>
+        <li class="version">Version {{::version}}</li>
         <pim-plugin key="INDEX_NAVIGATION_VERSION_APPEND" uiblocks="uiblocks"></pim-plugin>
     </ul>
     <pim-plugin key="INDEX_NAVIGATION_APPEND" uiblocks="uiblocks"></pim-plugin>
@@ -129,10 +129,11 @@
 
 
 <!-- Global App Files -->
-<script src="/ui/default/scripts/app.config.js"></script>
+
 <script src="/ui/default/scripts/app.module.js"></script>
 <script src="/ui/default/scripts/app.routes.js"></script>
 <script src="/ui/default/scripts/app.js"></script>
+<script src="/ui/default/scripts/app.config.js"></script>
 
 <!-- App Services -->
 <script src="/ui/default/scripts/services/entity.service.js"></script>

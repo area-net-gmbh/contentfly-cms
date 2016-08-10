@@ -12,7 +12,7 @@
         vm.title            = title;
         vm.body             = body;
         vm.hideCancelButton = hideCancelButton;
-
+        
         //Functions
         vm.ok       = ok;
         vm.cancel   = cancel;

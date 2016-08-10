@@ -1,12 +1,11 @@
 (function() {
     'use strict';
 
-    /*angular
+    angular
         .module('app')
-        .constant("APP", {
-            'TYPES': [
-                'String'
-            ]
-        });
-        */
+        //.config(['$httpProvider', function($httpProvider) {
+        //    $httpProvider.useApplyAsync(true);
+        //}])
+    ;
+
 })();

@@ -13,10 +13,12 @@
         var refreshOnCancel  = false;
 
         //Properties
+
         vm.doSave           = false;
         vm.entity           = entity;
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];
+        
         vm.object           = {};
         vm.isLoading        = true;
         vm.isSubmit         = false;
@@ -25,7 +27,7 @@
         vm.modaltitle       = title;
         vm.password         = {};
         vm.permissions      = localStorageService.get('permissions');
-        
+
         //Functions
         vm.save                 = save;
         vm.cancel               = cancel;
@@ -163,6 +165,7 @@
         }
 
         function init(){
+
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
 

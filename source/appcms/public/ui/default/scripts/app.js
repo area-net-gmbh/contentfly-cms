@@ -6,6 +6,8 @@
         .run(run);
 
     function run($rootScope, $location, $cookies, localStorageService, $http){
+
+
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
 
             $http({

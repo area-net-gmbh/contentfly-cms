@@ -80,6 +80,10 @@ body {
 
 }
 
+.ldn{
+    display:none;
+}
+
 div[pim-block-extend]{
     display:none;
 }
