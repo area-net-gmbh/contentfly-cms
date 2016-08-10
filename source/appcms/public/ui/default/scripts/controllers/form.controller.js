@@ -173,6 +173,7 @@
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
             });
+            
 
             if(!object || !object.id || !vm.permissions[entity].readable){
                 vm.isLoading = false;

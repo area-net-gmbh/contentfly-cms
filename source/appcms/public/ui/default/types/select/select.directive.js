@@ -28,6 +28,7 @@
                 
 
                 scope.$watch('value',function(data){
+         
                     if(parseInt(scope.value)){
                         scope.value = scope.value.toString();
                     }
@@ -35,6 +36,10 @@
                 },true)
 
                 scope.$watch('newValue',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+
                     scope.onChangeCallback({key: scope.key, value: scope.newValue});
                 },true)
             }

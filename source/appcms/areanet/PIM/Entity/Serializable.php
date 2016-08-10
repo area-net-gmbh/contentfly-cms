@@ -81,14 +81,29 @@ abstract class Serializable implements \JsonSerializable{
                         $subEntity = null;
 
                         if($config['type'] == 'multifile'){
-                            $config['accept'] = 'PIM\\File';
+                            $subEntity = 'PIM\\File';
 
                             if (!Permission::isReadable($user, 'PIM\\File')) {
                                 unset($result->$property);
                                 continue;
                             }
+
+                            if (isset($config['acceptFrom'])) {
+                                $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
+                                $subEntity              = $config['acceptFrom'];
+
+                                if(!Permission::isReadable($user, $config['acceptFrom'])){
+                                    unset($result->$property);
+                                    continue;
+                                }
+
+                            }
                         }elseif($config['type'] == 'permissions'){
-                            continue;
+                            if(!$user->getIsAdmin()){
+                                continue;
+                            }
+
+                            $subEntity = 'PIM\\Permission';
                         }else{
                             if(isset($config['accept'])){
                                 $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
@@ -118,10 +133,9 @@ abstract class Serializable implements \JsonSerializable{
                             }
                         } else {
 
+
                             foreach ($this->$property as $object) {
-
                                 $data[] = $object->toValueObject($user, $schema, $subEntity, $flatten, $propertiesToLoad, ($level + 1));
-
                             }
                         }
 

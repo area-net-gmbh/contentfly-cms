@@ -396,6 +396,7 @@
                     title: function(){ return modaltitle; },
                     object: function(){ return object; }
                 },
+                backdrop: 'static',
                 size: 'xl'
             });
 

@@ -18,10 +18,12 @@
             link: function(scope, element, attrs){
 
                 //Properties
-                scope.errorMsg      = null;
-                scope.fileUpload    = {};
-                scope.readable      = true;
-                scope.uploadable    = true;
+                scope.errorMsg          = null;
+                scope.fileUpload        = {};
+                scope.readable          = true;
+                scope.uploadable        = true;
+                scope.writable_object   = true;
+                scope.writable          = true;
 
                 //Functions
                 scope.addFile       = addFile;
@@ -133,9 +135,10 @@
                 function init(){
                     var permissions = localStorageService.get('permissions')
 
-                    scope.readable   = permissions['PIM\\File'].readable;
-                    scope.uploadable = permissions['PIM\\File'].writable;
-                    scope.writable   = parseInt(attrs.writable) > 0;
+                    scope.readable        = permissions['PIM\\File'].readable;
+                    scope.uploadable      = permissions['PIM\\File'].writable;
+                    scope.writable_object = permissions['PIM\\File'].writable;
+                    scope.writable        = parseInt(attrs.writable) > 0;
                     
                 }
 

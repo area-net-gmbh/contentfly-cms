@@ -24,6 +24,10 @@
                 }
                 
                 scope.$watch('value',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+                    
                     scope.onChangeCallback({key: scope.key, value: scope.value});
                     scope.disabled  = !parseInt(attrs.writable);
                 },true)

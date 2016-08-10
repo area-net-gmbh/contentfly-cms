@@ -31,11 +31,16 @@ class FileController extends BaseController
 
         $data = array();
 
+        if(!Permission::isWritable($this->app['auth.user'], 'PIM\\File')){
+            throw new AccessDeniedHttpException("Zugriff auf PIM\\File verweigert.");
+        }
+
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('request', $request);
         $event->setParam('user',    $this->app['auth.user']);
         $event->setParam('app',     $this->app);
         $this->app['dispatcher']->dispatch('pim.file.before.upload', $event);
+
 
         foreach($request->files as $key => $file){
             if($request->get("id")){
@@ -310,9 +315,14 @@ class FileController extends BaseController
         $sourceId   = $request->get("sourceId");
         $destId     = $request->get("destId");
 
+        if(!Permission::isWritable($this->app['auth.user'], 'PIM\\File')){
+            throw new AccessDeniedHttpException("Zugriff auf PIM\\File verweigert.");
+        }
+
         if(!$sourceId || !$destId){
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- or Dest-Id missing.");
         }
+        
 
         $fileSource = $this->em->getRepository('Areanet\PIM\Entity\File')->find($sourceId);
         $fileDest   = $this->em->getRepository('Areanet\PIM\Entity\File')->find($destId);

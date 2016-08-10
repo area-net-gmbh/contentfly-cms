@@ -171,14 +171,14 @@ class User extends Base
 
 
 
-    public function toValueObject(User $user = null, $schema = null, $entityName, $flatten = false, $propertiesToLoad = array(), $level = 0)
+    public function toValueObject(User $user = null, $schema = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
     {
         $data = parent::toValueObject($user, $schema, $entityName, $flatten, $propertiesToLoad , $level);
 
         unset($data->salt);
         unset($data->pass);
         unset($data->user);
-        
+
         return $data;
     }
 }

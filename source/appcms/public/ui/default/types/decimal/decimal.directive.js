@@ -25,6 +25,10 @@
                 scope.value = scope.value ? scope.value.replace('.', ',') : null;
 
                 scope.$watch('value',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+                    
                     scope.onChangeCallback({key: scope.key, value: scope.value ? scope.value.replace(',', '.') : null});
                 },true)
             }

@@ -1,8 +1,10 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class JoinType extends Type
@@ -44,6 +46,11 @@ class JoinType extends Type
         $getter = 'get'.ucfirst($property);
 
         $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+        if(!Permission::isWritable($user, $entity)){
+            throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
+        }
+
         $objectToJoin = $this->em->getRepository($entity)->find($value);
         $object->$setter($objectToJoin);
 

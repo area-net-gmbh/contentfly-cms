@@ -509,10 +509,6 @@ class ApiController extends BaseController
         $entityName = ucfirst($request->get('entity'));
         $id         = $request->get('id');
 
-        $object = $this->delete($entityName, $id, $app);
-
-        $schema = $this->getSchema();
-
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
@@ -521,6 +517,11 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
 
         $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
+
+        $object = $this->delete($entityName, $id, $app);
+
+        $schema = $this->getSchema();
+
 
         /**
          * Log delete actions
@@ -558,6 +559,10 @@ class ApiController extends BaseController
         $entityPath = 'Custom\Entity\\'.$entityName;
         if(substr($entityName, 0, 3) == "PIM"){
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        }
+
+        if(!Permission::isDeletable($this->app['auth.user'], $entityName)){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         $object = $this->em->getRepository($entityPath)->find($id);
@@ -710,9 +715,13 @@ class ApiController extends BaseController
         if(substr($entityName, 0, 3) == "PIM"){
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
-        $object     = new $entityPath();
 
+        if(!Permission::isWritable($this->app['auth.user'], $entityName)){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        }
 
+        $object  = new $entityPath();
+        
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
             $getter = 'get'.ucfirst($property);
@@ -914,6 +923,9 @@ class ApiController extends BaseController
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
+        if(!Permission::isWritable($this->app['auth.user'], $entityName)){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        }
 
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
@@ -1274,6 +1286,7 @@ class ApiController extends BaseController
         $entities[] = "PIM\\Log";
         $entities[] = "PIM\\PushToken";
         $entities[] = "PIM\\ThumbnailSetting";
+        $entities[] = "PIM\\Permission";
 
         $data     = array();
 

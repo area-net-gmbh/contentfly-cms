@@ -20,6 +20,8 @@ class Permission
 
     protected static function is($mode, User $user, $entityName)
     {
+        $entityName = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $entityName);
+
         $method= 'get'.ucfirst($mode);
 
         if($user->getIsAdmin()) return 2;

@@ -43,7 +43,7 @@ $app->error(function (\Exception $e, $code) use($app) {
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId), $code);
             }else{
-                return $app->json(array("message" => 'Es ist ein Fehler aufgetreten. Bitte informieren Sie Ihren Administrator.', "type" => get_class($e)), $code);
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $code);
             }
 
         }

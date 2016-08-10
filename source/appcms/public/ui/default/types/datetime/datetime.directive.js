@@ -27,10 +27,18 @@
                 }
 
                 scope.$watch('value',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+
                     scope.dateValue = scope.value ? moment(scope.value.ISO8601).toDate() : null;
                 },true)
 
                 scope.$watch('dateValue',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+
                     if(scope.dateValue == null){
                         scope.onChangeCallback({key: scope.key, value: null});
                     }else{

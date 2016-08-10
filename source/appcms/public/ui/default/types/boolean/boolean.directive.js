@@ -23,7 +23,7 @@
                 }
 
                 scope.$watch('value',function(data){
-                    scope.onChangeCallback({key: scope.key, value: scope.value ? scope.value : false});
+                    if(scope.writable) scope.onChangeCallback({key: scope.key, value: scope.value ? scope.value : false});
                 },true)
             }
         }

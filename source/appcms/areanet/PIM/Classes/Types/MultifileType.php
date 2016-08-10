@@ -1,10 +1,12 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class MultifileType extends Type
@@ -90,6 +92,14 @@ class MultifileType extends Type
             $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
             $mappedBy   = $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'];
 
+            if(!Permission::isWritable($user, $acceptFrom)){
+                throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
+            }
+
+            if(!Permission::isWritable($user, $mappedFrom)){
+                throw new AccessDeniedHttpException("Zugriff auf $mappedFrom verweigert.");
+            }
+            
             if($object->$getter()) {
                 $object->$getter()->clear();
                 $query = $this->em->createQuery('DELETE FROM ' . $acceptFrom . ' e WHERE e.' . $mappedFrom . ' = ?1');
