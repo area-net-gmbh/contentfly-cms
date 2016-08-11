@@ -46,6 +46,12 @@ class Permission extends Base
     protected $deletable;
 
     /**
+     * @ORM\Column(type="text", nullable = true)
+     * @PIM\Config(label="Erweitert")
+     */
+    protected $extended;
+
+    /**
      * @return mixed
      */
     public function getGroup()
@@ -126,6 +132,23 @@ class Permission extends Base
     {
         $this->deletable = $deletable;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getExtended()
+    {
+        return $this->extended;
+    }
+
+    /**
+     * @param mixed $extended
+     */
+    public function setExtended($extended)
+    {
+        $this->extended = $extended;
+    }
+    
 
 
 

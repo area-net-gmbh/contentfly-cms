@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt_preise")
- * @PIM\Config(hide=true, label="Preise")
+ * @PIM\Config(hide=true,  label="Produkte - Preise")
  */
 class ProduktPreise extends Base
 {

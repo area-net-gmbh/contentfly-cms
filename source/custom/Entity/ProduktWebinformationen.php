@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt_webinformationen")
- * @PIM\Config(hide=true, label="Webinformationen")
+ * @PIM\Config(hide=true, label="Produkte - Webinformationen")
  */
 class ProduktWebinformationen extends Base
 {

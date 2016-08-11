@@ -18,6 +18,25 @@ class Permission
         return self::is('deletable', $user, $entityName);
     }
 
+    public static function getExtended(User $user, $entityName){
+        $entityName = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $entityName);
+
+        if($user->getIsAdmin()) return null;
+
+        foreach($user->getGroup()->getPermissions() as $permission){
+            if($permission->getEntityName() == $entityName){
+                $extended = $permission->getExtended();
+                if(empty($extended)){
+                    return null;
+                }
+
+                return json_decode($extended);
+            }
+        }
+
+        return null;
+    }
+
     protected static function is($mode, User $user, $entityName)
     {
         $entityName = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $entityName);

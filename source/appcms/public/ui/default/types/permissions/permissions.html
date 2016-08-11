@@ -1,33 +1,97 @@
 <pim-plugin key="TYPE_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <div class="col-sm-12">
-    <table class="permission">
+    <table class="permission permission_extended" ng-show="permission_extended">
+        <thead>
+        <tr>
+            <th colspan="2">Erweiterte Berechtigungen für {{permission_extended.label}}</th>
+            <th colspan="2"></th>
+            <th class="alignRight">
+                <button ng-click="showExtendedPermissions()" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span> zurück</button></th>
+        </tr>
+        <tr>
+            <th colspan="2" class="sub">Lese-/Anzeigeberechtigung für Reiter</th>
+            <th colspan="2" class="sub">Lese-/Anzeigeberechtigung für Felder</th>
+            <th class="alignRight"></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="data in permission_extended.data">
+                <td ng-click="changeExtendedPermission($index, 'tabPermission')" class="permission-button permission-button-lg permission-{{data.tabPermission}} ng-class:{'permission-button-hidden': !data.tabTitle}">
+                    <span ng-show="data.tabPermission == 0 && data.tabTitle">ausblenden</span>
+                    <span ng-show="data.tabPermission == 1 && data.tabTitle">nur lesen</span>
+                    <span ng-show="data.tabPermission == -1 && data.tabTitle">Standard</span>
+                </td>
+                <td><b>{{data.tabTitle}}</b></td>
+                <td ng-click="changeExtendedPermission($index, 'fieldPermission')" class="permission-button permission-button-lg permission-{{data.fieldPermission}}">
+                    <span ng-show="data.fieldPermission == 0">ausblenden</span>
+                    <span ng-show="data.fieldPermission == 1">nur lesen</span>
+                    <span ng-show="data.fieldPermission == -1">Standard</span>
+                </td>
+                <td>{{data.fieldTitle}}</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="permission" ng-hide="permission_extended">
         <thead>
             <tr>
-                <th>Objekt</th>
+                <th>Systemberechtigungen</th>
                 <th class="alignCenter">Lesen</th>
                 <th class="alignCenter">Bearbeiten</th>
                 <th class="alignCenter">Löschen</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="config in matrix | orderBy:'label'">
                 <td class="permission-label">{{config.label}}</td>
-                <td class="permission-button  permission-{{config.readable}}" ng-click="changePermission(config.index, 'readable')">
+                <td class="permission-button  permission-{{config.readable}}" ng-click="changePermission(config.index, 'readable', false)">
                     <span ng-show="config.readable == 0">nein</span>
                     <span ng-show="config.readable == 1">eigene</span>
                     <span ng-show="config.readable == 2">alle</span>
                 </td>
-                <td class="permission-button permission-{{config.writable}}" ng-click="changePermission(config.index, 'writable')">
+                <td class="permission-button permission-{{config.writable}}" ng-click="changePermission(config.index, 'writable', false)">
                     <span ng-show="config.writable == 0">nein</span>
                     <span ng-show="config.writable == 1">eigene</span>
                     <span ng-show="config.writable == 2">alle</span>
                 </td>
-                <td class="permission-button permission-{{config.deletable}}" ng-click="changePermission(config.index, 'deletable')">
+                <td class="permission-button permission-{{config.deletable}}" ng-click="changePermission(config.index, 'deletable', false)">
                     <span ng-show="config.deletable == 0">nein</span>
                     <span ng-show="config.deletable == 1">eigene</span>
                     <span ng-show="config.deletable == 2">alle</span>
                 </td>
+                <td class="permission-button permission_extended ng-class:{'permission_extended_active': config.extended}" ng-click="showExtendedPermissions(config, false)">Feldebene <span class="glyphicon glyphicon-chevron-right"></span></td>
             </tr>
+        </tbody>
+        <thead>
+        <tr>
+            <th>Individuelle Berechtigungen</th>
+            <th class="alignCenter">Lesen</th>
+            <th class="alignCenter">Bearbeiten</th>
+            <th class="alignCenter">Löschen</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="config in matrixCustom | orderBy:'label'">
+            <td class="permission-label">{{config.label}}</td>
+            <td class="permission-button  permission-{{config.readable}}" ng-click="changePermission(config.index, 'readable', true)">
+                <span ng-show="config.readable == 0">nein</span>
+                <span ng-show="config.readable == 1">eigene</span>
+                <span ng-show="config.readable == 2">alle</span>
+            </td>
+            <td class="permission-button permission-{{config.writable}}" ng-click="changePermission(config.index, 'writable', true)">
+                <span ng-show="config.writable == 0">nein</span>
+                <span ng-show="config.writable == 1">eigene</span>
+                <span ng-show="config.writable == 2">alle</span>
+            </td>
+            <td class="permission-button permission-{{config.deletable}}" ng-click="changePermission(config.index, 'deletable', true)">
+                <span ng-show="config.deletable == 0">nein</span>
+                <span ng-show="config.deletable == 1">eigene</span>
+                <span ng-show="config.deletable == 2">alle</span>
+            </td>
+            <td class="permission-button permission_extended ng-class:{'permission_extended_active': config.extended}" ng-click="showExtendedPermissions(config, true)">Feldebene&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></td>
+        </tr>
         </tbody>
     </table>
 </div>

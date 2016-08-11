@@ -84,6 +84,8 @@ body {
     display:none;
 }
 
+
+
 div[pim-block-extend]{
     display:none;
 }
@@ -568,6 +570,11 @@ li.grid:hover .image-edit{
     background-color:#eaedf2;
 }
 
+.permission th.sub{
+    font-weight: normal;
+}
+
+
 .permission th, .permission td{
     border-top: 1px solid #CCCCCC;
     border-bottom: 1px solid #CCCCCC;
@@ -592,15 +599,40 @@ li.grid:hover .image-edit{
     text-align: center;
     cursor:pointer;
     border-right: 2px solid #FFFFFF;
-    width:80px;
+    width:100px;
+}
+
+.permission-button-lg{
+    width:180px;
+}
+
+.permission-button-hidden{
+    background-color: #ffffff !important;
+    cursor: default !important;
 }
 
 .permission-button span{
     color: #FFFFFF;
 }
 
+.permission_extended.permission-button span{
+    color: #666666 ;
+}
+
+.permission_extended_active{
+    background-color: #CCCCCC;
+}
+
+.permission_extended.permission-button.permission_extended_active span{
+    color: #000000 !important ;
+}
+
 .permission-button:hover{
     opacity: 0.8;
+}
+
+.fieldpermission{
+    background-color: #ECECEC;
 }
 
 .permission-0{
@@ -613,6 +645,10 @@ li.grid:hover .image-edit{
 
 .permission-2{
     background-color: #396000;
+}
+
+.permission--1{
+    background-color: #666666;
 }
 
 /** CHOOSER **/

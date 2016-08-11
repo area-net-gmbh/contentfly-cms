@@ -64,6 +64,11 @@ class PermissionsType extends Type
             $pObject->setReadable($config['readable']);
             $pObject->setWritable($config['writable']);
             $pObject->setDeletable($config['deletable']);
+            if(!empty($config['extended'])){
+                $pObject->setExtended(json_encode($config['extended']));
+            }else{
+                $pObject->setExtended('');
+            }
             $pObject->setGroup($object);
 
             $this->em->persist($pObject);

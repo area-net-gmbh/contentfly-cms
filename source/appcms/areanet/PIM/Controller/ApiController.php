@@ -560,13 +560,17 @@ class ApiController extends BaseController
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
-        if(!Permission::isDeletable($this->app['auth.user'], $entityName)){
+        if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
             throw new \Exception("Das Objekt wurde nicht gefunden.", 404);
+        }
+
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
         if($entityPath == 'Areanet\PIM\Entity\User'){
@@ -922,7 +926,7 @@ class ApiController extends BaseController
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
-        if(!Permission::isWritable($this->app['auth.user'], $entityName)){
+        if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
@@ -932,7 +936,9 @@ class ApiController extends BaseController
 
         }
 
-        //Todo: Validierung!
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+        }
 
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
@@ -1250,7 +1256,8 @@ class ApiController extends BaseController
             $permissions[$entityName] = array(
                 'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
                 'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
-                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName)
+                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName),
+                'extended'  => Permission::getExtended($this->app['auth.user'], $entityName)
             );
         }
 

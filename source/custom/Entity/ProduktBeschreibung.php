@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt_beschreibung")
- * @PIM\Config(hide=true, label="Beschreibung")
+ * @PIM\Config(hide=true, label="Produkte - Beschreibung")
  */
 class ProduktBeschreibung extends Base
 {
