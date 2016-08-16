@@ -18,14 +18,14 @@ class SetupController extends BaseController
         $user->setPass("admin");
         $user->setIsAdmin(true);
 
-        //$this->em->persist($user);
-        //$this->em->flush();
+        $this->em->persist($user);
+        $this->em->flush();
 
         $folder = new Folder();
         $folder->setId(1);
         $folder->setTitle('Allgemein');
         $this->em->getClassMetaData(get_class($folder))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-        //$this->em->persist($folder);*/
+        $this->em->persist($folder);
 
         $size = new ThumbnailSetting();
         $size->setAlias('pim_list');
