@@ -34,4 +34,20 @@ $configDefault->CUSTOM_IMPORT_FOLDER                    = ROOT_DIR.'/../data/';
 $configFactory->setConfig($configDefault);
 
 
+/*
+ * Config for Test-System
+ */
+$configTest = new \Areanet\PIM\Classes\Config('dev.das-app-cms.de', $configDefault);
+
+$configTest->DB_HOST = 'db1254.mydbserver.com';
+$configTest->DB_NAME = 'usr_p356303_1';
+$configTest->DB_USER = 'p356303';
+$configTest->DB_PASS = 'App-193Dn-qE';
+
+$configTest->APP_ENABLE_XSENDFILE       = false;
+$configTest->APP_ENABLE_SCHEMA_CACHE    = true;
+
+$configFactory->setConfig($configTest);
+
+
 

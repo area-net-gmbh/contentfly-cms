@@ -31,3 +31,8 @@ $app->get('/', function () use ($app) {
     ));
 });
 
+$app->get('/updatedb', function () use ($app) {
+    $result = shell_exec('cd '.ROOT_DIR.'/ && php vendor/bin/doctrine orm:schema:update --force');
+    die($result);
+});
+
