@@ -91,13 +91,17 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
 //Config Image-Processing
 
 $app['thumbnailSettings'] = function ($app) {
-    $queryBuilder = $app['orm.em']->createQueryBuilder();
-    $queryBuilder
-        ->select('thumbnailSetting')
-        ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting')
-        ->where("thumbnailSetting.isDeleted = false");
-    $query   = $queryBuilder->getQuery();
-    return $query->getResult();
+    try {
+        $queryBuilder = $app['orm.em']->createQueryBuilder();
+        $queryBuilder
+            ->select('thumbnailSetting')
+            ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting')
+            ->where("thumbnailSetting.isDeleted = false");
+        $query = $queryBuilder->getQuery();
+        return $query->getResult();
+    }catch (\Doctrine\DBAL\Driver\PDOException $e){
+        return array();
+    }
 };
 
 foreach(Config\Adapter::getConfig()->FILE_PROCESSORS as $fileProcessorSetting){
