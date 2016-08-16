@@ -99,7 +99,7 @@ $app['thumbnailSettings'] = function ($app) {
             ->where("thumbnailSetting.isDeleted = false");
         $query = $queryBuilder->getQuery();
         return $query->getResult();
-    }catch (\Doctrine\DBAL\Driver\PDOException $e){
+    }catch (Exception $e){
         return array();
     }
 };
