@@ -25,7 +25,7 @@ class SetupController extends BaseController
         $folder->setId(1);
         $folder->setTitle('Allgemein');
         $this->em->getClassMetaData(get_class($folder))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-        $this->em->persist($folder);
+        //$this->em->persist($folder);
 
         $size = new ThumbnailSetting();
         $size->setAlias('pim_list');
