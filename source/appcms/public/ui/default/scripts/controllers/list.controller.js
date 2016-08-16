@@ -5,11 +5,12 @@
         .module('app')
         .controller('ListCtrl', ListCtrl);
 
-    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService, $document){
+    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService, $document, $location){
         var vm              = this;
         var oldPageNumber   = 1;
 
         //Properties
+        vm.permissions         = localStorageService.get('permissions');
         vm.objects             = [];
         vm.objectsAvailable    = false;
         vm.objectsNotAvailable = false;
@@ -25,6 +26,11 @@
         }
 
         vm.schema  = localStorageService.get('schema')[vm.entity];
+
+        if(!vm.schema){
+            $location.path('/');
+            return;
+        }
 
         vm.sortProperty = vm.schema.settings.sortBy;
         vm.sortOrder    = vm.schema.settings.sortOrder;
@@ -66,12 +72,10 @@
         vm.filterBadge  = 0;
         vm.filterJoins  = {};
 
-
         //Functions
         vm.closeFilter          = closeFilter;
         vm.delete               = doDelete;
         vm.executeFilter        = executeFilter;
-        vm.loadSchema           = loadSchema;
         vm.openForm             = openForm;
         vm.paginationChanged    = paginationChanged;
         vm.resetFilter          = resetFilter;
@@ -89,6 +93,7 @@
         }
 
         function doDelete(object){
+
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
@@ -99,17 +104,20 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/modal.html',
+                templateUrl: '/ui/default/views/partials/modal.html',
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function(){ return 'Eintrag löschen'; },
                     body: function(){ return modaltitle; },
+                    object: function(){ return object; },
                     hideCancelButton: false
                 }
             });
 
             modalInstance.result.then(
                 function (doDelete) {
+
+                    
                     if(doDelete){
 
                         vm.objectsAvailable = false;
@@ -126,7 +134,7 @@
                             },
                             function errorCallback(response) {
                                 var modalInstance = $uibModal.open({
-                                    templateUrl: 'views/partials/modal.html',
+                                    templateUrl: '/ui/default/views/partials/modal.html',
                                     controller: 'ModalCtrl as vm',
                                     resolve: {
                                         title: function(){ return 'Fehler beim Löschen'; },
@@ -134,11 +142,14 @@
                                         hideCancelButton: true
                                     }
                                 });
+                                loadData();
                             }
                         );
                     }
                 },
-                function () {}
+                function () {
+
+                }
             );
         }
 
@@ -189,21 +200,12 @@
                 properties.push(vm.schema.list[key]);
             }
 
-            if(vm.schema.settings.type == 'tree'){
-                vm.schema.settings.isSortable = false;
-            }
-
             var filter = {};
             for (var key in vm.filter) {
                 if(vm.filter[key]){
                     filter[key] = vm.filter[key];
-                    if(key == 'treeParent' && vm.filter[key]){
-                        vm.schema.settings.isSortable = true;
-                    }
                 }
             }
-
-
 
             var data = {
                 entity: vm.entity,
@@ -229,18 +231,28 @@
                 function errorCallback(response) {
                     vm.objectsAvailable = false;
                     vm.objectsNotAvailable = true;
+
+
+                    if(response.status == 403){
+                        $location.path('/error');
+                    }
                 }
             );
         }
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
+
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
                     var entity = null;
                     if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
                         entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
                     }else{
                         entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+                    }
+
+                    if(!vm.permissions[entity].readable){
+                        continue;
                     }
 
                     if(localStorageService.get('schema')[entity].settings.type == 'tree') {
@@ -261,9 +273,8 @@
                         if(joinSchema.settings.isSortable){
                             properties.push('sorting');
                         }
-                        
-                        for (var keySchema in joinSchema.list ) {
-                            properties.push(joinSchema.list[keySchema]);
+                        for (var key2 in joinSchema.list ) {
+                            properties.push(joinSchema.list[key2]);
                         }
 
                         EntityService.list({entity: entity, properties: properties}).then(
@@ -276,7 +287,6 @@
                                             vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
                                         }
                                     }
-                                    console.log(key + " = " + vm.filterJoins[key]);
                                 }
                             })(entity, key),
                             function errorCallback(response) {
@@ -293,6 +303,10 @@
                     }
 
                     var field = key;
+
+                    if(!vm.permissions[entity].readable){
+                        continue;
+                    }
 
                     if(localStorageService.get('schema')[entity].settings.type == 'tree'){
 
@@ -334,6 +348,7 @@
                         properties: [field],
                         groupBy: field
                     }
+                    
 
                     data['order'] = {};
                     data['order'][field] = "ASC";
@@ -358,25 +373,10 @@
 
             }
         }
-
-
-        function loadSchema(){
-            //todo: Schema-Service
-            $http({
-                method: 'GET',
-                url: '/api/schema',
-                headers: { 'X-Token': localStorageService.get('token') },
-            }).then(function successCallback(response) {
-                localStorageService.set('schema', response.data.data);
-                localStorageService.set('devmode', response.data.devmode);
-                vm.schema = response.data.data[vm.entity];
-                loadData();
-            }, function errorCallback(response) {
-                vm.error = response.data.message;
-            });
-        }
-
+        
         function openForm(object){
+
+
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
@@ -389,26 +389,29 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/form.html',
+                templateUrl: '/ui/default/views/form.html',
                 controller: 'FormCtrl as vm',
                 resolve: {
                     entity: function(){ return vm.entity;},
                     title: function(){ return modaltitle; },
                     object: function(){ return object; }
                 },
-                size: 'xl',
-                backdrop: 'static'
-            })
+                backdrop: 'static',
+                size: 'xl'
+            });
+
 
             modalInstance.result.then(
                 function (isSaved) {
-                    
                     if(isSaved){
                         loadData();
                     }
                 },
-                function () {}
+                function () {
+                }
             );
+            
+
         }
 
         function paginationChanged(newPageNumber) {

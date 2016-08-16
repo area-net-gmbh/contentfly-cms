@@ -20,6 +20,13 @@ $app['setup.controller'] = $app->share(function() use ($app) {
 $app->get('/setup', "setup.controller:setupAction");
 
 
+use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\Debug\ExceptionHandler;
+
+ExceptionHandler::register();
+ErrorHandler::register();
+
+
 $app->error(function (\Exception $e, $code) use($app) {
     if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
         return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 404));
@@ -44,9 +51,7 @@ $app->error(function (\Exception $e, $code) use($app) {
 
 });
 
-$app->get('/', 'ui.controller:showAction');
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
-
 
 $app->mount('/api', new \Areanet\PIM\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));
 $app->mount('/auth', new \Areanet\PIM\Classes\Controller\Provider\Base\AuthControllerProvider('/auth'));

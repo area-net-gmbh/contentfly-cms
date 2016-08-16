@@ -6,21 +6,27 @@
         .directive('pimInteger', pimInteger);
 
 
-    function pimInteger(){
+    function pimInteger(localStorageService){
         return {
             restrict: 'E',
             scope: {
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/integer/integer.html'
+                return '/ui/default/types/integer/integer.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 if(scope.value === undefined && scope.config.default != null){
                     scope.value = parseInt(scope.config.default);
                 }
 
                 scope.$watch('value',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+                    
                     scope.onChangeCallback({key: scope.key, value: scope.value});
                 },true)
             }

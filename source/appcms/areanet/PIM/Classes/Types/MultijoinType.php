@@ -1,10 +1,12 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class MultijoinType extends Type
@@ -85,11 +87,19 @@ class MultijoinType extends Type
         $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
         $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
 
+        if(!Permission::isWritable($user, $entity)){
+            throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
+        }
+        
         if($object->$getter()) {
             if ($mappedBy) {
                 $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
                 $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
 
+                if(!Permission::isWritable($user, $acceptFrom)){
+                    throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
+                }
+                                
                 $object->$getter()->clear();
                 $query = $this->em->createQuery('DELETE FROM ' . $acceptFrom . ' e WHERE e.' . $mappedFrom . ' = ?1');
                 $query->setParameter(1, $object->getId());

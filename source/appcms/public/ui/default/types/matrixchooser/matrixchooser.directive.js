@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function () {
-                return 'types/matrixchooser/matrixchooser.html'
+                return '/ui/default/types/matrixchooser/matrixchooser.html'
             },
             link: function (scope, element, attrs) {
                 var entityData          = null;
@@ -51,7 +51,7 @@
 
                 function addNewObject(id, doCloseChooser){
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return id ? entityChooser2 : entityChooser1;},

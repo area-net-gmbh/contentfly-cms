@@ -13,16 +13,20 @@
         var refreshOnCancel  = false;
 
         //Properties
+
         vm.doSave           = false;
+        vm.entity           = entity;
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];
+        
         vm.object           = {};
         vm.isLoading        = true;
         vm.isSubmit         = false;
         vm.fileUploads      = {};
         vm.forms            = {};
         vm.modaltitle       = title;
-        vm.password = {};
+        vm.password         = {};
+        vm.permissions      = localStorageService.get('permissions');
 
         //Functions
         vm.save                 = save;
@@ -45,7 +49,7 @@
 
         function confirmPush(count, title, text, object) {
             var modalInstance = $uibModal.open({
-                templateUrl: 'views/partials/modal.html',
+                templateUrl: '/ui/default/views/partials/modal.html',
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function () {
@@ -92,12 +96,12 @@
                         vm.doSave       = false;
                         vm.object.id    = response.data.id;
                         if(andClose) $uibModalInstance.close(response.data.data);
-                    }, 
+                    },
                     function errorCallback(response) {
                         vm.doSave = false;
 
                         var modalInstance = $uibModal.open({
-                            templateUrl: 'views/partials/modal.html',
+                            templateUrl: '/ui/default/views/partials/modal.html',
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function () {
@@ -122,18 +126,12 @@
                 EntityService.update(data).then(
                     function successCallback(response) {
                         vm.doSave = false;
-
-                        if(andClose){
-                            for(var key in objectDataToSave){
-                                vm.object[key] = objectDataToSave[key];
-                            }
-                            $uibModalInstance.close(vm.object);
-                        }
+                        if(andClose) $uibModalInstance.close(vm.object);
                     },
                     function errorCallback(response) {
                         vm.doSave = false;
                         var modalInstance = $uibModal.open({
-                            templateUrl: 'views/partials/modal.html',
+                            templateUrl: '/ui/default/views/partials/modal.html',
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function () {
@@ -167,15 +165,19 @@
         }
 
         function init(){
+
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
+
                     vm.schemaOnejoin[config.tab] = schemaComplete[config.tab];
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
             });
+            
 
-            if(!object || !object.id){
+            if(!object || !object.id || !vm.permissions[entity].readable){
                 vm.isLoading = false;
+                cancel();
                 return;
             }
 
@@ -189,7 +191,33 @@
                     vm.object = response.data.data;
                     vm.isLoading = false;
                 },
-                function(){}
+                function(data){
+
+                    var modalInstance = $uibModal.open({
+                        templateUrl: '/ui/default/views/partials/modal.html',
+                        controller: 'ModalCtrl as vm',
+                        resolve: {
+                            title: function () {
+                                return data.statusText;
+                            },
+                            body: function () {
+                                return data.data.message;
+                            },
+                            hideCancelButton: function () {
+                                return false;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(
+                        function(doDelete) {
+                            $uibModalInstance.close();
+                        },
+                        function(){
+                            $uibModalInstance.close();
+                        }
+                    );
+                }
             );
         }
 

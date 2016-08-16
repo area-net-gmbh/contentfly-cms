@@ -5,6 +5,11 @@ use Areanet\PIM\Classes\Type;
 
 class TextareaType extends Type
 {
+    public function getPriority()
+    {
+        return 10;
+    }
+    
     public function getAlias()
     {
         return 'textarea';

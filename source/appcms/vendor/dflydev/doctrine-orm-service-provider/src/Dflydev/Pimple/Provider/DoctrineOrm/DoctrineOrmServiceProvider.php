@@ -103,6 +103,7 @@ class DoctrineOrmServiceProvider
                 }
 
                 $ems[$name] = $app->share(function ($ems) use ($app, $options, $config) {
+                    
                     return EntityManager::create(
                         $app['dbs'][$options['connection']],
                         $config,

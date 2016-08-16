@@ -7,6 +7,7 @@
 
     function run($rootScope, $location, $cookies, localStorageService, $http){
 
+
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
 
             $http({
@@ -34,10 +35,12 @@
                     $rootScope.devmode = localStorageService.get('devmode');
                     $rootScope.frontend = localStorageService.get('frontend');
                     $rootScope.schema = localStorageService.get('schema');
+                    $rootScope.permissions = localStorageService.get('permissions');
+                    $rootScope.uiblocks = localStorageService.get('uiblocks');
 
                     var entities = {};
                     for (var entity in $rootScope.schema) {
-                        if(entity.substr(0, 4) == 'PIM\\' || $rootScope.schema[entity]["settings"]["hide"]) continue;
+                        if(entity.substr(0, 4) == 'PIM\\' || $rootScope.schema[entity]["settings"]["hide"] || !$rootScope.permissions[entity]["readable"]) continue;
                         entities[entity] = $rootScope.schema[entity]["settings"]["label"];
                     }
 

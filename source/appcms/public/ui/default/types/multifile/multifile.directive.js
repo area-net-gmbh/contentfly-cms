@@ -6,19 +6,20 @@
         .directive('pimMultifile', pimMultifile);
 
 
-    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService, $rootScope) {
+    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService) {
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', value: '=',  isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function () {
-                return 'types/multifile/multifile.html'
+                return '/ui/default/types/multifile/multifile.html'
             },
             link: function (scope, element, attrs) {
 
                 //Properties
-                scope.formImageSquarePreview = $rootScope.frontend.formImageSquarePreview;
+                scope.readable      = true;
+                scope.uploadable    = true;
 
                 //Functions
                 scope.addFile       = addFile;
@@ -34,11 +35,14 @@
                     disabled:!scope.config.sortable
                 };
 
+                //Startup
+                init();
+
                 ///////////////////////////
 
                 function addFile() {
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/files.html',
+                        templateUrl: '/ui/default/views/files.html',
                         controller: 'FilesCtrl as vm',
                         resolve: {
                             modaltitle: function () {
@@ -87,7 +91,7 @@
                 function editFile(index, id, title) {
 
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return 'PIM\\File';},
@@ -149,6 +153,37 @@
 
                 }
 
+                function init(){
+
+                    var permissions = localStorageService.get('permissions')
+
+                    scope.readable      = permissions['PIM\\File'].readable;
+                    scope.uploadable    = permissions['PIM\\File'].writable;
+
+                    var permissions = localStorageService.get('permissions');
+                    if(scope.config.acceptFrom){
+                        var entityForm = null;
+                        if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
+                            entityForm = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
+                        }else{
+                            var fullEntity = null;
+                            fullEntity = scope.config.acceptFrom.split('\\');
+                            entityForm = fullEntity[(fullEntity.length - 1)];
+                        }
+
+
+                        scope.deletable         = permissions[entityForm].deletable;
+                        scope.writable_object   = permissions['PIM\\File'].writable;
+                        scope.writable          = parseInt(attrs.writable) > 0 && permissions[entityForm].writable > 0;
+                    }else{
+
+                        scope.writable_object   = permissions['PIM\\File'].writable;
+                        scope.deletable         = parseInt(attrs.writable) > 0;
+                        scope.writable          = parseInt(attrs.writable) > 0;
+                    }
+                    
+                }
+
                 function removeFile(index) {
                     scope.value.splice(index, 1);
 
@@ -159,7 +194,7 @@
                     var values = [];
                     for (var index in scope.value) {
                         if(scope.config.mappedBy){
-                            values.push(scope.value[index][scope.config.mappedBy].id);
+                            if(scope.value[index][scope.config.mappedBy]) values.push(scope.value[index][scope.config.mappedBy].id);
                         }else{
                             values.push(scope.value[index].id);
                         }

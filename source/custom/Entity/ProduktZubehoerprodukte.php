@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt_zubehoerprodukte")
- * @PIM\Config(hide=true)
+ * @PIM\Config(hide=true, label="Produkte - Zubehörprodukte")
  */
 class ProduktZubehoerprodukte extends BaseSortable
 {

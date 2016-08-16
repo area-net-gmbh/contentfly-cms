@@ -59,16 +59,35 @@
     font-family: 'Open Sans';
 }
 
+
 .clear{
     height:1px;
     line-height: 1px;
     clear:both;
 }
 
+.alignRight{
+    text-align: right;
+}
+
+.alignCenter{
+    text-align: center;
+}
+
 body {
     padding-top: 70px;
     background-color:#F2F4F9;
 
+}
+
+.ldn{
+    display:none;
+}
+
+
+
+div[pim-block-extend]{
+    display:none;
 }
 
 body.emotionalBackground{
@@ -104,6 +123,7 @@ body.emotionalBackground{
     width:200px;
     z-index:30;
     padding-top:36px;
+    overflow: scroll;
 }
 
 #pim-nav ul{
@@ -540,6 +560,97 @@ li.grid:hover .image-edit{
     margin-bottom: 20px;
 }
 
+/** permission **/
+.permission{
+    width:100%;
+    border-collapse: collapse;
+}
+
+.permission th{
+    background-color:#eaedf2;
+}
+
+.permission th.sub{
+    font-weight: normal;
+}
+
+
+.permission th, .permission td{
+    border-top: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+    padding:2px;
+}
+
+.permission tbody tr:hover{
+    background-color:#efefef;
+}
+
+.permission tbody tr:hover td.permission-label{
+    font-weight: bold;
+}
+
+.permission select{
+    width:100px;
+    display:inline-block;
+    background-color: transparent;
+}
+
+.permission-button{
+    text-align: center;
+    cursor:pointer;
+    border-right: 2px solid #FFFFFF;
+    width:100px;
+}
+
+.permission-button-lg{
+    width:180px;
+}
+
+.permission-button-hidden{
+    background-color: #ffffff !important;
+    cursor: default !important;
+}
+
+.permission-button span{
+    color: #FFFFFF;
+}
+
+.permission_extended.permission-button span{
+    color: #666666 ;
+}
+
+.permission_extended_active{
+    background-color: #CCCCCC;
+}
+
+.permission_extended.permission-button.permission_extended_active span{
+    color: #000000 !important ;
+}
+
+.permission-button:hover{
+    opacity: 0.8;
+}
+
+.fieldpermission{
+    background-color: #ECECEC;
+}
+
+.permission-0{
+    background-color: #d43f3a;
+}
+
+.permission-1{
+    background-color:#f25801;
+}
+
+.permission-2{
+    background-color: #396000;
+}
+
+.permission--1{
+    background-color: #666666;
+}
+
 /** CHOOSER **/
 .chooserContainer{
     border:1px solid #CCCCCC;
@@ -604,8 +715,10 @@ li.grid:hover .image-edit{
 }
 
 .disabled{
-    opacity:0.35;
+    opacity:0.75;
 }
+
+
 
 #login{
     background-color: rgba(255, 255, 255, 0.7) !important;

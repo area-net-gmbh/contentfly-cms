@@ -66,6 +66,8 @@
                 localStorageService.set('version', response.data.version);
                 localStorageService.set('devmode', response.data.devmode);
                 localStorageService.set('frontend', response.data.frontend);
+                localStorageService.set('permissions', response.data.permissions);
+                localStorageService.set('uiblocks', response.data.uiblocks);
                 $location.path("/");
             }, function errorCallback(response) {
                 vm.error = response.data.message;

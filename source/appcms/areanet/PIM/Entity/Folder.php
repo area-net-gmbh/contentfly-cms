@@ -19,6 +19,8 @@ use Areanet\PIM\Classes\Annotations as PIM;
 
 class Folder extends BaseTree
 {
+    use \Custom\Traits\Folder;
+
     /**
      * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(label="Titel", showInList=30)

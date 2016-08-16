@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt_digitalvorlagen")
- * @PIM\Config(hide=true)
+ * @PIM\Config(hide=true, label="Produkte - Digitalvorlagen")
  */
 class ProduktDigitalvorlagen extends BaseSortable
 {

@@ -31,6 +31,17 @@ class FileController extends BaseController
 
         $data = array();
 
+        if(!Permission::isWritable($this->app['auth.user'], 'PIM\\File')){
+            throw new AccessDeniedHttpException("Zugriff auf PIM\\File verweigert.");
+        }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('request', $request);
+        $event->setParam('user',    $this->app['auth.user']);
+        $event->setParam('app',     $this->app);
+        $this->app['dispatcher']->dispatch('pim.file.before.upload', $event);
+
+
         foreach($request->files as $key => $file){
             if($request->get("id")){
 
@@ -127,6 +138,13 @@ class FileController extends BaseController
             }
         }
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('request', $request);
+        $event->setParam('fileObject', $fileObject);
+        $event->setParam('user',    $this->app['auth.user']);
+        $event->setParam('app',     $this->app);
+        $this->app['dispatcher']->dispatch('pim.file.after.upload', $event);
+
         return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject));
     }
 
@@ -179,6 +197,13 @@ class FileController extends BaseController
                 throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize not found");
             }
         }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('id', $id);
+        $event->setParam('fileObject', $fileObject);
+        $event->setParam('sizeObject', $sizeObject);
+        $event->setParam('app',     $this->app);
+        $this->app['dispatcher']->dispatch('pim.file.before.get', $event);
 
         $mimeType   = $fileObject->getType();
         $backend    = Backend::getInstance();
@@ -248,6 +273,14 @@ class FileController extends BaseController
             return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age=86400, public'));
         }
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('id', $id);
+        $event->setParam('fileObject', $fileObject);
+        $event->setParam('sizeObject', $sizeObject);
+        $event->setParam('fileName',   $fileName);
+        $event->setParam('app',     $this->app);
+        $this->app['dispatcher']->dispatch('pim.file.before.send', $event);
+
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
             header('Pragma: public');
             header('Cache-Control: max-age=86400, public');
@@ -282,9 +315,14 @@ class FileController extends BaseController
         $sourceId   = $request->get("sourceId");
         $destId     = $request->get("destId");
 
+        if(!Permission::isWritable($this->app['auth.user'], 'PIM\\File')){
+            throw new AccessDeniedHttpException("Zugriff auf PIM\\File verweigert.");
+        }
+
         if(!$sourceId || !$destId){
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- or Dest-Id missing.");
         }
+        
 
         $fileSource = $this->em->getRepository('Areanet\PIM\Entity\File')->find($sourceId);
         $fileDest   = $this->em->getRepository('Areanet\PIM\Entity\File')->find($destId);

@@ -13,21 +13,24 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/join/join.html'
+                return '/ui/default/types/join/join.html'
             },
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;
                 var entity       = null;
 
                 //Properties
-                scope.chooserOpened = false;
-                scope.currentPage   = 1;
-                scope.propertyCount = 0;
-                scope.objects       = [];
-                scope.schema        = null;
-                scope.selectedIndex = 0;
-                scope.totalPages    = 1;
-
+                scope.chooserOpened     = false;
+                scope.currentPage       = 1;
+                scope.deletable         = false;
+                scope.hide              = false;
+                scope.propertyCount     = 0;
+                scope.objects           = [];
+                scope.schema            = null;
+                scope.selectedIndex     = 0;
+                scope.totalPages        = 1;
+                scope.writable          = false;
+                scope.writable_object   = false;
 
                 //Functions
                 scope.addNewObject  = addNewObject;
@@ -48,7 +51,7 @@
 
                 function addNewObject(){
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
@@ -95,17 +98,12 @@
 
                 function editObject(){
 
-                    var modaltitle = 'Objekt ' + scope.value.id + ' bearbeiten';
-                    if(scope.schema.settings.labelProperty){
-                        modaltitle = scope.schema.settings.label + ' ' + (scope.value[scope.schema.settings.labelProperty] ? scope.value[scope.schema.settings.labelProperty] : 'ID' + scope.value.id) + ' bearbeiten';
-                    }
-
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
-                            title: function(){ return modaltitle; },
+                            title: function(){ return 'Objekt ' + scope.value.id + ' bearbeiten'; },
                             object: function(){ return scope.value; }
                         },
                         size: 'xl'
@@ -129,7 +127,13 @@
                         fullEntity = scope.config.accept.split('\\');
                         entity = fullEntity[(fullEntity.length - 1)];
                     }
-                    
+
+                    var permissions = localStorageService.get('permissions');
+
+                    scope.hide              = !permissions[entity].readable;
+                    scope.writable_object   = permissions[entity].writable;
+                    scope.writable          = parseInt(attrs.writable) > 0;
+
                     scope.schema    = localStorageService.get('schema')[entity];
 
                     scope.propertyCount = Object.keys(scope.schema.list).length;

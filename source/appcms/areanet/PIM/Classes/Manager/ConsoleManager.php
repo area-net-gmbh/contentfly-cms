@@ -3,29 +3,15 @@ namespace Areanet\PIM\Classes\Manager;
 
 use Areanet\PIM\Classes\Command\CustomCommand;
 use Areanet\PIM\Classes\Manager;
-use Custom\Command\AccessImport;
 use Knp\Console\ConsoleEvent;
 use Knp\Console\ConsoleEvents;
 use Silex\Application;
 
-class CustomManager extends Manager
+class ConsoleManager extends Manager
 {
-    protected $app;
-
 
     /**
-     * CustomManager constructor.
-     *
-     * @param Application $app
-     */
-    public function __construct(Application $app)
-    {
-        $this->app = $app;
-    }
-
-
-    /**
-     * @param CustomCommand $command
+     * @param ConsoleManager $command
      */
     public function addCommand(CustomCommand $command)
     {
@@ -36,4 +22,6 @@ class CustomManager extends Manager
         });
 
     }
+    
+   
 }

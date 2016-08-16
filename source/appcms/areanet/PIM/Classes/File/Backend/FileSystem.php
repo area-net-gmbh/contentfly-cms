@@ -9,6 +9,7 @@ class FileSystem implements BackendInterface
 {
     public function getPath(File $file)
     {
+
         if(!is_dir(ROOT_DIR.'/../data/files/'.$file->getId())) mkdir(ROOT_DIR.'/../data/files/'.$file->getId());
         return ROOT_DIR.'/../data/files/'.$file->getId();
     }

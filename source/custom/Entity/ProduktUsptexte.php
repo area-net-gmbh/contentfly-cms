@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produkt_usptexte")
- * @PIM\Config(hide=true)
+ * @PIM\Config(hide=true, label="Produkte - Allgemeine PopUp-Texte")
  */
 class ProduktUsptexte extends BaseSortable
 {

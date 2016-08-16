@@ -12,6 +12,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 
 class File extends Base
 {
+    use \Custom\Traits\File;
 
     /**
      * @ORM\Column(type="string")

@@ -1,6 +1,6 @@
 <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{config.label}}</label>
 <div class="col-sm-10">
-    <select class="form-control" class="form-control " id="{{key}}" name="{{key}}" maxlength="{{config.length}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly" ng-model="value" ng-change="change()">
+    <select class="form-control" class="form-control " id="{{key}}" name="{{key}}" maxlength="{{config.length}}" ng-required="!config.nullable && !config.readonly && !config.hide" ng-readonly="config.readonly || !writable" ng-model="value" ng-change="change()">
         <option ng-repeat="option in entities" value="{{option.id}}">{{option.name}}</option>
     </select>
 </div>

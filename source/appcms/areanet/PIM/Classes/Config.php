@@ -46,6 +46,7 @@ class Config{
      * @var string $DB_NESTED_LEVELS Loading x nested levels
      */
     public $DB_NESTED_LEVELS  = 3;
+    
 
     /**
      * @var boolean Enable Schema Cache
@@ -98,10 +99,9 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\JoinType',
         '\\Areanet\\PIM\\Classes\\Types\\FileType',
         '\\Areanet\\PIM\\Classes\\Types\\MultifileType',
-        '\\Areanet\\PIM\\Classes\\Types\\MultijoinType'
+        '\\Areanet\\PIM\\Classes\\Types\\MultijoinType',
+        '\\Areanet\\PIM\\Classes\\Types\\PermissionsType'
     );
-
-
 
     /**
      * @var string Load Frontend UI in folder /ui/...
@@ -109,9 +109,19 @@ class Config{
     public $FRONTEND_UI = 'default';
 
     /**
+     * @var string Load Frontend UI in folder /ui/...
+     */
+    public $FRONTEND_TITLE = 'APP-CMS';
+
+    /**
+     * @var string Load Frontend UI in folder /ui/...
+     */
+    public $FRONTEND_WELCOME = 'Willkommen im APP-CMS';
+
+    /**
      * @var string URL/Path for login in the backend
      */
-    public $FRONTEND_URL = 'backend';
+    public $FRONTEND_URL = '/';
 
     /**
      * @var boolean Show custom logo custom/Resources/logo.png

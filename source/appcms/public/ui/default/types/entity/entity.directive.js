@@ -13,9 +13,11 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/entity/entity.html'
+                return '/ui/default/types/entity/entity.html'
             },
             link: function(scope, element, attrs){
+                scope.writable = parseInt(attrs.writable) > 0;
+                
                 var schema = localStorageService.get('schema')
 
                 //Properties

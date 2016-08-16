@@ -6,6 +6,11 @@ use Areanet\PIM\Classes\Type;
 
 class PasswordType extends Type
 {
+    public function getPriority()
+    {
+        return 10;
+    }
+    
     public function getAlias()
     {
         return 'password';
@@ -28,7 +33,7 @@ class PasswordType extends Type
         $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations);
         $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Password'];
 
-        $schema['dbtype'] = "string";
+        $schema['dbtype']   = "string";
 
         return $schema;
     }

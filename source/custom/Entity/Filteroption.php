@@ -23,6 +23,13 @@ class Filteroption extends BaseSortable
     protected $titel;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Group")
+     * @ORM\JoinColumn(onDelete="SET NULL", nullable=true)
+     * @PIM\Config(showInList=80, label="Gruppe", isFilterable=true)
+     */
+    protected $group;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Custom\Entity\Filter")
      * @ORM\JoinColumn(onDelete="CASCADE")
      * @PIM\Config(label="Filter", showInList=50, isFilterable=true)
@@ -60,6 +67,24 @@ class Filteroption extends BaseSortable
     {
         $this->filter = $filter;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
+    }
+    
+    
     
     
 

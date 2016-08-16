@@ -1,8 +1,10 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class OnejoinType extends Type
@@ -26,7 +28,6 @@ class OnejoinType extends Type
         return true;
     }
 
-
     public function processSchema($key, $defaultValue, $propertyAnnotations){
         $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations);
         $propertyAnnotations    = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToOne'];
@@ -39,9 +40,10 @@ class OnejoinType extends Type
         $schema['accept']   = $one2Oneentity;
         $schema['multiple'] = false;
         $schema['tab']      = $one2Oneentity;
+        
 
-        $this->addTab($one2Oneentity, array('title' =>  $schema['label'], 'onejoin' => true, 'onejoin_field' => $key));
-                
+        $this->addTab($one2Oneentity, array('title' => $schema['label'], 'onejoin' => true, 'onejoin_field' => $key));
+
         return $schema;
     }
 
@@ -52,6 +54,9 @@ class OnejoinType extends Type
 
         $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 
+        if(!Permission::isWritable($user, $joinEntity)){
+            throw new AccessDeniedHttpException("Zugriff auf $joinEntity verweigert.");
+        }
 
         if(!empty($value['id'])){
             $controller->update($joinEntity, $value['id'], $value, false, $user);

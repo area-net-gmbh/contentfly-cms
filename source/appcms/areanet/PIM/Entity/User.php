@@ -9,14 +9,23 @@ use Areanet\PIM\Classes\Annotations as PIM;
  * @ORM\Table(name="pim_user")
  * @PIM\Config(label="Benutzer")
  */
-class User extends Base implements \JsonSerializable
+class User extends Base
 {
-
+    
+    use \Custom\Traits\User;
+    
     /**
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(showInList=20, label="Admin")
      */
     protected $isAdmin;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Group")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
+     * @PIM\Config(showInList=80, label="Gruppe", isFilterable=true)
+     */
+    protected $group;
 
     /**
      * @ORM\Column(type="string", length=100, unique=true)
@@ -35,7 +44,7 @@ class User extends Base implements \JsonSerializable
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(showInList=10, label="Aktiv")
      */
-    protected $isActive;
+    protected $isActive = true;
 
     /**
      * @ORM\Column(type="string", length=100)
@@ -144,23 +153,32 @@ class User extends Base implements \JsonSerializable
         $this->isActive = $isActive;
     }
 
-
-
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
 
     /**
-     * Specify data which should be serialized to JSON
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
+     * @param mixed $group
      */
-    function jsonSerialize()
+    public function setGroup($group)
     {
-        return array(
-            'alias' => $this->alias,
-            'isActive' => $this->isActive,
-            'isAdmin' => $this->isAdmin,
-            'id' => $this->id
-        );
+        $this->group = $group;
+    }
+
+
+
+    public function toValueObject(User $user = null, $schema = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
+    {
+        $data = parent::toValueObject($user, $schema, $entityName, $flatten, $propertiesToLoad , $level);
+
+        unset($data->salt);
+        unset($data->pass);
+        unset($data->user);
+
+        return $data;
     }
 }

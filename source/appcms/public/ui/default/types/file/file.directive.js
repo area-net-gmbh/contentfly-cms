@@ -6,33 +6,40 @@
         .directive('pimFile', pimFile);
 
 
-    function pimFile($uibModal, Upload, $timeout, localStorageService, $rootScope){
+    function pimFile($uibModal, Upload, $timeout, localStorageService){
         return {
             restrict: 'E',
             scope: {
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/file/file.html'
+                return '/ui/default/types/file/file.html'
             },
             link: function(scope, element, attrs){
 
                 //Properties
-                scope.fileUpload    = {};
-                scope.errorMsg      = null;
-                scope.formImageSquarePreview = $rootScope.frontend.formImageSquarePreview;
-                
+                scope.errorMsg          = null;
+                scope.fileUpload        = {};
+                scope.readable          = true;
+                scope.uploadable        = true;
+                scope.writable_object   = true;
+                scope.writable          = true;
+
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
                 scope.removeFile    = removeFile;
                 scope.uploadFile    = uploadFile;
 
+
+                //Startup
+                init();
+
                 /////////////////////////
 
                 function addFile() {
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/files.html',
+                        templateUrl: '/ui/default/views/files.html',
                         controller: 'FilesCtrl as vm',
                         resolve: {
                             modaltitle: function () {
@@ -54,7 +61,7 @@
 
                         if (accept != fileDataType) {
                             var modalInstance = $uibModal.open({
-                                templateUrl: 'views/partials/modal.html',
+                                templateUrl: '/ui/default/views/partials/modal.html',
                                 controller: 'ModalCtrl as vm',
                                 resolve: {
                                     title: function () {
@@ -79,7 +86,7 @@
 
                 function addVideo(){
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/partials/video-add.html',
+                        templateUrl: '/ui/default/views/partials/video-add.html',
                         controller: 'VideoAddCtrl as vm',
                         resolve: {
                             modaltitle: function () {
@@ -105,7 +112,7 @@
                 function editFile(){
                     
                     var modalInstance = $uibModal.open({
-                        templateUrl: 'views/form.html',
+                        templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return 'PIM\\File';},
@@ -123,6 +130,16 @@
                         },
                         function () {}
                     );
+                }
+
+                function init(){
+                    var permissions = localStorageService.get('permissions')
+
+                    scope.readable        = permissions['PIM\\File'].readable;
+                    scope.uploadable      = permissions['PIM\\File'].writable;
+                    scope.writable_object = permissions['PIM\\File'].writable;
+                    scope.writable        = parseInt(attrs.writable) > 0;
+                    
                 }
 
                 function removeFile () {

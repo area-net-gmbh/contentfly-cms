@@ -10,9 +10,7 @@ define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'defau
 
 use Silex\Application;
 use \Areanet\PIM\Classes\Config;
-
 use Knp\Provider\ConsoleServiceProvider;
-
 
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/Config.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
@@ -45,6 +43,11 @@ $app->register(new ConsoleServiceProvider(), array(
     'console.project_directory' => __DIR__
 ));
 
+$app['entityResolver'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\ORM\EntityResolver();
+});
+
+
 
 $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
     'orm.proxies_dir' => __DIR__.'/../data/cache/doctrine',
@@ -63,13 +66,13 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
                 'path' => __DIR__.'/../custom/Entity',
                 'use_simple_annotation_reader' => false
             ),
-        ),
-    ),
+        )
+    )
 ));
 
 
 foreach(Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType){
-    $typeClass = new $systemType($app['orm.em']);
+    $typeClass = new $systemType($app);
     if($typeClass->getAnnotationFile()){
         \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/'.$typeClass->getAnnotationFile().'.php');
     }
@@ -82,23 +85,10 @@ if(!is_dir(__DIR__.'/../custom/Views/')){
 }
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/../custom/Views/',
+    'twig.path' =>   array(__DIR__.'/../custom/Views/', __DIR__.'/public/ui/default/')
 ));
 
-
-$app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
-
-
 //Config Image-Processing
-
-$queryBuilder = $app['orm.em']->createQueryBuilder();
-$queryBuilder
-    ->select('thumbnailSetting')
-    ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting')
-    ->where("thumbnailSetting.isDeleted = false");
-$query   = $queryBuilder->getQuery();
-$thumbnailSettings = $query->getResult();
-
 
 $app['thumbnailSettings'] = function ($app) {
     $queryBuilder = $app['orm.em']->createQueryBuilder();
@@ -119,6 +109,18 @@ foreach(Config\Adapter::getConfig()->FILE_PROCESSORS as $fileProcessorSetting){
 
     Areanet\PIM\Classes\File\Processing::registerProcessor($fileProcessor);
 }
+
+$app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
+
+$app['consoleManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\ConsoleManager($app);
+});
+
+$app['uiManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\UIManager($app);
+});
+
+
 
 //Config Spatial ORM-Types
 Doctrine\DBAL\Types\Type::addType('point', '\Areanet\PIM\Classes\ORM\Spatial\PointType');

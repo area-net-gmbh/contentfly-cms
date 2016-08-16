@@ -10,13 +10,12 @@
         return {
             restrict: 'E',
             scope: {
-                key: '=', mainKey: '=', config: '=', object: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', mainKey: '=', config: '=', object: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&',
             },
             replace: true,
-            link: function(scope, element) {
+            link: function(scope, element, attrs) {
+                var formTypeDirective = '<pim-' + scope.config.type + ' key="key" config="config" writable="' + attrs.writable + '" object="object" value="object[key]" is-valid="isValid" is-submit="isSubmit" on-change-callback="onChange(key, value)"></pim-' + scope.config.type + '>';
 
-                var formTypeDirective = '<pim-' + scope.config.type + ' key="key" config="config" object="object" value="object[key]" is-valid="isValid" is-submit="isSubmit" on-change-callback="onChange(key, value)"></pim-' + scope.config.type + '>';
-                //console.log(formTypeDirective);
                 element.append($compile(formTypeDirective)(scope));
 
 

@@ -4,7 +4,9 @@ namespace Areanet\PIM\Classes\Controller\Provider;
 use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 abstract class BaseControllerProvider implements ControllerProviderInterface
@@ -25,7 +27,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
     protected function setUpMiddleware(Application $app)
     {
-        $app->before(function (Request $request) {
+        $app->before(function (Request $request)use ($app) {
             if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
                 $data = null;
                 if($request->getContent()) {
@@ -39,6 +41,44 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
                 //Todo: Content-Type prüfen, z.B. ob bei API JSON gesetzt ist!
                 //die("test");
                 //throw new \Exception("Inavlid Content-Type", 500);
+            }
+
+            if(!is_object($request->get('_controller'))) {
+                $event = new \Areanet\PIM\Classes\Event();
+                $event->setParam('request', $request);
+                $event->setParam('app', $app);
+                $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
+                if (empty($controllerAction)) {
+                    return;
+                }
+
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.before.' . $controllerParts[0] . '.' . $controllerParts[2], $event);
+
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.before.' . $controllerParts[0], $event);
+                $app['dispatcher']->dispatch('pim.controller.before', $event);
+            }
+        });
+
+        $app->after(function (Request $request, Response $response) use ($app) {
+
+            if(!is_object($request->get('_controller'))) {
+                $event = new \Areanet\PIM\Classes\Event();
+                $event->setParam('request', $request);
+                $event->setParam('response', $response);
+                $event->setParam('app', $app);
+
+                $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
+                if (empty($controllerAction)) {
+                    return;
+                }
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.after.' . $controllerParts[0] . '.' . $controllerParts[2], $event);
+
+                $controllerParts = explode('.', $controllerAction);
+                $app['dispatcher']->dispatch('pim.controller.after.' . $controllerParts[0], $event);
+                $app['dispatcher']->dispatch('pim.controller.after', $event);
             }
         });
     }

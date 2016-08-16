@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="produktwebinformation_textbloecke")
- * @PIM\Config(hide=true)
+ * @PIM\Config(hide=true, label="Produkte - Webinformationen - Textblöcke")
  */
 class ProduktWebinformationenTextbloecke extends BaseSortable
 {

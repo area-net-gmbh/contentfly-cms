@@ -1,13 +1,20 @@
+<pim-plugin key="DASHBOARD_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <div class="row header ">
     <div class="col-sm-6 col-sm-offset-1">
-        <h3>Willkommen im Bühner-PIM</h3>
+        <pim-plugin key="DASHBOARD_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <h3>{{ frontend.welcome}}</h3>
+        <pim-plugin key="DASHBOARD_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
 </div>
+<pim-plugin key="DASHBOARD_BODY_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <div class="row header-analytics">
+    <pim-plugin key="DASHBOARD_BODY_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="col-sm-3 col-sm-offset-1">
         <p>Ihr persönliches Dashboard...</p>
     </div>
+    <pim-plugin key="DASHBOARD_BODY_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin>
 </div>
+<pim-plugin key="DASHBOARD_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
 <!--
 <div class="row header ">
     <div class="col-sm-6 col-sm-offset-1">

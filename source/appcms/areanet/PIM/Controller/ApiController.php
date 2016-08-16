@@ -12,6 +12,7 @@ use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\File\Processing\Standard;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Classes\TypeManager;
 use Areanet\PIM\Entity\Base;
@@ -30,6 +31,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class ApiController extends BaseController
@@ -74,39 +76,36 @@ class ApiController extends BaseController
      */
     public function singleAction(Request $request)
     {
-        $data = array();
+
+        $data       = array();
 
         $entityName = $request->get('entity');
-        $id     = $request->get('id');
+        $id         = $request->get('id');
+        $schema     = $this->getSchema();
 
-        if(substr($entityName, 0, 3) == 'PIM'){
-            $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }else{
+        if (substr($entityName, 0, 3) == 'PIM') {
+            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
+        } else {
             $entityName = ucfirst($request->get('entity'));
-            $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
+            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
+        }
+
+        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
         }
 
         $object = $this->em->getRepository($entityNameToLoad)->find($id);
-        if(!$object){
+
+        if (!$object) {
             return new JsonResponse(array('message' => "Object not found"), 404);
         }
 
-        /*if($object instanceof File){
-            $backend = Backend::getInstance();
-            $object->uris = array(
-                'original' => $backend->getWebUri($object)
-            );
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
+        }
 
-            $processor = Processing::getInstance($object->getType());
-            if(!($processor instanceof Standard)){
-                foreach($this->app['thumbnailSettings'] as $thumbnailSetting){
-                    $object->uris[$thumbnailSetting->getAlias()] =  $backend->getWebUri($object, $thumbnailSetting);
-                }
-            }
+        return new JsonResponse(array('message' => "singleAction", 'data' => $object->toValueObject($this->app['auth.user'], $schema, $entityName, false)));
 
-        }*/
-
-        return new JsonResponse(array('message' => "singleAction", 'data' => $object));
     }
 
     /**
@@ -154,15 +153,17 @@ class ApiController extends BaseController
             $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
         }
 
-        return new JsonResponse(array('message' => "treeAction", 'data' => $this->loadTree($entityNameToLoad, null)));
+        return new JsonResponse(array('message' => "treeAction", 'data' => $this->loadTree($entityName, $entityNameToLoad, null)));
     }
 
-    protected function loadTree($entity, $parent){
+    protected function loadTree($entityName, $entity, $parent){
         $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isDeleted' => false, 'isIntern' => false), array('sorting' => 'ASC'));
         $array   = array();
+        $schema  = $this->getSchema();
+
         foreach($objects as $object){
-            $data = $object->toValueObject(true);
-            $data->treeChilds = $this->loadTree($entity, $object);
+            $data = $object->toValueObject($this->app['auth.user'], $schema, $entityName, true);
+            $data->treeChilds = $this->loadTree($entityName, $entity, $object);
             $array[] = $data;
         }
         return $array;
@@ -254,6 +255,11 @@ class ApiController extends BaseController
             $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
         }
 
+
+        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
+        }
+
         $schema     = $this->getSchema();
 
         $queryBuilder = $this->em->createQueryBuilder();
@@ -262,6 +268,11 @@ class ApiController extends BaseController
             ->from($entityNameToLoad, $entityName)
             ->where("$entityName.isDeleted = false")
             ->andWhere("$entityName.isIntern = false");
+
+        if($permission == \Areanet\PIM\Entity\Permission::OWN){
+            $queryBuilder->andWhere("$entityName.userCreated = :userCreated");
+            $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+        }
 
         if($lastModified){
             //$qb->where($qb->expr()->lte('modified', $lastModified));
@@ -428,7 +439,6 @@ class ApiController extends BaseController
         if(count($properties) > 0){
             $partialProperties = implode(',', $properties);
             $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
-
             $query  = $queryBuilder->getQuery();
         }else{
             $queryBuilder->select($entityName);
@@ -448,54 +458,7 @@ class ApiController extends BaseController
 
         $array = array();
         foreach($objects as $object){
-            $objectData = $object->toValueObject($flatten, $properties);
-
-            foreach($schema[$entityName]['properties'] as $key => $config){
-                if(count($properties) && !in_array($key, $properties)){
-                    continue;
-                }
-                if($flatten){
-                    if (isset($config['type']) && $config['type'] == 'multifile') {
-                        $getterName = 'get' . ucfirst($key);
-                        $multiFiles = $object->$getterName();
-                        $multiData = array();
-                        foreach ($multiFiles as $multiFile) {
-                            $multiData[] =  $multiFile->getid();
-                        }
-                        $objectData->$key = $multiData;
-                    }
-
-                    if (isset($config['type']) && $config['type'] == 'multijoin') {
-                        $getterName = 'get' . ucfirst($key);
-                        $multiFiles = $object->$getterName();
-                        $multiData = array();
-                        foreach ($multiFiles as $multiFile) {
-                            $multiData[] =  $multiFile->getid();
-                        }
-                        $objectData->$key = $multiData;
-                    }
-                }else {
-                    if (isset($config['type']) && $config['type'] == 'multifile') {
-                        $getterName = 'get' . ucfirst($key);
-                        $multiFiles = $object->$getterName();
-                        $multiData = array();
-                        foreach ($multiFiles as $multiFile) {
-                            if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
-                        }
-                        $objectData->$key = $multiData;
-                    }
-
-                    if (isset($config['type']) && $config['type'] == 'multijoin') {
-                        $getterName = 'get' . ucfirst($key);
-                        $multiFiles = $object->$getterName();
-                        $multiData = array();
-                        foreach ($multiFiles as $multiFile) {
-                            if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
-                        }
-                        $objectData->$key = $multiData;
-                    }
-                }
-            }
+            $objectData = $object->toValueObject($this->app['auth.user'], $schema, $entityName,  $flatten, $properties);
 
             $array[] = $objectData;
 
@@ -545,9 +508,19 @@ class ApiController extends BaseController
         $entityName = ucfirst($request->get('entity'));
         $id         = $request->get('id');
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('app',     $app);
+
+        $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
+
         $object = $this->delete($entityName, $id, $app);
 
         $schema = $this->getSchema();
+
 
         /**
          * Log delete actions
@@ -568,6 +541,14 @@ class ApiController extends BaseController
         $this->em->persist($log);
         $this->em->flush();
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
+
         return new JsonResponse(array('message' => 'deleteAction: '.$id));
     }
 
@@ -579,15 +560,23 @@ class ApiController extends BaseController
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
+        if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        }
+
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
-            return new JsonResponse(array('message' => "Das Objekt wurde nicht gefunden."), 404);
+            throw new \Exception("Das Objekt wurde nicht gefunden.", 404);
+        }
+
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
         if($entityPath == 'Areanet\PIM\Entity\User'){
 
             if($object->getAlias() == 'admin'){
-                return new JsonResponse(array('message' => "Der Hauptadministrator kann nicht gelöscht werden."), 400);
+                throw new \Exception("Der Hauptadministrator kann nicht gelöscht werden.", 400);
             }
 
             $alias = $object->getAlias();
@@ -694,6 +683,14 @@ class ApiController extends BaseController
         $entityName          = ucfirst($request->get('entity'));
         $data                = $request->get('data');
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.before.insert', $event);
+
         try {
             $object = $this->insert($entityName, $data, $app['auth.user']);
         }catch(EntityDuplicateException $e){
@@ -701,6 +698,14 @@ class ApiController extends BaseController
         }catch(Exception $e){
             return new JsonResponse(array('message' => $e->getMessage()), $e->getCode());
         }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('object',  $object);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
         return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => ($object)));
     }
@@ -713,9 +718,13 @@ class ApiController extends BaseController
         if(substr($entityName, 0, 3) == "PIM"){
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
-        $object     = new $entityPath();
 
+        if(!Permission::isWritable($this->app['auth.user'], $entityName)){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        }
 
+        $object  = new $entityPath();
+        
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
             $getter = 'get'.ucfirst($property);
@@ -740,6 +749,7 @@ class ApiController extends BaseController
         }
 
         if($object instanceof Base){
+            $object->setUserCreated($user);
             $object->setUser($user);
         }
 
@@ -814,6 +824,7 @@ class ApiController extends BaseController
             if(!$uniqueObjectLoaded) throw new Exception("Unbekannter Fehler", 500);
         }
 
+
         return $object;
     }
 
@@ -849,6 +860,15 @@ class ApiController extends BaseController
         $data                = $request->get('data');
         $disableModifiedTime = $request->get('disableModifiedTime');
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.before.udpdate', $event);
+
         try{
             $this->update($entityName, $id, $data, $disableModifiedTime, $app['auth.user']);
         }catch(EntityDuplicateException $e){
@@ -856,6 +876,15 @@ class ApiController extends BaseController
         }catch(EntityNotFoundException $e){
             return new JsonResponse(array('message' => "Not found"), 404);
         }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
 
         return new JsonResponse(array('message' => 'updateAction', 'id' => $id));
 
@@ -897,6 +926,9 @@ class ApiController extends BaseController
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
+        if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        }
 
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
@@ -904,7 +936,9 @@ class ApiController extends BaseController
 
         }
 
-        //Todo: Validierung!
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+        }
 
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
@@ -1059,7 +1093,7 @@ class ApiController extends BaseController
             $array = array();
             foreach($objects as $object){
 
-                $objectData = $object->toValueObject($flatten);
+                $objectData = $object->toValueObject($this->app['auth.user'], $schema, $entityShortcut, $flatten);
 
                 if(isset($schema[$entityShortcut])) {
 
@@ -1090,7 +1124,7 @@ class ApiController extends BaseController
                                 $multiFiles = $object->$getterName();
                                 $multiData = array();
                                 foreach ($multiFiles as $multiFile) {
-                                    if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject();
+                                    if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject($this->app['auth.user'], $schema, $entityShortcut);
                                 }
                                 $objectData->$key = $multiData;
                             }
@@ -1102,7 +1136,7 @@ class ApiController extends BaseController
                                 $multiData = array();
 
                                 foreach ($multiFiles as $multiFile) {
-                                    $multiData[] = $multiFile->toValueObject();
+                                    $multiData[] = $multiFile->toValueObject($this->app['auth.user'], $schema, $entityShortcut);
                                 }
 
 
@@ -1199,10 +1233,35 @@ class ApiController extends BaseController
 
         $frontend = array(
             'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,
-            'formImageSquarePreview' => Config\Adapter::getConfig()->FRONTEND_FORM_IMAGE_SQUARE_PREVIEW
+            'formImageSquarePreview' => Config\Adapter::getConfig()->FRONTEND_FORM_IMAGE_SQUARE_PREVIEW,
+            'title'  => Config\Adapter::getConfig()->FRONTEND_TITLE,
+            'welcome'  => Config\Adapter::getConfig()->FRONTEND_WELCOME,
         );
 
-        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $this->getSchema()));
+        $uiblocks = $this->app['uiManager']->getBlocks();
+
+        $schema         = $this->getSchema();
+        $permissions    = $this->getPermissions();
+
+        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $schema, 'permissions' => $permissions));
+    }
+
+    protected function getPermissions()
+    {
+        $schema = $this->getSchema();
+
+        $permissions = array();
+        foreach($schema as $entityName => $config){
+
+            $permissions[$entityName] = array(
+                'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
+                'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
+                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName),
+                'extended'  => Permission::getExtended($this->app['auth.user'], $entityName)
+            );
+        }
+
+        return $permissions;
     }
 
     protected function getSchema()
@@ -1229,13 +1288,16 @@ class ApiController extends BaseController
         $entities[] = "PIM\\Folder";
         $entities[] = "PIM\\Tag";
         $entities[] = "PIM\\User";
+        $entities[] = "PIM\\Group";
         $entities[] = "PIM\\Log";
         $entities[] = "PIM\\PushToken";
         $entities[] = "PIM\\ThumbnailSetting";
+        $entities[] = "PIM\\Permission";
 
         $data     = array();
 
         foreach($entities as $entity){
+            
             if(substr($entity,0,3) == "PIM"){
                 $className = 'Areanet\PIM\Entity\\'.substr($entity, 4);
             }else{
@@ -1321,8 +1383,11 @@ class ApiController extends BaseController
                 }
                 krsort($allPropertyAnnotations);
 
+                $lastMatchedPriority = -1;
+
                 foreach(TypeManager::getTypes() as $type){
-                    if($type->doMatch($allPropertyAnnotations)){
+                    if($type->doMatch($allPropertyAnnotations) && $type->getPriority() >= $lastMatchedPriority){
+
                         $propertySchema                 = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations);
                         $properties[$prop->getName()]   = $propertySchema;
 
@@ -1333,6 +1398,8 @@ class ApiController extends BaseController
                         if($prop->getName() == 'treeParent'){
                             $properties[$prop->getName()]['accept'] = $className;
                         }
+
+                        $lastMatchedPriority = $type->getPriority();
                         
                     }
                 }

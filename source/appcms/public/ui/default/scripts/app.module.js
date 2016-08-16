@@ -6,7 +6,7 @@
         'ngCookies',
         'ngFileUpload',
         'ngRoute',
-
+        
         /* 3rd-party modules */
         'angularGrid',
         'angularMoment',

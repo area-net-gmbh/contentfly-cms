@@ -6,17 +6,19 @@
         .directive('pimDatetime', pimDatetime);
 
 
-    function pimDatetime(){
+    function pimDatetime(localStorageService){
         return {
             restrict: 'E',
             scope: {
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return 'types/datetime/datetime.html'
+                return '/ui/default/types/datetime/datetime.html'
             },
             link: function(scope, element, attrs){
-                //object[key] ? moment(object[key].ISO8601).toDate() : new Date();
+
+                scope.writable = parseInt(attrs.writable) > 0;
+
                 scope.dateValue = scope.value ? moment(scope.value.ISO8601).toDate() : null;
                 scope.isOpened  = false;
 
@@ -25,10 +27,18 @@
                 }
 
                 scope.$watch('value',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+
                     scope.dateValue = scope.value ? moment(scope.value.ISO8601).toDate() : null;
                 },true)
 
                 scope.$watch('dateValue',function(data){
+                    if(!scope.writable){
+                        return;
+                    }
+
                     if(scope.dateValue == null){
                         scope.onChangeCallback({key: scope.key, value: null});
                     }else{
