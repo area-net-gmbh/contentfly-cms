@@ -26,7 +26,7 @@ class ApiControllerProvider extends BaseControllerProvider
 
         $checkAuth = function (Request $request, Application $app) {
             if (!$this->checkToken($request, $app)) {
-                throw new AccessDeniedHttpException('Access Denied');
+                throw new AccessDeniedHttpException('Zugriff verweigert', null, 403);
             }
         };
 

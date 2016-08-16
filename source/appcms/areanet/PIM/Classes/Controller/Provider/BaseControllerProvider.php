@@ -11,8 +11,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 abstract class BaseControllerProvider implements ControllerProviderInterface
 {
-    const TOKEN_TIMEOUT        = 300; //5min
-    const CHECK_TOKEN_TIMEOUT  = false;
+    const TOKEN_TIMEOUT        = 1800; //30min
+    const CHECK_TOKEN_TIMEOUT  = true;
 
     const LOGIN_PATH           = '/login';
     const TOKEN_HEADER_KEY     = 'X-Token';
@@ -94,19 +94,28 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
         if(!$tokenString) return false;
 
         $token = $app['orm.em']->getRepository('Areanet\PIM\Entity\Token')->findOneBy(array('token' => $tokenString));
+
         if(!$token){
             return false;
         }
 
+        if(!$token->getUser() || !$token->getUser()->getIsActive()){
+            throw new AccessDeniedHttpException('Zugriff verweigert', null, 401);
+        }
+
         if(self::CHECK_TOKEN_TIMEOUT) {
-            $modified = $token->getModified()->getTimestamp();
-            $now = (new \DateTime())->getTimestamp();
-            $diff = $now - $modified;
+
+            $modified   = $token->getModified()->getTimestamp();
+            $now        = new \DateTime();
+            $diff       = $now->getTimestamp() - $modified;
 
             if ($diff > self::TOKEN_TIMEOUT) {
                 $app['orm.em']->remove($token);
                 $app['orm.em']->flush();
-                return false;
+                throw new AccessDeniedHttpException('Zugriff verweigert', null, 401);
+            }else{
+                $token->setModified($now);
+                $app['orm.em']->flush();
             }
         }
 
