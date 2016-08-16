@@ -19,10 +19,10 @@ if($payload) {
         exit(0);
     }*/
     //put the branch you want here, as well as the directory your site is in
-    unlink('/html/pim/source/data/cache/schema.cache');
-    $result = shell_exec('cd /html/pim && git pull origin master');
+    unlink('/html/dev/source/data/cache/schema.cache');
+    $result = shell_exec('cd /html/dev && git pull origin master');
     file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
-    $result = shell_exec('cd /html/pim/source && SERVER_NAME="dev.pim.areanet-buehner.de" php_cli vendor/bin/doctrine orm:schema:update --force');
+    $result = shell_exec('cd /html/dev/source && SERVER_NAME="dev.das-app-cms.de" php_cli vendor/bin/doctrine orm:schema:update --force');
     file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
 } else {
     file_put_contents('log.txt', $time."\n"."Webhook failed: payload error", FILE_APPEND);
