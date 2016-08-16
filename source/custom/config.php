@@ -42,7 +42,7 @@ $configTest = new \Areanet\PIM\Classes\Config('dev.das-app-cms.de', $configDefau
 $configTest->DB_HOST = 'db1254.mydbserver.com';
 $configTest->DB_NAME = 'usr_p356303_1';
 $configTest->DB_USER = 'p356303';
-$configTest->DB_PASS = 'App-193Dn-qE';
+$configTest->DB_PASS = 'utaYidul,191';
 
 $configTest->APP_ENABLE_XSENDFILE       = false;
 $configTest->APP_ENABLE_SCHEMA_CACHE    = true;
