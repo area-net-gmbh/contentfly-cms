@@ -18,7 +18,6 @@
             return $http({
                 method: 'POST',
                 url: '/file/overwrite',
-                headers: { 'X-Token': localStorageService.get('token') },
                 data: {
                     sourceId: sourceId,
                     destId: destId

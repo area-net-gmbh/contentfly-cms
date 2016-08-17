@@ -25,13 +25,12 @@
 
             if(next.secure){
                 //localStorageService.set('localStorageKey','Add this!');
-                if (localStorageService.get('token') == null) {
+                if ($cookies.get('XSRF-TOKEN') == null) {
                     $location.path("/login");
                 }else{
                     $rootScope.userLoggedIn = true;
                     $rootScope.user = localStorageService.get('user');
                     $rootScope.version = localStorageService.get('version');
-                    $rootScope.token = localStorageService.get('token');
                     $rootScope.devmode = localStorageService.get('devmode');
                     $rootScope.frontend = localStorageService.get('frontend');
                     $rootScope.schema = localStorageService.get('schema');

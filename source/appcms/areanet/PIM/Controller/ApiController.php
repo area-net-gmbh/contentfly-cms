@@ -573,6 +573,7 @@ class ApiController extends BaseController
             throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
+
         if($entityPath == 'Areanet\PIM\Entity\User'){
 
             if($object->getAlias() == 'admin'){
@@ -619,16 +620,32 @@ class ApiController extends BaseController
             }
         }
 
-        $object->setIsDeleted(true);
-
         $this->em->remove($object);
         $this->em->flush();
 
-        $object->setId($id);
-        $this->em->persist($object);
 
+        $deletedObject = new $entityPath();
 
-        $this->em->getClassMetaData(get_class($object))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        foreach($schema[ucfirst($entityName)]['properties'] as $property => $config){
+            $setter = 'set'.ucfirst($property);
+            $getter = 'get'.ucfirst($property);
+            if(isset($config['nullable']) && !$config['nullable']){
+                $deletedObject->$setter($object->$getter());
+            }
+        }
+
+        $deletedObject->setId($id);
+        $deletedObject->setIsDeleted(true);
+        $deletedObject->setCreated($object->getCreated());
+        $deletedObject->setModified($object->getModified());
+        $deletedObject->setUser($object->getUser());
+        $deletedObject->setUserCreated($object->getUserCreated());
+        
+        $this->em->persist($deletedObject);
+
+        $object = null;
+
+        $this->em->getClassMetaData(get_class($deletedObject))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
         if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
             $this->em->getClassMetaData('Areanet\PIM\Entity\BaseTree')->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
         }
@@ -651,7 +668,7 @@ class ApiController extends BaseController
 
         $this->em->flush();
 
-        return $object;
+        return $deletedObject;
     }
 
 
@@ -734,7 +751,7 @@ class ApiController extends BaseController
             }
 
             $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
-            $typeObject = TypeManager::getType($type);
+            $typeObject = $this->app['typeManager']->getType($type);
             if(!$typeObject){
                 throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
@@ -949,7 +966,7 @@ class ApiController extends BaseController
             }
 
             $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
-            $typeObject = TypeManager::getType($type);
+            $typeObject =  $this->app['typeManager']->getType($type);
             if(!$typeObject){
                 throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
@@ -1385,7 +1402,7 @@ class ApiController extends BaseController
 
                 $lastMatchedPriority = -1;
 
-                foreach(TypeManager::getTypes() as $type){
+                foreach($this->app['typeManager']->getTypes() as $type){
                     if($type->doMatch($allPropertyAnnotations) && $type->getPriority() >= $lastMatchedPriority){
 
                         $propertySchema                 = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations);

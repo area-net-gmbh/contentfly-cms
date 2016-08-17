@@ -10,7 +10,6 @@ class UiController extends BaseController
 
     public function showAction()
     {
-        //todo: UI-Routes dynamisch!!
         $uiRoutes = $this->app['uiManager']->getRoutes();
 
         $jsFilesToInclude = array();
@@ -33,10 +32,13 @@ class UiController extends BaseController
             $cssFilesToInclude[] = $cssFile;
         }
 
+
         return $this->app['twig']->render('app.twig', array(
             'script'   => $dynInlineScript,
             'jsFiles'  => $jsFilesToInclude,
             'cssFiles' => $cssFilesToInclude,
+            'customTypes' => $this->app['typeManager']->getCustomTypes(),
+            'systemTypes' => $this->app['typeManager']->getSystemTypes(),
             'frontend' => array(
                 'title' => Config\Adapter::getConfig()->FRONTEND_TITLE,
                 'welcome' => Config\Adapter::getConfig()->FRONTEND_WELCOME

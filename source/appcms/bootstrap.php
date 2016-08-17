@@ -70,13 +70,14 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
     )
 ));
 
+$app['typeManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\TypeManager($app);
+});
+
 
 foreach(Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType){
     $typeClass = new $systemType($app);
-    if($typeClass->getAnnotationFile()){
-        \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(__DIR__.'/areanet/PIM/Classes/Annotations/'.$typeClass->getAnnotationFile().'.php');
-    }
-    \Areanet\PIM\Classes\TypeManager::registerType($typeClass);
+    $app['typeManager']->registerType($typeClass);
 }
 
 

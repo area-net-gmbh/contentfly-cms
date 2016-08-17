@@ -211,6 +211,10 @@
 
 
                     var permissions = localStorageService.get('permissions');
+                    if(!permissions){
+                        return;
+                    }
+
                     if(scope.config.acceptFrom){
                         var entityForm = null;
                         if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){

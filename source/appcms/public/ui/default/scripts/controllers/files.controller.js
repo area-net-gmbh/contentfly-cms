@@ -94,15 +94,34 @@
                                 loadData();
                             },
                             function errorCallback(response) {
-                                var modalInstance = $uibModal.open({
-                                    templateUrl: '/ui/default/views/partials/modal.html',
-                                    controller: 'ModalCtrl as vm',
-                                    resolve: {
-                                        title: function(){ return 'Fehler beim Löschen'; },
-                                        body: function(){ return response.data.message; },
-                                        hideCancelButton: true
-                                    }
-                                });
+                                if(response.status == 401){
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/relogin.html',
+                                        controller: 'ReloginCtrl as vm',
+                                        backdrop: 'static'
+                                    });
+
+                                    modalInstance.result.then(
+                                        function () {
+                                            vm.delete(andClose);
+                                        },
+                                        function () {
+                                            $uibModalInstance.close();
+                                            $location.path('/logout');
+                                        }
+                                    );
+
+                                }else{
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/modal.html',
+                                        controller: 'ModalCtrl as vm',
+                                        resolve: {
+                                            title: function(){ return 'Fehler beim Löschen'; },
+                                            body: function(){ return response.data.message; },
+                                            hideCancelButton: true
+                                        }
+                                    });
+                                }
                             }
                         );
 
@@ -223,11 +242,36 @@
                 },
                 function errorCallback(response) {
 
+                    if(response.status == 401){
+                        var modalInstance = $uibModal.open({
+                            templateUrl: '/ui/default/views/partials/relogin.html',
+                            controller: 'ReloginCtrl as vm',
+                            backdrop: 'static'
+                        });
+
+                        modalInstance.result.then(
+                            function () {
+                                loadData();
+                            },
+                            function () {
+                                $uibModalInstance.close();
+                                $location.path('/logout');
+                            }
+                        );
+
+                    }
+
+                    if(response.status == 403){
+                        $location.path('/error');
+                    }
+
                     vm.objectsAvailable = false;
                     vm.objectsNotAvailable = true;
                     vm.objects = {};
 
                     angularGridInstance.gallery.refresh();
+
+
                 }
             );
 
@@ -413,7 +457,6 @@
 
             file.upload = Upload.upload({
                 url: '/file/upload',
-                headers: {'X-Token': localStorageService.get('token')},
                 data: {file: file, id: id, folder: vm.filter['folder']}
             });
             file.upload.then(
@@ -470,7 +513,6 @@
                                 if(doOverwrite){
                                     file.upload = Upload.upload({
                                         url: '/file/upload',
-                                        headers: {'X-Token': localStorageService.get('token')},
                                         data: {file: file, folder: vm.filter['folder'], id: fileId}
                                     });
 
@@ -502,7 +544,6 @@
                     function errorCallback(response) {
                         file.upload = Upload.upload({
                             url: '/file/upload',
-                            headers: {'X-Token': localStorageService.get('token')},
                             data: {file: file, folder: vm.filter['folder']}
                         });
 

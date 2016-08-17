@@ -133,16 +133,35 @@
                                 loadData();
                             },
                             function errorCallback(response) {
-                                var modalInstance = $uibModal.open({
-                                    templateUrl: '/ui/default/views/partials/modal.html',
-                                    controller: 'ModalCtrl as vm',
-                                    resolve: {
-                                        title: function(){ return 'Fehler beim Löschen'; },
-                                        body: function(){ return response.data.message; },
-                                        hideCancelButton: true
-                                    }
-                                });
-                                loadData();
+                                if(response.status == 401){
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/relogin.html',
+                                        controller: 'ReloginCtrl as vm',
+                                        backdrop: 'static'
+                                    });
+
+                                    modalInstance.result.then(
+                                        function () {
+                                            vm.delete(object);
+                                        },
+                                        function () {
+                                            $uibModalInstance.close();
+                                            $location.path('/logout');
+                                        }
+                                    );
+
+                                }else{
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/modal.html',
+                                        controller: 'ModalCtrl as vm',
+                                        resolve: {
+                                            title: function(){ return 'Fehler beim Löschen'; },
+                                            body: function(){ return response.data.message; },
+                                            hideCancelButton: true
+                                        }
+                                    });
+                                    loadData();
+                                }
                             }
                         );
                     }
@@ -232,6 +251,23 @@
                     vm.objectsAvailable = false;
                     vm.objectsNotAvailable = true;
 
+                    if(response.status == 401){
+                        var modalInstance = $uibModal.open({
+                            templateUrl: '/ui/default/views/partials/relogin.html',
+                            controller: 'ReloginCtrl as vm',
+                            backdrop: 'static'
+                        });
+
+                        modalInstance.result.then(
+                            function () {
+                                loadData();
+                            },
+                            function () {
+                                $uibModalInstance.close();
+                                $location.path('/logout');
+                            }
+                        );
+                    }
 
                     if(response.status == 403){
                         $location.path('/error');

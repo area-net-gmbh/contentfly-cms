@@ -24,7 +24,6 @@
             return $http({
                 method: 'POST',
                 url: '/api/delete',
-                headers: { 'X-Token': localStorageService.get('token') },
                 data: data
             });
         }
@@ -33,7 +32,7 @@
             return $http({
                 method: 'POST',
                 url: '/api/list',
-                headers: { 'X-Token': localStorageService.get('token') },
+                
                 data: data
             });
         }
@@ -42,7 +41,7 @@
             return $http({
                 method: 'POST',
                 url: '/api/insert',
-                headers: {'X-Token': localStorageService.get('token')},
+                
                 data: data
             });
         }
@@ -51,7 +50,6 @@
             return $http({
                 method: 'POST',
                 url: '/api/update',
-                headers: {'X-Token': localStorageService.get('token')},
                 data: data
             });
         }
@@ -60,7 +58,6 @@
             return $http({
                 method: 'POST',
                 url: '/api/multiupdate',
-                headers: {'X-Token': localStorageService.get('token')},
                 data: data
             });
         }
@@ -69,7 +66,6 @@
             return $http({
                 method: 'POST',
                 url: '/api/single',
-                headers: { 'X-Token': localStorageService.get('token') },
                 data: data
             });
         }
@@ -78,7 +74,6 @@
             return $http({
                 method: 'POST',
                 url: '/api/tree',
-                headers: { 'X-Token': localStorageService.get('token') },
                 data: data
             });
         }

@@ -156,11 +156,13 @@
                 function init(){
 
                     var permissions = localStorageService.get('permissions')
-
+                    if(!permissions){
+                        return;
+                    }
+                    
                     scope.readable      = permissions['PIM\\File'].readable;
                     scope.uploadable    = permissions['PIM\\File'].writable;
-
-                    var permissions = localStorageService.get('permissions');
+                    
                     if(scope.config.acceptFrom){
                         var entityForm = null;
                         if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
@@ -211,7 +213,6 @@
                     angular.forEach(files, function (file) {
                         file.upload = Upload.upload({
                             url: '/file/upload',
-                            headers: {'X-Token': localStorageService.get('token')},
                             data: {file: file}
                         });
 

@@ -16,6 +16,7 @@
         localStorageService.remove('savedFilter');
         localStorageService.remove('uiblocks');
         localStorageService.clearAll();
+        $cookies.remove('token');
         $rootScope.userLoggedIn = false;
         $location.path('/login');
     }

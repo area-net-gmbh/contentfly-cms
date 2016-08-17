@@ -48,8 +48,9 @@
                 url: '/auth/login',
                 data: {alias: vm.alias, pass: vm.password}
             }).then(function successCallback(response) {
-                localStorageService.set('token', response.data.token);
                 localStorageService.set('user', response.data.user);
+                $cookies.put('XSRF-TOKEN', response.data.token);
+
                 schema();
             }, function errorCallback(response) {
                 vm.error = response.data.message;
@@ -57,10 +58,10 @@
         }
 
         function schema(){
+
             $http({
                 method: 'GET',
-                url: '/api/schema',
-                headers: { 'X-Token': localStorageService.get('token') },
+                url: '/api/schema'
             }).then(function successCallback(response) {
                 localStorageService.set('schema', response.data.data);
                 localStorageService.set('version', response.data.version);

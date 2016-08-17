@@ -33,16 +33,16 @@ $app->error(function (\Exception $e, $code) use($app) {
 
         if($app['debug']){
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $e->getCode());
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
             }else{
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode());
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
             }
 
         }else{
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId), $e->getCode());
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId),  $e->getCode() ? $e->getCode() : 500);
             }else{
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $e->getCode());
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
             }
 
         }

@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Classes\Controller\Provider;
 
+use Areanet\PIM\Classes\Config\Adapter;
 use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
@@ -11,11 +12,9 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 abstract class BaseControllerProvider implements ControllerProviderInterface
 {
-    const TOKEN_TIMEOUT        = 1800; //30min
-    const CHECK_TOKEN_TIMEOUT  = true;
 
     const LOGIN_PATH           = '/login';
-    const TOKEN_HEADER_KEY     = 'X-Token';
+    const TOKEN_HEADER_KEY     = 'X-XSRF-TOKEN';
     const TOKEN_REQUEST_KEY    = '_token';
     private $basePath = '';
 
@@ -90,8 +89,10 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
     protected function checkToken(Request $request, Application $app){
         $tokenString = $request->headers->get(self::TOKEN_HEADER_KEY, $request->get(self::TOKEN_REQUEST_KEY));
-
-        if(!$tokenString) return false;
+       
+        if(!$tokenString){
+            return false;
+        }
 
         $token = $app['orm.em']->getRepository('Areanet\PIM\Entity\Token')->findOneBy(array('token' => $tokenString));
 
@@ -100,19 +101,19 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
         }
 
         if(!$token->getUser() || !$token->getUser()->getIsActive()){
-            throw new AccessDeniedHttpException('Zugriff verweigert', null, 401);
+            return false;
         }
 
-        if(self::CHECK_TOKEN_TIMEOUT) {
+        if(Adapter::getConfig()->APP_CHECK_TOKEN_TIMEOUT) {
 
             $modified   = $token->getModified()->getTimestamp();
             $now        = new \DateTime();
             $diff       = $now->getTimestamp() - $modified;
-
-            if ($diff > self::TOKEN_TIMEOUT) {
+            
+            if ($diff > Adapter::getConfig()->APP_TOKEN_TIMEOUT) {
                 $app['orm.em']->remove($token);
                 $app['orm.em']->flush();
-                throw new AccessDeniedHttpException('Zugriff verweigert', null, 401);
+                return false;
             }else{
                 $token->setModified($now);
                 $app['orm.em']->flush();

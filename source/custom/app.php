@@ -4,6 +4,8 @@ $app['consoleManager']->addCommand(new \Custom\Command\DatabaseImport());
 $app['consoleManager']->addCommand(new \Custom\Command\FileImport());
 $app['consoleManager']->addCommand(new \Custom\Command\SizeImport());
 
+$app['typeManager']->registerType(new \Custom\Classes\Types\TestType($app));
+
 $app['uiManager']->addBlock('INDEX_NAVIGATION_ADMIN_SUB_APPEND', 'blocks/deploy.html');
 $app['uiManager']->addBlock('LIST_TABLE_BODY_BUTTONS_PREPEND', 'blocks/list-button.html');
 $app['uiManager']->addBlock('LIST_TABLE_BODY_COL_APPEND', 'blocks/col-append.html');

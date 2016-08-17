@@ -134,7 +134,10 @@
 
                 function init(){
                     var permissions = localStorageService.get('permissions')
-
+                    if(!permissions){
+                        return;
+                    }
+                    
                     scope.readable        = permissions['PIM\\File'].readable;
                     scope.uploadable      = permissions['PIM\\File'].writable;
                     scope.writable_object = permissions['PIM\\File'].writable;
@@ -153,7 +156,6 @@
                     if (file) {
                         file.upload = Upload.upload({
                             url: '/file/upload',
-                            headers: {'X-Token': localStorageService.get('token')},
                             data: {file: file}
                         });
 

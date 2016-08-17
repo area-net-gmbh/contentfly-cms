@@ -231,8 +231,7 @@ class Base extends Serializable
     {
         $this->isIntern = $isIntern;
     }
-
-
+    
 
     /**
      * @ORM\PrePersist()

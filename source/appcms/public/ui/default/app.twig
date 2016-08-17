@@ -139,23 +139,14 @@
 <script src="/ui/default/scripts/services/entity.service.js"></script>
 <script src="/ui/default/scripts/services/file.service.js"></script>
 
-<!-- App Types -->
-<script src="/ui/default/types/string/string.directive.js"></script>
-<script src="/ui/default/types/boolean/boolean.directive.js"></script>
-<script src="/ui/default/types/textarea/textarea.directive.js"></script>
-<script src="/ui/default/types/rte/rte.directive.js"></script>
-<script src="/ui/default/types/decimal/decimal.directive.js"></script>
-<script src="/ui/default/types/integer/integer.directive.js"></script>
-<script src="/ui/default/types/datetime/datetime.directive.js"></script>
-<script src="/ui/default/types/file/file.directive.js"></script>
-<script src="/ui/default/types/multifile/multifile.directive.js"></script>
-<script src="/ui/default/types/password/password.directive.js"></script>
-<script src="/ui/default/types/join/join.directive.js"></script>
-<script src="/ui/default/types/multijoin/multijoin.directive.js"></script>
-<script src="/ui/default/types/entity/entity.directive.js"></script>
-<script src="/ui/default/types/matrixchooser/matrixchooser.directive.js"></script>
-<script src="/ui/default/types/select/select.directive.js"></script>
-<script src="/ui/default/types/permissions/permissions.directive.js"></script>
+<!-- App System-Types -->
+{% for systemType in systemTypes %}
+    <script src="/ui/default/types/{{ systemType.getAlias() }}/{{ systemType.getAlias() }}.directive.js"></script>
+{% endfor %}
+<!-- App Custom-Types -->
+{% for customType in customTypes %}
+    <script src="/custom/Frontend/ui/default/types/{{ customType.getAlias() }}/{{ customType.getAlias() }}.directive.js"></script>
+{% endfor %}
 
 <!-- App Directives -->
 <script src="/ui/default/scripts/directives/form.directive.js"></script>
@@ -170,6 +161,7 @@
 <script src="/ui/default/scripts/controllers/partials/modal.controller.js"></script>
 <script src="/ui/default/scripts/controllers/partials/file-edit.controller.js"></script>
 <script src="/ui/default/scripts/controllers/partials/video-add.controller.js"></script>
+<script src="/ui/default/scripts/controllers/partials/relogin.controller.js"></script>
 <script src="/ui/default/scripts/controllers/login.controller.js"></script>
 <script src="/ui/default/scripts/controllers/logout.controller.js"></script>
 <script src="/ui/default/scripts/controllers/list.controller.js"></script>

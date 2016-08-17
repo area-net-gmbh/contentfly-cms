@@ -53,6 +53,15 @@ class Config{
      */
     public $APP_ENABLE_SCHEMA_CACHE = false;
 
+    /**
+     * @var integer Token Timeout in ms
+     */
+    public $APP_TOKEN_TIMEOUT = 1800;
+
+    /**
+     * @var boolean Check Token Timeout
+     */
+    public $APP_CHECK_TOKEN_TIMEOUT = true;
 
     /**
      * @var string Default recipient mail address

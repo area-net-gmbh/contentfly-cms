@@ -5,7 +5,7 @@
         .module('app')
         .controller('FormCtrl', FormCtrl);
 
-    function FormCtrl($scope, $cookies, $uibModalInstance, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment, EntityService, FileService) {
+    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment, EntityService, FileService) {
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
@@ -98,21 +98,41 @@
                         if(andClose) $uibModalInstance.close(response.data.data);
                     },
                     function errorCallback(response) {
+
                         vm.doSave = false;
 
-                        var modalInstance = $uibModal.open({
-                            templateUrl: '/ui/default/views/partials/modal.html',
-                            controller: 'ModalCtrl as vm',
-                            resolve: {
-                                title: function () {
-                                    return 'Fehler beim Anlegen des Datensatzes';
+                        if(response.status == 401){
+                            var modalInstance = $uibModal.open({
+                                templateUrl: '/ui/default/views/partials/relogin.html',
+                                controller: 'ReloginCtrl as vm',
+                                backdrop: 'static'
+                            });
+
+                            modalInstance.result.then(
+                                function () {
+                                    doSave(andClose);
                                 },
-                                body: function () {
-                                    return response.data.message;
-                                },
-                                hideCancelButton: true
-                            }
-                        });
+                                function () {
+                                    $uibModalInstance.close();
+                                    $location.path('/logout');
+                                }
+                            );
+
+                        }else{
+                            var modalInstance = $uibModal.open({
+                                templateUrl: '/ui/default/views/partials/modal.html',
+                                controller: 'ModalCtrl as vm',
+                                resolve: {
+                                    title: function () {
+                                        return 'Fehler beim Anlegen des Datensatzes';
+                                    },
+                                    body: function () {
+                                        return response.data.message;
+                                    },
+                                    hideCancelButton: true
+                                }
+                            });
+                        }
                     }
                 );
             } else {
@@ -130,34 +150,56 @@
                     },
                     function errorCallback(response) {
                         vm.doSave = false;
-                        var modalInstance = $uibModal.open({
-                            templateUrl: '/ui/default/views/partials/modal.html',
-                            controller: 'ModalCtrl as vm',
-                            resolve: {
-                                title: function () {
-                                    return response.data.type == 'Areanet\\PIM\\Classes\\Exceptions\\File\\FileExistsException' ? 'Datei überschreiben?' : 'Fehler beim Anlegen des Datensatzes';
-                                },
-                                body: function () {
-                                    return response.data.message;
-                                },
-                                hideCancelButton: true
-                            }
-                        });
 
-                        if(response.data.type == 'Areanet\\PIM\\Classes\\Exceptions\\File\\FileExistsException') {
+                        if(response.status == 401){
+                            var modalInstance = $uibModal.open({
+                                templateUrl: '/ui/default/views/partials/relogin.html',
+                                controller: 'ReloginCtrl as vm',
+                                backdrop: 'static'
+                            });
+
                             modalInstance.result.then(
-                                function (doOverwrite) {
-                                    if (doOverwrite) {
-                                        FileService.overwrite(vm.object['id'], response.data.file_id).then(
-                                            function successCallback(response){},
-                                            function errorCallback(response){}
-                                        );
-                                        $uibModalInstance.close(vm.object);
-                                    }
+                                function () {
+                                    doSave(andClose);
                                 },
                                 function () {
+                                    $uibModalInstance.close();
+                                    $location.path('/logout');
                                 }
                             );
+
+                        }else {
+                            var modalInstance = $uibModal.open({
+                                templateUrl: '/ui/default/views/partials/modal.html',
+                                controller: 'ModalCtrl as vm',
+                                resolve: {
+                                    title: function () {
+                                        return response.data.type == 'Areanet\\PIM\\Classes\\Exceptions\\File\\FileExistsException' ? 'Datei überschreiben?' : 'Fehler beim Anlegen des Datensatzes';
+                                    },
+                                    body: function () {
+                                        return response.data.message;
+                                    },
+                                    hideCancelButton: true
+                                }
+                            });
+
+                            if (response.data.type == 'Areanet\\PIM\\Classes\\Exceptions\\File\\FileExistsException') {
+                                modalInstance.result.then(
+                                    function (doOverwrite) {
+                                        if (doOverwrite) {
+                                            FileService.overwrite(vm.object['id'], response.data.file_id).then(
+                                                function successCallback(response) {
+                                                },
+                                                function errorCallback(response) {
+                                                }
+                                            );
+                                            $uibModalInstance.close(vm.object);
+                                        }
+                                    },
+                                    function () {
+                                    }
+                                );
+                            }
                         }
                     }
                 );
@@ -193,30 +235,50 @@
                 },
                 function(data){
 
-                    var modalInstance = $uibModal.open({
-                        templateUrl: '/ui/default/views/partials/modal.html',
-                        controller: 'ModalCtrl as vm',
-                        resolve: {
-                            title: function () {
-                                return data.statusText;
-                            },
-                            body: function () {
-                                return data.data.message;
-                            },
-                            hideCancelButton: function () {
-                                return false;
-                            }
-                        }
-                    });
+                    if(data.status == 401){
+                        var modalInstance = $uibModal.open({
+                            templateUrl: '/ui/default/views/partials/relogin.html',
+                            controller: 'ReloginCtrl as vm',
+                            backdrop: 'static'
+                        });
 
-                    modalInstance.result.then(
-                        function(doDelete) {
-                            $uibModalInstance.close();
-                        },
-                        function(){
-                            $uibModalInstance.close();
-                        }
-                    );
+                        modalInstance.result.then(
+                            function () {
+                                init();
+                            },
+                            function () {
+                                $uibModalInstance.close();
+                                $location.path('/logout');
+                            }
+                        );
+
+                    }else {
+
+                        var modalInstance = $uibModal.open({
+                            templateUrl: '/ui/default/views/partials/modal.html',
+                            controller: 'ModalCtrl as vm',
+                            resolve: {
+                                title: function () {
+                                    return data.statusText;
+                                },
+                                body: function () {
+                                    return data.data.message;
+                                },
+                                hideCancelButton: function () {
+                                    return false;
+                                }
+                            }
+                        });
+
+                        modalInstance.result.then(
+                            function (doDelete) {
+                                $uibModalInstance.close();
+                            },
+                            function () {
+                                $uibModalInstance.close();
+                            }
+                        );
+                    }
                 }
             );
         }

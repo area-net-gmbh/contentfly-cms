@@ -6,6 +6,5 @@
         //.config(['$httpProvider', function($httpProvider) {
         //    $httpProvider.useApplyAsync(true);
         //}])
-    ;
 
 })();

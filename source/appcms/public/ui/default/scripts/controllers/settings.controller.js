@@ -23,8 +23,7 @@
 
             $http({
                 method: 'GET',
-                url: '/api/schema',
-                headers: { 'X-Token': localStorageService.get('token') },
+                url: '/api/schema'
             }).then(function successCallback(response) {
                 localStorageService.set('schema', response.data.data);
                 localStorageService.set('devmode', response.data.devmode);

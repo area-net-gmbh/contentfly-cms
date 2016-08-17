@@ -24,7 +24,7 @@ class Token
     protected $user;
 
     /**
-     * @ORM\Column(type="string", length=100, unique=true)
+     * @ORM\Column(type="string", length=128, unique=true)
      */
     protected $token;
 
@@ -44,7 +44,7 @@ class Token
     {
         $this->created  = new \DateTime();
         $this->modified = new \DateTime();
-        $this->token    = bin2hex(openssl_random_pseudo_bytes(32));
+        $this->token    = bin2hex(openssl_random_pseudo_bytes(64));
     }
 
     /**

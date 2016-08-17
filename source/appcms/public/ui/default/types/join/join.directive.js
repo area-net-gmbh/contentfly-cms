@@ -129,7 +129,10 @@
                     }
 
                     var permissions = localStorageService.get('permissions');
-
+                    if(!permissions){
+                        return;
+                    }
+                    
                     scope.hide              = !permissions[entity].readable;
                     scope.writable_object   = permissions[entity].writable;
                     scope.writable          = parseInt(attrs.writable) > 0;
