@@ -22,6 +22,13 @@ $app['dispatcher']->addListener('pim.controller.after.api.schemaaction', functio
     $response->setContent(json_encode($content));
 });
 
+$app['dispatcher']->addListener('pim.entity.before.list', function (\Areanet\PIM\Classes\Event $event) {
+    $entityName     = $event->getParam('entity');
+    $queryBuilder   = $event->getParam('queryBuilder');
+
+    //$queryBuilder->andWhere("$entityName.isIntern = true");
+});
+
 $app['dispatcher']->addListener('pim.entity.after.insert', function (\Areanet\PIM\Classes\Event $event) {
 
 });

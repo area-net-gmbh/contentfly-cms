@@ -25,6 +25,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\Query;
 use Silex\Application;
 
@@ -261,7 +262,6 @@ class ApiController extends BaseController
         }
 
         $schema     = $this->getSchema();
-
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select("count(".$entityName.")")
@@ -408,6 +408,14 @@ class ApiController extends BaseController
             }
         }
 
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('request',        $request);
+        $event->setParam('entity',         $entityName);
+        $event->setParam('queryBuilder',   $queryBuilder);
+        $event->setParam('app',            $this->app);
+        $event->setParam('user',           $this->app['auth.user']);
+
+        $this->app['dispatcher']->dispatch('pim.entity.before.list', $event);
 
         $query      = $queryBuilder->getQuery();
         $totalObjects = $query->getSingleScalarResult();
