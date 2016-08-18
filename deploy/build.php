@@ -14,12 +14,13 @@ if($payload) {
         file_put_contents('build-log.txt', $time."\n".$ex."\n\n", FILE_APPEND);
         exit(0);
     }
-    $version = str_replace('refs/tags/', '', $payload->refs);
+    $version = str_replace('refs/tags/', '', $payload->ref);
 
     $output = '';
     $output = "\n" . shell_exec("mkdir appcms-$version");
     $output = "\n" . shell_exec("cp -R ../source/appcms appcms-$version");
     $output = "\n" . shell_exec("zip -r appcms-$version .");
+    $output = "\n" . shell_exec("rm -rf appcms-$version");
 
     file_put_contents('build-log.txt', $time."\n".json_encode($payload), FILE_APPEND);
 }else {
