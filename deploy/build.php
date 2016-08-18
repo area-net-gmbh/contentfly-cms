@@ -19,7 +19,7 @@ if($payload) {
     $output = '';
     $output = "\n" . shell_exec("mkdir appcms-$version");
     $output = "\n" . shell_exec("cp -R ../source/appcms appcms-$version");
-    $output = "\n" . shell_exec("zip -r appcms-$version appcms-$version/*");
+    $output = "\n" . shell_exec("zip -r appcms-$version appcms-$version");
     $output = "\n" . shell_exec("rm -rf appcms-$version");
 
     file_put_contents('build-log.txt', $time."\n".json_encode($payload), FILE_APPEND);
