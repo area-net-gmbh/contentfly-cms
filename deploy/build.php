@@ -21,11 +21,11 @@ if($payload) {
     $version = str_replace('refs/tags/', '', $payload->ref);
 
     $output = '';
-    $output = "\n" . shell_exec("mkdir appcms-$version");
-    $output = "\n" . shell_exec("cp -R ../source/appcms appcms-$version");
-    $output = "\n" . shell_exec("zip -r appcms-$version appcms-$version");
-    $output = "\n" . shell_exec("rm -rf appcms-$version");
-    $output = "\n" . shell_exec("mv appcms-$version.zip ../../www/download/");
+    $output .= "\n" . shell_exec("mkdir appcms-$version");
+    $output .= "\n" . shell_exec("cp -R ../source/appcms appcms-$version");
+    $output .= "\n" . shell_exec("zip -r appcms-$version appcms-$version");
+    $output .= "\n" . shell_exec("rm -rf appcms-$version");
+    $output .= "\n" . shell_exec("mv appcms-$version.zip ../../www/download/");
     file_put_contents('build-log.txt', $time."\n".$output."\n\n".json_encode($payload), FILE_APPEND);
 }else {
     file_put_contents('build-log.txt', $time."\n"."Webhook failed: payload error", FILE_APPEND);
