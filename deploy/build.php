@@ -14,6 +14,10 @@ if($payload) {
         file_put_contents('build-log.txt', $time."\n".$ex."\n\n", FILE_APPEND);
         exit(0);
     }
+    if(!$payload->checkout_sha){
+        exit(0);
+    }
+    
     $version = str_replace('refs/tags/', '', $payload->ref);
 
     $output = '';
