@@ -22,7 +22,7 @@ if($payload) {
     $output = "\n" . shell_exec("zip -r appcms-$version appcms-$version");
     $output = "\n" . shell_exec("rm -rf appcms-$version");
 
-    file_put_contents('build-log.txt', $time."\n".json_encode($payload), FILE_APPEND);
+    file_put_contents('build-log.txt', $time."\n".$output, FILE_APPEND);
 }else {
     file_put_contents('build-log.txt', $time."\n"."Webhook failed: payload error", FILE_APPEND);
 }
