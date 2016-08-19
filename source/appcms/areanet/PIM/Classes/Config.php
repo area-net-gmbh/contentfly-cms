@@ -15,7 +15,12 @@ class Config{
      */
     protected $host = 'default';
 
-
+    /**
+     * PATH TO CLI-PHP
+     *
+     * @var string
+     */
+    public $SYSTEM_PHP_CLI_COMMAND = 'php';
 
     /**
      * @var string $DB_HOST Database Server Host

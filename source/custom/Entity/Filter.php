@@ -25,10 +25,16 @@ class Filter extends BaseSortable
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(showInList=60, label="Titel")
+     * @PIM\Config(showInList=60, label="Test")
      * @CUSTOM\Test()
      */
     protected $test;
+
+    /**
+     * @ORM\Column(type="string", nullable=false)
+     * @PIM\Config(showInList=60, label="Test 2")
+     */
+    protected $test2;
 
     /**
      * @return mixed
@@ -61,6 +67,24 @@ class Filter extends BaseSortable
     {
         $this->test = $test;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getTest2()
+    {
+        return $this->test2;
+    }
+
+    /**
+     * @param mixed $test2
+     */
+    public function setTest2($test2)
+    {
+        $this->test2 = $test2;
+    }
+
+
 
 
 

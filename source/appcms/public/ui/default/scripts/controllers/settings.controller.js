@@ -9,17 +9,36 @@
         var vm = this;
 
         //Properties
-        vm.schemaMessage = '';
-        vm.schemaButtonDisabled = false;
+        vm.message          =  '';
+        vm.buttonsDisabled  = false;
 
         //Functions
+        vm.flushSchemaCache     = flushSchemaCache;
         vm.loadSchema           = loadSchema;
+        vm.updateDatabase       = updateDatabase;
 
         ///////////////////////////////////
 
+        function flushSchemaCache(){
+            vm.buttonsDisabled = true;
+            printMessage('Schema-Cache wird geleert..', false);
+
+            $http({
+                method: 'POST',
+                url: '/system/do',
+                data:{ method: 'flushSchemaCache'}
+            }).then(function successCallback(response) {
+                printMessage(response.data.message, true);
+                vm.buttonsDisabled = false;
+            }, function errorCallback(response) {
+                vm.buttonsDisabled = false;
+                printMessage('Intener Fehler. Schema-Cache konnte nicht geleert werden!', true);
+            });
+        }
+
         function loadSchema(){
-            vm.schemaMessage = 'Schema wird geladen...';
-            vm.schemaButtonDisabled = true;
+            printMessage('Schema wird geladen...', false);
+            vm.buttonsDisabled = true;
 
             $http({
                 method: 'GET',
@@ -47,12 +66,38 @@
 
                 $rootScope.entities = entities;
 
-                vm.schemaMessage = 'Schema wurde neu geladen!';
-                vm.schemaButtonDisabled = false;
+                printMessage('Schema wurde neu geladen!', true);
+                vm.buttonsDisabled = false;
 
             }, function errorCallback(response) {
-                vm.schemaMessage = 'Fehler beim Laden des Schemas!';
-                vm.schemaButtonDisabled = false;
+                printMessage('Fehler beim Laden des Schemas!', true);
+                vm.buttonsDisabled = false;
+            });
+        }
+
+        function printMessage(message, bold){
+            if(bold){
+                vm.message = '<b>' + message + '</b><br>' + vm.message ;
+            }else{
+                vm.message = message + '<br>' + vm.message ;
+            }
+
+        }
+
+        function updateDatabase(){
+            vm.buttonsDisabled = true;
+            printMessage('Datenbank wird synchronisiert...', false);
+
+            $http({
+                method: 'POST',
+                url: '/system/do',
+                data:{ method: 'updateDatabase'}
+            }).then(function successCallback(response) {
+                printMessage(response.data.message, true);
+                vm.buttonsDisabled = false;
+            }, function errorCallback(response) {
+                vm.buttonsDisabled = false;
+                printMessage('Intener Fehler. Datenbank konnte nicht synchronisiert werden!', true);
             });
         }
     }

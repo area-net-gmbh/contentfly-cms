@@ -45,4 +45,5 @@ class SetupController extends BaseController
    
         return new Response('Das Setup wurde erfolgreich durchgeführt!', 201);
     }
+    
 }

@@ -754,3 +754,13 @@ li.grid:hover .image-edit{
     color:#999999;
     text-align: center;
 }
+
+.console{
+    background-color: #ECECEC;
+    border:1px solid #666600;
+    padding:8px;
+    height:200px;
+    font-family: "Courier New";
+    font-size:12px;
+    overflow:scroll;
+}

@@ -7,7 +7,6 @@
 
     function DashboardCtrl($scope, $cookies, localStorageService, $routeParams, $http){
         var vm = this;
-        console.log("DASH");
         vm.labels = ["01.03.", "06.03.", "11.03.", "16.03.", "21.03.", "26.03.", "31.03."];
         vm.series = ['Aktive Benutzer', 'Seitenaufrufe'];
         vm.data = [
