@@ -1230,7 +1230,7 @@ class ApiController extends BaseController
             'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
         );
 
-        return new JsonResponse(array('message' => 'configAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION));
+        return new JsonResponse(array('message' => 'configAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
     }
 
     /**
@@ -1268,7 +1268,7 @@ class ApiController extends BaseController
         $schema         = $this->getSchema();
         $permissions    = $this->getPermissions();
 
-        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION, 'data' => $schema, 'permissions' => $permissions));
+        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions));
     }
 
     protected function getPermissions()
