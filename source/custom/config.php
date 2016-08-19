@@ -46,6 +46,7 @@ $configTest->DB_PASS = 'utaYidul,191';
 
 $configTest->APP_ENABLE_XSENDFILE       = false;
 $configTest->APP_ENABLE_SCHEMA_CACHE    = true;
+$configTest->SYSTEM_PHP_CLI_COMMAND     = 'php_cli';
 
 $configFactory->setConfig($configTest);
 
