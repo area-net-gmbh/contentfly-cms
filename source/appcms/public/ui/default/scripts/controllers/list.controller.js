@@ -212,6 +212,7 @@
             sortSettings[vm.sortProperty] = vm.sortOrder;
 
             var properties = ['id', 'modified', 'created', 'user'];
+            console.log(vm.schema.settings);
             if(vm.schema.settings.isSortable){
                 properties.push('sorting');
             }

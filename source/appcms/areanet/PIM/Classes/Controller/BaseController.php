@@ -2,6 +2,8 @@
 namespace Areanet\PIM\Classes\Controller;
 
 use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\BaseTree;
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
