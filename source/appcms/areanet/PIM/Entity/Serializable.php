@@ -57,10 +57,15 @@ abstract class Serializable implements \JsonSerializable{
 
 
                         $config['accept'] = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                        if(substr($config['accept'], 0, 1) == '\\'){
+                            $config['accept'] = substr($config['accept'], 1);
+                        }
                         $permission = \Areanet\PIM\Entity\Permission::ALL;
 
                         $getterName = 'get' . ucfirst($property);
                         $subobject = $this->$getterName();
+
+
 
                         if($config['type'] == 'file'){
                             $config['accept'] = 'PIM\\File';
@@ -81,7 +86,7 @@ abstract class Serializable implements \JsonSerializable{
                             $result->$property = array('id' => $subobject->getId(), 'pim_blocked' => true);
                             continue;
                         }
-
+                        
                         $result->$property = $subobject->toValueObject($user, $schema, $config['accept'], $flatten, array(), ($level + 1));
 
                     }elseif($this->$property instanceof \Doctrine\ORM\PersistentCollection) {

@@ -5,6 +5,7 @@ use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Exceptions\Config\FileNotFoundException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Processing;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Entity\File;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Silex\Application;
@@ -12,6 +13,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class FileController extends BaseController
@@ -145,7 +147,9 @@ class FileController extends BaseController
         $event->setParam('app',     $this->app);
         $this->app['dispatcher']->dispatch('pim.file.after.upload', $event);
 
-        return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject));
+        $schema = $this->getSchema();
+
+        return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject->toValueObject($this->app['auth.user'], $schema, 'PIM\\File')));
     }
 
     /**

@@ -10,12 +10,12 @@
 <div class="row header-analytics">
     <pim-plugin key="SETTINGS_BODY_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="col-sm-4 col-sm-offset-1">
-        <p><b>Datenbank-Schema</b></p>
+        <p><b>Schema</b></p>
         <p>
             <button class="btn btn-default btn-sm" ng-click="vm.loadSchema()" ng-disabled="vm.buttonsDisabled">Schema neu laden</button>
             <button class="btn btn-default btn-sm" ng-click="vm.flushSchemaCache()" ng-disabled="vm.buttonsDisabled">Schema-Cache löschen</button>
         </p>
-        <p><b>ORM</b></p>
+        <p><b>ORM und Datenbank</b></p>
         <p>
             <button class="btn btn-default btn-sm" ng-click="vm.validateORM()" ng-disabled="vm.buttonsDisabled">ORM validieren</button>
             <button class="btn btn-default btn-sm" ng-click="vm.updateDatabase()" ng-disabled="vm.buttonsDisabled">Datenbank synchronisieren</button>

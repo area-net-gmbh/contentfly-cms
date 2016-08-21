@@ -6,7 +6,7 @@
         <pim-plugin key="LIST_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
         <div class="btn-group btn-sorting" uib-dropdown>
             <button class="btn btn-default" id="dropdown-sorting" type="button" uib-dropdown-toggle>
-                {{::vm.schema.properties[vm.sortProperty].label}}
+                {{vm.schema.properties[vm.sortProperty].label}}
             </button>
             <button type="button" class="btn btn-default" ng-click="vm.sortBy(vm.sortProperty)">
                 <span ng-show="vm.sortOrder === 'ASC'" class="glyphicon glyphicon-arrow-up"></span>
