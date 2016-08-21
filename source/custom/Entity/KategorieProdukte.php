@@ -18,13 +18,13 @@ use Doctrine\ORM\Mapping as ORM;
 class KategorieProdukte extends BaseSortable
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Custom\Entity\Kategorie")
+     * @ORM\ManyToOne(targetEntity="Custom\Entity\Kategorie", inversedBy="produktVerknuepfungen")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $kategorie;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Custom\Entity\Produkt")
+     * @ORM\ManyToOne(targetEntity="Custom\Entity\Produkt", inversedBy="kategorien")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $produkt;

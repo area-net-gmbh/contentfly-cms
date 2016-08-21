@@ -19,7 +19,7 @@ class ProduktDigitalvorlagen extends BaseSortable
 {
 
     /**
-     * @ORM\ManyToOne(targetEntity="Custom\Entity\Produkt")
+     * @ORM\ManyToOne(targetEntity="Custom\Entity\Produkt", inversedBy="digitalvorlagen")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $produkt;

@@ -16,6 +16,7 @@
         vm.flushSchemaCache     = flushSchemaCache;
         vm.loadSchema           = loadSchema;
         vm.updateDatabase       = updateDatabase;
+        vm.validateORM          = validateORM;
 
         ///////////////////////////////////
 
@@ -76,10 +77,12 @@
         }
 
         function printMessage(message, bold){
+            if(!message) return;
+            
             if(bold){
-                vm.message = '<b>' + message + '</b><br>' + vm.message ;
+                vm.message = '<b>' +  message.replace(new RegExp('\\*', 'g'), '<br>- ') + '</b><br>' + vm.message ;
             }else{
-                vm.message = message + '<br>' + vm.message ;
+                vm.message = message.replace(new RegExp('\\*', 'g'), '<br>- ') + '<br>' + vm.message ;
             }
 
         }
@@ -98,6 +101,23 @@
             }, function errorCallback(response) {
                 vm.buttonsDisabled = false;
                 printMessage('Intener Fehler. Datenbank konnte nicht synchronisiert werden!', true);
+            });
+        }
+
+        function validateORM(){
+            vm.buttonsDisabled = true;
+            printMessage('ORM wird validiert...', false);
+
+            $http({
+                method: 'POST',
+                url: '/system/do',
+                data:{ method: 'validateORM'}
+            }).then(function successCallback(response) {
+                printMessage(response.data.message, true);
+                vm.buttonsDisabled = false;
+            }, function errorCallback(response) {
+                vm.buttonsDisabled = false;
+                printMessage('Intener Fehler. ORM konnte nicht validiert werden!', true);
             });
         }
     }

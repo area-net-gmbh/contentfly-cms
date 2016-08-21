@@ -732,7 +732,9 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
-        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => ($object)));
+        $schema = $this->getSchema();
+        
+        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => $object->toValueObject($this->app['auth.user'], $schema, $entityName)));
     }
 
     public function insert($entityName, $data, $user)

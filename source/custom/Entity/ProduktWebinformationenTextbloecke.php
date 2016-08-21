@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 class ProduktWebinformationenTextbloecke extends BaseSortable
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Custom\Entity\ProduktWebinformationen")
+     * @ORM\ManyToOne(targetEntity="Custom\Entity\ProduktWebinformationen", inversedBy="textbloecke")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $produktwebinformation;

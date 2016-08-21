@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 class ProduktWebinformationenAusverkaufsmeldungen extends BaseSortable
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Custom\Entity\ProduktWebinformationen")
+     * @ORM\ManyToOne(targetEntity="Custom\Entity\ProduktWebinformationen", inversedBy="ausverkaufsmeldungen")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $produktwebinformation;

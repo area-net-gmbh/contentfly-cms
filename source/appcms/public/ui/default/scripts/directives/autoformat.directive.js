@@ -60,7 +60,7 @@
                         default:
                             var content = strip_tags(scope.object[property]);
                             if(scope.schema.properties[property].listShorten){
-                                if(content.length > scope.schema.properties[property].listShorten){
+                                if(content && content.length > scope.schema.properties[property].listShorten){
                                     element.text(content.substr(0, scope.schema.properties[property].listShorten) + '...');
                                 }else{
                                     element.text(content);

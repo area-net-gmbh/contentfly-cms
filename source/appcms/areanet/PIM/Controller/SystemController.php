@@ -65,4 +65,10 @@ class SystemController extends BaseController
         return shell_exec('cd '.ROOT_DIR.' && '.Adapter::getConfig()->SYSTEM_PHP_CLI_COMMAND.' vendor/bin/doctrine orm:schema:update --force');
     }
 
+    protected function validateORM()
+    {
+        //die('php_cli '.ROOT_DIR.'/vendor/bin/doctrine orm:schema:update --force');
+        return shell_exec('cd '.ROOT_DIR.' && '.Adapter::getConfig()->SYSTEM_PHP_CLI_COMMAND.' vendor/bin/doctrine orm:validate-schema');
+    }
+
 }

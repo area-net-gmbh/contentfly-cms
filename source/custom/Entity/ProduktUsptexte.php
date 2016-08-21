@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 class ProduktUsptexte extends BaseSortable
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Custom\Entity\Produkt")
+     * @ORM\ManyToOne(targetEntity="Custom\Entity\Produkt", inversedBy="uspTexte")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $produkt;

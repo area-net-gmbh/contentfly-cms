@@ -90,6 +90,7 @@
                     modalInstance.result.then(
                         function (newObject) {
                             if(newObject){
+                                if(scope.chooserOpened) scope.objects.push(newObject);
                                 chooseObject(newObject);
                             }
                         },
