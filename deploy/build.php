@@ -55,6 +55,10 @@ if($payload) {
     $output .= "\n" . shell_exec("mkdir boilerplate-$version/custom/Traits");
     $output .= "\n" . shell_exec("mkdir boilerplate-$version/custom/Views");
 
+    $output .= "\n" . shell_exec("mkdir boilerplate-$version/data/");
+    $output .= "\n" . shell_exec("mkdir boilerplate-$version/data/cache");
+    $output .= "\n" . shell_exec("mkdir boilerplate-$version/data/files");
+
     $output .= "\n" . shell_exec("cp ../template/app.php boilerplate-$version/custom/app.php");
     $output .= "\n" . shell_exec("cp ../template/config.php boilerplate-$version/custom/config.php");
     $output .= "\n" . shell_exec("cp ../template/version.php boilerplate-$version/custom/version.php");
