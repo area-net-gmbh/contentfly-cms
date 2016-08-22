@@ -10,6 +10,9 @@ foreach($versions as $version){
     if($version->boilerplate_url){
         $data .= " - \"Boilerplate\":".$version->boilerplate_url;
     }
+    if($version->apidoc_url){
+        $data .= " - \"API-Doku\":".$version->apidoc_url;
+    }
     $data .= "\n";
 
 

@@ -5,9 +5,6 @@ use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Classes\Annotations as PIM;
 use Custom\Classes\Annotations as CUSTOM;
 use Areanet\PIM\Entity\BaseSortable;
-use Areanet\PIM\Entity\BaseTree;
-use Areanet\PIM\Entity\File;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

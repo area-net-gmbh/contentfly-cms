@@ -33,7 +33,12 @@ if($payload) {
     $output .= "\n" . shell_exec("cp -R appcms-$version/appcms ../../_releases/_current");
     $output .= "\n" . shell_exec("rm -rf appcms-$version/");
     $output .= "\n" . shell_exec("mv appcms-$version.zip ../../www/download/");
-    
+
+    //API-DOC
+    $output .= "\n" . shell_exec("rm -rf ../../www/apidoc/$version");
+    $output .= "\n" . shell_exec("mkdir ../../www/apidoc/$version");
+    $output .= "\n" . shell_exec("cp -R ../doc/* ../../www/apidoc/$version");
+
     //BOILDERPLATE
     $output .= "\n" . shell_exec("mkdir boilerplate-$version");
     $output .= "\n" . shell_exec("mkdir boilerplate-$version/custom");
