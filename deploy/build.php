@@ -68,9 +68,9 @@ if($payload) {
     $output .= "\n" . shell_exec("cp ../template/config.php boilerplate-$version/custom/config.php");
     $output .= "\n" . shell_exec("cp ../template/version.php boilerplate-$version/custom/version.php");
     $output .= "\n" . shell_exec("cp ../template/Traits/File.php boilerplate-$version/custom/Traits/File.php");
-    $output .= "\n" . shell_exec("cp ../template/Traits/File.php boilerplate-$version/custom/Traits/Folder.php");
-    $output .= "\n" . shell_exec("cp ../template/Traits/File.php boilerplate-$version/custom/Traits/Group.php");
-    $output .= "\n" . shell_exec("cp ../template/Traits/File.php boilerplate-$version/custom/Traits/User.php");
+    $output .= "\n" . shell_exec("cp ../template/Traits/Folder.php boilerplate-$version/custom/Traits/Folder.php");
+    $output .= "\n" . shell_exec("cp ../template/Traits/Group.php boilerplate-$version/custom/Traits/Group.php");
+    $output .= "\n" . shell_exec("cp ../template/Traits/User.php boilerplate-$version/custom/Traits/User.php");
     $output .= "\n" . shell_exec("zip -r boilerplate-$version.zip boilerplate-$version");
     $output .= "\n" . shell_exec("rm -rf boilerplate-$version");
     $output .= "\n" . shell_exec("mv boilerplate-$version.zip ../../www/download/");
