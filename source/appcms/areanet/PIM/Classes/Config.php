@@ -161,7 +161,7 @@ class Config{
     /**
      * @var boolean Filenhash must be unique
      */
-    public $FILE_HASH_MUST_UNIQUE = true;
+    public $FILE_HASH_MUST_UNIQUE = false;
     
     
     /**
