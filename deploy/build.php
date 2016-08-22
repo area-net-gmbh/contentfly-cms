@@ -29,7 +29,8 @@ if($payload) {
     $output .= "\n" . shell_exec("rm -rf ../../_releases/appcms-$version");
     $output .= "\n" . shell_exec("cp -R appcms-$version ../../_releases/");
     $output .= "\n" . shell_exec("rm -rf ../../_releases/_current");
-    $output .= "\n" . shell_exec("mv -R appcms-$version/* ../../_releases/_current");
+    $output .= "\n" . shell_exec("mkdir ../../_releases/_current");
+    $output .= "\n" . shell_exec("cp appcms-$version/appcms ../../_releases/_current");
     $output .= "\n" . shell_exec("rm -rf appcms-$version/");
     $output .= "\n" . shell_exec("mv appcms-$version.zip ../../www/download/");
     
