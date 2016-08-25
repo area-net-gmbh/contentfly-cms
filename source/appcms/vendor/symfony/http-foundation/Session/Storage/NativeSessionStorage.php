@@ -122,6 +122,7 @@ class NativeSessionStorage implements SessionStorageInterface
      */
     public function start()
     {
+
         if ($this->started) {
             return true;
         }

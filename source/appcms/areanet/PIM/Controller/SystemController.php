@@ -40,7 +40,7 @@ class SystemController extends BaseController
     public function doAction(Request $request)
     {
         $method = $request->get('method');
-
+        
         if(!method_exists($this, $method)){
             throw new \Exception("Methode $method nicht verfügbar.");
         }
