@@ -2,6 +2,13 @@
 ini_set("display_errors", "On");
 ini_set("display_startup_errors", "On");
 
+
+if(!file_exists(__DIR__.'/../../custom/config.php')){
+    header('Location: install.php');
+    exit;
+}
+
+
 require_once __DIR__.'/../bootstrap.php';
 
 use Areanet\PIM\Controller;

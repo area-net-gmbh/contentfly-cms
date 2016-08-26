@@ -6,7 +6,7 @@
         .directive('pimSelect', pimSelect);
 
 
-    function pimSelect(localStorageService){
+    function pimSelect(localStorageService, $http){
         return {
             restrict: 'E',
             scope: {
@@ -17,6 +17,9 @@
             },
             link: function(scope, element, attrs){
                 scope.writable = parseInt(attrs.writable) > 0;
+
+
+
 
                 if((scope.value === undefined || scope.value == null) && scope.config.default != null){
                     scope.value = (scope.config.default);

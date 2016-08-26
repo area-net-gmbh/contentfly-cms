@@ -1,6 +1,7 @@
 <?php
 define('ROOT_DIR', __DIR__);
 
+
 require_once ROOT_DIR.'/version.php';
 require_once ROOT_DIR.'/vendor/autoload.php';
 require_once ROOT_DIR.'/../custom/config.php';
@@ -16,11 +17,14 @@ use Knp\Provider\ConsoleServiceProvider;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
-Config\Adapter::setHostname(HOST);
-date_default_timezone_set(Config\Adapter::getConfig()->APP_TIMEZONE);
+
 
 $app = new Application();
 $app->register(new Silex\Provider\SessionServiceProvider());
+
+
+Config\Adapter::setHostname(HOST);
+date_default_timezone_set(Config\Adapter::getConfig()->APP_TIMEZONE);
 
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 

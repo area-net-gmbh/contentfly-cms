@@ -1,3 +1,2 @@
 <?php
-//APP-CMS VERSION
-define('CUSTOM_VERSION', '1.0.1');
+define('CUSTOM_VERSION', '0.0.0');
