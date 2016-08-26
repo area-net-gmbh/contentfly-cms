@@ -15,7 +15,6 @@ use Areanet\PIM\Controller;
 use \Areanet\PIM\Classes\Config;
 
 
-
 $app['ui.controller'] = $app->share(function() use ($app) {
     return new Controller\UiController($app);
 });

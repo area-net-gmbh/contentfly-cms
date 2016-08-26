@@ -109,7 +109,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
             $modified   = $token->getModified()->getTimestamp();
             $now        = new \DateTime();
             $diff       = $now->getTimestamp() - $modified;
-            
+
             if ($diff > Adapter::getConfig()->APP_TOKEN_TIMEOUT) {
                 $app['orm.em']->remove($token);
                 $app['orm.em']->flush();
