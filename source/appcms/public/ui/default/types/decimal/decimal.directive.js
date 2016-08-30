@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return '/ui/default/types/decimal/decimal.html'
+                return '/ui/default/types/decimal/decimal.html?v=' + APP_VERSION
             },
             link: function(scope, element, attrs){
                 scope.writable = parseInt(attrs.writable) > 0;

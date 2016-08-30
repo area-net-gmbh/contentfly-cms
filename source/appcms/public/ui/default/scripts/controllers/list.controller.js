@@ -104,7 +104,7 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: '/ui/default/views/partials/modal.html',
+                templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function(){ return 'Eintrag löschen'; },
@@ -135,7 +135,7 @@
                             function errorCallback(response) {
                                 if(response.status == 401){
                                     var modalInstance = $uibModal.open({
-                                        templateUrl: '/ui/default/views/partials/relogin.html',
+                                        templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
                                         controller: 'ReloginCtrl as vm',
                                         backdrop: 'static'
                                     });
@@ -152,7 +152,7 @@
 
                                 }else{
                                     var modalInstance = $uibModal.open({
-                                        templateUrl: '/ui/default/views/partials/modal.html',
+                                        templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
                                         controller: 'ModalCtrl as vm',
                                         resolve: {
                                             title: function(){ return 'Fehler beim Löschen'; },
@@ -261,7 +261,7 @@
 
                     if(response.status == 401){
                         var modalInstance = $uibModal.open({
-                            templateUrl: '/ui/default/views/partials/relogin.html',
+                            templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
                             controller: 'ReloginCtrl as vm',
                             backdrop: 'static'
                         });
@@ -433,7 +433,7 @@
             }
 
             var modalInstance = $uibModal.open({
-                templateUrl: '/ui/default/views/form.html',
+                templateUrl: '/ui/default/views/form.html?v=' + APP_VERSION,
                 controller: 'FormCtrl as vm',
                 resolve: {
                     entity: function(){ return vm.entity;},

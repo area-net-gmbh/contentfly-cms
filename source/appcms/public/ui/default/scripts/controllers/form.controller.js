@@ -49,7 +49,7 @@
 
         function confirmPush(count, title, text, object) {
             var modalInstance = $uibModal.open({
-                templateUrl: '/ui/default/views/partials/modal.html',
+                templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
                 controller: 'ModalCtrl as vm',
                 resolve: {
                     title: function () {
@@ -103,7 +103,7 @@
 
                         if(response.status == 401){
                             var modalInstance = $uibModal.open({
-                                templateUrl: '/ui/default/views/partials/relogin.html',
+                                templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
                                 controller: 'ReloginCtrl as vm',
                                 backdrop: 'static'
                             });
@@ -120,7 +120,7 @@
 
                         }else{
                             var modalInstance = $uibModal.open({
-                                templateUrl: '/ui/default/views/partials/modal.html',
+                                templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
                                 controller: 'ModalCtrl as vm',
                                 resolve: {
                                     title: function () {
@@ -153,7 +153,7 @@
 
                         if(response.status == 401){
                             var modalInstance = $uibModal.open({
-                                templateUrl: '/ui/default/views/partials/relogin.html',
+                                templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
                                 controller: 'ReloginCtrl as vm',
                                 backdrop: 'static'
                             });
@@ -170,7 +170,7 @@
 
                         }else {
                             var modalInstance = $uibModal.open({
-                                templateUrl: '/ui/default/views/partials/modal.html',
+                                templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
                                 controller: 'ModalCtrl as vm',
                                 resolve: {
                                     title: function () {
@@ -237,7 +237,7 @@
 
                     if(data.status == 401){
                         var modalInstance = $uibModal.open({
-                            templateUrl: '/ui/default/views/partials/relogin.html',
+                            templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
                             controller: 'ReloginCtrl as vm',
                             backdrop: 'static'
                         });
@@ -255,7 +255,7 @@
                     }else {
 
                         var modalInstance = $uibModal.open({
-                            templateUrl: '/ui/default/views/partials/modal.html',
+                            templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function () {

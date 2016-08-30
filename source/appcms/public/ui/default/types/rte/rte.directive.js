@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return '/ui/default/types/rte/rte.html'
+                return '/ui/default/types/rte/rte.html?v=' + APP_VERSION
             },
             link: function(scope, element, attrs){
                 //scope.disabled = !parseInt(attrs.writable);
@@ -25,7 +25,7 @@
                 }
                 
                 scope.$watch('value',function(data){
-            
+
                     if(!scope.writable){
                         return;
                     }

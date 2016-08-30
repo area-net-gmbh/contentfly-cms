@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function () {
-                return '/ui/default/types/matrixchooser/matrixchooser.html'
+                return '/ui/default/types/matrixchooser/matrixchooser.html?v=' + APP_VERSION
             },
             link: function (scope, element, attrs) {
                 var entityData          = null;

@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=',  isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return '/ui/default/types/multijoin/multijoin.html'
+                return '/ui/default/types/multijoin/multijoin.html?v=' + APP_VERSION
             },
             link: function(scope, element, attrs){
                 var itemsPerPage = 10;

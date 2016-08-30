@@ -6,16 +6,16 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ frontend.title }}</title>
-    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.min.css" >
-    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.xl.css" >
-    <link rel="stylesheet" href="/ui/default/styles/custom.css">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/font-awesome/font-awesome.min.css">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/textAngular/textAngular.css" media="screen">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/loaders/loaders.min.css">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/chartjs/angular-chart.min.css">
+    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.min.css?v={{ app_version }}" >
+    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.xl.css?v={{ app_version }}" >
+    <link rel="stylesheet" href="/ui/default/styles/custom.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/font-awesome/font-awesome.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/textAngular/textAngular.css?v={{ app_version }}" media="screen">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/loaders/loaders.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/chartjs/angular-chart.min.css?v={{ app_version }}">
 
     {% for cssFile in cssFiles %}
-        <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}">
+        <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}?v={{ version }}">
     {% endfor %}
 
     <script>
@@ -108,73 +108,73 @@
 <pim-plugin key="INDEX_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
 {% endverbatim %}
 <!-- Angular Files -->
-<script src="/ui/default/vendor/jquery/jquery-2.1.4.min.js"></script>
-<script src="/ui/default/vendor/jquery/jquery-ui.min.js"></script>
-<script src="/ui/default/vendor/angular/angular.js"></script>
-<script src="/ui/default/vendor/angular/angular-route.min.js"></script>
-<script src="/ui/default/vendor/angular/angular-cookies.min.js"></script>
-<script src="/ui/default/vendor/angular/angular-local-storage.min.js"></script>
-<script src="/ui/default/vendor/angular/ui-bootstrap-tpls-0.14.3.min.js"></script>
-<script src="/ui/default/vendor/angular/ng-file-upload-all.min.js"></script>
-<script src="/ui/default/vendor/angular/dirPagination.js"></script>
-<script src="/ui/default/vendor/textAngular/textAngular-rangy.min.js"></script>
-<script src="/ui/default/vendor/textAngular/textAngular-sanitize.min.js"></script>
-<script src="/ui/default/vendor/textAngular/textAngular.min.js"></script>
-<script src="/ui/default/vendor/momentjs/moment.min.js"></script>
-<script src="/ui/default/vendor/angular/angular-moment.min.js"></script>
-<script src="/ui/default/vendor/angulargrid/angulargrid.min.js"></script>
-<script src="/ui/default/vendor/chartjs/chart.min.js"></script>
-<script src="/ui/default/vendor/chartjs/angular-chart.min.js"></script>
-<script src="/ui/default/vendor/angular/ui.sortable.js"></script>
+<script src="/ui/default/vendor/jquery/jquery-2.1.4.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/jquery/jquery-ui.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/angular.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/angular-route.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/angular-cookies.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/angular-local-storage.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/ui-bootstrap-tpls-0.14.3.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/ng-file-upload-all.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/dirPagination.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/textAngular/textAngular-rangy.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/textAngular/textAngular-sanitize.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/textAngular/textAngular.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/momentjs/moment.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/angular-moment.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angulargrid/angulargrid.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/chartjs/chart.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/chartjs/angular-chart.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/angular/ui.sortable.js?v={{ app_version }}"></script>
 
 
 <!-- Global App Files -->
 
-<script src="/ui/default/scripts/app.module.js"></script>
-<script src="/ui/default/scripts/app.routes.js"></script>
-<script src="/ui/default/scripts/app.js"></script>
-<script src="/ui/default/scripts/app.config.js"></script>
+<script src="/ui/default/scripts/app.module.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/app.routes.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/app.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/app.config.js?v={{ app_version }}"></script>
 
 <!-- App Services -->
-<script src="/ui/default/scripts/services/entity.service.js"></script>
-<script src="/ui/default/scripts/services/file.service.js"></script>
+<script src="/ui/default/scripts/services/entity.service.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/services/file.service.js?v={{ app_version }}"></script>
 
 <!-- App System-Types -->
 {% for systemType in systemTypes %}
-    <script src="/ui/default/types/{{ systemType.getAlias() }}/{{ systemType.getAlias() }}.directive.js"></script>
+    <script src="/ui/default/types/{{ systemType.getAlias() }}/{{ systemType.getAlias() }}.directive.js?v={{ app_version }}"></script>
 {% endfor %}
 <!-- App Custom-Types -->
 {% for customType in customTypes %}
-    <script src="/custom/Frontend/ui/default/types/{{ customType.getAlias() }}/{{ customType.getAlias() }}.directive.js"></script>
+    <script src="/custom/Frontend/ui/default/types/{{ customType.getAlias() }}/{{ customType.getAlias() }}.directive.js?v={{ custom_version }}"></script>
 {% endfor %}
 
 <!-- App Directives -->
-<script src="/ui/default/scripts/directives/form.directive.js"></script>
-<script src="/ui/default/scripts/directives/autoformat.directive.js"></script>
-<script src="/ui/default/scripts/directives/fileicon.directive.js"></script>
-<script src="/ui/default/scripts/directives/clearinput.directive.js"></script>
-<script src="/ui/default/scripts/directives/bindValidity.directive.js"></script>
-<script src="/ui/default/scripts/directives/enter.directive.js"></script>
-<script src="/ui/default/scripts/directives/plugin.directive.js"></script>
+<script src="/ui/default/scripts/directives/form.directive.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/directives/autoformat.directive.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/directives/fileicon.directive.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/directives/clearinput.directive.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/directives/bindValidity.directive.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/directives/enter.directive.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/directives/plugin.directive.js?v={{ app_version }}"></script>
 
 <!-- App Controllers -->
-<script src="/ui/default/scripts/controllers/partials/modal.controller.js"></script>
-<script src="/ui/default/scripts/controllers/partials/file-edit.controller.js"></script>
-<script src="/ui/default/scripts/controllers/partials/video-add.controller.js"></script>
-<script src="/ui/default/scripts/controllers/partials/relogin.controller.js"></script>
-<script src="/ui/default/scripts/controllers/login.controller.js"></script>
-<script src="/ui/default/scripts/controllers/logout.controller.js"></script>
-<script src="/ui/default/scripts/controllers/list.controller.js"></script>
-<script src="/ui/default/scripts/controllers/form.controller.js"></script>
-<script src="/ui/default/scripts/controllers/files.controller.js"></script>
-<script src="/ui/default/scripts/controllers/dashboard.controller.js"></script>
-<script src="/ui/default/scripts/controllers/settings.controller.js"></script>
-<script src="/ui/default/scripts/controllers/error.controller.js"></script>
+<script src="/ui/default/scripts/controllers/partials/modal.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/partials/file-edit.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/partials/video-add.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/partials/relogin.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/login.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/logout.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/list.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/form.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/files.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/dashboard.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/settings.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/error.controller.js?v={{ app_version }}"></script>
 
 
 <!-- Dynamic Scripts -->
 {% for jsFile in jsFiles %}
-<script src="/custom/Frontend/ui/default/scripts/{{ jsFile }}"></script>
+<script src="/custom/Frontend/ui/default/scripts/{{ jsFile }}?v={{ custom_version }}"></script>
 {% endfor %}
 </body>
 </html>

@@ -23,8 +23,9 @@ class UiController extends BaseController
             $jsFilesToInclude[] = $jsFile;
         }
 
-        $dynInlineScript = '';
-        $dynInlineScript = "var uiRoutes = ".json_encode($uiRoutes);
+        $dynInlineScript  = 'var APP_VERSION = \''.APP_VERSION.'\';';
+        $dynInlineScript .= 'var CUSTOM_VERSION = \''.CUSTOM_VERSION.'\';';
+        $dynInlineScript .= "var uiRoutes = ".json_encode($uiRoutes);
 
         $cssFilesToInclude = array();
         $cssFiles = $this->app['uiManager']->getCSSFiles();
@@ -34,6 +35,8 @@ class UiController extends BaseController
 
 
         return $this->app['twig']->render('app.twig', array(
+            'app_version'  => APP_VERSION,
+            'custom_version'  => CUSTOM_VERSION,
             'script'   => $dynInlineScript,
             'jsFiles'  => $jsFilesToInclude,
             'cssFiles' => $cssFilesToInclude,

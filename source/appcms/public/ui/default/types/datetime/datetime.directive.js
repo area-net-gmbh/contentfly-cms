@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return '/ui/default/types/datetime/datetime.html'
+                return '/ui/default/types/datetime/datetime.html?v=' + APP_VERSION
             },
             link: function(scope, element, attrs){
 

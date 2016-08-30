@@ -13,7 +13,7 @@
                 key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
-                return '/ui/default/types/permissions/permissions.html'
+                return '/ui/default/types/permissions/permissions.html?v=' + APP_VERSION
             },
             link: function(scope, element, attrs){
                 //Properties
