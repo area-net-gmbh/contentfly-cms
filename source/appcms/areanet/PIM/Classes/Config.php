@@ -138,9 +138,14 @@ class Config{
     public $FRONTEND_URL = '/';
 
     /**
-     * @var boolean Show custom logo custom/Resources/logo.png
+     * @var boolean Show custom logo custom/Frontend/ui/default/img/logo.png
      */
     public $FRONTEND_CUSTOM_LOGO = false;
+
+    /**
+     * @var boolean Show custom logo custom/Frontend/ui/default/img/bg_login.jpg
+     */
+    public $FRONTEND_CUSTOM_LOGIN_BG = false;
 
     /**
      * @var boolean Square previewed images in forms

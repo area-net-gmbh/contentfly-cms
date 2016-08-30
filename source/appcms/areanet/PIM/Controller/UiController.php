@@ -44,7 +44,8 @@ class UiController extends BaseController
             'systemTypes' => $this->app['typeManager']->getSystemTypes(),
             'frontend' => array(
                 'title' => Config\Adapter::getConfig()->FRONTEND_TITLE,
-                'welcome' => Config\Adapter::getConfig()->FRONTEND_WELCOME
+                'welcome' => Config\Adapter::getConfig()->FRONTEND_WELCOME,
+                'customLoginBG' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGIN_BG
             )
         ));
         //return $this->app->redirect('ui/default', 303);

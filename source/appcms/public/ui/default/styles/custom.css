@@ -95,6 +95,10 @@ body.emotionalBackground{
     background-size:cover;
 }
 
+.custom body.emotionalBackground{
+    background-image: url('../../../custom/Frontend/ui/default/img/bg_login.jpg');
+}
+
 
 #pim-header{
     -webkit-box-shadow: 0px 0px 4px 0px rgba(191,189,191,1);
