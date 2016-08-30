@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Custom\Classes\Repository\ProduktRepository")
  * @ORM\Table(name="produkt")
  * @PIM\Config(label = "Produkte", labelProperty="artikel", sortBy="artikel", sortOrder="ASC", tabs="{'img': 'Bilder', 'cross': 'Cross-Selling', 'filter': 'Filter', 'files': 'Dateien'}")
  */

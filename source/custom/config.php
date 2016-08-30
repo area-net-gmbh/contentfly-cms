@@ -19,6 +19,8 @@ $configDefault->APP_ENABLE_SCHEMA_CACHE = false;
 
 $configDefault->FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
 
+$configDefault->FRONTEND_URL = 'admin';
+
 $configFactory->setConfig($configDefault);
 
 

@@ -14,7 +14,7 @@
             [90, 100, 110, 150, 130, 120, 140]
         ];
         vm.onClick = function (points, evt) {
-            console.log(points, evt);
+            //console.log(points, evt);
         };
         
         vm.labelsDevices = ["iOS", "Android"];

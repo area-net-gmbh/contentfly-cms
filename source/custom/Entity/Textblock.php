@@ -34,6 +34,12 @@ class Textblock extends Base
     protected $textblock;
 
     /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @PIM\Config(showInList=80, label="Datum")
+     */
+    protected $time;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
      * @ORM\JoinColumn(onDelete="CASCADE")
      * @PIM\Config(label="Bild", accept="image/*")
@@ -102,6 +108,22 @@ class Textblock extends Base
     public function setBild($bild)
     {
         $this->bild = $bild;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTime()
+    {
+        return $this->time;
+    }
+
+    /**
+     * @param mixed $time
+     */
+    public function setTime($time)
+    {
+        $this->time = $time;
     }
 
     

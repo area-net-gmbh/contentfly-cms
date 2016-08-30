@@ -51,6 +51,14 @@ $app['entityResolver'] = $app->share(function ($app) {
     return new \Areanet\PIM\Classes\ORM\EntityResolver();
 });
 
+$app['entityResolver'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\ORM\EntityResolver();
+});
+
+$app['helper'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Helper();
+});
+
 $app['auth'] = $app->share(function ($app) {
     return new \Areanet\PIM\Classes\Auth($app);
 });

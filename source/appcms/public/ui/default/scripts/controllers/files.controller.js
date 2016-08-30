@@ -565,7 +565,7 @@
                                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
                             },
                             function(response){
-                                console.log("error");
+                                //console.log("error");
                             }
                         );
                     }

@@ -442,7 +442,7 @@ class DoctrineOrmServiceProvider
             'orm.custom.functions.datetime' => array(),
             'orm.custom.hydration_modes' => array(),
             'orm.class_metadata_factory_name' => 'Doctrine\ORM\Mapping\ClassMetadataFactory',
-            'orm.default_repository_class' => 'Doctrine\ORM\EntityRepository',
+            'orm.default_repository_class' => 'Doctrine\ORM\EntityRepository'
         );
     }
 }

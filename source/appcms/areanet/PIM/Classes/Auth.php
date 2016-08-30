@@ -27,8 +27,9 @@ class Auth{
     {
         $this->app = $app;
 
-        if(($user = $this->app['session']->get('auth.user'))){
-            $this->setUser($user);
+        if(($userId = $this->app['session']->get('auth.userid'))){
+            $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->find($userId);
+            if($user) $this->setUser($user);
         }
     }
 
@@ -46,7 +47,7 @@ class Auth{
             throw new \Exception('Benutzername und/oder Passwort fehlerhaft.', 401);
         }
 
-        $this->app['session']->set('auth.user', $user);
+        $this->app['session']->set('auth.userid', $user->getId());
 
         $this->setUser($user);
 
@@ -54,7 +55,7 @@ class Auth{
     }
 
     public function logout(){
-        $this->app['session']->remove('auth.user');
+        $this->app['session']->remove('auth.userid');
         $this->setUser(null);
     }
 
