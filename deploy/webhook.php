@@ -22,7 +22,7 @@ if($payload) {
     unlink('/html/dev/source/data/cache/schema.cache');
     $result = shell_exec('cd /html/dev && git pull origin master');
     file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
-    $result = shell_exec('cd /html/dev/source && SERVER_NAME="dev.das-app-cms.de" php_cli vendor/bin/doctrine orm:schema:update --force');
+    $result = shell_exec('cd /html/dev/source/appcms && SERVER_NAME="dev.das-app-cms.de" php_cli vendor/bin/doctrine orm:schema:update --force');
     file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
 } else {
     file_put_contents('log.txt', $time."\n"."Webhook failed: payload error", FILE_APPEND);
