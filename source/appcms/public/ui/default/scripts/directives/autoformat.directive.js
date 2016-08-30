@@ -24,6 +24,9 @@
                     switch(type) {
                         case 'datetime':
                             //var value = $filter('date')(scope.object[property], 'dd.MM.yyyy');
+                            if(!scope.object[property]){
+                                return;
+                            }
                             var value = long ? scope.object[property].LOCAL_TIME : scope.object[property].LOCAL;
                             element.text(value);
                             break;
