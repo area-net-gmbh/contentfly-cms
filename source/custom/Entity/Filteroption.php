@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="filteroption")
- * @PIM\Config(label="Filter-Option", sortBy="sorting")
+ * @PIM\Config(label="Filter-Option", sortBy="sorting", sortRestrictTo="filter")
  */
 class Filteroption extends BaseSortable
 {

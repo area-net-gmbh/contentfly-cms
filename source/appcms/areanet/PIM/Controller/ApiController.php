@@ -793,6 +793,15 @@ class ApiController extends BaseController
                     }else {
                         $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent = ".$parent->getId());
                     }
+                }elseif($schema[ucfirst($entityName)]['settings']['sortRestrictTo']) {
+                    $restrictToProperty = $schema[ucfirst($entityName)]['settings']['sortRestrictTo'];
+                    $getter             = 'get'.ucfirst($restrictToProperty);
+                    $restrictToObject   = $object->$getter();
+                    if(!$restrictToObject){
+                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.$restrictToProperty IS NULL");
+                    }else{
+                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.$restrictToProperty = ".$restrictToObject->getId());
+                    }
                 }else{
                     $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false");
                 }

@@ -94,6 +94,7 @@ abstract class BaseController
                 'pushText' => '',
                 'pushObject' => '',
                 'sortBy' => 'id',
+                'sortRestrictTo' => null,
                 'sortOrder' => 'DESC',
                 'isSortable' => false,
                 'labelProperty' => null,
@@ -117,16 +118,17 @@ abstract class BaseController
             foreach($classAnnotations as $classAnnotation) {
 
                 if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
-                    $settings['label']       = $classAnnotation->label ? $classAnnotation->label : $entity;
-                    $settings['labelProperty']= $classAnnotation->labelProperty ? $classAnnotation->labelProperty : $settings['labelProperty'];
-                    $settings['readonly']    = $classAnnotation->readonly ? $classAnnotation->readonly : false;
-                    $settings['isPush']      = ($classAnnotation->pushText && $classAnnotation->pushTitle);
-                    $settings['pushTitle']   = $classAnnotation->pushTitle ? $classAnnotation->pushTitle : null;
-                    $settings['pushText']    = $classAnnotation->pushText ? $classAnnotation->pushText : null;
-                    $settings['pushObject']  = $classAnnotation->pushObject ? $classAnnotation->pushObject : null;
-                    $settings['sortBy']      = $classAnnotation->sortBy ? $classAnnotation->sortBy : $settings['sortBy'];
-                    $settings['sortOrder']   = $classAnnotation->sortOrder ? $classAnnotation->sortOrder : $settings['sortOrder'];
-                    $settings['hide']        = $classAnnotation->hide ? $classAnnotation->hide : $settings['hide'];
+                    $settings['label']          = $classAnnotation->label ? $classAnnotation->label : $entity;
+                    $settings['labelProperty']  = $classAnnotation->labelProperty ? $classAnnotation->labelProperty : $settings['labelProperty'];
+                    $settings['readonly']       = $classAnnotation->readonly ? $classAnnotation->readonly : false;
+                    $settings['isPush']         = ($classAnnotation->pushText && $classAnnotation->pushTitle);
+                    $settings['pushTitle']      = $classAnnotation->pushTitle ? $classAnnotation->pushTitle : null;
+                    $settings['pushText']       = $classAnnotation->pushText ? $classAnnotation->pushText : null;
+                    $settings['pushObject']     = $classAnnotation->pushObject ? $classAnnotation->pushObject : null;
+                    $settings['sortBy']         = $classAnnotation->sortBy ? $classAnnotation->sortBy : $settings['sortBy'];
+                    $settings['sortOrder']      = $classAnnotation->sortOrder ? $classAnnotation->sortOrder : $settings['sortOrder'];
+                    $settings['hide']           = $classAnnotation->hide ? $classAnnotation->hide : $settings['hide'];
+                    $settings['sortRestrictTo'] = $classAnnotation->sortRestrictTo ? $classAnnotation->sortRestrictTo : $settings['sortRestrictTo'];
 
                     if($classAnnotation->tabs){
                         $tabs = json_decode(str_replace("'", '"', $classAnnotation->tabs));

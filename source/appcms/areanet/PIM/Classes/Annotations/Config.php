@@ -79,6 +79,12 @@ final class Config extends Annotation
     public $sortOrder = null;
 
     /**
+     * @var string
+     */
+    public $sortRestrictTo = null;
+
+
+    /**
      * @var integer
      */
     public $lines = 4;

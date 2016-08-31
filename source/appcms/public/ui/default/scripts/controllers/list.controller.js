@@ -212,15 +212,12 @@
             sortSettings[vm.sortProperty] = vm.sortOrder;
 
             var properties = ['id', 'modified', 'created', 'user'];
-          
-            if(vm.schema.settings.isSortable){
-                properties.push('sorting');
-            }
+
             for (key in vm.schema.list ) {
                 properties.push(vm.schema.list[key]);
             }
 
-            if(vm.schema.settings.type == 'tree'){
+            if(vm.schema.settings.type == 'tree' || vm.schema.settings.sortRestrictTo){
                 vm.schema.settings.isSortable = false;
             }
 
@@ -228,10 +225,17 @@
             for (var key in vm.filter) {
                 if(vm.filter[key]){
                     filter[key] = vm.filter[key];
-                    if(key == 'treeParent' && vm.filter[key]){
+                    if(vm.schema.settings.type == 'tree' && key == 'treeParent' && vm.filter[key] ){
+                        vm.schema.settings.isSortable = true;
+                    }
+                    if(vm.schema.settings.sortRestrictTo && key == vm.schema.settings.sortRestrictTo && vm.filter[key] ){
                         vm.schema.settings.isSortable = true;
                     }
                 }
+            }
+
+            if(vm.schema.settings.isSortable){
+                properties.push('sorting');
             }
 
             var data = {
