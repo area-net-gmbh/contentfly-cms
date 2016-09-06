@@ -20,7 +20,7 @@ class Group extends Base
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="Areanet\PIM\Entity\Permission", mappedBy="group")
+     * @ORM\OneToMany(targetEntity="Areanet\PIM\Entity\Permission", mappedBy="group", cascade={"remove"})
      * @PIM\Config(tab="permissions", label="Berechtigungen")
      * @PIM\Permissions()
      */

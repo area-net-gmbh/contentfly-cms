@@ -43,7 +43,9 @@ class PermissionsType extends Type
 
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
-
+        $this->em->persist($object);
+        $this->em->flush();
+        
         $query = $this->em->createQuery('DELETE FROM Areanet\PIM\\Entity\\Permission e WHERE e.group = ?1');
         $query->setParameter(1, $object);
         $query->execute();
@@ -74,8 +76,8 @@ class PermissionsType extends Type
             $this->em->persist($pObject);
         }
 
-        $this->em->flush();
 
+        $this->em->flush();
     }
 
 
