@@ -976,7 +976,10 @@ class ApiController extends BaseController
             throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
+
         foreach($data as $property => $value){
+            if($property == 'modified' || $property == 'created') continue;
+            
             $setter = 'set'.ucfirst($property);
             $getter = 'get'.ucfirst($property);
 
@@ -994,6 +997,7 @@ class ApiController extends BaseController
             $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
 
         }
+        $object->setModified(new \DateTime());
         $object->setUser($user);
 
         try{

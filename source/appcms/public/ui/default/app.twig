@@ -15,7 +15,7 @@
     <link rel="stylesheet prefetch" href="/ui/default/vendor/chartjs/angular-chart.min.css?v={{ app_version }}">
 
     {% for cssFile in cssFiles %}
-        <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}?v={{ version }}">
+        <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}?v={{ custom_version }}">
     {% endfor %}
 
     <script>
@@ -138,6 +138,7 @@
 <!-- App Services -->
 <script src="/ui/default/scripts/services/entity.service.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/services/file.service.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/services/token.service.js?v={{ app_version }}"></script>
 
 <!-- App System-Types -->
 {% for systemType in systemTypes %}

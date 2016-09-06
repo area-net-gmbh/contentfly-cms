@@ -18,6 +18,7 @@
         localStorageService.clearAll();
         $cookies.remove('token');
         $rootScope.userLoggedIn = false;
+        $rootScope.permissions  = null;
         $location.path('/login');
     }
 

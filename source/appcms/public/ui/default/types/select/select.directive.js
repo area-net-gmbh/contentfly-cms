@@ -19,8 +19,6 @@
                 scope.writable = parseInt(attrs.writable) > 0;
 
 
-
-
                 if((scope.value === undefined || scope.value == null) && scope.config.default != null){
                     scope.value = (scope.config.default);
                 }
@@ -31,9 +29,23 @@
                 
 
                 scope.$watch('value',function(data){
-         
+
                     if(parseInt(scope.value)){
                         scope.value = scope.value.toString();
+                    }
+
+                    if(!scope.config.nullable){
+                        var valExists = false;
+                        for(var i = 0; i < scope.config.options.length; i++){
+                            if(scope.config.options[i].id == scope.value){
+                                valExists = true;
+                                break;
+                            }
+                        }
+
+                        if(!valExists){
+                            scope.value = scope.config.options[0].id;
+                        }
                     }
                     scope.newValue = scope.value;
                 },true)

@@ -29,6 +29,11 @@ class Token
     protected $token;
 
     /**
+     * @ORM\Column(type="string", length=128, nullable=true)
+     */
+    protected $referrer;
+
+    /**
      * @var \DateTime
      * @ORM\Column(type="datetime")
      */
@@ -126,6 +131,24 @@ class Token
     {
         $this->modified = $modified;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getReferrer()
+    {
+        return $this->referrer;
+    }
+
+    /**
+     * @param mixed $referrer
+     */
+    public function setReferrer($referrer)
+    {
+        $this->referrer = $referrer;
+    }
+
+    
 
 
 

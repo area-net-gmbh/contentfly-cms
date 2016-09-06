@@ -28,7 +28,7 @@ class DatetimeType extends Type
         return ($annotation->type == 'datetime');
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema)
+    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
        
         $setter = 'set'.ucfirst($property);

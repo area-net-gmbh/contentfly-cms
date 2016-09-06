@@ -36,7 +36,7 @@
                     $rootScope.schema = localStorageService.get('schema');
                     $rootScope.permissions = localStorageService.get('permissions');
                     $rootScope.uiblocks = localStorageService.get('uiblocks');
-
+                  
                     var entities = {};
                     for (var entity in $rootScope.schema) {
                         if(entity.substr(0, 4) == 'PIM\\' || $rootScope.schema[entity]["settings"]["hide"] || !$rootScope.permissions[entity]["readable"]) continue;

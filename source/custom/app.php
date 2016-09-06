@@ -6,6 +6,9 @@ $app->get('/', function () use ($app) {
     die("test");
 });
 
+$app['uiManager']->addBlock('FORM_APPEND', 'blocks/comments.html');
+$app['uiManager']->addJSFile('directives/comments.directive.js');
+
 $app->get('/user', function () use ($app) {
     if(($user = $app['auth']->getUser())){
         var_dump($user);

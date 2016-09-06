@@ -100,11 +100,11 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
             return false;
         }
 
-        if(!$token->getUser() || !$token->getUser()->getIsActive()){
+        if(!$token->getUser() || !$token->getUser()->getIsActive() || $token->getUser()->getIsDeleted()){
             return false;
         }
 
-        if(Adapter::getConfig()->APP_CHECK_TOKEN_TIMEOUT) {
+        if(Adapter::getConfig()->APP_CHECK_TOKEN_TIMEOUT && !$token->getReferrer()) {
 
             $modified   = $token->getModified()->getTimestamp();
             $now        = new \DateTime();

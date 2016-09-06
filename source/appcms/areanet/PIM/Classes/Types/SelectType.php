@@ -60,7 +60,7 @@ class SelectType extends Type
         return $schema;
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema)
+    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
         $getter = 'get'.ucfirst($property);

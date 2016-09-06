@@ -46,7 +46,7 @@ class ProduktPreise extends Base
     protected $beginnHerbstpreise;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", nullable=false)
      * @PIM\Config(showInList=70, label="Ende Herbstpreise")
      * @PIM\Select(options="1=Januar,2=Februar,3=März,4=April,5=Mai,6=Juni,7=Juli,8=August,9=September,10=Oktober,11=November,12=Dezember")
      */
@@ -130,15 +130,8 @@ class ProduktPreise extends Base
      */
     public function setBeginnHerbstpreise($beginnHerbstpreise)
     {
-        if($beginnHerbstpreise) {
-            if ($beginnHerbstpreise instanceof \Datetime) {
-                $this->beginnHerbstpreise = $beginnHerbstpreise;
-            } else {
-                $this->beginnHerbstpreise = new \Datetime($beginnHerbstpreise);
-            }
-        }else{
-            $this->beginnHerbstpreise = null;
-        }
+        $this->beginnHerbstpreise = $beginnHerbstpreise;
+
     }
 
     /**
@@ -154,15 +147,7 @@ class ProduktPreise extends Base
      */
     public function setEndeHerbstpreise($endeHerbstpreise)
     {
-        if($endeHerbstpreise) {
-            if ($endeHerbstpreise instanceof \Datetime) {
-                $this->endeHerbstpreise = $endeHerbstpreise;
-            } else {
-                $this->endeHerbstpreise = new \Datetime($endeHerbstpreise);
-            }
-        }else{
-            $this->endeHerbstpreise = null;
-        }
+        $this->endeHerbstpreise = $endeHerbstpreise;
     }
 
 
