@@ -194,7 +194,13 @@
             for(var i = 0; i < data.length; i++){
                 var filler = '--'.repeat(depth);
                 filler = filler ? filler + ' ' : filler
-                data[i]['pim_filterTitle'] = filler + data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+
+                if(joinSchema.settings.labelProperty){
+                    data[i]['pim_filterTitle'] = filler + data[i][joinSchema.settings.labelProperty];
+                }else{
+                    data[i]['pim_filterTitle'] = filler + data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                }
+
                 vm.filterJoins[field].push(data[i]);
                 if(data[i]['treeChilds']){
                     var subDepth = depth + 1;
@@ -325,14 +331,18 @@
                             properties.push(joinSchema.list[key2]);
                         }
 
-                        EntityService.list({entity: entity, properties: properties}).then(
+                        EntityService.list({entity: entity, properties: properties, flatten: true}).then(
                             (function(entity, key) {
                                 return function(response) {
                                     vm.filterJoins[key] = response.data.data;
 
                                     for (var i = 0; i < vm.filterJoins[key].length; i++) {
                                         if (!vm.filterJoins[key][i]['pim_filterTitle']) {
-                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                            if(joinSchema.settings.labelProperty){
+                                                vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.settings.labelProperty];
+                                            }else{
+                                                vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                            }
                                         }
                                     }
                                 }
@@ -369,7 +379,7 @@
                         );
                     }else{
 
-                        EntityService.list({entity: entity}).then(
+                        EntityService.list({entity: entity, flatten: true}).then(
                             (function(entity, key) {
                                 return function(response) {
                                     var joinSchema = localStorageService.get('schema')[entity];
@@ -377,7 +387,11 @@
 
                                     for(var i = 0; i < vm.filterJoins[key].length; i++){
                                         if(!vm.filterJoins[key][i]['pim_filterTitle']){
-                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                            if(joinSchema.settings.labelProperty){
+                                                vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.settings.labelProperty];
+                                            }else{
+                                                vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                            }
                                         }
                                     }
                                 }

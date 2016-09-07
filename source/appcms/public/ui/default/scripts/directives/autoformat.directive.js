@@ -44,8 +44,14 @@
                             var joinSchema    = localStorageService.get('schema')[entity];
                         
                             if(scope.object[property]){
-                                var firstProperty = joinSchema.list[Object.keys(joinSchema.list)[0]];
-                                element.text(scope.object[property][firstProperty]);
+                               
+                                if(joinSchema.settings.labelProperty){
+                                    element.text(scope.object[property][joinSchema.settings.labelProperty]);
+                                }else{
+                                    var firstProperty = joinSchema.list[Object.keys(joinSchema.list)[0]];
+                                    element.text(scope.object[property][firstProperty]);
+                                }
+
                             }
                             break;
                         case 'select':

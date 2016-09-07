@@ -7,7 +7,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_user")
- * @PIM\Config(label="Benutzer")
+ * @PIM\Config(label="Benutzer", labelProperty="alias")
  */
 class User extends Base
 {

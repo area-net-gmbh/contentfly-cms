@@ -28,6 +28,12 @@ class Produkt extends Base
     protected $versteckt;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
+     * @PIM\Config(label="Autor", isFilterable=true, showInList=15)
+     */
+    protected $author;
+
+    /**
      * @ORM\Column(type="integer", nullable=true)
      * @PIM\Config(showInList=95, label="Verfügbarkeit")
      * @PIM\Select(options="1=grün: sofort lieferbar,2=gelb: nur wenige verfügbar,3=rot: leider ausverkauft")
@@ -518,4 +524,22 @@ class Produkt extends Base
     {
         $this->skizze = $skizze;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
+    /**
+     * @param mixed $author
+     */
+    public function setAuthor($author)
+    {
+        $this->author = $author;
+    }
+
+
 }
