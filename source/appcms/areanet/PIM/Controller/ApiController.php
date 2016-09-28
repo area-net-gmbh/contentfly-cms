@@ -1144,7 +1144,7 @@ class ApiController extends BaseController
                                 $multiFiles = $object->$getterName();
                                 $multiData = array();
                                 foreach ($multiFiles as $multiFile) {
-                                    $multiData[] =  $multiFile->getid();
+                                    $multiData[] =  array("id" => $multiFile->getid());
                                 }
                                 $objectData->$key = $multiData;
                             }
@@ -1154,7 +1154,7 @@ class ApiController extends BaseController
                                 $multiFiles = $object->$getterName();
                                 $multiData = array();
                                 foreach ($multiFiles as $multiFile) {
-                                    $multiData[] =  $multiFile->getid();
+                                    $multiData[] =  array("id" => $multiFile->getid());
                                 }
                                 $objectData->$key = $multiData;
                             }
