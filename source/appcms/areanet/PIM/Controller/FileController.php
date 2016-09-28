@@ -82,7 +82,6 @@ class FileController extends BaseController
                 $fileObject = null;
                 if(Config\Adapter::getConfig()->FILE_HASH_MUST_UNIQUE){
                     $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash, 'isDeleted' => false));
-                    die("test");
                 }
 
                 list($width, $height) = getimagesize($file->getRealPath());

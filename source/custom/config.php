@@ -18,6 +18,7 @@ $configDefault->APP_DEBUG               = true;
 $configDefault->APP_ENABLE_SCHEMA_CACHE = false;
 
 $configDefault->FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\ImageMagick');
+$configDefault->FILE_HASH_MUST_UNIQUE = true;
 
 $configDefault->FRONTEND_URL = 'admin';
 $configDefault->FRONTEND_CUSTOM_LOGIN_BG = true;
