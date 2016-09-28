@@ -18,12 +18,19 @@ class Referenzen extends BaseSortable
 {
     /**
      * @ORM\Column(type="string")
-     * @PIM\Config(showInList=40, label="Titel")
+     * @PIM\Config(showInList=20, label="Titel")
      */
     protected $titel;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="string")
+     * @PIM\Config(showInList=40, label="Kunde")
+     */
+    protected $kunde;
+
+
+    /**
+     * @ORM\Column(type="text", nullable = true)
      * @PIM\Config(label="Beschreibung")
      * @PIM\Rte()
      */
@@ -107,7 +114,25 @@ class Referenzen extends BaseSortable
         $this->bilder = $bilder;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getKunde()
+    {
+        return $this->kunde;
+    }
+
+    /**
+     * @param mixed $kunde
+     */
+    public function setKunde($kunde)
+    {
+        $this->kunde = $kunde;
+    }
+
     
+
+
 
 
 }
