@@ -47,7 +47,7 @@ class MultifileType extends Type
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
         $schema['accept']   = '*';
-        $schema['sortable'] = 'false';
+        $schema['sortable'] = false;
 
         if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'])){
             $annotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'];
