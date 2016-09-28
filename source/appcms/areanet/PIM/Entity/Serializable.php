@@ -200,7 +200,9 @@ abstract class Serializable implements \JsonSerializable{
                             if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $user){
                                 continue;
                             }
-                            $data[] =  $object->getId();
+                            $data[] =  array(
+                                "id"    => $object->getId()
+                            );
                         }
                         $result->$property = $data;
                     }elseif($this->$property instanceof Base){
@@ -226,7 +228,9 @@ abstract class Serializable implements \JsonSerializable{
                             continue;
                         }
 
-                        $result->$property = $subobject->getId();
+                        $result->$property = array(
+                            "id" => $subobject->getId()
+                        );
                     }else{
                         $result->$property = $this->$getter();
 
