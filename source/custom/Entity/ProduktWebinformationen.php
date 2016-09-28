@@ -22,7 +22,7 @@ class ProduktWebinformationen extends Base
     /**
      * @ORM\Column(type="text", nullable=true)
      * @PIM\Config(label="Marketing-Text")
-     * @PIM\Rte();
+     * @PIM\Rte(toolbar="[['h1','h2','h3', 'h4', 'p','pre', 'quote', 'undo','redo','clear', 'html'],['bold','italics', 'ul', 'ol', 'indent', 'outdent', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'insertLink']]");
      */
     protected $marketingText;
 

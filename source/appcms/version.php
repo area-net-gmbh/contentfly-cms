@@ -1,3 +1,3 @@
 <?php
 //APP-CMS VERSION
-define('APP_VERSION', '1.2.6');
+define('APP_VERSION', '1.2.7');

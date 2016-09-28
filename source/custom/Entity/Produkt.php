@@ -145,14 +145,14 @@ class Produkt extends Base
     /**
      * @ORM\ManyToMany(targetEntity="Custom\Entity\Filteroption")
      * @ORM\JoinTable(name="produkt_filteroption", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
-     * @PIM\Config(label="Filter", tab="filter")
+     * @PIM\Config(label="Filter", tab="filter", isFilterable=true)
      */
     protected $filter;
     
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
      * @ORM\JoinColumn(onDelete="SET NULL")
-     * @PIM\Config(label="Technisches Datenblatt", accept="application/pdf", tab="files")
+     * @PIM\Config(label="Technisches Datenblatt", accept="application/pdf", tab="files", isFilterable=true)
      */
     protected $technischesDatenblatt;
 

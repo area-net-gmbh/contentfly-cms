@@ -805,6 +805,10 @@ li.grid:hover .image-edit{
     margin-top:0;
 }
 
+.ta-editor div a {
+    text-decoration: underline;
+}
+
 .ta-editor div p, .ta-editor div li, .ta-editor div a, .ta-editor div td , .ta-editor div th{
     color:#666666;
 }
