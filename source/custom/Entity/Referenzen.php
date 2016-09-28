@@ -51,6 +51,13 @@ class Referenzen extends BaseSortable
     protected $bilder;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Download", accept="*")
+     */
+    protected $download;
+
+    /**
      * @return mixed
      */
     public function getTitel()
@@ -130,6 +137,23 @@ class Referenzen extends BaseSortable
         $this->kunde = $kunde;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getDownload()
+    {
+        return $this->download;
+    }
+
+    /**
+     * @param mixed $download
+     */
+    public function setDownload($download)
+    {
+        $this->download = $download;
+    }
+
+    
     
 
 
