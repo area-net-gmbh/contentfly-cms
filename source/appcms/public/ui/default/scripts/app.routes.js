@@ -18,7 +18,6 @@
                 secure: true
             })
             .when('/login', {
-                //todo: Dynamic Template-URL from SCHEMA?!
                 templateUrl: '/ui/default/views/login.html?v=' + APP_VERSION,
                 controller: 'LoginCtrl as vm'
             })

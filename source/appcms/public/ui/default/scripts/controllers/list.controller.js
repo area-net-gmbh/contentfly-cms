@@ -5,9 +5,10 @@
         .module('app')
         .controller('ListCtrl', ListCtrl);
 
-    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, EntityService, $document, $location){
+    function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location){
         var vm              = this;
         var oldPageNumber   = 1;
+
 
         //Properties
         vm.permissions         = localStorageService.get('permissions');
@@ -73,20 +74,38 @@
         vm.filterJoins  = {};
 
         //Functions
+        vm.back                 = back;
         vm.closeFilter          = closeFilter;
         vm.delete               = doDelete;
         vm.executeFilter        = executeFilter;
         vm.openForm             = openForm;
         vm.paginationChanged    = paginationChanged;
+        vm.redirect             = redirect;
         vm.resetFilter          = resetFilter;
         vm.sortBy               = sortBy;
         vm.toggleFilter         = toggleFilter;
 
         //Startup
+        init();
         loadData();
         loadFilters();
 
         ///////////////////////////////////
+
+        function back(){
+            $window.history.back();
+        }
+
+        function calcFilterBadge(){
+            var badgeCount = 0;
+            for (var key in vm.filter) {
+                if(vm.filter[key]){
+                    badgeCount++;
+                }
+            }
+
+            vm.filterBadge = badgeCount;
+        }
 
         function closeFilter(){
             vm.filterIsOpen = false;
@@ -174,15 +193,14 @@
 
         function executeFilter() {
 
-            var badgeCount = 0;
-            for (var key in vm.filter) {
-                if(vm.filter[key]){
-                    badgeCount++;
-                }
+            var savedFilter = localStorageService.get('savedFilter');
+            if(!savedFilter){
+                savedFilter = {};
             }
+            savedFilter[vm.entity] = vm.filter;
+            localStorageService.set('savedFilter', savedFilter);
 
-            vm.filterBadge = badgeCount;
-
+            calcFilterBadge();
             loadData();
         }
 
@@ -209,6 +227,23 @@
             }
         }
 
+        function init(){
+            for (var key in $routeParams) {
+                if(key.substr(0, 2) != 'f_'){
+                    continue;
+                }
+                var property = key.substr(2);
+
+                vm.filter[property] = $routeParams[key];
+            }
+
+            var savedFilter = localStorageService.get('savedFilter');
+            if(savedFilter && savedFilter[vm.entity]){
+                vm.filter = savedFilter[vm.entity];
+            }
+
+            calcFilterBadge();
+        }
 
         function loadData(){
             vm.objectsAvailable = false;
@@ -438,7 +473,6 @@
         
         function openForm(object){
 
-
             if(vm.schema.settings.isPush || vm.schema.settings.readonly){
                 return;
             }
@@ -448,6 +482,17 @@
                 modaltitle = vm.schema.settings.label + ' ' + (object[vm.schema.settings.labelProperty] ? object[vm.schema.settings.labelProperty] : 'ID' + object.id) + ' bearbeiten';
             }else if(object){
                 modaltitle = 'Objekt ' + object.id + ' bearbeiten';
+            }else{
+                object = {};
+
+                for (var key in vm.schema.properties) {
+                    if(!vm.schema.properties[key].type == 'join' && !vm.filter[key]){
+                        continue;
+                    }
+
+                    object[key] = vm.filter[key]
+                }
+
             }
 
             var modalInstance = $uibModal.open({
@@ -485,6 +530,10 @@
             oldPageNumber = newPageNumber;
 
             loadData();
+        }
+
+        function redirect(path){
+            $location.url(path);
         }
 
         function resetFilter() {

@@ -120,6 +120,7 @@
                 }
                 
                 function init(){
+
                     if(scope.config.accept.substr(0, 18) == 'Areanet\\PIM\\Entity'){
                         entity = scope.config.accept.replace('Areanet\\PIM\\Entity', 'PIM');
                     }else{
@@ -132,7 +133,70 @@
                     if(!permissions){
                         return;
                     }
-                    
+
+
+                    if(parseInt(scope.value)){
+                        
+                        var data = {
+                            entity : entity,
+                            id: scope.value
+                        }
+
+                        EntityService.single(data).then(
+                            function(response){
+                                scope.value = response.data.data;
+                            },
+                            function(data){
+
+                                if(data.status == 401){
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
+                                        controller: 'ReloginCtrl as vm',
+                                        backdrop: 'static'
+                                    });
+
+                                    modalInstance.result.then(
+                                        function () {
+                                            init();
+                                        },
+                                        function () {
+                                            $uibModalInstance.close();
+                                            $location.path('/logout');
+                                        }
+                                    );
+
+                                }else {
+
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
+                                        controller: 'ModalCtrl as vm',
+                                        resolve: {
+                                            title: function () {
+                                                return data.statusText;
+                                            },
+                                            body: function () {
+                                                return data.data.message;
+                                            },
+                                            hideCancelButton: function () {
+                                                return false;
+                                            }
+                                        }
+                                    });
+
+                                    modalInstance.result.then(
+                                        function (doDelete) {
+                                            $uibModalInstance.close();
+                                        },
+                                        function () {
+                                            $uibModalInstance.close();
+                                        }
+                                    );
+                                }
+                            }
+                        );
+                    }
+
+
                     scope.hide              = !permissions[entity].readable;
                     scope.writable_object   = permissions[entity].writable;
                     scope.writable          = parseInt(attrs.writable) > 0;

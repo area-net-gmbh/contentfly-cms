@@ -208,6 +208,10 @@
 
         function init(){
 
+            if(object){
+                vm.object = object;
+            }
+
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
 

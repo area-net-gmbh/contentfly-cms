@@ -24,6 +24,17 @@ if($payload) {
     file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
     $result = shell_exec('cd /html/dev/source/appcms && SERVER_NAME="dev.das-app-cms.de" php_cli vendor/bin/doctrine orm:schema:update --force');
     file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
+
+    //APP-CMS
+    $version = 'dev';
+    
+    $output .= "\n" . shell_exec("mkdir appcms-$version");
+    $output .= "\n" . shell_exec("cp -R --preserve=links ../source/appcms appcms-$version");
+    $output .= "\n" . shell_exec("zip -ry appcms-$version.zip appcms-$version");
+    $output .= "\n" . shell_exec("rm -rf ../../_releases/appcms-$version");
+    $output .= "\n" . shell_exec("cp -R appcms-$version ../../_releases/");
+    $output .= "\n" . shell_exec("rm -rf appcms-$version/");
+    $output .= "\n" . shell_exec("mv appcms-$version.zip ../../www/download/");
 } else {
     file_put_contents('log.txt', $time."\n"."Webhook failed: payload error", FILE_APPEND);
 }

@@ -39,8 +39,9 @@ function install($system_php, $db_host, $db_name, $db_user, $db_pass){
     $configContent = str_replace("'DB_PASS'", "'".$db_pass."'", $configContent);
 
     if($system_php != 'php'){
-        $configContent = str_replace("Config();", "Config();\n\n".'$configDefault->SYSTEM_PHP_CLI_COMMAND = "'.escapeshellcmd($system_php).'"');
+        $configContent = str_replace("Config();", "Config();\n\n".'$configDefault->SYSTEM_PHP_CLI_COMMAND = "'.escapeshellcmd($system_php).'";', $configContent);
     }
+    
     if(strpos($configContent, 'DO_INSTALL') === false){
         $configContent .= "\n\n".'$configDefault->DO_INSTALL = true;';
     }
