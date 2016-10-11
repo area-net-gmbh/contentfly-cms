@@ -25,7 +25,7 @@ if($payload) {
     $result = shell_exec('cd /html/dev/source/appcms && SERVER_NAME="dev.das-app-cms.de" php_cli vendor/bin/doctrine orm:schema:update --force');
     file_put_contents('log.txt', $time."\n"."Webhook successful executed: ".$result, FILE_APPEND);
 
-    //APP-CMS
+    //APP-CMS Dev-Version
     $version = 'dev';
     
     $output  = "\n" . shell_exec("mkdir appcms-$version");
