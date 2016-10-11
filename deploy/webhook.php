@@ -28,13 +28,14 @@ if($payload) {
     //APP-CMS
     $version = 'dev';
     
-    $output .= "\n" . shell_exec("mkdir appcms-$version");
+    $output  = "\n" . shell_exec("mkdir appcms-$version");
     $output .= "\n" . shell_exec("cp -R --preserve=links ../source/appcms appcms-$version");
     $output .= "\n" . shell_exec("zip -ry appcms-$version.zip appcms-$version");
     $output .= "\n" . shell_exec("rm -rf ../../_releases/appcms-$version");
     $output .= "\n" . shell_exec("cp -R appcms-$version ../../_releases/");
     $output .= "\n" . shell_exec("rm -rf appcms-$version/");
     $output .= "\n" . shell_exec("mv appcms-$version.zip ../../www/download/");
+    file_put_contents('log.txt', $time."\n"."Dev-Version builded: ".$output, FILE_APPEND);
 } else {
     file_put_contents('log.txt', $time."\n"."Webhook failed: payload error", FILE_APPEND);
 }
