@@ -20,6 +20,12 @@ class Group extends Base
     protected $name;
 
     /**
+     * @ORM\Column(type="integer")
+     * @PIM\Config(showInList=40, label="Token-Timeout (in min)")
+     */
+    protected $tokenTimeout = 30;
+
+    /**
      * @ORM\OneToMany(targetEntity="Areanet\PIM\Entity\Permission", mappedBy="group", cascade={"remove"})
      * @PIM\Config(tab="permissions", label="Berechtigungen")
      * @PIM\Permissions()
@@ -58,9 +64,23 @@ class Group extends Base
         $this->permissions = $permissions;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTokenTimeout()
+    {
+        return $this->tokenTimeout;
+    }
 
-
+    /**
+     * @param mixed $tokenTimeout
+     */
+    public function setTokenTimeout($tokenTimeout)
+    {
+        $this->tokenTimeout = $tokenTimeout;
+    }
     
+      
 
 
 

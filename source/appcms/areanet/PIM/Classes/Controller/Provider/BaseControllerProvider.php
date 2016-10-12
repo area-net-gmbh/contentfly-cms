@@ -104,13 +104,19 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
             return false;
         }
 
-        if(Adapter::getConfig()->APP_CHECK_TOKEN_TIMEOUT && !$token->getReferrer()) {
+        $tokenTimeout = Adapter::getConfig()->APP_TOKEN_TIMEOUT;
 
+        if(($group = $token->getUser()->getGroup())){
+            $tokenTimeout =  $group->getTokenTimeout() * 60;
+        }
+
+        if(Adapter::getConfig()->APP_CHECK_TOKEN_TIMEOUT && !$token->getReferrer() && $tokenTimeout) {
+            
             $modified   = $token->getModified()->getTimestamp();
             $now        = new \DateTime();
             $diff       = $now->getTimestamp() - $modified;
 
-            if ($diff > Adapter::getConfig()->APP_TOKEN_TIMEOUT) {
+            if ($diff > $tokenTimeout) {
                 $app['orm.em']->remove($token);
                 $app['orm.em']->flush();
                 return false;
