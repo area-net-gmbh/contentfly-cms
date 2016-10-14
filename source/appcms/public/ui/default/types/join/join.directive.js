@@ -118,6 +118,11 @@
                         function () {}
                     );
                 }
+
+                function isObject(val) {
+                    if (val === null) { return false;}
+                    return ( (typeof val === 'function') || (typeof val === 'object') );
+                }
                 
                 function init(){
 
@@ -135,7 +140,7 @@
                     }
 
 
-                    if(parseInt(scope.value)){
+                    if(scope.value && !isObject(scope.value)){
                         
                         var data = {
                             entity : entity,
