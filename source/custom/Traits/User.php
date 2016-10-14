@@ -3,13 +3,13 @@ namespace Custom\Traits;
 
 trait User{
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(showInList=20, label="Name")
      */
     protected $name;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(showInList=40, label="E-Mail")
      */
     protected $email;

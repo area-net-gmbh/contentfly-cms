@@ -665,7 +665,7 @@ class ApiController extends BaseController
                 if(!$parent){
                     $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
                 }else{
-                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = ".$parent->getId());
+                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
                 }
 
             }else{
@@ -791,7 +791,7 @@ class ApiController extends BaseController
                     if(!$parent){
                         $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent IS NULL");
                     }else {
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent = ".$parent->getId());
+                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent = '".$parent->getId()."'");
                     }
                 }elseif($schema[ucfirst($entityName)]['settings']['sortRestrictTo']) {
                     $restrictToProperty = $schema[ucfirst($entityName)]['settings']['sortRestrictTo'];
@@ -800,7 +800,7 @@ class ApiController extends BaseController
                     if(!$restrictToObject){
                         $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.$restrictToProperty IS NULL");
                     }else{
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.$restrictToProperty = ".$restrictToObject->getId());
+                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.$restrictToProperty = '".$restrictToObject->getId()."'");
                     }
                 }else{
                     $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false");

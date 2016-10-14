@@ -11,12 +11,14 @@
             scope: { object: '=', schema: '=', long: '=' },
             link: function(scope, element, attrs){
                 
-                var property = attrs.property;
-                var long     = attrs.long ? attrs.long : false;
-                var type     = scope.schema.properties[property] ? scope.schema.properties[property].type : null;
+
 
                 scope.$watch('object', function() {
-                    
+
+                    var property = attrs.property;
+                    var long     = attrs.long ? attrs.long : false;
+                    var type     = scope.schema.properties[property] ? scope.schema.properties[property].type : null;
+
                     if(scope.object == null || type == null){
                         return;
                     }

@@ -13,7 +13,7 @@ class SetupController extends BaseController
 
     public function setupAction()
     {
-       
+
         if(!Adapter::getConfig()->DO_INSTALL){
             return $this->app->redirect(Adapter::getConfig()->FRONTEND_URL, 303);
         }

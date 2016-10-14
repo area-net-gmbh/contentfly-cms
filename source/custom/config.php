@@ -13,6 +13,7 @@ $configDefault->DB_HOST = 'localhost';
 $configDefault->DB_NAME = 'db';
 $configDefault->DB_USER = 'user';
 $configDefault->DB_PASS = 'pass';
+$configDefault->DB_GUID_STRATEGY = true;
 
 $configDefault->APP_DEBUG               = true;
 $configDefault->APP_ENABLE_SCHEMA_CACHE = false;
