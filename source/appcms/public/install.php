@@ -1,4 +1,6 @@
 <?php
+define('BOILERPLATE_VERSION', '1.2.6');
+
 if(file_exists(__DIR__.'/../../custom/config.php')){
     //header('Location: /');
 }
@@ -13,20 +15,20 @@ function isEnabled($func) {
 
 function install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
 
-    if(!file_exists(__DIR__.'/../../boilerplate-'.APP_VERSION.'.zip')){
-        shell_exec(('cd '.__DIR__.'/../../ && wget http://www.das-app-cms.de/download/boilerplate-'.APP_VERSION.'.zip'));
+    if(!file_exists(__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip')){
+        shell_exec(('cd '.__DIR__.'/../../ && wget http://www.das-app-cms.de/download/boilerplate-'.BOILERPLATE_VERSION.'.zip'));
     }
 
     $zip = new ZipArchive();
-    if ($zip->open(__DIR__.'/../../boilerplate-'.APP_VERSION.'.zip') !== TRUE) {
-        return 'Boilerplate-ZIP "'.__DIR__.'/../../boilerplate-'.APP_VERSION.'.zip'.'" konnte nicht geschrieben/geladen werden.';
+    if ($zip->open(__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip') !== TRUE) {
+        return 'Boilerplate-ZIP "'.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip'.'" konnte nicht geschrieben/geladen werden.';
     }
 
     $zip->extractTo(__DIR__.'/../../');
     $zip->close();
-    shell_exec(('mv '.__DIR__.'/../../boilerplate-'.APP_VERSION.'/* '.__DIR__.'/../../'));
-    shell_exec(('rm -rf '.__DIR__.'/../../boilerplate-'.APP_VERSION));
-    shell_exec(('rm -rf '.__DIR__.'/../../boilerplate-'.APP_VERSION.'.zip'));
+    shell_exec(('mv '.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'/* '.__DIR__.'/../../'));
+    shell_exec(('rm -rf '.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION));
+    shell_exec(('rm -rf '.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip'));
     if(!file_exists(__DIR__.'/../../custom/config.php')){
         return 'Konfiguration "'.__DIR__.'/../../custom/config.php" konnte nicht erstellt werden.';
     }
