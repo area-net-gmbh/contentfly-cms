@@ -1,6 +1,6 @@
 <?php
 if(file_exists(__DIR__.'/../../custom/config.php')){
-    header('Location: /');
+    //header('Location: /');
 }
 
 require_once('../version.php');
@@ -11,7 +11,7 @@ function isEnabled($func) {
     return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
 }
 
-function install($system_php, $db_host, $db_name, $db_user, $db_pass){
+function install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
 
     if(!file_exists(__DIR__.'/../../boilerplate-'.APP_VERSION.'.zip')){
         shell_exec(('cd '.__DIR__.'/../../ && wget http://www.das-app-cms.de/download/boilerplate-'.APP_VERSION.'.zip'));
@@ -40,6 +40,10 @@ function install($system_php, $db_host, $db_name, $db_user, $db_pass){
 
     if($system_php != 'php'){
         $configContent = str_replace("Config();", "Config();\n\n".'$configDefault->SYSTEM_PHP_CLI_COMMAND = "'.escapeshellcmd($system_php).'";', $configContent);
+    }
+
+    if($db_strategy == 'guid'){
+        $configContent = str_replace("Config();", "Config();\n\n".'$configDefault->DB_GUID_STRATEGY = true;', $configContent);
     }
     
     if(strpos($configContent, 'DO_INSTALL') === false){
@@ -83,14 +87,15 @@ function check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pas
 }
 
 if(!empty($_POST['start'])){
-    $system_php = mask($_POST['system_php']);
-    $db_host    = mask($_POST['db_host']);
-    $db_name    = mask($_POST['db_name']);
-    $db_user    = mask($_POST['db_user']);
-    $db_pass    = mask($_POST['db_pass']);
+    $system_php             = mask($_POST['system_php']);
+    $db_host                = mask($_POST['db_host']);
+    $db_name                = mask($_POST['db_name']);
+    $db_user                = mask($_POST['db_user']);
+    $db_pass                = mask($_POST['db_pass']);
+    $db_strategy            = mask($_POST['db_strategy']);
 
     if(!($error = check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pass))){
-        $error = install($system_php, $db_host, $db_name, $db_user, $db_pass);
+        $error = install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy);
     }
 
 
@@ -141,6 +146,19 @@ if(!empty($_POST['start'])){
             <div class="form-group">
                 <label for="db_pass">Passwort</label>
                 <input type="text" class="form-control" name="db_pass" id="db_pass" placeholder="DB-PASS" value="<?php echo isset($_POST['db_pass']) ? $_POST['db_pass'] : '';?>" required>
+            </div>
+            <h2>ID-Strategie</h2>
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="db_strategy" id="db_strategy_auto" value="guid" checked>
+                        <b>GUID</b> (Synchronisations-Unterstützung)</label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="db_strategy" id="db_strategy_auto" value="auto">
+                        <b>AUTO-INCREMENT</b> (Deprecated)</label>
+                </div>
             </div>
             <h2>System</h2>
             <div class="form-group">
