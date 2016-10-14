@@ -150,6 +150,7 @@
                         EntityService.single(data).then(
                             function(response){
                                 scope.value = response.data.data;
+                                scope.onChangeCallback({key: scope.key, value: scope.value.id});
                             },
                             function(data){
 
