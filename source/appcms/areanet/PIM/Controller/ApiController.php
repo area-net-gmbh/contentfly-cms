@@ -26,6 +26,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Query;
 use Silex\Application;
 
@@ -33,6 +34,7 @@ use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 
 class ApiController extends BaseController
@@ -649,18 +651,23 @@ class ApiController extends BaseController
         $deletedObject->setUser($object->getUser());
         $deletedObject->setUserCreated($object->getUserCreated());
         
-        $this->em->persist($deletedObject);
-
         $object = null;
 
-        $this->em->getClassMetaData(get_class($deletedObject))->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        $metadata = $this->em->getClassMetaData(get_class($deletedObject));
+        $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+        if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
+
         if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
-            $this->em->getClassMetaData('Areanet\PIM\Entity\BaseTree')->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+            $metadata = $this->em->getClassMetaData('Areanet\PIM\Entity\BaseTree');
+            $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+            if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
         }
+
+        $this->em->persist($deletedObject);
         $this->em->flush();
 
         if($schema[ucfirst($entityName)]['settings']['isSortable']){
-            $oldPos = $object->getSorting();
+            $oldPos = $deletedObject->getSorting();
             if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
                 if(!$parent){
                     $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
@@ -679,6 +686,69 @@ class ApiController extends BaseController
         return $deletedObject;
     }
 
+    /**
+     * @apiVersion 1.3.0
+     * @api {post} /api/replace replace
+     * @apiName Replace
+     * @apiGroup Objekte
+     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
+     *
+     * @apiParam {String} entity zu aktualisierende oder einzufügende Entity
+     * @apiParam {Integer} id Objekt-ID (wenn vorhanden, wird das Objekt aktualisiert, ansonten neu angelegt)
+     * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
+     * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *      "entity": "News",
+     *      "id": 12,
+     *      "data": {
+     *          "title": "Eine geänderte News",
+     *          "subtitle: "Untertitel der geänderten News",
+     *          "date": "2016-02-18 15:30:00"
+     *      }
+     * @apiError 500 Ein Objekt mit einem gleichen UNIQUE-INDEX ist bereits vorhanden
+     */
+    public function replaceAction(Request $request, Application $app)
+    {
+        $entityName          = $request->get('entity');
+        $id                  = $request->get('id');
+        $data                = $request->get('data');
+
+        $schema              = $this->getSchema();
+
+        $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
+        if(substr($entityName, 0, 3) == "PIM"){
+            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        }
+
+        $object = $this->em->getRepository($entityPath)->find($id);
+        if(!$object){
+            $subRequest = Request::create('/api/insert', 'POST', $request->attributes->all(), $request->cookies->all(), $request->files->all(), $request->server->all(), $request->getContent());
+
+            $allData = $request->request->all();
+            $allData["data"]["id"] = $id;
+            $request->request->replace($allData);
+            $request->attributes->set("data", $data);
+
+            $subRequest->request = $request->request;
+            $subRequest->query = $request->query;
+            return $this->app->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
+
+        }
+
+        $subRequest = Request::create('/api/update', 'POST', $request->attributes->all(), $request->cookies->all(), $request->files->all(), $request->server->all(), $request->getContent());
+
+        $allData = $request->request->all();
+        $allData["data"]["id"] = $id;
+        $request->request->replace($allData);
+        $request->attributes->set("data", $data);
+
+        $subRequest->request = $request->request;
+        $subRequest->query = $request->query;
+        return $this->app->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
+    }
 
     /**
      * @apiVersion 1.3.0
@@ -771,6 +841,12 @@ class ApiController extends BaseController
                 if($objectDuplicated) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
             }
 
+            if($property == 'id'){
+                $metadata = $this->em->getClassMetaData(get_class($object));
+                $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+                if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
+            }
+
             $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
 
         }
@@ -841,7 +917,7 @@ class ApiController extends BaseController
             $this->em->flush();
         }catch(UniqueConstraintViolationException $e){
             if($entityPath == 'Areanet\PIM\Entity\User'){
-                throw new EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
+                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
             }
             $uniqueObjectLoaded = false;
 
@@ -850,14 +926,14 @@ class ApiController extends BaseController
                 if($propertySettings['unique']){
                     $object = $this->em->getRepository($entityPath)->findOneBy(array($property => $data[$property]));
                     if(!$object){
-                        throw new Exception("Unbekannter Fehler", 501);
+                        throw new \Exception("Unbekannter Fehler", 501);
                     }
                     $uniqueObjectLoaded = true;
                     break;
                 }
             }
 
-            if(!$uniqueObjectLoaded) throw new Exception("Unbekannter Fehler", 500);
+            if(!$uniqueObjectLoaded) throw new \Exception("Unbekannter Fehler", 500);
         }
 
 
