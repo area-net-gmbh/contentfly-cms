@@ -18,6 +18,14 @@ use Knp\Provider\ConsoleServiceProvider;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
 
+if(Config\Adapter::getConfig()->DB_GUID_STRATEGY){
+    define('APPCMS_ID_TYPE', 'string');
+    define('APPCMS_ID_STRATEGY', 'UUID');
+}else{
+    define('APPCMS_ID_TYPE', 'integer');
+    define('APPCMS_ID_STRATEGY', 'AUTO');
+}
+
 
 $app = new Application();
 $app->register(new Silex\Provider\SessionServiceProvider());

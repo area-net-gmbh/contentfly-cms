@@ -51,6 +51,11 @@ class Config{
      * @var string $DB_NESTED_LEVELS Loading x nested levels
      */
     public $DB_NESTED_LEVELS  = 3;
+
+    /**
+     * @var boolean $DB_GUID_STRATEGY Set primary types to guid
+     */
+    public $DB_GUID_STRATEGY  = false;
     
 
     /**

@@ -12,9 +12,9 @@ use Areanet\PIM\Classes\Annotations as PIM;
 class Base extends Serializable
 {
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type=APPCMS_ID_TYPE)
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy=APPCMS_ID_STRATEGY)
      * @PIM\Config(readonly=true, hide=true, label="ID")
      */
     protected $id;

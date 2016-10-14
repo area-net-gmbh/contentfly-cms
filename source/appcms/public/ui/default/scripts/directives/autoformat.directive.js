@@ -67,10 +67,15 @@
                             element.text(value);
                             break;
                         default:
+                            var listShorten = scope.schema.properties[property].listShorten;
+                            if(key == 'id'){
+                                listShorten = 5;
+                            }
+
                             var content = strip_tags(scope.object[property]);
-                            if(scope.schema.properties[property].listShorten){
-                                if(content && content.length > scope.schema.properties[property].listShorten){
-                                    element.text(content.substr(0, scope.schema.properties[property].listShorten) + '...');
+                            if(listShorten){
+                                if(content && content.length > listShorten){
+                                    element.text(content.substr(0, listShorten) + '...');
                                 }else{
                                     element.text(content);
                                 }
