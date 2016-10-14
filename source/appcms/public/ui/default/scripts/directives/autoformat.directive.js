@@ -68,7 +68,7 @@
                             break;
                         default:
                             var listShorten = scope.schema.properties[property].listShorten;
-                            if(key == 'id'){
+                            if(property == 'id'){
                                 listShorten = 5;
                             }
 
