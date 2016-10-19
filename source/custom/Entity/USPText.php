@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="usptext")
- * @PIM\Config(label = "Allgemeine PopUp-Texte", labelProperty="alias")
+ * @PIM\Config(label = "Allgemeine PopUp-Texte", labelProperty="alias", hide=true)
  */
 class USPText extends Base
 {

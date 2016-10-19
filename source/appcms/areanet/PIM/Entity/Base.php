@@ -22,7 +22,7 @@ class Base extends Serializable
     /**
      * @var \DateTime
      * @ORM\Column(type="datetime")
-     * @PIM\Config(hide=true)
+     * @PIM\Config(hide=true, label="erstellt am")
      */
     protected $created;
 

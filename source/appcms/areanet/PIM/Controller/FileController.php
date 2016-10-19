@@ -273,7 +273,7 @@ class FileController extends BaseController
         $matching_etag          = $client_etag && strpos($client_etag, $etagFile) !== false;
 
         if (($client_last_modified && $client_etag) ?  $matching_last_modified && $matching_etag : $matching_last_modified || $matching_etag){
-            return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age=86400, public'));
+            return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age='.Config\Adapter::getConfig()->FILE_CACHE_LIFETIME.', public'));
         }
 
         $event = new \Areanet\PIM\Classes\Event();
@@ -286,8 +286,8 @@ class FileController extends BaseController
 
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
             header('Pragma: public');
-            header('Cache-Control: max-age=86400, public');
-            header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + 86400));
+            header('Cache-Control: max-age='.Config\Adapter::getConfig()->FILE_CACHE_LIFETIME.', public');
+            header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + Config\Adapter::getConfig()->FILE_CACHE_LIFETIME));
             header("Content-length: " . filesize($fileName));
             header("Content-type: ".$mimeType);
             header("Last-Modified: ".$server_last_modified);
@@ -303,11 +303,11 @@ class FileController extends BaseController
             return $this->app->stream($stream, 200, array(
                 'Content-Type'   => $mimeType,
                 'Content-length' => filesize($fileName),
-                'Cache-Control' => 'max-age=86400, public',
+                'Cache-Control' => 'max-age='.Config\Adapter::getConfig()->FILE_CACHE_LIFETIME.', public',
                 'Pragma' => 'public',
                 'ETag' => $etagFile,
                 'Last-Modified' => $server_last_modified,
-                'Expires' => gmdate('D, d M Y H:i:s \G\M\T', time() + 86400)
+                'Expires' => gmdate('D, d M Y H:i:s \G\M\T', time() + Config\Adapter::getConfig()->FILE_CACHE_LIFETIME)
             ));
         }
 

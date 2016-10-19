@@ -25,7 +25,7 @@ class Log extends Base
     protected $modelName;
 
     /**
-     * @ORM\Column(name="model_id", type="integer", nullable=false)
+     * @ORM\Column(name="model_id", type=APPCMS_ID_TYPE, nullable=false)
      * @PIM\Config(showInList=30, label="Objekt-ID")
      */
     protected $modelId;

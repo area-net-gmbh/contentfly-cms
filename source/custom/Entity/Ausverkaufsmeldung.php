@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="ausverkaufsmeldung")
- * @PIM\Config(label = "Ausverkaufsmeldung")
+ * @PIM\Config(label = "Ausverkaufsmeldung", hide=true)
  */
 class Ausverkaufsmeldung extends Base
 {

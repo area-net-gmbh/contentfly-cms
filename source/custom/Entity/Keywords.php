@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="keywords")
- * @PIM\Config(label="Keywords")
+ * @PIM\Config(label="Keywords", hide=true)
  */
 class Keywords extends Base
 {

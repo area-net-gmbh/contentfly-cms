@@ -172,6 +172,12 @@ class Config{
      * @var boolean Filenhash must be unique
      */
     public $FILE_HASH_MUST_UNIQUE = false;
+
+    /**
+     * @var boolean Lifetime for HTTP-File-Cache = 7 Tage
+     */
+    public $FILE_CACHE_LIFETIME = 604800;
+
     
     
     /**

@@ -402,10 +402,8 @@ class ApiController extends BaseController
 
                     $queryBuilder->andWhere($queryBuilder->expr()->in("$entityName.type", $this->_MIMETYPES[$where['mimetypes']]));
 
-                    //$queryBuilder->andWhere($orX);
                 }
 
-                //die("$entityName.type");
 
             }
         }
@@ -1044,7 +1042,7 @@ class ApiController extends BaseController
 
         $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
-            throw new EntityNotFoundException();
+            throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException();
 
         }
 
@@ -1177,6 +1175,7 @@ class ApiController extends BaseController
         $entityFolder = __DIR__.'/../../../../custom/Entity/';
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
             if($fileInfo->isDot()) continue;
+
             $entities[] = 'Custom\Entity\\'.ucfirst($fileInfo->getBasename('.php'));
         }
 
@@ -1187,11 +1186,20 @@ class ApiController extends BaseController
             if(substr($entityName, 0, 11) == 'Areanet\\PIM'){
                 $entityShortcut = 'PIM\\'.$entityShortcut;
             }
+
+            if(!($permission = Permission::isReadable($this->app['auth.user'], $entityShortcut))){
+                continue;
+            }
+
             $qb = $this->em->createQueryBuilder();
-            $qb
-                ->select($entityShortcut)
-                ->from($entityName, $entityShortcut);
-            ;
+
+            $qb->select($entityShortcut)
+               ->from($entityName, $entityShortcut);
+
+            if($permission == \Areanet\PIM\Entity\Permission::OWN){
+                $qb->where("$entityShortcut.userCreated = :userCreated");
+                $qb->setParameter('userCreated', $this->app['auth.user']);
+            }
 
             if($lastModified){
                 //$qb->where($qb->expr()->lte('modified', $lastModified));

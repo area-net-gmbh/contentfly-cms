@@ -93,7 +93,7 @@ abstract class BaseController
                 'pushTitle' => '',
                 'pushText' => '',
                 'pushObject' => '',
-                'sortBy' => 'id',
+                'sortBy' => 'created',
                 'sortRestrictTo' => null,
                 'sortOrder' => 'DESC',
                 'isSortable' => false,

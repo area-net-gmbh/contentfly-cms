@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="textblock")
- * @PIM\Config(label = "Textblock")
+ * @PIM\Config(label = "Textblock", hide=true)
  */
 class Textblock extends Base
 {

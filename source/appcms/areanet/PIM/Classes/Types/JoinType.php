@@ -47,7 +47,7 @@ class JoinType extends Type
 
         $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 
-        if(!Permission::isWritable($user, $entity)){
+        if(!Permission::isReadable($user, $entity)){
             throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
         }
 

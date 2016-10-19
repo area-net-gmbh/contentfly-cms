@@ -17,6 +17,7 @@
                 <li><a ng-click="vm.sortBy('id')">ID</a></li>
                 <li ng-show="vm.schema.settings.isSortable"><a ng-click="vm.sortBy('sorting')">Position</a></li>
                 <li ng-repeat="property in vm.schema.list"><a ng-click="vm.sortBy(property)">{{vm.schema.properties[property].label}}</a></li>
+                <li><a ng-click="vm.sortBy('created')">erstellt am</a></li>
                 <li><a ng-click="vm.sortBy('modified')">geändert am</a></li>
                 <li><a ng-click="vm.sortBy('user')">geändert von</a></li>
                 <pim-plugin key="LIST_HEADER_SORTING_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>

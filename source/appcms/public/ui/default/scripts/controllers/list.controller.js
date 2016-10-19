@@ -117,7 +117,7 @@
                 return;
             }
 
-            var modaltitle = 'Wollen Sie den <b>Eintrag ' + object.id + '</b> wirklich löschen?';
+            var modaltitle = 'Wollen Sie den <b title="' + object.id + '">Eintrag ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id)  + '</b> wirklich löschen?';
             if(vm.schema.settings.labelProperty){
                 modaltitle = 'Wollen Sie <b>' + vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + '</b> wirklich löschen?';
             }
@@ -481,7 +481,7 @@
             if(object && vm.schema.settings.labelProperty){
                 modaltitle = vm.schema.settings.label + ' ' + (object[vm.schema.settings.labelProperty] ? object[vm.schema.settings.labelProperty] : 'ID' + object.id) + ' bearbeiten';
             }else if(object){
-                modaltitle = 'Objekt ' + object.id + ' bearbeiten';
+                modaltitle = '<span title="' + object.id + '">Objekt ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id) + ' bearbeiten</span>';
             }else{
                 object = {};
 

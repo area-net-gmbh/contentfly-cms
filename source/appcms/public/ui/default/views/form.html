@@ -2,7 +2,7 @@
     <pim-plugin key="FORM_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="col-sm-4">
         <pim-plugin key="FORM_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <h3 class="modal-title">{{::vm.modaltitle}}</h3><small ng-show="vm.object.created">Erstellt {{::vm.object.created.LOCAL}} | Geändert {{::vm.object.modified.LOCAL_TIME}} Uhr</small></p>
+        <h3 class="modal-title" ng-bind-html="::vm.modaltitle"></h3><small ng-show="vm.object.created">Erstellt {{::vm.object.created.LOCAL}} | Geändert {{::vm.object.modified.LOCAL_TIME}} Uhr</small></p>
         <pim-plugin key="FORM_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
     <div class="col-sm-8" style="text-align:right;">

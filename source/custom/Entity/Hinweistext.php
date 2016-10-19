@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="hinweistext")
- * @PIM\Config(label = "Hinweistext")
+ * @PIM\Config(label = "Hinweistext", hide=true)
  */
 class Hinweistext extends Base
 {

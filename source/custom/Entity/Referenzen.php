@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="referenzen")
- * @PIM\Config(label="Referenzen", sortBy="sorting")
+ * @PIM\Config(label="Referenzen", sortBy="sorting", hide=true)
  */
 class Referenzen extends BaseSortable
 {
