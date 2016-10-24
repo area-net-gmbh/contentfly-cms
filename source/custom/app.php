@@ -1,9 +1,9 @@
 <?php
 $app->get('/', function () use ($app) {
 
-    $products = $app['orm.em']->getRepository('Custom\\Entity\\Produkt')->findAll();
-    var_dump($products);
-    die("test");
+    //$products = $app['orm.em']->getRepository('Custom\\Entity\\Produkt')->findAll();
+    //var_dump($products);
+    //die("test");
 });
 
 //$app['uiManager']->addBlock('LIST_HEADER_FILTER_APPEND', 'blocks/liste-filteroption.html');

@@ -37,6 +37,20 @@ class Firma extends Base
     protected $ort;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     * @PIM\Config(label="Logo")
+     */
+    protected $logo;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\File")
+     * @ORM\JoinTable(name="firma_bilder", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
+     * @PIM\Config(label="Bilder")
+     */
+    protected $bilder;
+
+    /**
      * @return mixed
      */
     public function getName()
@@ -99,6 +113,40 @@ class Firma extends Base
     {
         $this->ort = $ort;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLogo()
+    {
+        return $this->logo;
+    }
+
+    /**
+     * @param mixed $logo
+     */
+    public function setLogo($logo)
+    {
+        $this->logo = $logo;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBilder()
+    {
+        return $this->bilder;
+    }
+
+    /**
+     * @param mixed $bilder
+     */
+    public function setBilder($bilder)
+    {
+        $this->bilder = $bilder;
+    }
+
+    
 
 
 
