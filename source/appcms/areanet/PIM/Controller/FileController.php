@@ -2,7 +2,6 @@
 namespace Areanet\PIM\Controller;
 use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
-use Areanet\PIM\Classes\Exceptions\Config\FileNotFoundException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\Permission;
