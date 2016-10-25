@@ -55,6 +55,13 @@ class FileType extends Type
             $object->$setter(null);
             return;
         }
+
+        if(is_array($value)){
+            if(empty($value["id"])) return;
+
+            $value = $value["id"];
+        }
+
         $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($value);
 
         if(!$objectToJoin) {

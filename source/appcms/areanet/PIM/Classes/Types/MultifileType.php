@@ -105,6 +105,13 @@ class MultifileType extends Type
 
             $sorting = 0;
             foreach($value as $id){
+
+                if(is_array($id)){
+                    if(empty($id["id"])) continue;
+
+                    $id = $id["id"];
+                }
+
                 $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
                 if($objectToJoin->getIsDeleted()) continue;
 
@@ -133,6 +140,12 @@ class MultifileType extends Type
             }
 
             foreach($value as $id){
+
+                if(is_array($id)){
+                    if(empty($id["id"])) continue;
+
+                    $id = $id["id"];
+                }
 
                 $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
                 if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);

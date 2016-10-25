@@ -115,6 +115,12 @@ class MultijoinType extends Type
 
         $sorting = 0;
         foreach($value as $id){
+
+            if(is_array($id)){
+                if(empty($id["id"])) continue;
+
+                $id = $id["id"];
+            }
             
             $objectToJoin = $this->em->getRepository($entity)->find($id);
 

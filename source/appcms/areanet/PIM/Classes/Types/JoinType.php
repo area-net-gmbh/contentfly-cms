@@ -51,6 +51,12 @@ class JoinType extends Type
             throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
         }
 
+        if(is_array($value)){
+            if(empty($value["id"])) return;
+
+            $value = $value["id"];
+        }
+
         $objectToJoin = $this->em->getRepository($entity)->find($value);
         $object->$setter($objectToJoin);
 
