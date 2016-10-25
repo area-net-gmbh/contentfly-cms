@@ -8,6 +8,7 @@ use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Entity\File;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\Id\AssignedGenerator;
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,14 +44,18 @@ class FileController extends BaseController
         $event->setParam('app',     $this->app);
         $this->app['dispatcher']->dispatch('pim.file.before.upload', $event);
 
-
         foreach($request->files as $key => $file){
             if($request->get("id")){
 
                 $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($request->get("id"));
 
                 if (!$fileObject) {
-                    throw new \Exception("Ungültige Bild-ID.");
+                    $fileObject = new File();
+
+                    $metadata = $this->em->getClassMetaData(get_class($fileObject));
+                    $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+                    if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
+                    $fileObject->setId($request->get("id"));
                 }
 
                 $hash = md5_file($file->getRealPath());
