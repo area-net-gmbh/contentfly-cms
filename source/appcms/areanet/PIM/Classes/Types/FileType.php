@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Exceptions\FileNotFoundException;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
@@ -65,7 +66,7 @@ class FileType extends Type
         $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($value);
 
         if(!$objectToJoin) {
-            return;
+            throw new FileNotFoundException();
         }
         $object->$setter($objectToJoin);
 
