@@ -544,7 +544,7 @@
                     function errorCallback(response) {
                         file.upload = Upload.upload({
                             url: '/file/upload',
-                            data: {file: file, folder: vm.filter['folder']}
+                            data: {file: file, id: 'test', folder: vm.filter['folder']}
                         });
 
                         file.upload.then(

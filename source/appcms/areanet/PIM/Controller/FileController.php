@@ -55,6 +55,11 @@ class FileController extends BaseController
                     $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
                     if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
                     $fileObject->setId($request->get("id"));
+
+                    $extension      = $file->getClientOriginalExtension();
+                    $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
+                    $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
+                    $fileObject->setName($filename);
                 }
 
                 $hash = md5_file($file->getRealPath());
@@ -72,6 +77,7 @@ class FileController extends BaseController
                 $fileObject->setSize($file->getClientSize());
 
                 $fileObject->setHash($hash);
+
                 $this->em->persist($fileObject);
                 $this->em->flush();
 
@@ -80,6 +86,7 @@ class FileController extends BaseController
 
                 $processor = Processing::getInstance($file->getClientMimeType());
                 $processor->execute($backend, $fileObject);
+
             }else {
                 $hash = md5_file($file->getRealPath());
 
