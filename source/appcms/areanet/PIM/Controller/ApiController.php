@@ -1196,14 +1196,16 @@ class ApiController extends BaseController
             $qb->select($entityShortcut)
                ->from($entityName, $entityShortcut);
 
+            $qb->where("1 = 1");
+
             if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                $qb->where("$entityShortcut.userCreated = :userCreated");
+                $qb->andWhere("$entityShortcut.userCreated = :userCreated");
                 $qb->setParameter('userCreated', $this->app['auth.user']);
             }
 
-            if($lastModified){
-                //$qb->where($qb->expr()->lte('modified', $lastModified));
-                $qb->where($entityShortcut.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
+            if($lastModified) {
+                $qb->andWhere($entityShortcut . '.modified >= :lastModified');
+                $qb->setParameter('lastModified', $lastModified);
             }
 
             $query = $qb->getQuery();
