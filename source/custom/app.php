@@ -6,10 +6,8 @@ $app->get('/', function () use ($app) {
     //die("test");
 });
 
-//$app['uiManager']->addBlock('LIST_HEADER_FILTER_APPEND', 'blocks/liste-filteroption.html');
-//$app['uiManager']->addBlock('LIST_TABLE_BODY_BUTTONS_PREPEND', 'blocks/liste-filter.html');
-//$app['uiManager']->addBlock('FORM_APPEND', 'blocks/comments.html');
-//$app['uiManager']->addJSFile('directives/comments.directive.js');
+$app['uiManager']->addBlock('LIST_TABLE_BODY_BUTTONS_PREPEND', 'blocks/liste-firma.html');
+$app['uiManager']->addBlock('LIST_HEADER_TITLE_PREPEND', 'blocks/liste-ansprechpartner.html');
 
 $app->get('/user', function () use ($app) {
     if(($user = $app['auth']->getUser())){

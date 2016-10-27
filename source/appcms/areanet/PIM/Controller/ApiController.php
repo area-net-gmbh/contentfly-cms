@@ -293,7 +293,7 @@ class ApiController extends BaseController
                 }
 
                 if($schema[$entityName]['properties'][$field]['type'] == 'multijoin'){
-                    $value = intval($value);
+                    $value = $value;
 
                     if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
                         if($value == -1) {
@@ -327,7 +327,7 @@ class ApiController extends BaseController
                 }else{
                     switch($schema[$entityName]['properties'][$field]['type']){
                         case 'join':
-                            $value = intval($value);
+                            $value = $value;
                             if($value == -1){
                                 $queryBuilder->andWhere("$entityName.$field IS NULL");
                             }else{
