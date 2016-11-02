@@ -1299,11 +1299,10 @@ class ApiController extends BaseController
         }
 
         $currentDate = new \Datetime();
-        $jsonResponse = new JsonResponse(array('message' => 'allAction',  'lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
 
         if($filedata != null) file_put_contents(ROOT_DIR.'/data/currentData.json', ($all));
 
-        return $jsonResponse;
+        return new JsonResponse(array('message' => 'allAction',  'lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
     }
 
     /**

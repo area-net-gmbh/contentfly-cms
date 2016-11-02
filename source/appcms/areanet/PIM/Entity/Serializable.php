@@ -169,7 +169,41 @@ abstract class Serializable implements \JsonSerializable{
                 $getter = 'get' . ucfirst($property);
 
                 if (method_exists($this, $getter)) {
-                    if ($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
+                    if ($this->$property instanceof \Datetime) {
+                        $res = $this->$property->format('Y');
+                        if ($this->$property->format('Y') == '-0001' || $this->$property->format('Y') == '0000') {
+                            $result->$property = array(
+                                'LOCAL_TIME' => null,
+                                'LOCAL' => null,
+                                'ISO8601' => null,
+                                'IMESTAMP' => null
+                            );
+                        } else {
+                            $result->$property = array(
+                                'LOCAL_TIME' => $this->$property->format('d.m.Y H:i'),
+                                'LOCAL' => $this->$property->format('d.m.Y'),
+                                'ISO8601' => $this->$property->format(\DateTime::ISO8601),
+                                'TIMESTAMP' => $this->$property->getTimestamp()
+                            );
+                        }
+                    }elseif ($this->$property instanceof \Datetime) {
+                        $res = $this->$property->format('Y');
+                        if ($this->$property->format('Y') == '-0001' || $this->$property->format('Y') == '0000') {
+                            $result->$property = array(
+                                'LOCAL_TIME' => null,
+                                'LOCAL' => null,
+                                'ISO8601' => null,
+                                'IMESTAMP' => null
+                            );
+                        } else {
+                            $result->$property = array(
+                                'LOCAL_TIME' => $this->$property->format('d.m.Y H:i'),
+                                'LOCAL' => $this->$property->format('d.m.Y'),
+                                'ISO8601' => $this->$property->format(\DateTime::ISO8601),
+                                'TIMESTAMP' => $this->$property->getTimestamp()
+                            );
+                        }
+                    }elseif ($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
                         $permission = \Areanet\PIM\Entity\Permission::ALL;
 
                         if($config['type'] == 'multifile'){
