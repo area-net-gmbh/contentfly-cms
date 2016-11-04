@@ -129,7 +129,28 @@
 
 
 <!-- Global App Files -->
+<script>
+    var appcms_modules = [
+        /* Angular modules */
+        'ngCookies',
+        'ngFileUpload',
+        'ngRoute',
 
+        /* 3rd-party modules */
+        'angularGrid',
+        'angularMoment',
+        'angularUtils.directives.dirPagination',
+        'chart.js',
+        'LocalStorageModule',
+        'textAngular',
+        'ui.bootstrap',
+        'ui.sortable'
+    ]
+
+    {% for angularModule in angularModules %}
+    appcms_modules.push('{{ angularModule }}');
+    {% endfor %}
+</script>
 <script src="/ui/default/scripts/app.module.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/app.routes.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/app.js?v={{ app_version }}"></script>

@@ -15,10 +15,11 @@ use Silex\Application;
 class UIManager extends Manager
 {
 
-    protected $blocks       = array();
-    protected $routes       = array();
-    protected $jsFiles      = array();
-    protected $cssFiles     = array();
+    protected $blocks         = array();
+    protected $routes         = array();
+    protected $jsFiles        = array();
+    protected $angularModules = array();
+    protected $cssFiles       = array();
 
     /**
      * @param String $key BLOCK_KEY
@@ -62,6 +63,18 @@ class UIManager extends Manager
     public function getRoutes()
     {
         return $this->routes;
+    }
+
+    public function addAngularModule($moduleName){
+        $this->angularModules[] = $moduleName;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAngularModules()
+    {
+        return $this->angularModules;
     }
 
     /**

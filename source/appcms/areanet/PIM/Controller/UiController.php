@@ -39,6 +39,7 @@ class UiController extends BaseController
             'custom_version'  => CUSTOM_VERSION,
             'script'   => $dynInlineScript,
             'jsFiles'  => $jsFilesToInclude,
+            'angularModules'  => $this->app['uiManager']->getAngularModules(),
             'cssFiles' => $cssFilesToInclude,
             'customTypes' => $this->app['typeManager']->getCustomTypes(),
             'systemTypes' => $this->app['typeManager']->getSystemTypes(),
