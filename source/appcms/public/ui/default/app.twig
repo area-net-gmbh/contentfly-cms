@@ -127,6 +127,10 @@
 <script src="/ui/default/vendor/chartjs/angular-chart.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/vendor/angular/ui.sortable.js?v={{ app_version }}"></script>
 
+<!-- Dynamic Angular Modules -->
+{% for modulePath in angularModules %}
+    <script src="/custom/Frontend/ui/default/scripts/{{ modulePath }}?v={{ custom_version }}"></script>
+{% endfor %}
 
 <!-- Global App Files -->
 <script>
@@ -147,8 +151,8 @@
         'ui.sortable'
     ]
 
-    {% for angularModule in angularModules %}
-    appcms_modules.push('{{ angularModule }}');
+    {% for moduleName in angularModules|keys %}
+    appcms_modules.push('{{ moduleName }}');
     {% endfor %}
 </script>
 <script src="/ui/default/scripts/app.module.js?v={{ app_version }}"></script>

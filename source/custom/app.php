@@ -5,7 +5,8 @@ $app->get('/', function () use ($app) {
     //var_dump($products);
     //die("test");
 });
-//$app['uiManager']->addAngularModule('testModule');
+//
+$app['uiManager']->addAngularModule('test', 'test.js');
 $app['uiManager']->addBlock('LIST_TABLE_BODY_BUTTONS_PREPEND', 'blocks/liste-firma.html');
 $app['uiManager']->addBlock('LIST_HEADER_TITLE_PREPEND', 'blocks/liste-ansprechpartner.html');
 

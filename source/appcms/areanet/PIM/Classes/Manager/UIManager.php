@@ -65,8 +65,8 @@ class UIManager extends Manager
         return $this->routes;
     }
 
-    public function addAngularModule($moduleName){
-        $this->angularModules[] = $moduleName;
+    public function addAngularModule($moduleName, $path){
+        $this->angularModules[$moduleName] = $path;
     }
 
     /**
