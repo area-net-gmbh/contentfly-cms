@@ -38,7 +38,11 @@ $app->error(function (\Exception $e, $code) use($app) {
     }else{
         $accept = AcceptHeader::fromString($app["request"]->headers->get('Content-Type'));
         if(!$accept->has('application/json')){
-            return $app->redirect('/');
+            if($app['debug']){
+                die('<h1>Fehler '.$e->getCode().'</h1><h2>'.$e->getMessage().'</h2><pre>'.$e->getTraceAsString().'</pre>');
+            }else {
+                return $app->redirect('/');
+            }
         }
 
         if($app['debug']){
