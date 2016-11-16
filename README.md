@@ -17,7 +17,7 @@
 * in Ordner "/vagrant" wechseln
 
 ```
-> apidoc -i source/ -o doc/
+> apidoc -i source/ -o doc/api
 ```
 
 ## Doctrine-Schema/DB-Update
