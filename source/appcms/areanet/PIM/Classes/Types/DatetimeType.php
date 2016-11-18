@@ -35,8 +35,15 @@ class DatetimeType extends Type
         $getter = 'get'.ucfirst($property);
 
         if($value){
-            $datetime = new \DateTime($value);
-            $object->$setter($datetime);
+            if(is_array($value)){
+                $keys = array_keys($value);
+
+                $datetime = new \DateTime($value[$keys[0]]);
+                $object->$setter($datetime);
+            }else {
+                $datetime = new \DateTime($value);
+                $object->$setter($datetime);
+            }
         }else{
             $object->$setter(null);
         }
