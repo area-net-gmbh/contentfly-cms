@@ -57,7 +57,12 @@ class JoinType extends Type
             $value = $value["id"];
         }
 
-        $objectToJoin = $this->em->getRepository($entity)->find($value);
+        if(!empty($value)){
+            $objectToJoin = $this->em->getRepository($entity)->find($value);
+        }else{
+            $objectToJoin = null;
+        }
+
         $object->$setter($objectToJoin);
 
     }
