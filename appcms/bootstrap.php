@@ -4,6 +4,7 @@ define('ROOT_DIR', __DIR__);
 
 require_once ROOT_DIR.'/version.php';
 require_once ROOT_DIR.'/vendor/autoload.php';
+require_once ROOT_DIR.'/../custom/vendor/autoload.php';
 require_once ROOT_DIR.'/../custom/config.php';
 require_once ROOT_DIR.'/../custom/version.php';
 
