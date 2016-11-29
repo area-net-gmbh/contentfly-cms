@@ -3,6 +3,7 @@
 ansible/*
 template
 Vagrantfile
+custom/*
 data/*
 data/files/*
 data/cache/*
