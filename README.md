@@ -1,145 +1,88 @@
 # APP-CMS
 
-## Startuo
+- **Lizenz**: Duale Lizenz AGPL v3 / Properitär
+- **Webseite**: http://www.das-app-cms.de
 
-* vagrant up (Vagrant-Installation siehe unten)
-* vagrant ssh
-```
-> cd /vagrant/source/appcms
-> php vendor/bin/doctrine orm:schema:update --force
-```
-* http://appcms.dev/setup 
-* http://appcms.dev (admin|admin)
+## Die APP-CMS Plattform
 
-## API-Doc
+- **Backend**: https://github.com/appcms/backend
+- **iOS SDK**: https://github.com/appcms/ios-sdk
+- **Android SDK**: coming soon
 
-* Login per vagrant ssh
-* in Ordner "/vagrant" wechseln
+## Einführung
 
-```
-> apidoc -i source/ -o doc/api
-```
+Mit der APP-CMS Plattform können mobile Apps für iOS und Android unter dem Einsatz von nativen und webbasierten Technologien inklusive Synchronisations-Anbindung an ein Backend-System entwickelt werden. 
 
-## Doctrine-Schema/DB-Update
+Das Backend basiert dabei auf PHP und MySQL und kann auf nahezu jedem Standard-Hosting-Provider eingesetzt werden. Die SDKs für iOS und Android unterstützen Entwickler bei der Datenhaltung, Synchronisation und Darstellung von Inhalten. Zudem enhalten die SDKs eine Template-Engine, mit der Oberflächen einfach und plattformübergreifen in HTML erstellt werden können.
 
-### im source-Ordner (z.B. cd /vagrant/source in der ssh-vagran-box)
+Es ist dem Entwickler völlig freigestellt, ob Apps komplett nativ oder in Kombination mit webbasierten Bereichen umgesetzt werden.
 
-* Änderungen als SQL im Ordner "sql" speichern - für Update Live-Server
-```
-> php vendor/bin/doctrine orm:schema:update --sql-dump
-```
-* Änderungen in der DEV-Umgebung durchführen
-```
-> php vendor/bin/doctrine orm:schema:update --force
-```
+Die APP-CMS Plattform ist kein Baukasten-System, mit dem sich Apps ohne Vorkenntnisse zusammenklicken lassen - sondern bietet ein technisches Rahmenwerk, mit sich mobile Apps effizient, kosten-nutzenoptimiert, aber dennoch frei von Zwängen anderer (hybrider) Frameworks wie Titanium Mobile oder PhoneCap.
 
-## Composer
-* Für Änderungen PHP-Erweiterungen im source-Ordner
-```
-> composer install
-```
+Für die Entwicklung von Apps mit dem APP-CMS Framework sind folgende Kentnisse erforderlich:
 
-# Vagrant-Installation
+- **Backend**: PHP und optimalerweise Doctrine und MySQL
+- **iOS**: Swift oder Objective-C und gegebenfalls HTML5
+- **Android**: Java und gegebenfalls HTML5
 
-Author: AREA-NET GmbH, Markus Schmid www.area-net.de | www.app-agentur-bw.de
+# Das APP-CMS Backend
 
-* Ubuntu (latest stable)
-* ImageMagick, Node/NPM
-* Apache 2.4
-* PHP 5.6 (imagick, curl, gd, intl, cli, mysql)
-* MySQL (latest stable)
-* Xdebug
-* Composer
+Mit dem Backend können serverseitig beliebige Inhalte gespeichert und verwaltet werden. Das Backend kann letztendlich auch losgelöst von mobilen Apps betrieben werden. Über eine Schnittstelle kann auf alle im Backend gespeicherten Daten zugegriffen werden. Damit kann das Backend auch zum Beispiel als zusätzliches PIM (Product Information Managament) für eine Webseite in TYPO3 oder Wordpress eingesetzt werden.
 
-## System requirements
+**Technologien**
 
-* VirtualBox www.virtualbox.org
-* Vagrant www.vagrantup.com
-* On Mac OSX: Ansible www.ansible.com (see next chapter)
+- [PHP](http://www.php.net/) und [MySQL](https://www.mysql.de/)
+- [Silex](http://silex.sensiolabs.org/) als Micoframework mit [Symfony Components](http://symfony.com/components)
+- [Doctrine](http://www.doctrine-project.org/) als ORM für die Datenhaltung
+- [AngularJS](https://angularjs.org/) für die Oberfläche
 
-## Mac OSX
+## Installation
 
-### Install Ansible
+### Systemvoraussetzungen
 
-* Install Homebrew http://brew.sh
-* Install Ansible with
-```
-> brew install ansible
-```
+_TODO_
 
-## Windows
+### Manuelle Installation
 
-### Install Ansible
+_TODO_
 
-* No installation needed, ansible is running on the vagrant box
+## Erste Schritte
 
-### Install recommended software
+_TODO_
 
-* https://github.com/winnfsd/vagrant-winnfsd (NFS-Support for Windows)
-```
-vagrant plugin install vagrant-winnfsd 
-```
-* https://git-for-windows.github.io/
+## Dokumentation
 
-Use the following command line tools from the installed git bash
+- Benutzung: _TODO_
+- Administration: _TODO_
+- Entwicklung: _TODO_
 
-## Start up
+# Lizenz
 
-* Download code or repository
-* Open console (on windows with administrator privileges!) and change into the downloaded folder
+Die APP-CMS-Plattform ist unter eine dualen Lizenz (AGPL v3 und properitär) verfügbar. Die genauen Lizenzbedingungen sind in der Datei _licence.txt_ zu finden.
 
-```
-> vagrant up
-```
+# Die APP-CMS Plattform ist ein Produkt der AREA-NET GmbH
 
-* Open browser and see the Shopware installation wizard on http://192.168.33.99
-* Optional: Setting shopware.dev in /etc/hosts to 192.168.33.99
-* SSH-Access to the vagrant box
-```
-> vagrant ssh
-```
+AREA-NET GmbH
+Öschstrasse 33
+73072 Donzdorf
 
-* Installing PHP-Dependencies in folder source (per ssh oder on development machine -> composer is needed)
+**Kontakt**
 
-```
-> composer install
-```
-
-## Customizing
-
-Change default vars in ansible/vars/all.yml
-* Server hostname
-* Server packages
-* PHP packages
-* ...
-
-Re-provision the box after changing vars with
-
-```
-> vagrant provision
-```
+- Telefon: 0 71 62 / 94 11 40
+- Telefax: 0 71 62 / 94 11 18
+- http://www.area-net.de
+- http://www.app-agentur-bw.de
+- http://www.das-app-cms.de
 
 
-## MIT License
+**Geschäftsführer**
+Gaugler Stephan, Köller Holger, Schmid Markus
 
-The MIT License (MIT)
+**Handelsregister**
+HRB 541303 Ulm
+Sitz der Gesellschaft: Donzdorf
+UST-ID: DE208051892
 
-Copyright (c) 06.11.2015 AREA-NET GmbH, App-Agentur BW, Markus Schmid
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
