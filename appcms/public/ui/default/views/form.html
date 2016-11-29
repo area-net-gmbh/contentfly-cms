@@ -1,0 +1,74 @@
+<div class="modal-header">
+    <pim-plugin key="FORM_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <div class="col-sm-4">
+        <pim-plugin key="FORM_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <h3 class="modal-title" ng-bind-html="::vm.modaltitle"></h3><small ng-show="vm.object.created">Erstellt {{::vm.object.created.LOCAL}} | Geändert {{::vm.object.modified.LOCAL_TIME}} Uhr</small></p>
+        <pim-plugin key="FORM_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
+    </div>
+    <div class="col-sm-8" style="text-align:right;">
+        <pim-plugin key="FORM_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
+        <pim-plugin key="FORM_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
+    </div>
+    <pim-plugin key="FORM_HEADER_APPEND" uiblocks="uiblocks"></pim-plugin>
+</div>
+<div class="modal-body">
+    <pim-plugin key="FORM_BODY_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <div class="saving" ng-show="vm.doSave">
+        <div class="loader-inner ball-pulse">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <p>Daten werden gespeichert...</p>
+    </div>
+
+    <div class="form-loading" ng-show="vm.isLoading">
+        <div class="loader-inner ball-pulse">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <p>Daten werden geladen...</p>
+    </div>
+
+    <uib-tabset active="active" ng-hide="vm.isLoading">
+        <pim-plugin key="FORM_TAB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <uib-tab  ng-repeat="(tabKey, tab) in ::vm.schema.settings.tabs" index="$index" ng-show="!tab.onejoin && ((vm.permissions[vm.entity].extended !== undefined && vm.permissions[vm.entity].extended.tabPermission[tabKey]  !== undefined  && vm.permissions[vm.entity].extended.tabPermission[tabKey] > 0) || !vm.permissions[vm.entity].extended === undefined || vm.permissions[vm.entity].extended.tabPermission[tabKey] == undefined)   || tab.onejoin && permissions[tabKey] && permissions[tabKey].readable">
+            <uib-tab-heading ng-class="{tabInvalid: tabInvalid && vm.isSubmit}" >
+                <pim-plugin key="FORM_TAB_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>{{tab.title}} <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"><pim-plugin key="FORM_TAB_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin></span>
+            </uib-tab-heading>
+
+            {{formName='form'+$index;""}}
+
+            <form name="vm.forms.form{{$index}}" class="form-horizontal" bind-validity="tabInvalid" >
+                <pim-plugin key="FORM_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <div  ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'has-error': vm.isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide || vm.permissions[vm.entity].extended.fieldPermission[key] !== undefined && vm.permissions[vm.entity].extended.fieldPermission[key] == 0"   ng-repeat="(key, config) in ::vm.schema.properties">
+                    <pim-form key="key" main-key="" writable="{{vm.permissions[vm.entity].extended.fieldPermission[key] == 1 ? 0 : vm.permissions[vm.entity].writable}}" config="config" object="vm.object" has-visible-field="hasVisibleField" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
+                </div>
+                <div ng-if="tab.onejoin == true" class="form-group ng-class: {'has-error': isSubmit && !config.readonly && !config.hide && !vm.forms[formName][key].$valid};" ng-hide="config.hide || vm.permissions[tabKey].extended.fieldPermission[key] !== undefined && vm.permissions[tabKey].extended.fieldPermission[key] == 0"   ng-repeat="(key, config) in ::vm.schemaOnejoin[tabKey].properties">
+                    <pim-form key="key" main-key="tab.onejoin_field" writable="{{vm.permissions[tabKey].extended.fieldPermission[key] == 1 ? 0 : vm.permissions[tabKey].writable}}" config="config" object="vm.object[tab.onejoin_field]" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
+                </div>
+                <pim-plugin key="FORM_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </form>
+
+
+
+        </uib-tab>
+        <pim-plugin key="FORM_TAB_APPEND" uiblocks="uiblocks"></pim-plugin>
+    </uib-tabset>
+    <pim-plugin key="FORM_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
+</div>
+<div class="modal-footer">
+    <pim-plugin key="FORM_FOOTER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <div class="col-sm-12">
+        <pim-plugin key="FORM_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
+        <pim-plugin key="FORM_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
+    </div>
+    <pim-plugin key="FORM_FOOTER_APPEND" uiblocks="uiblocks"></pim-plugin>
+</div>

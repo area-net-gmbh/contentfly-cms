@@ -7,7 +7,12 @@
 
 - **Backend**: https://github.com/appcms/backend
 - **iOS SDK**: https://github.com/appcms/ios-sdk
-- **Android SDK**: coming soon
+- **Android SDK**: _coming soon_
+
+## Tools und mehr
+
+- Vagrant-Umgebung für Backend: https://github.com/appcms/vagrant
+- Download + Dokumentation: http://www.das-app-cms.de
 
 ## Einführung
 
