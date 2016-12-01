@@ -1,8 +1,102 @@
 <?php
-define('BOILERPLATE_VERSION', '1.2.6');
+//BOILERPLATE
 
+$db_host = null;
+$db_name = null;
+$db_user = null;
+$db_pass = null;
+$system_php = null;
+$db_strategy_bool = null;
+
+$dirsToCreate = array(
+    'custom',
+    'custom/Classes',
+    'custom/Classes/Annotations',
+    'custom/Classes/Types',
+    'custom/Command',
+    'custom/Entity',
+    'custom/Frontend',
+    'custom/Frontend/ui',
+    'custom/Frontend/ui/default',
+    'custom/Frontend/ui/default/img',
+    'custom/Frontend/ui/default/scripts',
+    'custom/Frontend/ui/default/scripts/controllers',
+    'custom/Frontend/ui/default/styles',
+    'custom/Frontend/ui/default/types',
+    'custom/Frontend/ui/default/views',
+    'custom/Frontend/ui/default/views/blocks',
+    'custom/Traits',
+    'custom/Views'
+);
+
+
+$filesToCreate = array(
+    'custom/app.php' => "<?php
+",
+
+    'custom/version.php' => "<?php
+define('CUSTOM_VERSION', '0.0.0');",
+
+    'custom/Traits/File.php' => "<?php
+namespace Custom\\Traits;
+
+trait File{
+
+}",
+
+    'custom/Traits/Folder.php' => "<?php
+namespace Custom\\Traits;
+
+trait Folder{
+
+}",
+
+
+    'custom/Traits/Group.php' => "<?php
+namespace Custom\\Traits;
+
+trait Group{
+
+}",
+
+
+    'custom/Traits/User.php' => "<?php
+namespace Custom\\Traits;
+
+trait User{
+
+}"
+);
+
+$configFileData = "<?php
+use \\Areanet\\PIM\\Classes\\Config\\Factory;
+
+\$configFactory = Factory::getInstance();
+
+/*
+ * Default Config
+ */
+
+\$configDefault = new \\Areanet\\PIM\\Classes\\Config();
+
+\$configDefault->DB_HOST =  '\$db_host';
+\$configDefault->DB_NAME = '\$db_name';
+\$configDefault->DB_USER = '\$db_user';
+\$configDefault->DB_PASS = '\$db_pass';
+\$configDefault->DB_GUID_STRATEGY = \$db_strategy_bool;
+
+\$configDefault->APP_DEBUG               = true;
+\$configDefault->APP_ENABLE_SCHEMA_CACHE = false;
+
+\$configDefault->SYSTEM_PHP_CLI_COMMAND = '\$system_php';
+
+\$configFactory->setConfig(\$configDefault);
+
+\$configDefault->DO_INSTALL = true;";
+
+//START
 if(file_exists(__DIR__.'/../../custom/config.php')){
-    //header('Location: /');
+    header('Location: /');
 }
 
 require_once('../version.php');
@@ -13,46 +107,30 @@ function isEnabled($func) {
     return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
 }
 
-function install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
+function install($dirsToCreate, $filesToCreate, $configFileData, $system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
 
-    if(!file_exists(__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip')){
-        shell_exec(('cd '.__DIR__.'/../../ && wget http://www.das-app-cms.de/download/boilerplate-'.BOILERPLATE_VERSION.'.zip'));
+    $db_strategy_bool = $db_strategy ? 'true' : 'false';
+
+    foreach($dirsToCreate as $dirToCreate){
+
+        if(!mkdir(__DIR__."/../../$dirToCreate", 0755)){
+            die("$dirToCreate konnte nicht erstellt werden!");
+        }
     }
 
-    $zip = new ZipArchive();
-    if ($zip->open(__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip') !== TRUE) {
-        return 'Boilerplate-ZIP "'.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip'.'" konnte nicht geschrieben/geladen werden.';
+    foreach($filesToCreate as $fileToCreate => $fileContent){
+        file_put_contents(__DIR__."/../../$fileToCreate", $fileContent);
     }
 
-    $zip->extractTo(__DIR__.'/../../');
-    $zip->close();
-    shell_exec(('mv '.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'/* '.__DIR__.'/../../'));
-    shell_exec(('rm -rf '.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION));
-    shell_exec(('rm -rf '.__DIR__.'/../../boilerplate-'.BOILERPLATE_VERSION.'.zip'));
-    if(!file_exists(__DIR__.'/../../custom/config.php')){
-        return 'Konfiguration "'.__DIR__.'/../../custom/config.php" konnte nicht erstellt werden.';
-    }
-    $configContent = file_get_contents(__DIR__.'/../../custom/config.php');
+    $configFileData = str_replace('$db_host', $db_host, $configFileData);
+    $configFileData = str_replace('$db_name', $db_name, $configFileData);
+    $configFileData = str_replace('$db_user', $db_user, $configFileData);
+    $configFileData = str_replace('$db_pass', $db_pass, $configFileData);
+    $configFileData = str_replace('$db_strategy_bool', $db_strategy_bool, $configFileData);
+    $configFileData = str_replace('$system_php', $system_php, $configFileData);
+    file_put_contents(__DIR__."/../../custom/config.php", $configFileData);
 
-
-    $configContent = str_replace("'DB_HOST'", "'".$db_host."'", $configContent);
-    $configContent = str_replace("'DB_NAME'", "'".$db_name."'", $configContent);
-    $configContent = str_replace("'DB_USER'", "'".$db_user."'", $configContent);
-    $configContent = str_replace("'DB_PASS'", "'".$db_pass."'", $configContent);
-
-    if($system_php != 'php'){
-        $configContent = str_replace("Config();", "Config();\n\n".'$configDefault->SYSTEM_PHP_CLI_COMMAND = "'.escapeshellcmd($system_php).'";', $configContent);
-    }
-
-    if($db_strategy == 'guid'){
-        $configContent = str_replace("Config();", "Config();\n\n".'$configDefault->DB_GUID_STRATEGY = true;', $configContent);
-    }
-    
-    if(strpos($configContent, 'DO_INSTALL') === false){
-        $configContent .= "\n\n".'$configDefault->DO_INSTALL = true;';
-    }
-    file_put_contents(__DIR__.'/../../custom/config.php', $configContent);
-
+    @chmod(__DIR__.'/../../custom/config.php', 0775);
     @chmod(__DIR__.'/../../data/files', 0775);
     @chmod(__DIR__.'/../../data/cache', 0775);
 
@@ -70,6 +148,11 @@ function check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pas
     //SHELL-EXEC
     if(!isEnabled('shell_exec')){
         return 'PHP-Funktion shell_exec() ist deaktiviert.';
+    }
+
+    //CHMOD
+    if(!isEnabled('chmod')){
+        return 'PHP-Funktion chmod() ist deaktiviert.';
     }
 
     //CLI
@@ -97,7 +180,7 @@ if(!empty($_POST['start'])){
     $db_strategy            = mask($_POST['db_strategy']);
 
     if(!($error = check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pass))){
-        $error = install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy);
+        $error = install($dirsToCreate, $filesToCreate, $configFileData, $system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy);
     }
 
 

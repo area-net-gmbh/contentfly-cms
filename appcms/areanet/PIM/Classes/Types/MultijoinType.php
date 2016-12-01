@@ -101,9 +101,13 @@ class MultijoinType extends Type
                 }
                                 
                 $object->$getter()->clear();
-                $query = $this->em->createQuery('DELETE FROM ' . $acceptFrom . ' e WHERE e.' . $mappedFrom . ' = ?1');
-                $query->setParameter(1, $object->getId());
-                $query->execute();
+                
+                $qb = $this->em->createQueryBuilder();
+                $qb->delete($acceptFrom, 'e');
+                $qb->where('e.'.$mappedFrom.' = ?1');
+
+                $qb->setParameter(1, $object->getId());
+                $qb->getQuery()->execute();
             } else {
                 $object->$getter()->clear();
             }

@@ -52,6 +52,7 @@ class SetupController extends BaseController
             $configContent = file_get_contents(ROOT_DIR.'/../../custom/config.php');
             $configContent = str_replace('$configDefault->DO_INSTALL = true;', '', $configContent);
             file_put_contents(ROOT_DIR.'/../../custom/config.php', $configContent);
+            @chmod(ROOT_DIR.'/../../custom/config.php', 0755);
             
         }catch(\Exception $e){};
         

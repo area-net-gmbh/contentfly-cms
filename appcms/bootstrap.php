@@ -1,12 +1,15 @@
 <?php
 define('ROOT_DIR', __DIR__);
 
-
 require_once ROOT_DIR.'/version.php';
 require_once ROOT_DIR.'/vendor/autoload.php';
-require_once ROOT_DIR.'/../custom/vendor/autoload.php';
+if(file_exists(ROOT_DIR.'/../custom/vendor/autoload.php')){
+    require_once ROOT_DIR.'/../custom/vendor/autoload.php';
+}
+
 require_once ROOT_DIR.'/../custom/config.php';
 require_once ROOT_DIR.'/../custom/version.php';
+
 
 define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'default');
 
@@ -56,13 +59,6 @@ $app->register(new ConsoleServiceProvider(), array(
     'console.project_directory' => ROOT_DIR
 ));
 
-$app['entityResolver'] = $app->share(function ($app) {
-    return new \Areanet\PIM\Classes\ORM\EntityResolver();
-});
-
-$app['entityResolver'] = $app->share(function ($app) {
-    return new \Areanet\PIM\Classes\ORM\EntityResolver();
-});
 
 $app['helper'] = $app->share(function ($app) {
     return new \Areanet\PIM\Classes\Helper();

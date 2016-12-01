@@ -296,15 +296,18 @@ class FileController extends BaseController
         $this->app['dispatcher']->dispatch('pim.file.before.send', $event);
 
         if(Config\Adapter::getConfig()->APP_ENABLE_XSENDFILE) {
-            header('Pragma: public');
-            header('Cache-Control: max-age='.Config\Adapter::getConfig()->FILE_CACHE_LIFETIME.', public');
-            header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + Config\Adapter::getConfig()->FILE_CACHE_LIFETIME));
-            header("Content-length: " . filesize($fileName));
-            header("Content-type: ".$mimeType);
-            header("Last-Modified: ".$server_last_modified);
-            header("ETag: ".$etagFile);
-            header("X-Sendfile: ".$fileName);
-            exit;
+            $headers = array(
+                'Pragma' => 'public',
+                'Cache-Control' => 'max-age='.Config\Adapter::getConfig()->FILE_CACHE_LIFETIME.', public',
+                'Expires' => gmdate('D, d M Y H:i:s \G\M\T', time() + Config\Adapter::getConfig()->FILE_CACHE_LIFETIME),
+                'Content-length' => filesize($fileName),
+                'Content-type' => $mimeType,
+                'Last-Modified' => $server_last_modified,
+                'ETag' => $etagFile,
+                'X-Sendfile' => $fileName
+            );
+            
+            return new Response('', 200, $headers);
         }else{
 
             $stream = function () use ($fileName) {
