@@ -55,13 +55,13 @@ class Config{
     /**
      * @var boolean $DB_GUID_STRATEGY Set primary types to guid
      */
-    public $DB_GUID_STRATEGY  = false;
+    public $DB_GUID_STRATEGY  = true;
     
 
     /**
      * @var boolean Enable Schema Cache
      */
-    public $APP_ENABLE_SCHEMA_CACHE = false;
+    public $APP_ENABLE_SCHEMA_CACHE = true;
 
     /**
      * @var integer Token Timeout in ms
