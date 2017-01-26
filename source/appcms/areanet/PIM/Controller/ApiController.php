@@ -282,8 +282,8 @@ class ApiController extends BaseController
         }
 
         if($where){
-            $placeholdCounter = 0;
-            //$currentPage = 1;
+            $placeholdCounter   = 0;
+            $joinedCounter      = 0;
 
             foreach($where as $field => $value){
 
@@ -292,21 +292,23 @@ class ApiController extends BaseController
                     continue;
                 }
 
+                $joinedCounter++;
+
                 if($schema[$entityName]['properties'][$field]['type'] == 'multijoin'){
                     $value = $value;
 
                     if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
                         if($value == -1) {
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
-                            $queryBuilder->leftJoin("$entityName.$field", 'joined');
-                            $queryBuilder->andWhere("joined.$mappedBy IS NULL");
+                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
+                            $queryBuilder->andWhere("\"joined$joinedCounter\".$mappedBy IS NULL");
                         }else{
                             $searchJoinedEntity = $schema[$entityName]['properties'][$field]['accept'];
                             $searchJoinedObject = $this->em->getRepository($searchJoinedEntity)->find($value);
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
 
-                            $queryBuilder->leftJoin("$entityName.$field", 'joined');
-                            $queryBuilder->andWhere("joined.$mappedBy = :$field");
+                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
+                            $queryBuilder->andWhere("\"joined$joinedCounter\".$mappedBy = :$field");
                             $queryBuilder->setParameter($field, $searchJoinedObject);
                             $placeholdCounter++;
                         }
@@ -417,7 +419,7 @@ class ApiController extends BaseController
 
         $this->app['dispatcher']->dispatch('pim.entity.before.list', $event);
 
-        $query      = $queryBuilder->getQuery();
+        $query        = $queryBuilder->getQuery();
         $totalObjects = $query->getSingleScalarResult();
 
         //die($currentPage*$itemsPerPage . " = " . $totalObjects);
@@ -1046,7 +1048,7 @@ class ApiController extends BaseController
 
         }
 
-        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && $object != $this->app['auth.user'])){
             throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 

@@ -169,8 +169,6 @@ class User extends Base
         $this->group = $group;
     }
 
-
-
     public function toValueObject(User $user = null, $schema = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
     {
         $data = parent::toValueObject($user, $schema, $entityName, $flatten, $propertiesToLoad , $level);
