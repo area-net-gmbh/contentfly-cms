@@ -176,6 +176,15 @@ class User extends Base
         unset($data->salt);
         unset($data->pass);
         unset($data->user);
+        unset($data->created);
+        unset($data->modified);
+        unset($data->userCreated);
+
+        foreach($data as $key => $value){
+            if($value == null){
+                unset($data->$key);
+            }
+        }
 
         return $data;
     }
