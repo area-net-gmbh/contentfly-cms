@@ -230,7 +230,7 @@
             var data = {
                 entity: entity,
                 id: object.id
-            }
+            };
 
             EntityService.single(data).then(
                 function(response){

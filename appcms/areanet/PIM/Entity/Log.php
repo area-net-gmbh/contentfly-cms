@@ -12,6 +12,10 @@ use Areanet\PIM\Classes\Annotations as PIM;
 class Log extends Base
 {
 
+    const DELETED   = 'DEL';
+    const INSERTED  = 'INS';
+    const UPDATED   = 'UPT';
+
     /**
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(showInList=0, label="Versteckt")
@@ -42,6 +46,12 @@ class Log extends Base
      * @PIM\Select(options="Geändert, Gelöscht, Erstellt")
      */
     protected $mode;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Config(label="Data")
+     */
+    protected $data;
 
 
 
@@ -107,6 +117,24 @@ class Log extends Base
     {
         $this->modelLabel = $modelLabel;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+    }
+
+
     
     
 

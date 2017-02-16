@@ -426,7 +426,6 @@ class Configuration extends \Doctrine\DBAL\Configuration
         if (Query\Parser::isInternalFunction($name)) {
             throw ORMException::overwriteInternalDQLFunctionNotAllowed($name);
         }
-
         $this->_attributes['customStringFunctions'][strtolower($name)] = $className;
     }
 

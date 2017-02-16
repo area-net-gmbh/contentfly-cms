@@ -13,6 +13,7 @@ class Permission extends Base
 {
     const NONE    = 0;
     const OWN     = 1;
+    const GROUP   = 3;
     const ALL     = 2;
 
     /**

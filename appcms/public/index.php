@@ -63,6 +63,23 @@ $app->error(function (\Exception $e, $code) use($app) {
 
 });
 
+if(Config\Adapter::getConfig()->APP_ALLOW_ORIGIN){
+
+    $app->after(function (\Symfony\Component\HttpFoundation\Request $request, \Symfony\Component\HttpFoundation\Response $response) {
+        $response->headers->set('Access-Control-Allow-Origin', Config\Adapter::getConfig()->APP_ALLOW_ORIGIN);
+        $response->headers->set('Access-Control-Allow-Credentials', Config\Adapter::getConfig()->APP_ALLOW_CREDENTIALS);
+
+        $response->headers->set('Access-Control-Allow-Headers', Config\Adapter::getConfig()->APP_ALLOW_HEADERS);
+        $response->headers->set('Access-Control-Allow-Methods', Config\Adapter::getConfig()->APP_ALLOW_METHODS);
+        $response->headers->set('Access-Control-Max-Age', Config\Adapter::getConfig()->APP_MAX_AGE);
+
+    });
+
+    $app->options("{anything}", function () {
+        return new \Symfony\Component\HttpFoundation\JsonResponse(null, 204);
+    })->assert("anything", ".*");
+}
+
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
 
 $app->mount('/api', new \Areanet\PIM\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));

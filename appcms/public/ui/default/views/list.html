@@ -55,6 +55,14 @@
                         <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
                     </select>
 
+                    <label ng-show="vm.filterJoins[key]" ng-switch-when="virtualjoin">{{vm.schema.properties[key].label}}</label>
+                    <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="virtualjoin" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                        <option value="">alle anzeigen</option>
+                        <option value="-1">ohne Zuordnung</option>
+                        <option disabled>──────────</option>
+                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
+                    </select>
+
                     <label ng-show="vm.filterJoins[key]" ng-switch-when="string">{{vm.schema.properties[key].label}}</label>
                     <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="string" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                         <option value="">alle anzeigen</option>
@@ -92,22 +100,22 @@
     </div>
 </div>
 <pim-plugin key="LIST_CONTENT_PREPEND" uiblocks="uiblocks">
-<div class="row">
-    <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
+    <div class="row">
+        <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
 
-        <div class="form-loading" ng-hide="vm.objectsAvailable || vm.objectsNotAvailable">
-            <div class="loader-inner ball-pulse">
-                <div></div>
-                <div></div>
-                <div></div>
+            <div class="form-loading" ng-hide="vm.objectsAvailable || vm.objectsNotAvailable">
+                <div class="loader-inner ball-pulse">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <p>Daten werden geladen...</p>
             </div>
-            <p>Daten werden geladen...</p>
-        </div>
 
-        <p ng-show="vm.objectsNotAvailable">Es sind derzeit leider keine Daten vorhanden.</p>
-        <pim-plugin key="LIST_TABLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <table id="list" class="table" ng-show="vm.objectsAvailable">
-            <thead>
+            <p ng-show="vm.objectsNotAvailable">Es sind derzeit leider keine Daten vorhanden.</p>
+            <pim-plugin key="LIST_TABLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+            <table id="list" class="table" ng-show="vm.objectsAvailable">
+                <thead>
                 <tr>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                     <th class="ng-scope">ID</th>
@@ -119,8 +127,8 @@
                     <th></th>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_APPEND2" uiblocks="uiblocks"></pim-plugin>
                 </tr>
-            </thead>
-            <tbody ng-if="!vm.schema.settings.isSortable">
+                </thead>
+                <tbody ng-if="!vm.schema.settings.isSortable">
                 <tr   dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)" >
                     <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                     <td title="{{object.id}}"><pim-plugin key="LIST_TABLE_BODY_COL_ID_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_ID_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
@@ -140,8 +148,8 @@
                     </td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND2" uiblocks="uiblocks"></pim-plugin>
                 </tr>
-            </tbody>
-            <tbody ng-if="vm.schema.settings.isSortable" ui-sortable="vm.sortableOptions" ng-model="vm.objects">
+                </tbody>
+                <tbody ng-if="vm.schema.settings.isSortable" ui-sortable="vm.sortableOptions" ng-model="vm.objects">
                 <tr ng-repeat="object in vm.objects" ng-dblclick="vm.openForm(object)">
                     <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                     <td title="{{object.id}}"><pim-plugin key="LIST_TABLE_BODY_COL_ID_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_ID_APPEND" uiblocks="uiblocks"></td>
@@ -160,12 +168,12 @@
                     </td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND2" uiblocks="uiblocks"></pim-plugin>
                 </tr>
-            </tbody>
-            <pim-plugin key="LIST_TABLE_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
-        </table>
-        <pim-plugin key="LIST_TABLE_APPEND" uiblocks="uiblocks"></pim-plugin>
-        <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable" on-page-change="paginationChanged(newPageNumber)"></dir-pagination-controls>
-        <pim-plugin key="LIST_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
+                </tbody>
+                <pim-plugin key="LIST_TABLE_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </table>
+            <pim-plugin key="LIST_TABLE_APPEND" uiblocks="uiblocks"></pim-plugin>
+            <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable" on-page-change="paginationChanged(newPageNumber)"></dir-pagination-controls>
+            <pim-plugin key="LIST_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
+        </div>
     </div>
-</div>
-<pim-plugin key="LIST_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin>
+    <pim-plugin key="LIST_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin>

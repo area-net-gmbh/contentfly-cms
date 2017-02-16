@@ -15,7 +15,7 @@
             multiupdate: multiupdate,
             single: single,
             tree: tree
-        }
+        };
 
 
         //////////////////////////////////////////////////////

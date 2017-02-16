@@ -23,6 +23,11 @@ class Permission
 
         if($user->getIsAdmin()) return null;
 
+        $group = $user->getGroup();
+        if(!$group){
+            return null;
+        }
+        
         foreach($user->getGroup()->getPermissions() as $permission){
             if($permission->getEntityName() == $entityName){
                 $extended = $permission->getExtended();

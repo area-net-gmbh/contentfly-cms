@@ -127,7 +127,6 @@ class DoctrineOrmServiceProvider
                 $config->setProxyDir($app['orm.proxies_dir']);
                 $config->setProxyNamespace($app['orm.proxies_namespace']);
                 $config->setAutoGenerateProxyClasses($app['orm.auto_generate_proxies']);
-
                 $config->setCustomStringFunctions($app['orm.custom.functions.string']); 
                 $config->setCustomNumericFunctions($app['orm.custom.functions.numeric']); 
                 $config->setCustomDatetimeFunctions($app['orm.custom.functions.datetime']); 

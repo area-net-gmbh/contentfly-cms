@@ -92,9 +92,9 @@ class MultifileType extends Type
             $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
             $mappedBy   = $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'];
 
-            if(!Permission::isWritable($user, $acceptFrom)){
+            /*if(!Permission::isWritable($user, $acceptFrom)){
                 throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
-            }
+            }*/
             
             if($object->$getter()) {
                 $object->$getter()->clear();
@@ -118,7 +118,6 @@ class MultifileType extends Type
                 }
 
                 $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-                if($objectToJoin->getIsDeleted()) continue;
 
                 $mappedEntity = new $acceptFrom();
 
@@ -158,7 +157,7 @@ class MultifileType extends Type
                     throw new FileNotFoundException();
                 }
 
-                if(!$objectToJoin->getIsDeleted()) $collection->add($objectToJoin);
+                $collection->add($objectToJoin);
             }
 
             if($object->$getter()) $object->$getter()->clear();

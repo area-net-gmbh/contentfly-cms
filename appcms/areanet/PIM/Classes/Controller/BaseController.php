@@ -99,8 +99,11 @@ abstract class BaseController
                 'isSortable' => false,
                 'labelProperty' => null,
                 'type' => 'default',
-                'tabs' => array('default' => array('title' => 'Allgemein', 'onejoin' => false))
+                'tabs' => array(
+                    'default'   => array('title' => 'Allgemein', 'onejoin' => false)
+                )
             );
+
 
             if($object instanceof BaseSortable){
                 $settings['sortBy']     = 'sorting';
@@ -186,6 +189,8 @@ abstract class BaseController
 
 
             }
+
+            if($entity != 'PIM\\Group') $settings['tabs']['settings']  = array('title' => 'Einstellungen', 'onejoin' => false);
 
             ksort($list);
             $data[$entity] = array(

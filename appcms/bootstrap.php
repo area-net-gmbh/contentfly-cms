@@ -21,7 +21,6 @@ use Knp\Provider\ConsoleServiceProvider;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
-
 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY){
     define('APPCMS_ID_TYPE', 'string');
     define('APPCMS_ID_STRATEGY', 'UUID');
@@ -86,8 +85,14 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
                 'use_simple_annotation_reader' => false
             ),
         )
+    ),
+    'orm.custom.functions.numeric' => array(
+        'Find_In_Set' => '\Areanet\PIM\Classes\ORM\Query\Mysql\FindInSet'
     )
 ));
+
+
+
 
 $app['typeManager'] = $app->share(function ($app) {
     return new \Areanet\PIM\Classes\Manager\TypeManager($app);
@@ -115,8 +120,7 @@ $app['thumbnailSettings'] = function ($app) {
         $queryBuilder = $app['orm.em']->createQueryBuilder();
         $queryBuilder
             ->select('thumbnailSetting')
-            ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting')
-            ->where("thumbnailSetting.isDeleted = false");
+            ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting');
         $query = $queryBuilder->getQuery();
         return $query->getResult();
     }catch (Exception $e){
@@ -146,12 +150,17 @@ $app['uiManager'] = $app->share(function ($app) {
 
 
 //Config Spatial ORM-Types
+/*
 Doctrine\DBAL\Types\Type::addType('point', '\Areanet\PIM\Classes\ORM\Spatial\PointType');
 $em= $app['orm.em']->getConnection()->getDatabasePlatform();
 $em->registerDoctrineTypeMapping('point', 'point');
 
+//Doctrine Extensions
 $config = new Doctrine\ORM\Configuration();
 $config->addCustomNumericFunction('DISTANCE', '\Areanet\PIM\Classes\ORM\Spatial\PointType\Distance');
 $config->addCustomNumericFunction('POINT_STR', '\Areanet\PIM\Classes\ORM\Spatial\PointType\PointStr');
+$config->addCustomStringFunction('FIND_IN_SET', '\Areanet\PIM\Classes\ORM\Query\Mysql\FindInSet');
+//TODO: KLASSE WIRD NICHT GEFUNDEN
+*/
 
 require_once ROOT_DIR.'/../custom/app.php';

@@ -38,7 +38,7 @@
         <pim-plugin key="FORM_TAB_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <uib-tab  ng-repeat="(tabKey, tab) in ::vm.schema.settings.tabs" index="$index" ng-show="!tab.onejoin && ((vm.permissions[vm.entity].extended !== undefined && vm.permissions[vm.entity].extended.tabPermission[tabKey]  !== undefined  && vm.permissions[vm.entity].extended.tabPermission[tabKey] > 0) || !vm.permissions[vm.entity].extended === undefined || vm.permissions[vm.entity].extended.tabPermission[tabKey] == undefined)   || tab.onejoin && permissions[tabKey] && permissions[tabKey].readable">
             <uib-tab-heading ng-class="{tabInvalid: tabInvalid && vm.isSubmit}" >
-                <pim-plugin key="FORM_TAB_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>{{tab.title}} <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"><pim-plugin key="FORM_TAB_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin></span>
+                <pim-plugin key="FORM_TAB_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin><span ng-if="tabKey != 'settings'">{{tab.title}}</span><span class="glyphicon glyphicon-cog" aria-hidden="true" ng-if="tabKey == 'settings'"></span> <span class="glyphicon glyphicon-exclamation-sign icon-hidden" aria-hidden="true"><pim-plugin key="FORM_TAB_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin></span>
             </uib-tab-heading>
 
             {{formName='form'+$index;""}}

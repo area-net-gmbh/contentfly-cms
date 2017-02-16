@@ -33,15 +33,9 @@ class Base extends Serializable
      */
     protected $modified;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @PIM\Config(hide=true)
-     */
-    protected $isDeleted;
-
 
     /**
-     * @ORM\Column(type="integer", options={"default" = 0}, nullable=true, nullable=true)
+     * @ORM\Column(type="integer", options={"default" = 0}, nullable=true)
      * @PIM\Config(hide=true, label="Gelesen")
      *
      */
@@ -68,6 +62,20 @@ class Base extends Serializable
     protected $isIntern = 0;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Virtualjoin(targetEntity="Areanet\PIM\Entity\User")
+     * @PIM\Config(label="Benutzer", tab="settings")
+     */
+    protected $users;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Virtualjoin(targetEntity="Areanet\PIM\Entity\Group")
+     * @PIM\Config(label="Gruppen", tab="settings")
+     */
+    protected $groups;
+
+    /**
      * @PIM\Config(hide=true)
      */
     protected $disableModifiedTime = false;
@@ -77,7 +85,6 @@ class Base extends Serializable
     {
         $this->created   = new \DateTime();
         $this->modified  = new \DateTime();
-        $this->isDeleted = false;
     }
 
 
@@ -139,22 +146,6 @@ class Base extends Serializable
         } else if($modified != null) {
             $this->modified = new \Datetime($modified);
         }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIsDeleted()
-    {
-        return $this->isDeleted;
-    }
-
-    /**
-     * @param mixed $isDeleted
-     */
-    public function setIsDeleted($isDeleted)
-    {
-        $this->isDeleted = $isDeleted;
     }
 
     public function getUser()
@@ -231,6 +222,83 @@ class Base extends Serializable
     {
         $this->isIntern = $isIntern;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getUsers()
+    {
+        $ids = explode(',', $this->users);
+
+        $data = array();
+        foreach($ids as $id){
+            if(empty($id)) continue;
+
+            $data[] = array(
+                'id' => $id
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasUserId($id)
+    {
+        $ids = explode(',', $this->users);
+        
+        return in_array($id, $ids);
+    }
+
+    /**
+     * @param mixed $users
+     */
+    public function setUsers($users)
+    {
+        $this->users = $users;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroups()
+    {
+        $ids = explode(',', $this->groups);
+
+        $data = array();
+        foreach($ids as $id){
+            if(empty($id)) continue;
+
+            $data[] = array(
+                'id' => $id
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasGroupId($id)
+    {
+        $ids = explode(',', $this->groups);
+
+        return in_array($id, $ids);
+    }
+
+    /**
+     * @param mixed $groups
+     */
+    public function setGroups($groups)
+    {
+        $this->groups = $groups;
+    }
+    
+    
+
     
 
     /**

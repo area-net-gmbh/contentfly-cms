@@ -39,7 +39,7 @@ class Auth{
             throw new \Exception('Ungültiger Benutzername.', 401);
         }
 
-        if(!$user->getIsActive() || $user->getIsDeleted()){
+        if(!$user->getIsActive()){
             throw new \Exception('Ungültiger Benutzername.', 401);
         }
 

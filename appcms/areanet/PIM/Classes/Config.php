@@ -119,8 +119,34 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\FileType',
         '\\Areanet\\PIM\\Classes\\Types\\MultifileType',
         '\\Areanet\\PIM\\Classes\\Types\\MultijoinType',
-        '\\Areanet\\PIM\\Classes\\Types\\PermissionsType'
+        '\\Areanet\\PIM\\Classes\\Types\\PermissionsType',
+        '\\Areanet\\PIM\\Classes\\Types\\VirtualjoinType',
     );
+
+    /**
+     * @var string Allow CORS '*' or 'domain.de'
+     */
+    public $APP_ALLOW_ORIGIN        = null;
+
+    /**
+     * @var string Allow Credentials
+     */
+    public $APP_ALLOW_CREDENTIALS   = 'false';
+
+    /**
+     * @var string Allowed Methods
+     */
+    public $APP_ALLOW_METHODS       = 'POST, GET';
+
+    /**
+     * @var string Allowed Headers
+     */
+    public $APP_ALLOW_HEADERS       = 'content-type, x-xsrf-token';
+
+    /**
+     * @var string CORS max age
+     */
+    public $APP_MAX_AGE             = 0;
 
     /**
      * @var string Load Frontend UI in folder /ui/...

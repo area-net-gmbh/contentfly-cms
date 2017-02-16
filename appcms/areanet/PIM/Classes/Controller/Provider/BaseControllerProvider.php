@@ -98,7 +98,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
             return false;
         }
 
-        if(!$token->getUser() || !$token->getUser()->getIsActive() || $token->getUser()->getIsDeleted()){
+        if(!$token->getUser() || !$token->getUser()->getIsActive()){
             return false;
         }
 

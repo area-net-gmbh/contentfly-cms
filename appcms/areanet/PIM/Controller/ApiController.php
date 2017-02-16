@@ -88,7 +88,11 @@ class ApiController extends BaseController
 
         if (substr($entityName, 0, 3) == 'PIM') {
             $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        } else {
+        }elseif(substr($entityName, 0, 7) == 'Areanet'){
+            $splitter = explode('\\', $entityName);
+            $entityNameToLoad = $entityName;
+            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
+        }else{
             $entityName = ucfirst($request->get('entity'));
             $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
@@ -103,8 +107,17 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => "Object not found"), 404);
         }
 
-        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
+        }
+
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+            if($object->getUserCreated() != $this->app['auth.user']){
+                $group = $this->app['auth.user']->getGroup();
+                if(!($group && $object->hasGroupId($group->getId()))){
+                    throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
+                }
+            }
         }
 
         return new JsonResponse(array('message' => "singleAction", 'data' => $object->toValueObject($this->app['auth.user'], $schema, $entityName, false)));
@@ -149,18 +162,22 @@ class ApiController extends BaseController
     {
         $entityName   = $request->get('entity');
 
-        if(substr($entityName, 0, 3) == 'PIM'){
-            $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        if (substr($entityName, 0, 3) == 'PIM') {
+            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
+        }elseif(substr($entityName, 0, 7) == 'Areanet'){
+            $splitter = explode('\\', $entityName);
+            $entityNameToLoad = $entityName;
+            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
         }else{
             $entityName = ucfirst($request->get('entity'));
-            $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
+            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
         return new JsonResponse(array('message' => "treeAction", 'data' => $this->loadTree($entityName, $entityNameToLoad, null)));
     }
 
     protected function loadTree($entityName, $entity, $parent){
-        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isDeleted' => false, 'isIntern' => false), array('sorting' => 'ASC'));
+        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isIntern' => false), array('sorting' => 'ASC'));
         $array   = array();
         $schema  = $this->getSchema();
 
@@ -251,11 +268,15 @@ class ApiController extends BaseController
             }
         }
 
-        if(substr($entityName, 0, 3) == 'PIM'){
-            $entityNameToLoad = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        if (substr($entityName, 0, 3) == 'PIM') {
+            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
+        }elseif(substr($entityName, 0, 7) == 'Areanet'){
+            $splitter = explode('\\', $entityName);
+            $entityNameToLoad = $entityName;
+            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
         }else{
             $entityName = ucfirst($request->get('entity'));
-            $entityNameToLoad = 'Custom\Entity\\'.ucfirst($entityName);
+            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
 
@@ -268,12 +289,21 @@ class ApiController extends BaseController
         $queryBuilder
             ->select("count(".$entityName.")")
             ->from($entityNameToLoad, $entityName)
-            ->where("$entityName.isDeleted = false")
             ->andWhere("$entityName.isIntern = false");
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN){
-            $queryBuilder->andWhere("$entityName.userCreated = :userCreated");
+            $queryBuilder->andWhere("$entityName.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityName.users) = 1");
             $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+        }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+            $group = $this->app['auth.user']->getGroup();
+            if(!$group){
+                $queryBuilder->andWhere("$entityName.userCreated = :userCreated");
+                $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+            }else{
+                $queryBuilder->andWhere("$entityName.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityName.groups) = 1");
+                $queryBuilder->setParameter('userGroup', $group);
+                $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+            }
         }
 
         if($lastModified){
@@ -282,8 +312,8 @@ class ApiController extends BaseController
         }
 
         if($where){
-            $placeholdCounter = 0;
-            //$currentPage = 1;
+            $placeholdCounter   = 0;
+            $joinedCounter      = 0;
 
             foreach($where as $field => $value){
 
@@ -298,15 +328,15 @@ class ApiController extends BaseController
                     if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
                         if($value == -1) {
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
-                            $queryBuilder->leftJoin("$entityName.$field", 'joined');
-                            $queryBuilder->andWhere("joined.$mappedBy IS NULL");
+                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
+                            $queryBuilder->andWhere("joined$joinedCounter.$mappedBy IS NULL");
                         }else{
                             $searchJoinedEntity = $schema[$entityName]['properties'][$field]['accept'];
                             $searchJoinedObject = $this->em->getRepository($searchJoinedEntity)->find($value);
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
 
-                            $queryBuilder->leftJoin("$entityName.$field", 'joined');
-                            $queryBuilder->andWhere("joined.$mappedBy = :$field");
+                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
+                            $queryBuilder->andWhere("joined$joinedCounter.$mappedBy = :$field");
                             $queryBuilder->setParameter($field, $searchJoinedObject);
                             $placeholdCounter++;
                         }
@@ -335,7 +365,7 @@ class ApiController extends BaseController
                                 $queryBuilder->setParameter($field, $value);
                                 $placeholdCounter++;
                             }
-                        break;
+                            break;
                         case 'boolean':
                             if(strtolower($value) == 'false'){
                                 $value = 0;
@@ -525,29 +555,8 @@ class ApiController extends BaseController
 
         $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
 
-        $object = $this->delete($entityName, $id, $app);
+        $this->delete($entityName, $id, $app);
 
-        $schema = $this->getSchema();
-
-
-        /**
-         * Log delete actions
-         */
-        $log = new Log();
-
-        $log->setModelId($object->getId());
-        $log->setModelName(ucfirst($request->get('entity')));
-        $log->setUser($app['auth.user']);
-        $log->setMode('Gelöscht');
-
-        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
-            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
-            $label = $object->$labelGetter();
-            $log->setModelLabel($label);
-        }
-
-        $this->em->persist($log);
-        $this->em->flush();
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
@@ -577,10 +586,18 @@ class ApiController extends BaseController
             throw new \Exception("Das Objekt wurde nicht gefunden.", 404);
         }
 
-        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
             throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+            if($object->getUserCreated() != $this->app['auth.user']){
+                $group = $this->app['auth.user']->getGroup();
+                if(!($group && $object->hasGroupId($group->getId()))){
+                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+                }
+            }
+        }
 
         if($entityPath == 'Areanet\PIM\Entity\User'){
 
@@ -588,8 +605,6 @@ class ApiController extends BaseController
                 throw new \Exception("Der Hauptadministrator kann nicht gelöscht werden.", 400);
             }
 
-            $alias = $object->getAlias();
-            $object->setAlias("$alias-".md5($app['auth.user']->getId().time()));
         }
 
         $parent = null;
@@ -604,9 +619,6 @@ class ApiController extends BaseController
         }
 
         if($entityName == 'PIM\\File') {
-            $name = $object->getName().'-'.md5(time().$app['auth.user']->getId());
-            $object->setName($name);
-
             //todo: Auslagern in /file/delete-API
             $backend    = Backend::getInstance();
 
@@ -618,70 +630,49 @@ class ApiController extends BaseController
             @rmdir($path);
         }
 
-        foreach($schema[ucfirst($entityName)]['properties'] as $key => $config){
-            if($config['unique']){
-                $getter = 'get'.ucfirst($key);
-                $setter = 'set'.ucfirst($key);
+        /**
+         * Log delete actions
+         */
+        $schema = $this->getSchema();
 
-                $oldVal = $object->$getter();
-                $object->$setter($oldVal.'-'.md5($app['auth.user']->getId().time()));
-            }
+        $log = new Log();
+
+        $log->setModelId($object->getId());
+        $log->setModelName(ucfirst($entityName));
+        $log->setUser($app['auth.user']);
+        $log->setData(serialize($object));
+        $log->setMode(Log::DELETED);
+
+        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
+            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+            $label = $object->$labelGetter();
+            $log->setModelLabel($label);
         }
+
+        $this->em->persist($log);
+        $this->em->flush();
 
         $this->em->remove($object);
         $this->em->flush();
 
-
-        $deletedObject = new $entityPath();
-
-        foreach($schema[ucfirst($entityName)]['properties'] as $property => $config){
-            $setter = 'set'.ucfirst($property);
-            $getter = 'get'.ucfirst($property);
-            if(isset($config['nullable']) && !$config['nullable']){
-                $deletedObject->$setter($object->$getter());
-            }
-        }
-
-        $deletedObject->setId($id);
-        $deletedObject->setIsDeleted(true);
-        $deletedObject->setCreated($object->getCreated());
-        $deletedObject->setModified($object->getModified());
-        $deletedObject->setUser($object->getUser());
-        $deletedObject->setUserCreated($object->getUserCreated());
-        
-        $object = null;
-
-        $metadata = $this->em->getClassMetaData(get_class($deletedObject));
-        $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-        if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
-
-        if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
-            $metadata = $this->em->getClassMetaData('Areanet\PIM\Entity\BaseTree');
-            $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-            if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
-        }
-
-        $this->em->persist($deletedObject);
-        $this->em->flush();
-
         if($schema[ucfirst($entityName)]['settings']['isSortable']){
-            $oldPos = $deletedObject->getSorting();
+            $oldPos = $object->getSorting();
             if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
                 if(!$parent){
-                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
+                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
                 }else{
-                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
+                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
                 }
 
             }else{
-                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.isDeleted = false AND e.sorting > $oldPos AND e.sorting > 0");
+                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0");
             }
             $query->execute();
         }
 
         $this->em->flush();
 
-        return $deletedObject;
+        return $object;
     }
 
     /**
@@ -784,8 +775,10 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.before.insert', $event);
 
+        $data = $event->getParam('data');
+
         try {
-            $object = $this->insert($entityName, $data, $app['auth.user']);
+            $object = $this->insert($entityName, $data, $app, $app['auth.user']);
         }catch(EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(Exception $e){
@@ -805,7 +798,7 @@ class ApiController extends BaseController
         return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => $object->toValueObject($this->app['auth.user'], $schema, $entityName)));
     }
 
-    public function insert($entityName, $data, $user)
+    public function insert($entityName, $data, $app, $user)
     {
         $schema              = $this->getSchema();
 
@@ -819,7 +812,7 @@ class ApiController extends BaseController
         }
 
         $object  = new $entityPath();
-        
+
         foreach($data as $property => $value){
             $setter = 'set'.ucfirst($property);
             $getter = 'get'.ucfirst($property);
@@ -835,7 +828,7 @@ class ApiController extends BaseController
             }
 
             if($schema[ucfirst($entityName)]['properties'][$property]['unique']){
-                $objectDuplicated = $this->em->getRepository($entityPath)->findOneBy(array($property => $value, 'isDeleted' => false));
+                $objectDuplicated = $this->em->getRepository($entityPath)->findOneBy(array($property => $value));
                 if($objectDuplicated) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
             }
 
@@ -863,21 +856,21 @@ class ApiController extends BaseController
                 if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
                     $parent = $object->getTreeParent();
                     if(!$parent){
-                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent IS NULL");
+                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.treeParent IS NULL");
                     }else {
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.treeParent = '".$parent->getId()."'");
+                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.treeParent = '".$parent->getId()."'");
                     }
                 }elseif($schema[ucfirst($entityName)]['settings']['sortRestrictTo']) {
                     $restrictToProperty = $schema[ucfirst($entityName)]['settings']['sortRestrictTo'];
                     $getter             = 'get'.ucfirst($restrictToProperty);
                     $restrictToObject   = $object->$getter();
                     if(!$restrictToObject){
-                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.$restrictToProperty IS NULL");
+                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty IS NULL");
                     }else{
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false AND e.$restrictToProperty = '".$restrictToObject->getId()."'");
+                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty = '".$restrictToObject->getId()."'");
                     }
                 }else{
-                    $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.isDeleted = false");
+                    $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1");
                 }
 
                 $query->execute();
@@ -889,10 +882,25 @@ class ApiController extends BaseController
             if($isPush){
                 $pushTitle  = $schema[$entityName]['settings']['pushTitle'];
                 $pushText   = $schema[$entityName]['settings']['pushText'];
-                $pushObject = $schema[$entityName]['settings']['pushObject'];
+
+                $additionalData = array();
+
+                $event = new \Areanet\PIM\Classes\Event();
+                $event->setParam('entity',          $entityName);
+                $event->setParam('data',            $data);
+                $event->setParam('user',            $app['auth.user']);
+                $event->setParam('additionalData',  array());
+                $event->setParam('pushTitle',       $pushTitle);
+                $event->setParam('pushText',        $pushText);
+                $event->setParam('app',             $app);
+                $this->app['dispatcher']->dispatch('pim.push.before.send', $event);
+
+                $additionalData = $event->getParam('additionalData');
+                $pushTitle      = $event->getParam('pushTitle');
+                $pushText       = $event->getParam('pushText');
 
                 $push = new Push($this->em, $object);
-                $push->send($pushTitle, $pushText, $pushObject);
+                $push->send($pushTitle, $pushText, $additionalData);
             }
 
             /**
@@ -903,7 +911,8 @@ class ApiController extends BaseController
             $log->setModelId($object->getId());
             $log->setModelName($entityName);
             $log->setUser($user);
-            $log->setMode('Erstellt');
+            $log->setData(serialize($object));
+            $log->setMode(Log::INSERTED);
 
             if($schema[ucfirst($entityName)]['settings']['labelProperty']){
                 $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
@@ -933,7 +942,6 @@ class ApiController extends BaseController
 
             if(!$uniqueObjectLoaded) throw new \Exception("Unbekannter Fehler", 500);
         }
-
 
         return $object;
     }
@@ -979,8 +987,10 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.before.udpdate', $event);
 
+        $data = $event->getParam('data');
+
         try{
-            $this->update($entityName, $id, $data, $disableModifiedTime, $app['auth.user']);
+            $this->update($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user']);
         }catch(EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(EntityNotFoundException $e){
@@ -999,15 +1009,15 @@ class ApiController extends BaseController
         return new JsonResponse(array('message' => 'updateAction', 'id' => $id));
 
     }
-    
+
     public function multiupdateAction(Request $request, Application $app)
     {
         $objects             = $request->get('objects');
         $disableModifiedTime = $request->get('disableModifiedTime');
-        
+
         foreach($objects as $object){
             try{
-                $this->update($object['entity'], $object['id'], $object['data'], $disableModifiedTime, $app['auth.user']);
+                $this->update($object['entity'], $object['id'], $object['data'], $disableModifiedTime, $app, $app['auth.user']);
             }catch(EntityDuplicateException $e){
                 continue;
             }catch(EntityNotFoundException $e){
@@ -1027,7 +1037,7 @@ class ApiController extends BaseController
      * @param User $user
      * @return JsonResponse
      */
-    public function update($entityName, $id, $data, $disableModifiedTime, $user = null)
+    public function update($entityName, $id, $data, $disableModifiedTime, $app, $user = null)
     {
         $schema              = $this->getSchema();
 
@@ -1046,14 +1056,23 @@ class ApiController extends BaseController
 
         }
 
-        if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $this->app['auth.user']){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
             throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+        }
+
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+            if($object->getUserCreated() != $this->app['auth.user']){
+                $group = $this->app['auth.user']->getGroup();
+                if(!($group && $object->hasGroupId($group->getId()))){
+                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+                }
+            }
         }
 
 
         foreach($data as $property => $value){
             if($property == 'modified' || $property == 'created') continue;
-            
+
             $setter = 'set'.ucfirst($property);
             $getter = 'get'.ucfirst($property);
 
@@ -1086,14 +1105,13 @@ class ApiController extends BaseController
             if($entityPath == 'Areanet\PIM\Entity\User'){
                 throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
             }elseif($entityPath == 'Areanet\PIM\Entity\File') {
-                $existingFile = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId(), 'isDeleted' => false));
+                $existingFile = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId()));
 
                 throw new FileExistsException("Die Datei ist in diesem Ordner bereits vorhanden. Wollen Sie die bestehende Datei überschreiben?", $existingFile->getId());
             }else{
                 throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein gleicher Eintrag ist bereits vorhanden.");
             }
         }
-
         /**
          * Log update actions
          */
@@ -1101,8 +1119,9 @@ class ApiController extends BaseController
 
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
+        $log->setData(serialize($object));
         if($user) $log->setUser($user);
-        $log->setMode('Geändert');
+        $log->setMode(Log::UPDATED);
 
         if($schema[ucfirst($entityName)]['settings']['labelProperty']){
             $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
@@ -1194,13 +1213,23 @@ class ApiController extends BaseController
             $qb = $this->em->createQueryBuilder();
 
             $qb->select($entityShortcut)
-               ->from($entityName, $entityShortcut);
+                ->from($entityName, $entityShortcut);
 
             $qb->where("1 = 1");
 
             if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                $qb->andWhere("$entityShortcut.userCreated = :userCreated");
+                $qb->andWhere("$entityShortcut.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityShortcut.users) = 1");
                 $qb->setParameter('userCreated', $this->app['auth.user']);
+            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                $group = $this->app['auth.user']->getGroup();
+                if(!$group){
+                    $qb->andWhere("$entityShortcut.userCreated = :userCreated");
+                    $qb->setParameter('userCreated', $this->app['auth.user']);
+                }else{
+                    $qb->andWhere("$entityShortcut.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityShortcut.groups) = 1");
+                    $qb->setParameter('userGroup', $group);
+                    $qb->setParameter('userCreated', $this->app['auth.user']);
+                }
             }
 
             if($lastModified) {
@@ -1210,10 +1239,6 @@ class ApiController extends BaseController
 
             $query = $qb->getQuery();
             $objects = $query->getResult();
-
-            if(!$objects){
-                continue;
-            }
 
 
             $array = array();
@@ -1250,7 +1275,7 @@ class ApiController extends BaseController
                                 $multiFiles = $object->$getterName();
                                 $multiData = array();
                                 foreach ($multiFiles as $multiFile) {
-                                    if (!$multiFile->getIsDeleted()) $multiData[] = $multiFile->toValueObject($this->app['auth.user'], $schema, $entityShortcut);
+                                    $multiData[] = $multiFile->toValueObject($this->app['auth.user'], $schema, $entityShortcut);
                                 }
                                 $objectData->$key = $multiData;
                             }
@@ -1271,9 +1296,9 @@ class ApiController extends BaseController
                         }
                     }
                 }
-                
 
-                if($object instanceof File && !$object->getIsDeleted() && $filedata != null){
+
+                if($object instanceof File && $filedata != null){
                     $backendFS = new FileSystem();
                     foreach($filedata as $size){
                         $sizePrefix = $size == 'org' ? '' : $size.'-';
@@ -1290,9 +1315,38 @@ class ApiController extends BaseController
                         }
                     }
                 }
-    
+
                 $array[] = $objectData;
 
+
+            }
+
+            //GET DELETED
+            $qb = $this->em->createQueryBuilder();
+
+            $qb->select('log')
+                ->from('Areanet\PIM\Entity\\Log', 'log')
+                ->where('log.modelName = :modelName')
+                ->andWhere("log.mode = 'DEL' OR log.mode = 'Gelöscht'")
+                ->setParameter('modelName', $entityShortcut);
+
+            if($lastModified) {
+                $qb->andWhere('log.created >= :lastModified');
+                $qb->setParameter('lastModified', $lastModified);
+            }
+
+            $query = $qb->getQuery();
+            $objects = $query->getResult();
+
+            foreach($objects as $object){
+                $array[] = array(
+                    'id' => $object->getModelId(),
+                    'isDeleted' => true
+                );
+            }
+
+            if(!count($array)){
+                continue;
             }
 
             $all[$entityShortcut] = $array;
@@ -1388,7 +1442,7 @@ class ApiController extends BaseController
 
         return $permissions;
     }
-    
+
 
     public function mailAction(Request $request)
     {

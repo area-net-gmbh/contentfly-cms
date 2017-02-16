@@ -48,16 +48,19 @@
                 <td class="permission-button  permission-{{config.readable}}" ng-click="changePermission(config.index, 'readable', false)">
                     <span ng-show="config.readable == 0">nein</span>
                     <span ng-show="config.readable == 1">eigene</span>
+                    <span ng-show="config.readable == 3">Gruppe</span>
                     <span ng-show="config.readable == 2">alle</span>
                 </td>
                 <td class="permission-button permission-{{config.writable}}" ng-click="changePermission(config.index, 'writable', false)">
                     <span ng-show="config.writable == 0">nein</span>
                     <span ng-show="config.writable == 1">eigene</span>
+                    <span ng-show="config.writable == 3">Gruppe</span>
                     <span ng-show="config.writable == 2">alle</span>
                 </td>
                 <td class="permission-button permission-{{config.deletable}}" ng-click="changePermission(config.index, 'deletable', false)">
                     <span ng-show="config.deletable == 0">nein</span>
                     <span ng-show="config.deletable == 1">eigene</span>
+                    <span ng-show="config.deletable == 3">Gruppe</span>
                     <span ng-show="config.deletable == 2">alle</span>
                 </td>
                 <td class="permission-button permission_extended ng-class:{'permission_extended_active': config.extended}" ng-click="showExtendedPermissions(config, false)">Feldebene <span class="glyphicon glyphicon-chevron-right"></span></td>
@@ -78,16 +81,19 @@
             <td class="permission-button  permission-{{config.readable}}" ng-click="changePermission(config.index, 'readable', true)">
                 <span ng-show="config.readable == 0">nein</span>
                 <span ng-show="config.readable == 1">eigene</span>
+                <span ng-show="config.readable == 3">Gruppe</span>
                 <span ng-show="config.readable == 2">alle</span>
             </td>
             <td class="permission-button permission-{{config.writable}}" ng-click="changePermission(config.index, 'writable', true)">
                 <span ng-show="config.writable == 0">nein</span>
                 <span ng-show="config.writable == 1">eigene</span>
+                <span ng-show="config.writable == 3">Gruppe</span>
                 <span ng-show="config.writable == 2">alle</span>
             </td>
             <td class="permission-button permission-{{config.deletable}}" ng-click="changePermission(config.index, 'deletable', true)">
                 <span ng-show="config.deletable == 0">nein</span>
                 <span ng-show="config.deletable == 1">eigene</span>
+                <span ng-show="config.deletable == 3">Gruppe</span>
                 <span ng-show="config.deletable == 2">alle</span>
             </td>
             <td class="permission-button permission_extended ng-class:{'permission_extended_active': config.extended}" ng-click="showExtendedPermissions(config, true)">Feldebene&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></td>

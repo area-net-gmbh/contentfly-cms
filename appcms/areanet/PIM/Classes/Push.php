@@ -20,17 +20,15 @@ class Push{
         $this->em         = $em;
     }
 
-    public function send($fieldTitle, $fieldText, $fieldObject)
+    public function send($fieldTitle, $fieldText, $additionalData)
     {
         set_time_limit(0);
 
         $getterTitle    = "get".ucfirst($fieldTitle);
         $getterText     = "get".ucfirst($fieldText);
-        $getterObject   = "get".ucfirst($fieldObject);
 
         $title          = $this->pushObject->$getterTitle();
         $text           = $this->pushObject->$getterText();
-        $objectId       = $this->pushObject->$getterObject();
 
         $objects = $this->em->getRepository('Areanet\PIM\Entity\PushToken')->findAll();
 
@@ -48,8 +46,8 @@ class Push{
             }
         }
 
-        $this->sendIos($iosTokens, $title, $text, $objectId);
-        $this->sendAndroid($androidTokens, $title, $text, $objectId);
+        $this->sendIos($iosTokens, $title, $text, $additionalData);
+        $this->sendAndroid($androidTokens, $title, $text, $additionalData);
 
         $this->pushObject->setCount($count);
         $this->em->persist($this->pushObject);
@@ -57,7 +55,7 @@ class Push{
 
     }
 
-    protected function sendIos($tokens, $title, $text, $objectId)
+    protected function sendIos($tokens, $title, $text, $additionalData = array())
     {
         if(!count($tokens)){
             return;
@@ -72,24 +70,26 @@ class Push{
         $push->setLogger($logger);
 
         $push->setProviderCertificatePassphrase(Config\Adapter::getConfig()->PUSH_APPLE_PASS);
-        $push->setRootCertificationAuthority(ROOT_DIR.'/data/entrust_root_certification_authority.pem');
+        $push->setRootCertificationAuthority(ROOT_DIR.'/../custom/entrust_root_certification_authority.pem');
         $push->connect();
 
         foreach($tokens as $token){
             $message = new \ApnsPHP_Message($token);
             $message->setText($title.' '.$text);
             $message->setBadge(0);
-            $message->setCustomProperty('object', $objectId);
+            foreach($additionalData as $key => $value){
+                $message->setCustomProperty($key, $value);
+            }
 
             $push->add($message);
         }
 
         $push->send();
         $push->disconnect();
-        
+
     }
 
-    protected function sendAndroid($tokens, $title, $text, $objectId)
+    protected function sendAndroid($tokens, $title, $text, $additionalData = array())
     {
         if(!count($tokens)){
             return;
@@ -99,17 +99,17 @@ class Push{
 
         foreach($androidTokensChunked as $androidTokens) {
             $msg = array(
-                'message'   => $text,
-                'title'     => $title,
-                'object'    => $objectId,
-                'vibrate'    => 1,
-                'sound'     => 1
+                'body'      => $text,
+                'title'     => $title
             );
 
             $fields = array(
                 'registration_ids'  => $androidTokens,
-                'data'              => $msg
+                'notification'      => $msg,
+                'data'              => $additionalData
             );
+
+
 
             $headers = array(
                 'Authorization: key=' . Config\Adapter::getConfig()->PUSH_GOOGLE_KEY,
@@ -117,10 +117,11 @@ class Push{
             );
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
+            curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
 

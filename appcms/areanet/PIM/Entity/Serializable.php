@@ -82,9 +82,19 @@ abstract class Serializable implements \JsonSerializable{
                             }
                         }
 
-                        if($permission == \Areanet\PIM\Entity\Permission::OWN && $subobject->getUserCreated() != $user){
+                        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($subobject->getUserCreated() != $user && !$subobject->hasUserId($user->getId()))){
                             $result->$property = array('id' => $subobject->getId(), 'pim_blocked' => true);
                             continue;
+                        }
+
+                        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                            if($subobject->getUserCreated() != $user){
+                                $group = $user->getGroup();
+                                if(!($group && $subobject->hasGroupId($group->getId()))){
+                                    $result->$property = array('id' => $subobject->getId(), 'pim_blocked' => true);
+                                    continue;
+                                }
+                            }
                         }
                         
                         $result->$property = $subobject->toValueObject($user, $schema, $config['accept'], $flatten, array(), ($level + 1));
@@ -143,17 +153,36 @@ abstract class Serializable implements \JsonSerializable{
 
                         if (in_array($property, $propertiesToLoad)) {
                             foreach ($this->$property as $object) {
-                                if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $user){
+                                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $user &&  !$object->hasUserId($user->getId()))){
                                     continue;
                                 }
+
+                                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                                    if($object->getUserCreated() != $user){
+                                        $group = $user->getGroup();
+                                        if(!($group && $object->hasGroupId($group->getId()))){
+                                            continue;
+                                        }
+                                    }
+                                }
+
                                 $data[] = $object->getId();
                             }
                         } else {
 
 
                             foreach ($this->$property as $object) {
-                                if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $user){
+                                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $user && !$object->hasUserId($user->getId()))){
                                     continue;
+                                }
+
+                                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                                    if($object->getUserCreated() != $user){
+                                        $group = $user->getGroup();
+                                        if(!($group && $object->hasGroupId($group->getId()))){
+                                            continue;
+                                        }
+                                    }
                                 }
 
                                 $data[] = $object->toValueObject($user, $schema, $subEntity, $flatten, $propertiesToLoad, ($level + 1));
@@ -231,9 +260,19 @@ abstract class Serializable implements \JsonSerializable{
 
                         $data = array();
                         foreach($this->$getter() as $object){
-                            if($permission == \Areanet\PIM\Entity\Permission::OWN && $object->getUserCreated() != $user){
+                            if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $user &&  !$object->hasUserId($user->getId()))){
                                 continue;
                             }
+
+                            if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                                if($object->getUserCreated() != $user){
+                                    $group = $user->getGroup();
+                                    if(!($group && $object->hasGroupId($group->getId()))){
+                                        continue;
+                                    }
+                                }
+                            }
+
                             $data[] =  array(
                                 "id"    => $object->getId()
                             );
@@ -257,9 +296,19 @@ abstract class Serializable implements \JsonSerializable{
 
                         $subobject = $this->$getter();
 
-                        if($permission == \Areanet\PIM\Entity\Permission::OWN && $subobject->getUserCreated() != $user){
+                        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($subobject->getUserCreated() != $user &&  !$subobject->hasUserId($user->getId()))){
                             unset($result->$property);
                             continue;
+                        }
+
+                        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                            if($subobject->getUserCreated() != $user){
+                                $group = $user->getGroup();
+                                if(!($group && $subobject->hasGroupId($group->getId()))){
+                                    unset($result->$property);
+                                    continue;
+                                }
+                            }
                         }
 
                         $result->$property = array(

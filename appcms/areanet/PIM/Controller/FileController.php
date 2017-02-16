@@ -6,6 +6,7 @@ use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Entity\File;
+use Areanet\PIM\Entity\Log;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Silex\Application;
@@ -60,6 +61,23 @@ class FileController extends BaseController
                     $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
                     $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
                     $fileObject->setName($filename);
+
+                    //AUDIT
+                    $log = new Log();
+                    $log->setModelName('PIM\File');
+                    $log->setUser($this->app['auth.user']);
+                    $log->setModelId($fileObject->getId());
+                    $log->setData(serialize($fileObject));
+                    $log->setMode(Log::INSERTED);
+                    $this->em->persist($log);
+                }else{
+                    $log = new Log();
+                    $log->setModelName('PIM\File');
+                    $log->setUser($this->app['auth.user']);
+                    $log->setModelId($fileObject->getId());
+                    $log->setData(serialize($fileObject));
+                    $log->setMode(Log::UPDATED);
+                    $this->em->persist($log);
                 }
 
                 $hash = md5_file($file->getRealPath());
@@ -92,7 +110,7 @@ class FileController extends BaseController
 
                 $fileObject = null;
                 if(Config\Adapter::getConfig()->FILE_HASH_MUST_UNIQUE){
-                    $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash, 'isDeleted' => false));
+                    $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
                 }
 
                 list($width, $height) = getimagesize($file->getRealPath());
@@ -127,6 +145,15 @@ class FileController extends BaseController
                     $fileObject->setSize($file->getClientSize());
                     $fileObject->setHash($hash);
                     $this->em->persist($fileObject);
+
+                    $log = new Log();
+                    $log->setModelName('PIM\File');
+                    $log->setUser($this->app['auth.user']);
+                    $log->setModelId($fileObject->getId());
+                    $log->setData(serialize($fileObject));
+                    $log->setMode(Log::INSERTED);
+                    $this->em->persist($log);
+
                     $this->em->flush();
 
                     $backend = Backend::getInstance();
@@ -134,6 +161,8 @@ class FileController extends BaseController
 
                     $processor = Processing::getInstance($file->getClientMimeType());
                     $processor->execute($backend, $fileObject);
+
+
                 } else {
 
                     if($width){
@@ -142,8 +171,15 @@ class FileController extends BaseController
                     if($height){
                         $fileObject->setHeight($height);
                     }
-                    
-                    $fileObject->setIsDeleted(false);
+
+                    $log = new Log();
+                    $log->setModelName('PIM\File');
+                    $log->setUser($this->app['auth.user']);
+                    $log->setModelId($fileObject->getId());
+                    $log->setData(serialize($fileObject));
+                    $log->setMode(Log::UPDATED);
+                    $this->em->persist($log);
+
                     $this->em->persist($fileObject);
                     $this->em->flush();
                 }
@@ -372,8 +408,7 @@ class FileController extends BaseController
 
         @rmdir($pathSource);
 
-        $fileSource->setIsDeleted(true);
-        $this->em->persist($fileSource);
+        $this->em->remove($fileSource);
 
         list($width, $height) = getimagesize($pathDest.'/'.$fileInfo->getBasename());
 

@@ -113,7 +113,7 @@
 
         function doDelete(object){
 
-            if(vm.schema.settings.isPush || vm.schema.settings.readonly){
+            if(vm.schema.settings.readonly){
                 return;
             }
 
@@ -136,7 +136,7 @@
             modalInstance.result.then(
                 function (doDelete) {
 
-                    
+
                     if(doDelete){
 
                         vm.objectsAvailable = false;
@@ -248,7 +248,7 @@
         function loadData(){
             vm.objectsAvailable = false;
             vm.objectsNotAvailable = false;
-            
+
             var sortSettings = {};
             sortSettings[vm.sortProperty] = vm.sortOrder;
 
@@ -261,7 +261,7 @@
             if(vm.schema.settings.type == 'tree' || vm.schema.settings.sortRestrictTo){
                 vm.schema.settings.isSortable = false;
             }
-          
+
             var filter = {};
             for (var key in vm.filter) {
                 if(vm.filter[key]){
@@ -289,7 +289,7 @@
             };
             EntityService.list(data).then(
                 function successCallback(response) {
-                    
+
                     if(vm.itemsPerPage === 0) {
                         vm.itemsPerPage = response.data.itemsPerPage;
                     }
@@ -331,7 +331,6 @@
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
-
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
                     var entity = null;
                     if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
@@ -437,6 +436,41 @@
                     }
 
 
+                }else if(vm.schema.properties[key].type == 'virtualjoin' && vm.schema.properties[key].isFilterable){
+
+                    var entity = null;
+                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
+                        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
+                    }else{
+                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+                    }
+
+                    if(!vm.permissions[entity].readable){
+                        continue;
+                    }
+
+                    EntityService.list({entity: entity, flatten: true}).then(
+                        (function(entity, key) {
+                            return function(response) {
+                                var joinSchema = localStorageService.get('schema')[entity];
+                                vm.filterJoins[key] = response.data.data;
+                                for(var i = 0; i < vm.filterJoins[key].length; i++){
+                                    if(!vm.filterJoins[key][i]['pim_filterTitle']){
+                                        if(joinSchema.settings.labelProperty){
+                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.settings.labelProperty];
+                                        }else{
+                                            vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                        }
+                                    }
+                                }
+                            }
+                        })(entity, key),
+                        function errorCallback(response) {
+                        }
+                    );
+
+
+
                 }else if(vm.schema.properties[key].isFilterable){
                     var field = key;
 
@@ -445,7 +479,7 @@
                         properties: [field],
                         groupBy: field
                     }
-                    
+
 
                     data['order'] = {};
                     data['order'][field] = "ASC";
@@ -470,10 +504,10 @@
 
             }
         }
-        
+
         function openForm(object){
 
-            if(vm.schema.settings.isPush || vm.schema.settings.readonly){
+            if(vm.schema.settings.readonly){
                 return;
             }
 
@@ -517,7 +551,7 @@
                 function () {
                 }
             );
-            
+
 
         }
 

@@ -122,6 +122,9 @@
                             scope[matrix][index][mode] = 1;
                             break;
                         case 1:
+                            scope[matrix][index][mode] = 3;
+                            break;
+                        case 3:
                             scope[matrix][index][mode] = 2;
                             break;
                         case 2:
@@ -133,7 +136,7 @@
                 }
                 
                 function init(){
-                    var excludedEntities = ['PIM\\Permission', 'PIM\\Log', 'PIM\\Tag', 'PIM\\PushToken', 'PIM\\Group', 'PIM\\ThumbnailSetting'];
+                    var excludedEntities = ['PIM\\Permission', 'PIM\\Log', 'PIM\\Tag', 'PIM\\PushToken', 'PIM\\ThumbnailSetting'];
 
                     var index       = 0;
                     var indexCustom = 0;

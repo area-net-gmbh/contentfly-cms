@@ -87,9 +87,9 @@ class MultijoinType extends Type
         $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
         $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
 
-        if(!Permission::isWritable($user, $entity)){
+        /*if(!Permission::isWritable($user, $entity)){
             throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
-        }
+        }*/
         
         if($object->$getter()) {
             if ($mappedBy) {
@@ -128,31 +128,27 @@ class MultijoinType extends Type
             
             $objectToJoin = $this->em->getRepository($entity)->find($id);
 
-            if(!$objectToJoin->getIsDeleted()){
+            
+            if($mappedBy){
+                $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
+                $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+                $mappedEntity   = new $acceptFrom();
 
+                $mappedSetter = 'set'.ucfirst($mappedBy);
+                $mappedEntity->$mappedSetter($objectToJoin);
 
-                if($mappedBy){
-                    $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
-                    $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                    $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-                    $mappedEntity   = new $acceptFrom();
+                $mappedSetter = 'set'.ucfirst($mappedFrom);
+                $mappedEntity->$mappedSetter($object);
 
-                    $mappedSetter = 'set'.ucfirst($mappedBy);
-                    $mappedEntity->$mappedSetter($objectToJoin);
-
-                    $mappedSetter = 'set'.ucfirst($mappedFrom);
-                    $mappedEntity->$mappedSetter($object);
-
-                    if($isSortable){
-                        $mappedEntity->setSorting($sorting++);
-                    }
-
-                    $this->em->persist($mappedEntity);
-                    $collection->add($mappedEntity);
-                }else{
-                    $collection->add($objectToJoin);
+                if($isSortable){
+                    $mappedEntity->setSorting($sorting++);
                 }
 
+                $this->em->persist($mappedEntity);
+                $collection->add($mappedEntity);
+            }else{
+                $collection->add($objectToJoin);
             }
         }
 
