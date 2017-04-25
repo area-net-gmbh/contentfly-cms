@@ -21,14 +21,14 @@ class Base extends Serializable
 
     /**
      * @var \DateTime
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @PIM\Config(hide=true, label="erstellt am")
      */
     protected $created;
 
     /**
      * @var \DateTime
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @PIM\Config(hide=true, label="geändert am")
      */
     protected $modified;
@@ -43,14 +43,14 @@ class Base extends Serializable
 
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
      * @PIM\Config(label="geändert von", hide=true)
      */
     protected $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
-     * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id", onDelete="SET NULL")
      * @PIM\Config(label="erstellt von", hide=true)
      */
     protected $userCreated;

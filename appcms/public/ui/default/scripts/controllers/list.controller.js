@@ -228,18 +228,18 @@
         }
 
         function init(){
+            var savedFilter = localStorageService.get('savedFilter');
+            if(savedFilter && savedFilter[vm.entity]){
+                vm.filter = savedFilter[vm.entity];
+            }
+
             for (var key in $routeParams) {
-                if(key.substr(0, 2) != 'f_'){
+                if (key.substr(0, 2) != 'f_') {
                     continue;
                 }
                 var property = key.substr(2);
 
                 vm.filter[property] = $routeParams[key];
-            }
-
-            var savedFilter = localStorageService.get('savedFilter');
-            if(savedFilter && savedFilter[vm.entity]){
-                vm.filter = savedFilter[vm.entity];
             }
 
             calcFilterBadge();
@@ -271,6 +271,10 @@
                     }
                     if(vm.schema.settings.sortRestrictTo && key == vm.schema.settings.sortRestrictTo && vm.filter[key] ){
                         vm.schema.settings.isSortable = true;
+                    }
+                 
+                    if(vm.schema.properties[key] && vm.schema.properties[key].type == 'boolean'){
+                        filter[key] = vm.filter[key] == 'true' || vm.filter[key] == '1' ? true : false;
                     }
                 }
             }
@@ -355,7 +359,7 @@
                             }
                         );
                     }else{
-                        var joinSchema = localStorageService.get('schema')[entity];
+                        var joinSchema    = localStorageService.get('schema')[entity];
 
                         var properties = ['id', 'modified', 'created', 'user'];
                         if(joinSchema.settings.isSortable){
@@ -366,10 +370,9 @@
                         }
 
                         EntityService.list({entity: entity, properties: properties, flatten: true}).then(
-                            (function(entity, key) {
+                            (function(entity, key, joinSchema) {
                                 return function(response) {
                                     vm.filterJoins[key] = response.data.data;
-
                                     for (var i = 0; i < vm.filterJoins[key].length; i++) {
                                         if (!vm.filterJoins[key][i]['pim_filterTitle']) {
                                             if(joinSchema.settings.labelProperty){
@@ -380,7 +383,7 @@
                                         }
                                     }
                                 }
-                            })(entity, key),
+                            })(entity, key, joinSchema),
                             function errorCallback(response) {
                             }
                         );

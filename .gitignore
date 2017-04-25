@@ -1,4 +1,5 @@
 .vagrant/*
+/appcms/public/info.php
 .idea/*
 ansible/*
 template

@@ -3,6 +3,7 @@ namespace Areanet\PIM\Controller;
 
 use Areanet\PIM\Classes\Annotations\ManyToMany;
 use Areanet\PIM\Classes\Annotations\MatrixChooser;
+use Areanet\PIM\Classes\Api;
 use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
@@ -84,43 +85,13 @@ class ApiController extends BaseController
 
         $entityName = $request->get('entity');
         $id         = $request->get('id');
-        $schema     = $this->getSchema();
+        
 
-        if (substr($entityName, 0, 3) == 'PIM') {
-            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        }elseif(substr($entityName, 0, 7) == 'Areanet'){
-            $splitter = explode('\\', $entityName);
-            $entityNameToLoad = $entityName;
-            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
-        }else{
-            $entityName = ucfirst($request->get('entity'));
-            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
-        }
+        $api  = new Api($this->app);
+        $data = $api->single($entityName, $id);
 
-        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
-        }
 
-        $object = $this->em->getRepository($entityNameToLoad)->find($id);
-
-        if (!$object) {
-            return new JsonResponse(array('message' => "Object not found"), 404);
-        }
-
-        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
-        }
-
-        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
-            if($object->getUserCreated() != $this->app['auth.user']){
-                $group = $this->app['auth.user']->getGroup();
-                if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
-                }
-            }
-        }
-
-        return new JsonResponse(array('message' => "singleAction", 'data' => $object->toValueObject($this->app['auth.user'], $schema, $entityName, false)));
+        return new JsonResponse(array('message' => "singleAction", 'data' => $data));
 
     }
 
@@ -323,8 +294,6 @@ class ApiController extends BaseController
                 }
 
                 if($schema[$entityName]['properties'][$field]['type'] == 'multijoin'){
-                    $value = $value;
-
                     if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
                         if($value == -1) {
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
@@ -779,9 +748,9 @@ class ApiController extends BaseController
 
         try {
             $object = $this->insert($entityName, $data, $app, $app['auth.user']);
-        }catch(EntityDuplicateException $e){
+        }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }catch(Exception $e){
+        }catch(\Exception $e){
             return new JsonResponse(array('message' => $e->getMessage()), $e->getCode());
         }
 
