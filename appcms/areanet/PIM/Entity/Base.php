@@ -56,7 +56,7 @@ class Base extends Serializable
     protected $userCreated;
     
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", options={"default" : 0})
      * @PIM\Config(hide=true)
      */
     protected $isIntern = 0;

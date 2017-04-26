@@ -14,6 +14,7 @@ $dirsToCreate = array(
     'custom/Classes/Annotations',
     'custom/Classes/Types',
     'custom/Command',
+    'custom/Controller',
     'custom/Entity',
     'custom/Frontend',
     'custom/Frontend/ui',

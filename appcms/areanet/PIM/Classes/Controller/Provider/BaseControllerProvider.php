@@ -16,7 +16,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
     const LOGIN_PATH           = '/login';
     const TOKEN_HEADER_KEY     = 'X-XSRF-TOKEN';
     const TOKEN_REQUEST_KEY    = '_token';
-    private $basePath = '';
+    protected $basePath = '';
 
     public function __construct($basePath)
     {
