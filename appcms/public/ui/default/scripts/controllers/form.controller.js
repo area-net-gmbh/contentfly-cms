@@ -18,10 +18,11 @@
         vm.entity           = entity;
         vm.schemaOnejoin    = {};
         vm.schema           = schemaComplete[entity];
-        
+
         vm.object           = {};
         vm.isLoading        = true;
         vm.isSubmit         = false;
+        vm.isPush           = vm.schema['settings']['isPush'];
         vm.fileUploads      = {};
         vm.forms            = {};
         vm.modaltitle       = title;
@@ -66,7 +67,7 @@
 
             modalInstance.result.then(
                 function(doDelete) {
-                    if (doDelete) doSave();
+                    if (doDelete) doSave(true);
                 },
                 function(){}
             );
@@ -219,7 +220,7 @@
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
             });
-            
+
 
             if(!object || !object.id || !vm.permissions[entity].readable){
                 vm.isLoading = false;
@@ -351,7 +352,7 @@
             }
         }
 
-        
+
     }
 
 })();

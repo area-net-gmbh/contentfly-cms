@@ -110,7 +110,7 @@ if(!is_dir(ROOT_DIR.'/../custom/Views/')){
 }
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' =>   array(ROOT_DIR.'/../custom/Views/', ROOT_DIR.'/public/ui/default/')
+    'twig.path' =>   array(ROOT_DIR.'/../custom/Views/', ROOT_DIR.'/areanet/PIM-UI/default/')
 ));
 
 //Config Image-Processing
@@ -148,6 +148,10 @@ $app['uiManager'] = $app->share(function ($app) {
     return new \Areanet\PIM\Classes\Manager\UIManager($app);
 });
 
+$app['routeManager'] = $app->share(function ($app) {
+    return new \Areanet\PIM\Classes\Manager\RouteManager($app);
+});
+
 
 //Config Spatial ORM-Types
 /*
@@ -164,3 +168,5 @@ $config->addCustomStringFunction('FIND_IN_SET', '\Areanet\PIM\Classes\ORM\Query\
 */
 
 require_once ROOT_DIR.'/../custom/app.php';
+
+$app['routeManager']->bindRoutes();
