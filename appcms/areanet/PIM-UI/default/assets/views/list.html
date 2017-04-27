@@ -39,21 +39,51 @@
                         <option value="false">nein</option>
                     </select>
 
-                    <label ng-show="vm.filterJoins[key]" ng-switch-when="join">{{vm.schema.properties[key].label}}</label>
-                    <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="join" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
-                        <option value="">alle anzeigen</option>
-                        <option value="-1">ohne Zuordnung</option>
-                        <option disabled>──────────</option>
-                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
-                    </select>
+                    <div ng-show="vm.filterJoins[key] || vm.schema.properties[key].isDatalist" ng-switch-when="join">
+                        <label>{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-show="!vm.schema.properties[key].isDatalist" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                            <option value="">alle anzeigen</option>
+                            <option value="-1">ohne Zuordnung</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
+                        </select>
 
-                    <label ng-show="vm.filterJoins[key]" ng-switch-when="multijoin">{{vm.schema.properties[key].label}}</label>
-                    <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="multijoin" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
-                        <option value="">alle anzeigen</option>
-                        <option value="-1">ohne Zuordnung</option>
-                        <option disabled>──────────</option>
-                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
-                    </select>
+                        <ui-select ng-model="vm.datalistFilter[key]"  ng-show="vm.schema.properties[key].isDatalist" on-select="vm.executeFilter()" >
+                            <ui-select-match placeholder="Bitte auswählen...">
+                                <span ng-bind="$select.selected.pim_filterTitle"></span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                    repeat="option in vm.filterJoins[key]"
+                                    refresh="vm.refreshDatalistFilter(key, $select.search)"
+                                    refresh-delay="0"
+                                    group-by="'group'">
+                                <span ng-bind="option.pim_filterTitle"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <div ng-show="vm.filterJoins[key] || vm.schema.properties[key].isDatalist" ng-switch-when="multijoin">
+                        <label >{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-show="!vm.schema.properties[key].isDatalist"  ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                            <option value="">alle anzeigen</option>
+                            <option value="-1">ohne Zuordnung</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
+                        </select>
+
+                        <ui-select ng-model="vm.datalistFilter[key]"  ng-show="vm.schema.properties[key].isDatalist" on-select="vm.executeFilter()" >
+                            <ui-select-match placeholder="Bitte auswählen...">
+                                <span ng-bind="$select.selected.pim_filterTitle"></span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                    repeat="option in vm.filterJoins[key]"
+                                    refresh="vm.refreshDatalistFilter(key, $select.search)"
+                                    refresh-delay="0"
+                                    group-by="'group'">
+                                <span ng-bind="option.pim_filterTitle"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
 
                     <label ng-show="vm.filterJoins[key]" ng-switch-when="virtualjoin">{{vm.schema.properties[key].label}}</label>
                     <select class="form-control" ng-show="vm.filterJoins[key]" ng-switch-when="virtualjoin" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">

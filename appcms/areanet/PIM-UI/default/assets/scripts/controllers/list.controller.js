@@ -68,10 +68,11 @@
         };
         vm.sortableObjects = [];
 
-        vm.filter       = {};
-        vm.filterIsOpen = false;
-        vm.filterBadge  = 0;
-        vm.filterJoins  = {};
+        vm.filter           = {};
+        vm.datalistFilter   = {};
+        vm.filterIsOpen     = false;
+        vm.filterBadge      = 0;
+        vm.filterJoins      = {};
 
         //Functions
         vm.back                 = back;
@@ -81,6 +82,7 @@
         vm.openForm             = openForm;
         vm.paginationChanged    = paginationChanged;
         vm.redirect             = redirect;
+        vm.refreshDatalistFilter= refreshDatalistFilter;
         vm.resetFilter          = resetFilter;
         vm.sortBy               = sortBy;
         vm.toggleFilter         = toggleFilter;
@@ -106,6 +108,7 @@
 
             vm.filterBadge = badgeCount;
         }
+
 
         function closeFilter(){
             vm.filterIsOpen = false;
@@ -193,6 +196,17 @@
 
         function executeFilter() {
 
+            var savedDatalistFilter = localStorageService.get('savedDatalistFilter');
+            if(!savedDatalistFilter){
+                savedDatalistFilter = {};
+            }
+            savedDatalistFilter[vm.entity] = vm.datalistFilter;
+            localStorageService.set('savedDatalistFilter', savedDatalistFilter);
+
+            for (var key in vm.datalistFilter) {
+                vm.filter[key] = vm.datalistFilter[key].id
+            }
+
             var savedFilter = localStorageService.get('savedFilter');
             if(!savedFilter){
                 savedFilter = {};
@@ -231,6 +245,11 @@
             var savedFilter = localStorageService.get('savedFilter');
             if(savedFilter && savedFilter[vm.entity]){
                 vm.filter = savedFilter[vm.entity];
+            }
+
+            var savedDatalistFilter = localStorageService.get('savedDatalistFilter');
+            if(savedDatalistFilter && savedDatalistFilter[vm.entity]){
+                vm.datalistFilter = savedDatalistFilter[vm.entity];
             }
 
             for (var key in $routeParams) {
@@ -335,49 +354,54 @@
 
         function loadFilters(){
             for (var key in vm.schema.properties) {
-                if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
+                if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable ){
+
                     var entity = null;
-                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
+                    if (vm.schema.properties[key].accept.substr(0, 7) == 'Areanet') {
                         entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
-                    }else{
-                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+                    } else {
+                        entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
                     }
 
-                    if(!vm.permissions[entity].readable){
+                    if (!vm.permissions[entity].readable) {
                         continue;
                     }
 
-                    if(localStorageService.get('schema')[entity].settings.type == 'tree') {
+                    if(vm.schema.properties[key].isDatalist && localStorageService.get('schema')[entity].settings.type != 'tree'){
+                        continue;
+                    }
+
+                    if (localStorageService.get('schema')[entity].settings.type == 'tree') {
 
                         EntityService.tree({entity: entity}).then(
-                            (function(entity, key) {
-                                return function(response) {
+                            (function (entity, key) {
+                                return function (response) {
                                     generateTree(entity, key, response.data.data, 0)
                                 }
                             })(entity, key),
                             function errorCallback(response) {
                             }
                         );
-                    }else{
-                        var joinSchema    = localStorageService.get('schema')[entity];
+                    } else {
+                        var joinSchema = localStorageService.get('schema')[entity];
 
                         var properties = ['id', 'modified', 'created', 'user'];
-                        if(joinSchema.settings.isSortable){
+                        if (joinSchema.settings.isSortable) {
                             properties.push('sorting');
                         }
-                        for (var key2 in joinSchema.list ) {
+                        for (var key2 in joinSchema.list) {
                             properties.push(joinSchema.list[key2]);
                         }
 
                         EntityService.list({entity: entity, properties: properties, flatten: true}).then(
-                            (function(entity, key, joinSchema) {
-                                return function(response) {
+                            (function (entity, key, joinSchema) {
+                                return function (response) {
                                     vm.filterJoins[key] = response.data.data;
                                     for (var i = 0; i < vm.filterJoins[key].length; i++) {
                                         if (!vm.filterJoins[key][i]['pim_filterTitle']) {
-                                            if(joinSchema.settings.labelProperty){
+                                            if (joinSchema.settings.labelProperty) {
                                                 vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.settings.labelProperty];
-                                            }else{
+                                            } else {
                                                 vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
                                             }
                                         }
@@ -400,6 +424,10 @@
                     var field = key;
 
                     if(!vm.permissions[entity].readable){
+                        continue;
+                    }
+
+                    if(vm.schema.properties[key].isDatalist && localStorageService.get('schema')[entity].settings.type != 'tree'){
                         continue;
                     }
 
@@ -481,8 +509,7 @@
                         entity: vm.entity,
                         properties: [field],
                         groupBy: field
-                    }
-
+                    };
 
                     data['order'] = {};
                     data['order'][field] = "ASC";
@@ -573,10 +600,89 @@
             $location.url(path);
         }
 
+        function refreshDatalistFilter(key, sWord){
+            var entity = null;
+            if (vm.schema.properties[key].accept.substr(0, 7) == 'Areanet') {
+                entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
+            } else {
+                entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+            }
+
+            if (!vm.permissions[entity].readable) {
+                return;
+            }
+
+
+            var joinSchema = localStorageService.get('schema')[entity];
+
+            var properties = ['id', 'modified', 'created', 'user'];
+            if (joinSchema.settings.isSortable) {
+                properties.push('sorting');
+            }
+            for (var key2 in joinSchema.list) {
+                properties.push(joinSchema.list[key2]);
+            }
+
+            var data = {
+                entity: entity,
+                properties: properties,
+                flatten: true,
+                itemsPerPage: 15,
+                currentPage:1
+            };
+
+            if(sWord){
+                data.where = {fulltext: sWord};
+            }
+
+            EntityService.list(data).then(
+                (function (entity, key, joinSchema) {
+                    return function (response) {
+                        if(sWord){
+                            vm.filterJoins[key] = [];
+                        }else {
+                            vm.filterJoins[key] = [
+                                {
+                                    id: 0,
+                                    pim_filterTitle: 'alle anzeigen',
+                                    group: 'Allgemein'
+                                },
+                                {
+                                    id: -1,
+                                    pim_filterTitle: 'Ohne Zuordnung',
+                                    group: 'Allgemein'
+                                }
+                            ];
+                        }
+
+                        for (var i = 0; i < response.data.data.length; i++) {
+
+                            response.data.data[i]['group'] = 'Objekte';
+                            if (!response.data.data[i]['pim_filterTitle']) {
+                                if (joinSchema.settings.labelProperty) {
+                                    response.data.data[i]['pim_filterTitle'] = response.data.data[i][joinSchema.settings.labelProperty];
+                                } else {
+                                    response.data.data[i]['pim_filterTitle'] = response.data.data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                                }
+                            }
+                        }
+
+                        vm.filterJoins[key] = vm.filterJoins[key].concat(response.data.data);
+                    }
+                })(entity, key, joinSchema),
+                function errorCallback(response) {
+                }
+            );
+        }
+
         function resetFilter() {
             vm.filter = {};
             vm.filterBadge = 0;
             vm.filterIsOpen = false;
+            vm.datalistFilter = {};
+
+            localStorageService.set('savedDatalistFilter', vm.datalistFilter);
+            localStorageService.set('savedFilter', vm.filter);
 
             loadData();
         }

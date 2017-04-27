@@ -816,3 +816,19 @@ li.grid:hover .image-edit{
 .ta-editor div p, .ta-editor div li, .ta-editor div a, .ta-editor div td , .ta-editor div th{
     color:#666666;
 }
+
+
+.ui-select-container{
+    display:inline-block;
+    position: relative;
+    top:12px;
+}
+
+.ui-select-toggle{
+    padding-right:20px;
+}
+
+ul.ui-select-choices{
+    margin-left:0 !important;
+    margin-top:0 !important;
+}

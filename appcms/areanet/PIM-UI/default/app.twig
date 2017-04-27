@@ -13,6 +13,7 @@
     <link rel="stylesheet prefetch" href="/ui/default/vendor/textAngular/textAngular.css?v={{ app_version }}" media="screen">
     <link rel="stylesheet prefetch" href="/ui/default/vendor/loaders/loaders.min.css?v={{ app_version }}">
     <link rel="stylesheet prefetch" href="/ui/default/vendor/chartjs/angular-chart.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/vendor/select2/select.min.css?v={{ app_version }}">
 
     {% for cssFile in cssFiles %}
         <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}?v={{ custom_version }}">
@@ -125,6 +126,7 @@
 <script src="/ui/default/vendor/angulargrid/angulargrid.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/vendor/chartjs/chart.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/vendor/chartjs/angular-chart.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/vendor/select2/select.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/vendor/angular/ui.sortable.js?v={{ app_version }}"></script>
 
 <!-- Dynamic Angular Modules -->
@@ -148,8 +150,9 @@
         'LocalStorageModule',
         'textAngular',
         'ui.bootstrap',
-        'ui.sortable'
-    ]
+        'ui.sortable',
+        'ui.select'
+    ];
 
     {% for moduleName in angularModules|keys %}
     appcms_modules.push('{{ moduleName }}');
