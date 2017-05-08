@@ -1,0 +1,31 @@
+{
+  "name": "app-cms",
+  "authors": [
+    "areanet <apps@area-net.de>"
+  ],
+  "description": "APP-CMS UI",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "angular": "1.4.8",
+    "angulargrid": "0.5.3",
+    "jquery": "2.1.4",
+    "jquery-ui": "1.11.4",
+    "moment": "2.11.2",
+    "angular-ui-select": "0.19.7",
+    "textAngular": "1.5.3",
+    "bootstrap": "3.3.6",
+    "BootstrapXL": "https://github.com/marcvannieuwenhuijzen/BootstrapXL.git",
+    "angular-cookies": "1.4.8",
+    "angular-local-storage": "0.2.3",
+    "angular-moment": "^1.0.1",
+    "ng-file-upload": "^12.2.13",
+    "angular-ui-sortable": "^0.17.1",
+    "angular-bootstrap": "^2.5.0",
+    "angularUtils-pagination": "angular-utils-pagination#^0.11.1",
+    "angular-route": "1.4.8"
+  }
+}

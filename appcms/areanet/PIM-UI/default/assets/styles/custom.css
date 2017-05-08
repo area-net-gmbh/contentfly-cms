@@ -832,3 +832,10 @@ ul.ui-select-choices{
     margin-left:0 !important;
     margin-top:0 !important;
 }
+
+@media (min-width: 1600px) {
+
+    .modal-xl{
+        width:1200px
+    }
+}

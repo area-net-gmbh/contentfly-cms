@@ -6,15 +6,13 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ frontend.title }}</title>
-    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.min.css?v={{ app_version }}" >
-    <link rel="stylesheet" href="/ui/default/vendor/bootstrap/bootstrap.xl.css?v={{ app_version }}" >
-    <link rel="stylesheet" href="/ui/default/styles/custom.css?v={{ app_version }}">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/font-awesome/font-awesome.min.css?v={{ app_version }}">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/textAngular/textAngular.css?v={{ app_version }}" media="screen">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/loaders/loaders.min.css?v={{ app_version }}">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/chartjs/angular-chart.min.css?v={{ app_version }}">
-    <link rel="stylesheet prefetch" href="/ui/default/vendor/select2/select.min.css?v={{ app_version }}">
-
+    <link rel="stylesheet prefetch" href="/ui/default/bower_components/bootstrap/dist/css/bootstrap.min.css?v={{ app_version }}" >
+    <link rel="stylesheet prefetch" href="/ui/default/bower_components/BootstrapXL/BootstrapXL.css?v={{ app_version }}" >
+    <link rel="stylesheet prefetch" href="/ui/default/bower_components/font-awesome/css/font-awesome.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/bower_components/textAngular/dist/textAngular.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/bower_components/angular-ui-select/dist/select.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/styles/loaders.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="/ui/default/styles/custom.css?v={{ app_version }}">
     {% for cssFile in cssFiles %}
         <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}?v={{ custom_version }}">
     {% endfor %}
@@ -109,25 +107,23 @@
 <pim-plugin key="INDEX_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
 {% endverbatim %}
 <!-- Angular Files -->
-<script src="/ui/default/vendor/jquery/jquery-2.1.4.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/jquery/jquery-ui.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/angular.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/angular-route.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/angular-cookies.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/angular-local-storage.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/ui-bootstrap-tpls-0.14.3.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/ng-file-upload-all.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/dirPagination.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/textAngular/textAngular-rangy.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/textAngular/textAngular-sanitize.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/textAngular/textAngular.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/momentjs/moment.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/angular-moment.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angulargrid/angulargrid.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/chartjs/chart.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/chartjs/angular-chart.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/select2/select.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/vendor/angular/ui.sortable.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/jquery/dist/jquery.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/jquery-ui/jquery-ui.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular/angular.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-route/angular-route.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-cookies/angular-cookies.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-local-storage/dist/angular-local-storage.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/ng-file-upload/ng-file-upload-all.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/textAngular/dist/textAngular-rangy.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/textAngular/dist/textAngular-sanitize.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/textAngular/dist/textAngular.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/moment/min/moment.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-moment/angular-moment.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angulargrid/angulargrid.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-ui-select/dist/select.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-ui-sortable/sortable.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angularUtils-pagination/dirPagination.js?v={{ app_version }}"></script>
 
 <!-- Dynamic Angular Modules -->
 {% for modulePath in angularModules %}
@@ -146,7 +142,6 @@
         'angularGrid',
         'angularMoment',
         'angularUtils.directives.dirPagination',
-        'chart.js',
         'LocalStorageModule',
         'textAngular',
         'ui.bootstrap',
