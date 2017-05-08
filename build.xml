@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <project name="APP-CMS" default="main" basedir=".">
 
+    <property environment="env"/>
+
     <target name="file-checks">
         <available file="custom/app.php"  property="appIsBuilded"/>
     </target>
@@ -85,5 +87,33 @@ define('CUSTOM_VERSION', '0.0.0');
         <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
     </target>
 
-    <target name="main" depends="file-checks,directories,files,composer,bower,symlink" unless="appIsBuilded"/>
+    <target name="zip" depends="getversion">
+        <zip destfile="appcms-${version}.zip">
+            <fileset dir="." includes="appcms/**,custom/**,data/**,licence.txt,README.md"/>
+        </zip>
+    </target>
+
+    <target name="deploy" depends="zip" if="env.IS_CIRCLE_CI">
+        <ftp server="${FTP_SERVER}"
+             remotedir="${FTP_REMOTE}"
+             userid="${FTP_USER}"
+             password="${FTP_PASS}">
+            <fileset file="appcms-${version}.zip"/>
+        </ftp>
+    </target>
+
+    <target name="getversion">
+        <loadfile srcfile="appcms/version.php" property="version">
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern="define"/>
+                </linecontainsregexp>
+
+                <replaceregex pattern="define\(\'APP_VERSION\', \'([0-9]).([0-9]).([0-9])\'\);" replace="\1.\2.\3" />
+            </filterchain>
+        </loadfile>
+    </target>
+
+    <target name="main" depends="file-checks,directories,files,composer,bower,symlink,deploy" unless="appIsBuilded"/>
+
 </project>
