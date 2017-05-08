@@ -15,7 +15,7 @@
     "jquery": "2.1.4",
     "jquery-ui": "1.11.4",
     "moment": "2.11.2",
-    "angular-ui-select": "0.19.7",
+    "angular-ui-select": "0.19.6",
     "textAngular": "1.5.3",
     "bootstrap": "3.3.6",
     "BootstrapXL": "https://github.com/marcvannieuwenhuijzen/BootstrapXL.git",

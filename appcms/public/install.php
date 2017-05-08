@@ -8,99 +8,18 @@ $db_pass = null;
 $system_php = null;
 $db_strategy_bool = null;
 
-$dirsToCreate = array(
-    'custom',
-    'custom/Classes',
-    'custom/Classes/Annotations',
-    'custom/Classes/Types',
-    'custom/Command',
-    'custom/Controller',
-    'custom/Entity',
-    'custom/Frontend',
-    'custom/Frontend/ui',
-    'custom/Frontend/ui/default',
-    'custom/Frontend/ui/default/img',
-    'custom/Frontend/ui/default/scripts',
-    'custom/Frontend/ui/default/scripts/controllers',
-    'custom/Frontend/ui/default/styles',
-    'custom/Frontend/ui/default/types',
-    'custom/Frontend/ui/default/views',
-    'custom/Frontend/ui/default/views/blocks',
-    'custom/Traits',
-    'custom/Views'
-);
-
-
-$filesToCreate = array(
-    'custom/app.php' => "<?php
-",
-
-    'custom/version.php' => "<?php
-define('CUSTOM_VERSION', '0.0.0');",
-
-    'custom/Traits/File.php' => "<?php
-namespace Custom\\Traits;
-
-trait File{
-
-}",
-
-    'custom/Traits/Folder.php' => "<?php
-namespace Custom\\Traits;
-
-trait Folder{
-
-}",
-
-
-    'custom/Traits/Group.php' => "<?php
-namespace Custom\\Traits;
-
-trait Group{
-
-}",
-
-
-    'custom/Traits/User.php' => "<?php
-namespace Custom\\Traits;
-
-trait User{
-
-}"
-);
-
-$configFileData = "<?php
-use \\Areanet\\PIM\\Classes\\Config\\Factory;
-
-\$configFactory = Factory::getInstance();
-
-/*
- * Default Config
- */
-
-\$configDefault = new \\Areanet\\PIM\\Classes\\Config();
-
-\$configDefault->DB_HOST =  '\$db_host';
-\$configDefault->DB_NAME = '\$db_name';
-\$configDefault->DB_USER = '\$db_user';
-\$configDefault->DB_PASS = '\$db_pass';
-\$configDefault->DB_GUID_STRATEGY = \$db_strategy_bool;
-
-\$configDefault->APP_DEBUG               = true;
-\$configDefault->APP_ENABLE_SCHEMA_CACHE = false;
-
-\$configDefault->SYSTEM_PHP_CLI_COMMAND = '\$system_php';
-
-\$configFactory->setConfig(\$configDefault);
-
-\$configDefault->DO_INSTALL = true;";
 
 //START
-if(file_exists(__DIR__.'/../../custom/config.php')){
+$SET_DB_GUID_STRATEGY = null;
+
+require_once('../areanet/PIM/Classes/Config/Factory.php');
+require_once('../areanet/PIM/Classes/Config.php');
+require_once('../version.php');
+require_once('../../custom/config.php');
+
+if($configDefault->DB_HOST != '$SET_DB_HOST'){
     header('Location: /');
 }
-
-require_once('../version.php');
 
 $error = null;
 
@@ -108,36 +27,24 @@ function isEnabled($func) {
     return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
 }
 
-function install($dirsToCreate, $filesToCreate, $configFileData, $system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
+function install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
 
     $db_strategy_bool = $db_strategy ? 'true' : 'false';
 
-    foreach($dirsToCreate as $dirToCreate){
-
-        if(!mkdir(__DIR__."/../../$dirToCreate", 0755)){
-            die("$dirToCreate konnte nicht erstellt werden!");
-        }
-    }
-
-    foreach($filesToCreate as $fileToCreate => $fileContent){
-        file_put_contents(__DIR__."/../../$fileToCreate", $fileContent);
-    }
-
-    $configFileData = str_replace('$db_host', $db_host, $configFileData);
-    $configFileData = str_replace('$db_name', $db_name, $configFileData);
-    $configFileData = str_replace('$db_user', $db_user, $configFileData);
-    $configFileData = str_replace('$db_pass', $db_pass, $configFileData);
-    $configFileData = str_replace('$db_strategy_bool', $db_strategy_bool, $configFileData);
-    $configFileData = str_replace('$system_php', $system_php, $configFileData);
+    $configFileData = file_get_contents(__DIR__."/../../custom/config.php");
+    
+    $configFileData = str_replace('$SET_DB_HOST', $db_host, $configFileData);
+    $configFileData = str_replace('$SET_DB_NAME', $db_name, $configFileData);
+    $configFileData = str_replace('$SET_DB_USER', $db_user, $configFileData);
+    $configFileData = str_replace('$SET_DB_PASS', $db_pass, $configFileData);
+    $configFileData = str_replace('$SET_DB_GUID_STRATEGY', $db_strategy_bool, $configFileData);
+    $configFileData = str_replace('$SET_SYSTEM_PHP_CLI_COMMAND', $system_php, $configFileData);
     file_put_contents(__DIR__."/../../custom/config.php", $configFileData);
 
-    @chmod(__DIR__.'/../../custom/config.php', 0775);
-    @chmod(__DIR__.'/../../data/files', 0775);
-    @chmod(__DIR__.'/../../data/cache', 0775);
-
     shell_exec(('cd '.__DIR__.'/.. && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.$system_php.' vendor/bin/doctrine orm:schema:update --force'));
+    shell_exec(('cd '.__DIR__.'/.. && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.$system_php.' console.php appcms:setup'));
 
-    header('Location: /setup');
+    header('Location: /');
 }
 
 function mask($input){
@@ -159,7 +66,7 @@ function check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pas
     //CLI
     $testCLI = shell_exec($system_php.' -v');
     if(strpos($testCLI, 'PHP') === false){
-        return 'PHP-CLI konnte nicht unter '.$_POST['system_php'].' nicht aufgerufen werden.';
+        return 'PHP-CLI konnte unter '.$_POST['system_php'].' nicht aufgerufen werden.';
     }
 
     //MySQL
@@ -167,6 +74,14 @@ function check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pas
         $dbh = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
     }catch(Exception $e){
         return $e->getMessage();
+    }
+
+    @chmod(__DIR__.'/../../custom/config.php', 0775);
+    @chmod(__DIR__.'/../../data/files', 0775);
+    @chmod(__DIR__.'/../../data/cache', 0775);
+
+    if(!is_writable(__DIR__.'/../../custom/config.php')){
+        return 'Konfigurationsdatei custom/config.php kann nicht geschrieben werden.';
     }
 
     return;
@@ -181,9 +96,8 @@ if(!empty($_POST['start'])){
     $db_strategy            = mask($_POST['db_strategy']);
 
     if(!($error = check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pass))){
-        $error = install($dirsToCreate, $filesToCreate, $configFileData, $system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy);
+        $error = install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy);
     }
-
 
 }
 
