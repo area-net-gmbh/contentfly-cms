@@ -36,6 +36,11 @@ final class Config extends Annotation
     /**
      * @var boolean
      */
+    public $isDatalist = false;
+
+    /**
+     * @var boolean
+     */
     public $readonly = false;
 
     /**

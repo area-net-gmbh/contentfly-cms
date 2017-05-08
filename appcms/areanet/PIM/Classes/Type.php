@@ -97,6 +97,10 @@ abstract class Type
                 $schema['isFilterable'] = $annotations->isFilterable;
             }
 
+            if($annotations->isDatalist){
+                $schema['isDatalist'] = $annotations->isDatalist;
+            }
+
             if($annotations->listShorten){
                 $schema['listShorten'] = $annotations->listShorten;
             }

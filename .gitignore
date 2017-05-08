@@ -1,5 +1,8 @@
 .vagrant/*
-/appcms/public/info.php
+appcms/areanet/PIM-UI/default/assets/bower_components
+appcms/public/info.php
+appcms/composer.lock
+appcms/vendor
 .idea/*
 ansible/*
 template

@@ -8,6 +8,15 @@ use Areanet\PIM\Entity\Log;
 use Areanet\PIM\Entity\ThumbnailSetting;
 use Areanet\PIM\Entity\Token;
 use Areanet\PIM\Entity\User;
+use Custom\Entity\Ansprechpartner;
+use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
+use Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand;
+use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
+use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,7 +72,7 @@ class SystemController extends BaseController
 
     protected function updateDatabase(Request $request)
     {
-        //die('php_cli '.ROOT_DIR.'/vendor/bin/doctrine orm:schema:update --force');
+
         return shell_exec('cd '.ROOT_DIR.' && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.Adapter::getConfig()->SYSTEM_PHP_CLI_COMMAND.' vendor/bin/doctrine orm:schema:update --force');
     }
 
