@@ -27,5 +27,9 @@
     "angular-bootstrap": "^2.5.0",
     "angularUtils-pagination": "angular-utils-pagination#^0.11.1",
     "angular-route": "1.4.8"
+  },
+  "resolutions": {
+    "jquery-ui": "1.11.4",
+    "jquery": "2.1.4"
   }
 }
