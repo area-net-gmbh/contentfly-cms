@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<project name="APP-CMS" default="main" basedir=".">
+
+    <target name="file-checks">
+        <available file="custom/app.php"  property="appIsBuilded"/>
+    </target>
+
+    <target name="directories" description="Verzeichnisse werden erstellt...">
+        <mkdir dir="appcms/public/custom"/>
+        <mkdir dir="appcms/public/ui"/>
+        <mkdir dir="custom/Classes/Annotations"/>
+        <mkdir dir="custom/Classes/Types"/>
+        <mkdir dir="custom/Command"/>
+        <mkdir dir="custom/Controller"/>
+        <mkdir dir="custom/Entity"/>
+        <mkdir dir="custom/Frontend/ui/default/img"/>
+        <mkdir dir="custom/Frontend/ui/default/scripts/controllers"/>
+        <mkdir dir="custom/Frontend/ui/default/styles"/>
+        <mkdir dir="custom/Frontend/ui/default/types"/>
+        <mkdir dir="custom/Frontend/ui/default/views/blocks"/>
+        <mkdir dir="custom/Traits"/>
+        <mkdir dir="custom/Views"/>
+        <mkdir dir="data/cache"/>
+        <mkdir dir="data/files"/>
+    </target>
+
+    <target name="files" description="Dateien werden erstellt...">
+        <echo file="custom/Traits/File.php"><![CDATA[<?php
+namespace Custom\Traits;
+
+trait File{
+
+}
+    ]]>
+        </echo>
+        <echo file="custom/Traits/Folder.php"><![CDATA[<?php
+namespace Custom\Traits;
+
+trait Folder{
+
+}
+    ]]>
+        </echo>
+        <echo file="custom/Traits/Group.php"><![CDATA[<?php
+namespace Custom\Traits;
+
+trait Group{
+
+}
+    ]]>
+        </echo>
+        <echo file="custom/Traits/User.php"><![CDATA[<?php
+namespace Custom\Traits;
+
+trait User{
+
+}
+    ]]>
+        </echo>
+        <echo file="custom/app.php"><![CDATA[<?php ]]></echo>
+        <echo file="custom/version.php"><![CDATA[<?php
+define('CUSTOM_VERSION', '0.0.0');
+]]></echo>
+
+        <copy file="appcms/config.sample.php" tofile="custom/config.php"/>
+    </target>
+
+    <target name="composer" description="Composer-Abhängigkeiten werden installiert..." >
+        <exec executable="composer" dir="appcms/">
+            <arg value="install" />
+            <arg value="--prefer-dist" />
+            <arg value="--no-progress" />
+        </exec>
+    </target>
+
+    <target name="bower" description="Bower-Abhängigkeiten werden installiert..." >
+        <exec executable="bower" dir="appcms/areanet/PIM-UI/default/assets/">
+            <arg value="install" />
+            <arg value="--production" />
+        </exec>
+    </target>
+
+    <target name="symlink" description="Symlink in Webserver-Public...">
+        <symlink link="appcms/public/ui/default" resource="../../areanet/PIM-UI/default/assets"/>
+        <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
+    </target>
+
+    <target name="main" depends="file-checks,directories,files,composer,bower,symlink" unless="appIsBuilded"/>
+</project>

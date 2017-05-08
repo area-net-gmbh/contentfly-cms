@@ -152,6 +152,10 @@ $app['routeManager'] = $app->share(function ($app) {
     return new \Areanet\PIM\Classes\Manager\RouteManager($app);
 });
 
+$app['dispatcher']->addListener(\Knp\Console\ConsoleEvents::INIT, function(\Knp\Console\ConsoleEvent $event) {
+    $app = $event->getApplication();
+    $app->add(new \Areanet\PIM\Command\SetupCommand());
+});
 
 //Config Spatial ORM-Types
 /*

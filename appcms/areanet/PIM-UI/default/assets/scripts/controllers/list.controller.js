@@ -6,6 +6,7 @@
         .controller('ListCtrl', ListCtrl);
 
     function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location){
+
         var vm              = this;
         var oldPageNumber   = 1;
 
@@ -291,7 +292,7 @@
                     if(vm.schema.settings.sortRestrictTo && key == vm.schema.settings.sortRestrictTo && vm.filter[key] ){
                         vm.schema.settings.isSortable = true;
                     }
-                 
+
                     if(vm.schema.properties[key] && vm.schema.properties[key].type == 'boolean'){
                         filter[key] = vm.filter[key] == 'true' || vm.filter[key] == '1' ? true : false;
                     }

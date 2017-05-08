@@ -1,6 +1,8 @@
 .vagrant/*
 appcms/areanet/PIM-UI/default/assets/bower_components
 appcms/public/info.php
+appcms/public/custom/*
+appcms/public/ui/*
 appcms/composer.lock
 appcms/vendor
 .idea/*
