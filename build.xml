@@ -90,7 +90,7 @@ define('CUSTOM_VERSION', '0.0.0');
         <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
     </target>
 
-    <!-- GENERATE API-DOC DEVELOPMENT VERSION -->
+    <!-- GENERATE API-DOC FOR DEVELOPMENT VERSION -->
     <target name="apidoc-dev" description="API-Dokumentation wird erstellt..." >
         <exec executable="apidoc" dir="./">
             <arg value="-i appcms/areanet/PIM/Controller/" />
@@ -104,7 +104,7 @@ define('CUSTOM_VERSION', '0.0.0');
         </ftp>
     </target>
 
-    <!-- GENERATE API-DOC RELEASE VERSION -->
+    <!-- GENERATE API-DOC FOR RELEASE VERSION -->
     <target name="apidoc-release" description="API-Dokumentation wird erstellt..." >
         <exec executable="apidoc" dir="./">
             <arg value="-i appcms/areanet/PIM/Controller/" />
