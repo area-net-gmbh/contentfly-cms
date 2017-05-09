@@ -12,3 +12,4 @@ deployment:
     tag: /.*/
     commands:
       - ant -lib apache-commons-net.jar deploy-release
+      - ant -lib apache-commons-net.jar apidoc-release
