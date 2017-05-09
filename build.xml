@@ -93,10 +93,10 @@ define('CUSTOM_VERSION', '0.0.0');
 
     <!-- DEPLOY RELEASE VERSION -->
     <target name="deploy-release" depends="zip-release">
-        <ftp server="${FTP_SERVER}"
-             remotedir="${FTP_REMOTE}"
-             userid="${FTP_USER}"
-             password="${FTP_PASS}">
+        <ftp server="${env.FTP_SERVER}"
+             remotedir="${env.FTP_REMOTE}"
+             userid="${env.FTP_USER}"
+             password="${env.FTP_PASS}">
             <fileset file="appcms-${version}.zip"/>
         </ftp>
     </target>
@@ -122,10 +122,10 @@ define('CUSTOM_VERSION', '0.0.0');
 
     <!-- DEPLOY DEVELOPMENT VERSION -->
     <target name="deploy-dev" depends="zip-dev">
-        <ftp server="${FTP_SERVER}"
-             remotedir="${FTP_REMOTE}"
-             userid="${FTP_USER}"
-             password="${FTP_PASS}">
+        <ftp server="${env.FTP_SERVER}"
+             remotedir="${env.FTP_REMOTE}"
+             userid="${env.FTP_USER}"
+             password="${env.FTP_PASS}">
             <fileset file="appcms-dev.zip"/>
         </ftp>
     </target>
