@@ -91,7 +91,7 @@ define('CUSTOM_VERSION', '0.0.0');
     </target>
 
     <!-- GENERATE API-DOC -->
-    <target name="apidoc" description="API-Dokumentation wird erstellt..." >
+    <target name="apidoc-dev" description="API-Dokumentation wird erstellt..." >
         <exec executable="apidoc" dir="./">
             <arg value="-i appcms/areanet/PIM/Controller/" />
         </exec>
