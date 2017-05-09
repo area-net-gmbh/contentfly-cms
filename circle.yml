@@ -6,8 +6,8 @@ deployment:
   dev:
     branch: master
     commands:
-      - ant -lib ~/bin/apache-commons-net.jar deploy-dev
+      - ant -lib apache-commons-net.jar deploy-dev
   release:
     tag: /.*/
     commands:
-      - ant -lib ~/bin/apache-commons-net.jar deploy-release
+      - ant -lib apache-commons-net.jar deploy-release
