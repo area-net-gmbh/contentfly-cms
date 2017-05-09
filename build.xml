@@ -125,7 +125,8 @@ define('CUSTOM_VERSION', '0.0.0');
         <ftp server="${env.FTP_SERVER}"
              remotedir="${env.FTP_REMOTE}"
              userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}">
+             password="${env.FTP_PASS}"
+             passive="yes">
             <fileset file="appcms-dev.zip"/>
         </ftp>
     </target>
