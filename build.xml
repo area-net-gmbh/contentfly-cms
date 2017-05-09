@@ -90,7 +90,7 @@ define('CUSTOM_VERSION', '0.0.0');
         <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
     </target>
 
-    <!-- GENERATE API-DOC -->
+    <!-- GENERATE API-DOC DEVELOPMENT VERSION -->
     <target name="apidoc-dev" description="API-Dokumentation wird erstellt..." >
         <exec executable="apidoc" dir="./">
             <arg value="-i appcms/areanet/PIM/Controller/" />
@@ -101,8 +101,29 @@ define('CUSTOM_VERSION', '0.0.0');
              userid="${env.FTP_USER}"
              password="${env.FTP_PASS}">
             <fileset dir="doc"/>
-        </ftp>de
+        </ftp>
     </target>
+
+    <!-- GENERATE API-DOC RELEASE VERSION -->
+    <target name="apidoc-release" description="API-Dokumentation wird erstellt..." >
+        <exec executable="apidoc" dir="./">
+            <arg value="-i appcms/areanet/PIM/Controller/" />
+        </exec>
+
+        <ftp action="mkdir"
+             server="${env.FTP_SERVER}"
+             userid="${env.FTP_USER}"
+             password="${env.FTP_PASS}"
+             remotedir="${env.FTP_REMOTE_APIDOC}/${version}"/>
+
+        <ftp server="${env.FTP_SERVER}"
+             remotedir="${env.FTP_REMOTE_APIDOC}/${version}"
+             userid="${env.FTP_USER}"
+             password="${env.FTP_PASS}">
+            <fileset dir="doc"/>
+        </ftp>
+    </target>
+
 
     <!-- DEPLOY RELEASE VERSION -->
     <target name="deploy-release" depends="zip-release">
