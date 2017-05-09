@@ -99,7 +99,8 @@ define('CUSTOM_VERSION', '0.0.0');
         <ftp server="${env.FTP_SERVER}"
              remotedir="${env.FTP_REMOTE_APIDOC}/dev"
              userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}">
+             password="${env.FTP_PASS}"
+             passive="yes">
             <fileset dir="doc"/>
         </ftp>
     </target>
@@ -119,7 +120,8 @@ define('CUSTOM_VERSION', '0.0.0');
         <ftp server="${env.FTP_SERVER}"
              remotedir="${env.FTP_REMOTE_APIDOC}/${version}"
              userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}">
+             password="${env.FTP_PASS}"
+             passive="yes">
             <fileset dir="doc"/>
         </ftp>
     </target>
@@ -130,7 +132,8 @@ define('CUSTOM_VERSION', '0.0.0');
         <ftp server="${env.FTP_SERVER}"
              remotedir="${env.FTP_REMOTE}"
              userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}">
+             password="${env.FTP_PASS}"
+             passive="yes">
             <fileset file="appcms-${version}.zip"/>
         </ftp>
     </target>
