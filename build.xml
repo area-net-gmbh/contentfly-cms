@@ -3,6 +3,9 @@
 
     <property environment="env"/>
 
+    <!-- BUILD -->
+    <target name="main" depends="file-checks,directories,files,composer,bower,symlink" unless="appIsBuilded"/>
+
     <target name="file-checks">
         <available file="custom/app.php"  property="appIsBuilded"/>
     </target>
@@ -87,19 +90,21 @@ define('CUSTOM_VERSION', '0.0.0');
         <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
     </target>
 
-    <target name="zip" depends="getversion">
-        <zip destfile="appcms-${version}.zip">
-            <fileset dir="." includes="appcms/**,custom/**,data/**,licence.txt,README.md"/>
-        </zip>
-    </target>
 
-    <target name="deploy" depends="zip" if="env.IS_CIRCLE_CI">
+    <!-- DEPLOY RELEASE VERSION -->
+    <target name="deploy-release" depends="zip-release">
         <ftp server="${FTP_SERVER}"
              remotedir="${FTP_REMOTE}"
              userid="${FTP_USER}"
              password="${FTP_PASS}">
             <fileset file="appcms-${version}.zip"/>
         </ftp>
+    </target>
+
+    <target name="zip-release" depends="getversion">
+        <zip destfile="appcms-${version}.zip">
+            <fileset dir="." includes="appcms/**,custom/**,data/**,licence.txt,README.md"/>
+        </zip>
     </target>
 
     <target name="getversion">
@@ -114,6 +119,20 @@ define('CUSTOM_VERSION', '0.0.0');
         </loadfile>
     </target>
 
-    <target name="main" depends="file-checks,directories,files,composer,bower,symlink,deploy" unless="appIsBuilded"/>
 
+    <!-- DEPLOY DEVELOPMENT VERSION -->
+    <target name="deploy-dev" depends="zip-dev">
+        <ftp server="${FTP_SERVER}"
+             remotedir="${FTP_REMOTE}"
+             userid="${FTP_USER}"
+             password="${FTP_PASS}">
+            <fileset file="appcms-dev.zip"/>
+        </ftp>
+    </target>
+
+    <target name="zip-dev">
+        <zip destfile="appcms-dev.zip">
+        <fileset dir="." includes="appcms/**,custom/**,data/**,licence.txt,README.md"/>
+        </zip>
+    </target>
 </project>
