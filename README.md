@@ -67,20 +67,18 @@ Mit dem Backend können serverseitig beliebige Inhalte gespeichert und verwaltet
 
 `git clone https://github.com/appcms/backend.git`
 
-(2) Systemumgebung über [Ant](http://ant.apache.org/) -Buildskript erstellen
+(2) Systemumgebung über [Ant](http://ant.apache.org/)-Buildskript im Root-Ordner erstellen
 
 `ant`
 
 (3) Datenbankzugangsdaten in _custom/config.php_ eintragen
 
-(4) Datenbank über Doctrine generieren.
+(4) Datenbank über Doctrine im Ordner _appcms_ generieren.
 
-`cd appcms`
 `php vendor/bin/doctrine orm:schema:update --force`
 
-(4) Datenbank initalisieren/einrichten
+(4) Datenbank im Ordner _appcms_ initalisieren/einrichten
 
-`cd appcms`
 `php console.php appcms:setup`
 
 (4) Webserver (Virtual Host) DocumentRoot auf _appcms/public_ stellen
