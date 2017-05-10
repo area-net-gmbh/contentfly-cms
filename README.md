@@ -23,11 +23,11 @@ Es ist dem Entwickler völlig freigestellt, ob Apps komplett nativ oder in Kombi
 
 Die APP-CMS Plattform ist kein Baukasten-System, mit dem sich Apps ohne Vorkenntnisse zusammenklicken lassen - sondern bietet ein technisches Rahmenwerk, mit sich mobile Apps effizient, kosten-nutzenoptimiert, aber dennoch frei von Zwängen anderer (hybrider) Frameworks wie Titanium Mobile oder PhoneCap.
 
-Für die Entwicklung von Apps mit dem APP-CMS Framework sind folgende Kentnisse erforderlich:
+Für die Entwicklung von Apps mit dem APP-CMS Framework sind folgende Kenntnisse erforderlich:
 
 - **Backend**: PHP und optimalerweise Doctrine und MySQL
-- **iOS**: Swift oder Objective-C und gegebenfalls HTML5
-- **Android**: Java und gegebenfalls HTML5
+- **iOS**: Swift oder Objective-C und gegebenenfalls HTML5
+- **Android**: Java und gegebenenfalls HTML5
 
 # Das APP-CMS Backend
 
@@ -44,11 +44,46 @@ Mit dem Backend können serverseitig beliebige Inhalte gespeichert und verwaltet
 
 ### Systemvoraussetzungen
 
-_TODO_
+* Apache 2.x
+* PHP 5.6 oder höher
+* PHP-Module (benötigt)
+    * open_ssl
+    * gd
+    * pdo_mysql
+* PHP-Module (empfohlene)
+    * imagick
+* MySQL 5.5.0 oder höher
+* Konsolen-/SSH-Zugriff empfohlen
 
-### Manuelle Installation
+### Installation einer Release-Version
 
-_TODO_
+(1) Download APP-CMS unter http://www.das-app-cms.de
+
+(2) Installations-Anleitung unter http://www.app-cms.de/docs/backend
+
+### Manuelle Installation aus GitHub
+
+(1) Git-Repository laden
+
+`git clone https://github.com/appcms/backend.git`
+
+(2) Systemumgebung über [Ant](http://ant.apache.org/)-Buildskript im Root-Ordner erstellen
+
+`ant`
+
+(3) Datenbankzugangsdaten in _custom/config.php_ eintragen
+
+(4) Datenbank über Doctrine im Ordner _appcms_ generieren.
+
+`php vendor/bin/doctrine orm:schema:update --force`
+
+(4) Datenbank im Ordner _appcms_ initalisieren/einrichten
+
+`php console.php appcms:setup`
+
+(4) Webserver (Virtual Host) DocumentRoot auf _appcms/public_ stellen
+
+(5) URL/Host aufrufen und Standard-Login in das APP-CMS mit Benutzer _admin_ und Passwort _admin_
 
 ## Erste Schritte
 
