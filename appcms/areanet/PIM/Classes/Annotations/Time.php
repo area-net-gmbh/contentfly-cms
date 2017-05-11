@@ -8,8 +8,9 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Time extends Annotation
 {
+    const DEFAULT_FORMAT = 'H:i';
     /**
      * @var string
      */
-    public $format = 'H:i';
+    public $format = self::DEFAULT_FORMAT;
 }
