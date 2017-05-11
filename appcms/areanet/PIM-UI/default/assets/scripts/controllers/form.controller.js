@@ -78,6 +78,7 @@
             refreshOnCancel = true;
 
             for (var formName in vm.forms) {
+    
                 if (!vm.forms[formName].$valid) {
                     return;
                 }
