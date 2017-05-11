@@ -627,10 +627,13 @@
             var data = {
                 entity: entity,
                 properties: properties,
-                flatten: true,
-                itemsPerPage: 15,
-                currentPage:1
+                flatten: true
             };
+
+            if(vm.schema.properties[key].isDatalist){
+                data.itemsPerPage = 15;
+                data.currentPage = 1;
+            }
 
             if(sWord){
                 data.where = {fulltext: sWord};
@@ -639,9 +642,9 @@
             EntityService.list(data).then(
                 (function (entity, key, joinSchema) {
                     return function (response) {
-                        if(sWord){
+                        if(sWord || !vm.schema.properties[key].isDatalist){
                             vm.filterJoins[key] = [];
-                        }else {
+                        }else{
                             vm.filterJoins[key] = [
                                 {
                                     id: 0,

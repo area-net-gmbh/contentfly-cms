@@ -33,6 +33,14 @@ abstract class Type
         return 0;
     }
 
+    public function fromDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    {
+        $setter = 'set'.ucfirst($property);
+        $getter = 'get'.ucfirst($property);
+
+        return $object->$getter($value);
+    }
+    
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);

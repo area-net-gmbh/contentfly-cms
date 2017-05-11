@@ -112,6 +112,7 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\TextareaType',
         '\\Areanet\\PIM\\Classes\\Types\\PasswordType',
         '\\Areanet\\PIM\\Classes\\Types\\StringType',
+        '\\Areanet\\PIM\\Classes\\Types\\TimeType',
         '\\Areanet\\PIM\\Classes\\Types\\SelectType',
         '\\Areanet\\PIM\\Classes\\Types\\RteType',
         '\\Areanet\\PIM\\Classes\\Types\\OnejoinType',
