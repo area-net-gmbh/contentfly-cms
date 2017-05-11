@@ -36,22 +36,27 @@ abstract class Serializable implements \JsonSerializable{
                 $getter = 'get' . ucfirst($property);
                 if (method_exists($this, $getter)) {
 
-                    if ($this->$property instanceof \Datetime) {
-                        $res = $this->$property->format('Y');
-                        if ($this->$property->format('Y') == '-0001' || $this->$property->format('Y') == '0000') {
-                            $result->$property = array(
-                                'LOCAL_TIME' => null,
-                                'LOCAL' => null,
-                                'ISO8601' => null,
-                                'IMESTAMP' => null
-                            );
-                        } else {
-                            $result->$property = array(
-                                'LOCAL_TIME' => $this->$property->format('d.m.Y H:i'),
-                                'LOCAL' => $this->$property->format('d.m.Y'),
-                                'ISO8601' => $this->$property->format(\DateTime::ISO8601),
-                                'TIMESTAMP' => $this->$property->getTimestamp()
-                            );
+
+                    if ($this->$property instanceof \DateTime) {
+                        if($config['type'] == 'time'){
+                            $result->$property = $this->$property->format($config['format']);
+                        }else{
+                            $res = $this->$property->format('Y');
+                            if ($this->$property->format('Y') == '-0001' || $this->$property->format('Y') == '0000') {
+                                $result->$property = array(
+                                    'LOCAL_TIME' => null,
+                                    'LOCAL' => null,
+                                    'ISO8601' => null,
+                                    'IMESTAMP' => null
+                                );
+                            } else {
+                                $result->$property = array(
+                                    'LOCAL_TIME' => $this->$property->format('d.m.Y H:i'),
+                                    'LOCAL' => $this->$property->format('d.m.Y'),
+                                    'ISO8601' => $this->$property->format(\DateTime::ISO8601),
+                                    'TIMESTAMP' => $this->$property->getTimestamp()
+                                );
+                            }
                         }
                     }elseif($this->$property instanceof Base) {
 
@@ -96,7 +101,7 @@ abstract class Serializable implements \JsonSerializable{
                                 }
                             }
                         }
-                        
+
                         $result->$property = $subobject->toValueObject($user, $schema, $config['accept'], $flatten, array(), ($level + 1));
 
                     }elseif($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
@@ -132,7 +137,7 @@ abstract class Serializable implements \JsonSerializable{
                             if(isset($config['accept'])){
                                 $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
                                 $subEntity              = $config['accept'];
-                                
+
                                 if (!($permission = Permission::isReadable($user, $config['accept']))) {
                                     unset($result->$property);
                                     continue;
@@ -141,7 +146,7 @@ abstract class Serializable implements \JsonSerializable{
                                 if (isset($config['acceptFrom'])) {
                                     $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
                                     $subEntity              = $config['acceptFrom'];
-                                    
+
                                     if(!($permission = Permission::isReadable($user, $config['acceptFrom']))){
                                         unset($result->$property);
                                         continue;
@@ -199,38 +204,25 @@ abstract class Serializable implements \JsonSerializable{
 
                 if (method_exists($this, $getter)) {
                     if ($this->$property instanceof \Datetime) {
-                        $res = $this->$property->format('Y');
-                        if ($this->$property->format('Y') == '-0001' || $this->$property->format('Y') == '0000') {
-                            $result->$property = array(
-                                'LOCAL_TIME' => null,
-                                'LOCAL' => null,
-                                'ISO8601' => null,
-                                'IMESTAMP' => null
-                            );
-                        } else {
-                            $result->$property = array(
-                                'LOCAL_TIME' => $this->$property->format('d.m.Y H:i'),
-                                'LOCAL' => $this->$property->format('d.m.Y'),
-                                'ISO8601' => $this->$property->format(\DateTime::ISO8601),
-                                'TIMESTAMP' => $this->$property->getTimestamp()
-                            );
-                        }
-                    }elseif ($this->$property instanceof \Datetime) {
-                        $res = $this->$property->format('Y');
-                        if ($this->$property->format('Y') == '-0001' || $this->$property->format('Y') == '0000') {
-                            $result->$property = array(
-                                'LOCAL_TIME' => null,
-                                'LOCAL' => null,
-                                'ISO8601' => null,
-                                'IMESTAMP' => null
-                            );
-                        } else {
-                            $result->$property = array(
-                                'LOCAL_TIME' => $this->$property->format('d.m.Y H:i'),
-                                'LOCAL' => $this->$property->format('d.m.Y'),
-                                'ISO8601' => $this->$property->format(\DateTime::ISO8601),
-                                'TIMESTAMP' => $this->$property->getTimestamp()
-                            );
+                        if($config['type'] == 'time'){
+                            $result->$property = $this->$property->format($config['format']);
+                        }else{
+                            $res = $this->$property->format('Y');
+                            if ($this->$property->format('Y') == '-0001' || $this->$property->format('Y') == '0000') {
+                                $result->$property = array(
+                                    'LOCAL_TIME' => null,
+                                    'LOCAL' => null,
+                                    'ISO8601' => null,
+                                    'IMESTAMP' => null
+                                );
+                            } else {
+                                $result->$property = array(
+                                    'LOCAL_TIME' => $this->$property->format('d.m.Y H:i'),
+                                    'LOCAL' => $this->$property->format('d.m.Y'),
+                                    'ISO8601' => $this->$property->format(\DateTime::ISO8601),
+                                    'TIMESTAMP' => $this->$property->getTimestamp()
+                                );
+                            }
                         }
                     }elseif ($this->$property instanceof \Doctrine\ORM\PersistentCollection) {
                         $permission = \Areanet\PIM\Entity\Permission::ALL;

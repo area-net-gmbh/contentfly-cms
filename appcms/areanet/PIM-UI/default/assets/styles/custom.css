@@ -181,6 +181,8 @@ body.emotionalBackground{
     font-size:14px;
 }
 
+
+
 #pim-content{
     left:200px;
     top:50px;
@@ -410,9 +412,14 @@ label.optional{
 
 
 .version{
-    color:#999999;
+    color:#CCCCCC;
     padding-left:20px;
     padding-top:20px;
+}
+
+#pim-header .version{
+    color:#C6C6C6 !important;
+    padding-top:0 !important;
 }
 
 

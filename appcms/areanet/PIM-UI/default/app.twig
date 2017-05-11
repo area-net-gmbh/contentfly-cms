@@ -38,6 +38,7 @@
                     <a href id="simple-dropdown" uib-dropdown-toggle>{{user.alias}} <span class="glyphicon glyphicon-user"></span></a>
                     <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
                         <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                        <li class="version">Version {{::version}}</li>
                         <li><a class="dropdown" href="#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
                         <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_APPEND" uiblocks="uiblocks"></pim-plugin>
                     </ul>
