@@ -54,16 +54,17 @@ class ApiController extends BaseController
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Auszulesende Entity
-     * @apiParam {Boolean} group Nur Rückgabe der Anzahl der Objekte
-     * @apiParam {Object} order="{'id': 'DESC'}" Sortierung: <code>{'date': 'ASC/DESC',...}</code>
-     * @apiParam {Object} where Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
-     * @apiParam {Integer} currentPage Aktuelle Seite für Pagination
-     * @apiParam {Integer} itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE" Anzahl Objekte pro Seite bei Pagination
-     * @apiParam {Boolean} flatten="false" Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
-     * @apiParamExample {json} Request-Beispiel:
+     * @apiParam {String/Integer} id = null ID des Objektes
+     * @apiParam {Object} where = null Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
+     * @apiParamExample {json} Request-Beispiel über ID:
      *     {
      *      "entity": "News",
      *      "id": 1
+     *     }
+     * @apiParamExample {json} Request-Beispiel über WHERE:
+     *     {
+     *      "entity": "Kunden",
+     *      "where": {"kundennummer": 200200}
      *     }
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -85,10 +86,10 @@ class ApiController extends BaseController
 
         $entityName = $request->get('entity');
         $id         = $request->get('id');
-        
+        $where      = $request->get('where');
 
         $api  = new Api($this->app);
-        $data = $api->single($entityName, $id);
+        $data = $api->single($entityName, $id, $where);
 
 
         return new JsonResponse(array('message' => "singleAction", 'data' => $data));
