@@ -78,6 +78,82 @@ class MultijoinType extends Type
         return $schema;
     }
 
+    public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
+    {
+        $getter = 'get'.ucfirst($property);
+
+        if(!$object->$getter() instanceof \Doctrine\ORM\PersistentCollection){
+            return null;
+        }
+
+        $config     = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
+
+        $data       = array();
+        $permission = \Areanet\PIM\Entity\Permission::ALL;
+        $subEntity  = null;
+
+        if(isset($config['accept'])){
+            $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+            $subEntity              = $config['accept'];
+
+            if (!($permission = Permission::isReadable($this->app['auth.user'], $config['accept']))) {
+                return null;
+            }
+
+            if (isset($config['acceptFrom'])) {
+                $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
+                $subEntity              = $config['acceptFrom'];
+
+                if(!($permission = Permission::isReadable($this->app['auth.user'], $config['acceptFrom']))){
+                    return null;
+                }
+
+            }
+        }
+
+        if (in_array($property, $propertiesToLoad)) {
+            foreach ($object->$getter() as $objectToLoad) {
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                    continue;
+                }
+
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                    if($objectToLoad->getUserCreated() != $this->app['auth.user']){
+                        $group = $this->app['auth.user']->getGroup();
+                        if(!($group && $objectToLoad->hasGroupId($group->getId()))){
+                            continue;
+                        }
+                    }
+                }
+
+                $data[] = $objectToLoad->getId();
+            }
+        } else {
+
+
+            foreach ($object->$getter() as $objectToLoad) {
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                    continue;
+                }
+
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                    if($objectToLoad->getUserCreated() != $this->app['auth.user']){
+                        $group = $this->app['auth.user']->getGroup();
+                        if(!($group && $objectToLoad->hasGroupId($group->getId()))){
+                            continue;
+                        }
+                    }
+                }
+
+                $data[] = $flatten
+                    ? array("id" => $object->getId())
+                    : $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+            }
+        }
+
+        return $data;
+    }
+
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);

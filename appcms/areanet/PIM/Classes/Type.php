@@ -33,12 +33,11 @@ abstract class Type
         return 0;
     }
 
-    public function fromDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
     {
-        $setter = 'set'.ucfirst($property);
         $getter = 'get'.ucfirst($property);
 
-        return $object->$getter($value);
+        return $object->$getter();
     }
     
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
@@ -84,7 +83,8 @@ abstract class Type
             'sortable' => false,
             'default' => $defaultValue,
             'isFilterable' => false,
-            'unique' => false
+            'unique' => false,
+            'encoded' => false
         );
 
         if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'])){
@@ -92,6 +92,10 @@ abstract class Type
 
             //Areanet\\PIM\\Classes\\Annotations\\Config
             $annotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'];
+
+            if($annotations->encoded){
+                $schema['encoded'] = $annotations->encoded;
+            }
 
             if($annotations->label){
                 $schema['label'] = $annotations->label;

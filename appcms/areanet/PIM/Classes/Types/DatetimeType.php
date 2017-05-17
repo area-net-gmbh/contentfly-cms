@@ -28,6 +28,31 @@ class DatetimeType extends Type
         return ($annotation->type == 'datetime');
     }
 
+    public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
+    {
+        $getter = 'get'.ucfirst($property);
+
+        if(!$object->$getter() instanceof \DateTime){
+            return null;
+        }
+
+        if ($object->$getter()->format('Y') == '-0001' || $object->$getter()->format('Y') == '0000') {
+            return array(
+                'LOCAL_TIME'    => null,
+                'LOCAL'         => null,
+                'ISO8601'       => null,
+                'IMESTAMP'      => null
+            );
+        } else {
+            return array(
+                'LOCAL_TIME'    => $object->$getter()->format('d.m.Y H:i'),
+                'LOCAL'         => $object->$getter()->format('d.m.Y'),
+                'ISO8601'       => $object->$getter()->format(\DateTime::ISO8601),
+                'TIMESTAMP'     => $object->$getter()->getTimestamp()
+            );
+        }
+    }
+
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
        

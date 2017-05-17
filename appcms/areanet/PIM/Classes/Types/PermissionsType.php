@@ -41,6 +41,66 @@ class PermissionsType extends Type
         return $schema;
     }
 
+    public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
+    {
+        if(!$object->$property instanceof \Doctrine\ORM\PersistentCollection){
+            return null;
+        }
+
+        $config     = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
+
+        $data       = array();
+        $permission = \Areanet\PIM\Entity\Permission::ALL;
+        $subEntity  = null;
+
+        if(!$this->app['auth.user']->getIsAdmin()){
+            return null;
+        }
+
+        $subEntity = 'PIM\\Permission';
+
+        if (in_array($property, $propertiesToLoad)) {
+            foreach ($object->$property as $objectToLoad) {
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                    continue;
+                }
+
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                    if($objectToLoad->getUserCreated() != $this->app['auth.user']){
+                        $group = $this->app['auth.user']->getGroup();
+                        if(!($group && $objectToLoad->hasGroupId($group->getId()))){
+                            continue;
+                        }
+                    }
+                }
+
+                $data[] = $object->getId();
+            }
+        } else {
+            
+            foreach ($object->$property as $objectToLoad) {
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                    continue;
+                }
+
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                    if($objectToLoad->getUserCreated() != $this->app['auth.user']){
+                        $group = $this->app['auth.user']->getGroup();
+                        if(!($group && $objectToLoad->hasGroupId($group->getId()))){
+                            continue;
+                        }
+                    }
+                }
+
+                $data[] = $flatten
+                    ? array("id" => $object->getId())
+                    : $object->$objectToLoad($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+            }
+        }
+
+        return $data;
+    }
+
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $this->em->persist($object);

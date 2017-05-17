@@ -39,6 +39,20 @@ class TimeType extends Type
         return ($annotation->type == 'time');
     }
 
+    public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
+    {
+        $getter = 'get'.ucfirst($property);
+        
+        if(!$object->$getter() instanceof \DateTime){
+            return null;
+        }
+
+        $config = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
+        
+        return $object->$getter()->format($config['format']);
+    }
+
+
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
 

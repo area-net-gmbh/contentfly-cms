@@ -193,9 +193,9 @@ class FileController extends BaseController
         $event->setParam('app',     $this->app);
         $this->app['dispatcher']->dispatch('pim.file.after.upload', $event);
 
-        $schema = $this->getSchema();
+        $schema = $this->app['schema'];
 
-        return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject->toValueObject($this->app['auth.user'], $schema, 'PIM\\File')));
+        return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject->toValueObject($this->app, 'PIM\\File')));
     }
 
     /**

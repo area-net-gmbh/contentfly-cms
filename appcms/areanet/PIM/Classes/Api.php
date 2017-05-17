@@ -257,7 +257,7 @@ class Api
             }
         }
 
-        return $object->toValueObject($this->app['auth.user'], $schema, $entityName, false);
+        return $object->toValueObject($this->app, $entityName, false);
     }
 
 }
