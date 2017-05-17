@@ -36,10 +36,5 @@ abstract class BaseController
     protected function setTwig(\Twig_Environment $twig){
         $this->twig = $twig;
     }
-
-    protected function getSchema()
-    {
-        $api = new Api($this->app);
-        return $api->getSchema();
-    }
+    
 }

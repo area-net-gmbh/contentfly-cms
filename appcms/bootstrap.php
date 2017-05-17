@@ -157,6 +157,11 @@ $app['dispatcher']->addListener(\Knp\Console\ConsoleEvents::INIT, function(\Knp\
     $app->add(new \Areanet\PIM\Command\SetupCommand());
 });
 
+$app['schema'] = $app->share(function ($app){
+    $api = new \Areanet\PIM\Classes\Api($app);
+    return $api->getSchema();
+});
+
 //Config Spatial ORM-Types
 /*
 Doctrine\DBAL\Types\Type::addType('point', '\Areanet\PIM\Classes\ORM\Spatial\PointType');

@@ -74,7 +74,10 @@ class AuthController extends BaseController
         $this->em->persist($token);
         $this->em->flush();
 
-        return new JsonResponse(array('message' => 'Login successful', 'token' => $token->getToken(), 'user' => $user->toValueObject($user, $this->getSchema(), 'PIM\User', false)));
+        $this->app['auth.user'] = $user;
+        
+        return new JsonResponse(array('message' => 'Login successful', 'token' => $token->getToken(), 'user' => $user->toValueObject($this->app, 'PIM\User', false)));
+
     }
 
     /**

@@ -207,10 +207,10 @@ class Api
 
         return $data;
     }
-    
 
-    
-    public function single($entityName, $id){
+
+
+    public function single($entityName, $id = null, $where = null){
         $schema     = $this->getSchema();
 
         if (substr($entityName, 0, 3) == 'PIM') {
@@ -228,7 +228,17 @@ class Api
             throw new AccessDeniedException("Zugriff auf $entityNameToLoad verweigert.");
         }
 
-        $object = $this->em->getRepository($entityNameToLoad)->find($id);
+        $object = null;
+
+        if($id){
+            $object = $this->em->getRepository($entityNameToLoad)->find($id);
+        }elseif($where){
+            $object = $this->em->getRepository($entityNameToLoad)->findOneBy($where);
+
+        }else{
+            throw new \Exception("Keine ID oder WHERE-Abfrage übergeben.");
+        }
+
 
         if (!$object) {
             return new JsonResponse(array('message' => "Object not found"), 404);
@@ -246,8 +256,8 @@ class Api
                 }
             }
         }
-        
-        return $object->toValueObject($this->app['auth.user'], $schema, $entityName, false);
+
+        return $object->toValueObject($this->app, $entityName, false);
     }
 
 }

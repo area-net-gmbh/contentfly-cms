@@ -3,6 +3,7 @@ namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Areanet\PIM\Classes\Annotations as PIM;
+use Silex\Application;
 
 /**
  * @ORM\Entity
@@ -169,10 +170,11 @@ class User extends Base
         $this->group = $group;
     }
 
-    public function toValueObject(User $user = null, $schema = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
+    public function toValueObject(Application $app, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
     {
-        $data = parent::toValueObject($user, $schema, $entityName, $flatten, $propertiesToLoad , $level);
 
+        $data = parent::toValueObject($app, $entityName, $flatten, $propertiesToLoad , $level);
+       
         unset($data->salt);
         unset($data->pass);
         unset($data->user);

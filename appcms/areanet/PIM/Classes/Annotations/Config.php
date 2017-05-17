@@ -26,6 +26,11 @@ final class Config extends Annotation
     /**
      * @var boolean
      */
+    public $encoded = false;
+
+    /**
+     * @var boolean
+     */
     public $unique = false;
 
     /**

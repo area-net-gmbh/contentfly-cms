@@ -218,8 +218,8 @@ class Config{
     public $PUSH_APPLE_PASS = null;
     public $PUSH_APPLE_SANDBOX = false;
 
-
-
+    public $SECURITY_CIPHER_METHOD = 'AES-128-ECB';
+    public $SECURITY_CIPHER_KEY    = null;
 
 
     /**

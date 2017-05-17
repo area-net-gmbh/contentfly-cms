@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Annotations\Time;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
@@ -21,7 +22,7 @@ class TimeType extends Type
         $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations);
         $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Time'];
 
-        $schema['format'] = $propertyAnnotations->format;
+        $schema['format'] = $propertyAnnotations->format ? $propertyAnnotations->format : Time::DEFAULT_FORMAT;
         $schema['dbType'] = "time";
 
         return $schema;
@@ -37,6 +38,20 @@ class TimeType extends Type
 
         return ($annotation->type == 'time');
     }
+
+    public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
+    {
+        $getter = 'get'.ucfirst($property);
+        
+        if(!$object->$getter() instanceof \DateTime){
+            return null;
+        }
+
+        $config = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
+        
+        return $object->$getter()->format($config['format']);
+    }
+
 
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
@@ -55,7 +70,7 @@ class TimeType extends Type
 
                 $object->$setter($datetime);
             }
-            
+
         }else{
             $object->$setter(null);
         }
