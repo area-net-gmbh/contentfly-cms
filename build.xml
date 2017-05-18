@@ -139,9 +139,16 @@ define('CUSTOM_VERSION', '0.0.0');
     </target>
 
     <target name="zip-release" depends="getversion">
-        <zip destfile="appcms-${version}.zip">
-            <fileset dir="." includes="appcms/**,custom/**,data/**,licence.txt,README.md"/>
-        </zip>
+        <exec executable="zip">
+            <arg value="--symlinks"/>
+            <arg value="-r"/>
+            <arg value="appcms-${version}.zip"/>
+            <arg value="appcms"/>
+            <arg value="custom"/>
+            <arg value="data"/>
+            <arg value="licence.txt"/>
+            <arg value="README.md"/>
+        </exec>
     </target>
 
     <target name="getversion">
@@ -169,8 +176,15 @@ define('CUSTOM_VERSION', '0.0.0');
     </target>
 
     <target name="zip-dev">
-        <zip destfile="appcms-dev.zip">
-        <fileset dir="." includes="appcms/**,custom/**,data/**,licence.txt,README.md"/>
-        </zip>
+        <exec executable="zip">
+            <arg value="--symlinks"/>
+            <arg value="-r"/>
+            <arg value="appcms-dev.zip"/>
+            <arg value="appcms"/>
+            <arg value="custom"/>
+            <arg value="data"/>
+            <arg value="licence.txt"/>
+            <arg value="README.md"/>
+        </exec>
     </target>
 </project>

@@ -170,7 +170,7 @@ class User extends Base
         $this->group = $group;
     }
 
-    public function toValueObject(Application $app, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
+    public function toValueObject(Application $app = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
     {
 
         $data = parent::toValueObject($app, $entityName, $flatten, $propertiesToLoad , $level);
