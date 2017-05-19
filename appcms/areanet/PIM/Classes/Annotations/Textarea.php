@@ -8,5 +8,8 @@ use Doctrine\Common\Annotations\Annotation;
  */
 final class Textarea extends Annotation
 {
-
+    /**
+     * @var integer
+     */
+    public $lines = 4;
 }

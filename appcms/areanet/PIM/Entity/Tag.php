@@ -12,7 +12,7 @@ class Tag extends Base
 {
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @PIM\Config(label="Name", showInList=20, unique=true)
      */
     protected $title;

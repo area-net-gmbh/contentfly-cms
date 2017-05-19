@@ -840,9 +840,14 @@ ul.ui-select-choices{
     margin-top:0 !important;
 }
 
-@media (min-width: 1600px) {
+.modal-xl{
+    width:90%;
+}
+
+@media (min-width: 960px) {
 
     .modal-xl{
-        width:1200px
+        width:80%;
+        max-width:1200px;
     }
 }
