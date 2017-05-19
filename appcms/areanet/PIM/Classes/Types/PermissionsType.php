@@ -80,7 +80,7 @@ class PermissionsType extends Type
                 $data[] = $object->getId();
             }
         } else {
-            
+
             foreach ($object->$getter() as $objectToLoad) {
                 if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
@@ -108,7 +108,7 @@ class PermissionsType extends Type
     {
         $this->em->persist($object);
         $this->em->flush();
-        
+
         $query = $this->em->createQuery('DELETE FROM Areanet\PIM\\Entity\\Permission e WHERE e.group = ?1');
         $query->setParameter(1, $object);
         $query->execute();

@@ -514,7 +514,7 @@
 
                     data['order'] = {};
                     data['order'][field] = "ASC";
-
+                    
                     EntityService.list(data).then(
                         (function(entity, key) {
                             return function(response) {
@@ -602,6 +602,7 @@
         }
 
         function refreshDatalistFilter(key, sWord){
+
             var entity = null;
             if (vm.schema.properties[key].accept.substr(0, 7) == 'Areanet') {
                 entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');

@@ -1,6 +1,6 @@
 <pim-plugin key="FILES_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <div class="row header">
-    <div class="col-sm-9 col-sm-offset-1">
+    <div class="col-sm-7 col-sm-offset-1">
         <pim-plugin key="FILES_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <h3 >Medienverwaltung</h3>
         <pim-plugin key="FILES_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
@@ -87,8 +87,9 @@
         <pim-plugin key="FILES_HEADER_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
 
-    <div class="col-sm-2">
+    <div class="col-sm-3" style="text-align: right;">
         <pim-plugin key="FILES_HEADER_UPLOAD_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <button class="btn btn-default" type="button" ng-show="vm.modaltitle" ng-click="vm.cancel()">Abbrechen</button>
         <button class="btn btn-primary btn-sm" ng-hide="!vm.permissions[vm.entity].writable" ng-disabled="vm.fileUploads" type="file" ngf-select="vm.uploadMultiFile($files, $invalidFiles)"
                 multiple ngf-accept="'{{config.accept}}'"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Upload</button>
         <pim-plugin key="FILES_HEADER_UPLOAD_APPEND" uiblocks="uiblocks"></pim-plugin>
