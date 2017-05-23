@@ -67,6 +67,8 @@ class Api
         $entities[] = "PIM\\PushToken";
         $entities[] = "PIM\\ThumbnailSetting";
         $entities[] = "PIM\\Permission";
+        $entities[] = "PIM\\Nav";
+        $entities[] = "PIM\\NavItem";
 
         $data     = array();
 
