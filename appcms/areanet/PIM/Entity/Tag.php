@@ -7,12 +7,13 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_tag")
+ * @PIM\Config(label="Tag", sortBy="title", sortOrder="ASC")
  */
 class Tag extends Base
 {
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @PIM\Config(label="Name", showInList=20, unique=true)
      */
     protected $title;

@@ -28,7 +28,6 @@
                         scope.choosenIds   = [];
                         for(var i = 0; i < scope.value.length; i++){
                             scope.choosenIds.push(scope.value[i].id);
-                            console.log(scope.config.accept);
                             if(!scope.value[i].created) {
 
                                 var data = {
@@ -40,6 +39,7 @@
                                     (function (i) {
                                         return function (response) {
                                             scope.value[i] = response.data.data;
+                                            triggerUpdate();
                                         }
                                     })(i),
                                     function (data) {
@@ -350,7 +350,7 @@
                             values.push(scope.value[index].id);
                         }
                     }
-
+                    
                     scope.onChangeCallback({key: scope.key, value: values});
                 }
             }

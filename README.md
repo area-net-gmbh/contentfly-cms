@@ -4,20 +4,20 @@
 
 ## Die APP-CMS Plattform
 
-- **Backend**: https://github.com/appcms/backend
+- **Server**: https://github.com/appcms/server
 - **iOS SDK**: https://github.com/appcms/ios-sdk
 - **Android SDK**: _coming soon_
 
 ## Tools und mehr
 
-- Vagrant-Umgebung für Backend: https://github.com/appcms/vagrant
+- Vagrant-Umgebung für Server: https://github.com/appcms/vagrant
 - Download + Dokumentation: http://www.das-app-cms.de
 
 ## Einführung
 
-Mit der APP-CMS Plattform können mobile Apps für iOS und Android unter dem Einsatz von nativen und webbasierten Technologien inklusive Synchronisations-Anbindung an ein Backend-System entwickelt werden. 
+Mit der APP-CMS Plattform können mobile Apps für iOS und Android unter dem Einsatz von nativen und webbasierten Technologien inklusive Synchronisations-Anbindung an einen Server entwickelt werden. 
 
-Das Backend basiert dabei auf PHP und MySQL und kann auf nahezu jedem Standard-Hosting-Provider eingesetzt werden. Die SDKs für iOS und Android unterstützen Entwickler bei der Datenhaltung, Synchronisation und Darstellung von Inhalten. Zudem enhalten die SDKs eine Template-Engine, mit der Oberflächen einfach und plattformübergreifen in HTML erstellt werden können.
+Der Server basiert dabei auf PHP und MySQL und kann auf nahezu jedem Standard-Hosting-Provider eingesetzt werden. Die SDKs für iOS und Android unterstützen Entwickler bei der Datenhaltung, Synchronisation und Darstellung von Inhalten. Zudem enhalten die SDKs eine Template-Engine, mit der Oberflächen einfach und plattformübergreifen in HTML erstellt werden können.
 
 Es ist dem Entwickler völlig freigestellt, ob Apps komplett nativ oder in Kombination mit webbasierten Bereichen umgesetzt werden.
 
@@ -25,13 +25,13 @@ Die APP-CMS Plattform ist kein Baukasten-System, mit dem sich Apps ohne Vorkennt
 
 Für die Entwicklung von Apps mit dem APP-CMS Framework sind folgende Kenntnisse erforderlich:
 
-- **Backend**: PHP und optimalerweise Doctrine und MySQL
+- **Server**: PHP und optimalerweise Doctrine und MySQL
 - **iOS**: Swift oder Objective-C und gegebenenfalls HTML5
 - **Android**: Java und gegebenenfalls HTML5
 
-# Das APP-CMS Backend
+# Der APP-CMS Server
 
-Mit dem Backend können serverseitig beliebige Inhalte gespeichert und verwaltet werden. Das Backend kann letztendlich auch losgelöst von mobilen Apps betrieben werden. Über eine Schnittstelle kann auf alle im Backend gespeicherten Daten zugegriffen werden. Damit kann das Backend auch zum Beispiel als zusätzliches PIM (Product Information Managament) für eine Webseite in TYPO3 oder Wordpress eingesetzt werden.
+Mit dem Sever können serverseitig beliebige Inhalte gespeichert und verwaltet werden. Der Server kann letztendlich auch losgelöst von mobilen Apps betrieben werden. Über eine Schnittstelle kann auf alle im Server gespeicherten Daten zugegriffen werden. Damit kann der Server auch zum Beispiel als PIM (Product Information Managament) für eine Webseite in TYPO3 oder Wordpress eingesetzt werden.
 
 **Technologien**
 
@@ -59,7 +59,7 @@ Mit dem Backend können serverseitig beliebige Inhalte gespeichert und verwaltet
 
 (1) Download APP-CMS unter http://www.das-app-cms.de
 
-(2) Installations-Anleitung unter http://www.app-cms.de/docs/backend
+(2) Installations-Anleitung unter http://www.app-cms.de/docs/server folgen
 
 ### Manuelle Installation aus GitHub
 
@@ -85,15 +85,9 @@ Mit dem Backend können serverseitig beliebige Inhalte gespeichert und verwaltet
 
 (5) URL/Host aufrufen und Standard-Login in das APP-CMS mit Benutzer _admin_ und Passwort _admin_
 
-## Erste Schritte
-
-_TODO_
-
 ## Dokumentation
 
-- Benutzung: _TODO_
-- Administration: _TODO_
-- Entwicklung: _TODO_
+- http://www.das-app-cms.de/docs/server
 
 # Lizenz
 

@@ -41,6 +41,13 @@ class TextareaType extends Type
     {
         $schema = parent::processSchema($key, $defaultValue, $propertyAnnotations);
 
+        if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Textarea'])){
+
+            $annotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Textarea'];
+
+            $schema['lines'] = $annotations->lines;
+        }
+
         return $schema;
     }
 

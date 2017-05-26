@@ -55,6 +55,7 @@ class MultijoinType extends Type
             $schema['mappedFrom'] = $annotations->mappedBy;
             $schema['foreign']    = $this->em->getClassMetadata($annotations->targetEntity)->getTableName();
 
+
             $targetEntity = new $annotations->targetEntity();
             if($targetEntity instanceof BaseSortable){
                 $schema['sortable'] = true;

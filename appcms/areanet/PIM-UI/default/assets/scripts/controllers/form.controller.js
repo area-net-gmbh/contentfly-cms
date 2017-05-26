@@ -13,7 +13,6 @@
         var refreshOnCancel  = false;
 
         //Properties
-
         vm.doSave           = false;
         vm.entity           = entity;
         vm.schemaOnejoin    = {};

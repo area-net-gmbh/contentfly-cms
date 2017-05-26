@@ -33,6 +33,7 @@
         vm.totalItems           = 0;
 
         //Functions
+        vm.cancel               = cancel;
         vm.closeFilter          = closeFilter;
         vm.delete               = doDelete;
         vm.loadData             = loadData;
@@ -50,6 +51,10 @@
         loadFilters();
 
         /////////////////////////
+
+        function cancel(){
+            $uibModalInstance.dismiss(false);
+        }
 
         function closeFilter (){
             vm.filterIsOpen = false;

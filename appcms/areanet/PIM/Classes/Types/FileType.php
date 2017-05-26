@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
 use Areanet\PIM\Classes\Exceptions\FileNotFoundException;
+use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
@@ -58,8 +59,11 @@ class FileType extends Type
         $permission = \Areanet\PIM\Entity\Permission::ALL;
 
         $getterName = 'get' . ucfirst($property);
-        $subobject = $this->$getterName();
+        $subobject  = $object->$getterName();
 
+        if(!$subobject){
+            return;
+        }
 
         $config['accept'] = 'PIM\\File';
 

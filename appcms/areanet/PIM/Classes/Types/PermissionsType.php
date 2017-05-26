@@ -43,7 +43,10 @@ class PermissionsType extends Type
 
     public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
     {
-        if(!$object->$property instanceof \Doctrine\ORM\PersistentCollection){
+
+        $getter = 'get'.ucfirst($property);
+
+        if(!$object->$getter() instanceof \Doctrine\ORM\PersistentCollection){
             return null;
         }
 
@@ -60,7 +63,7 @@ class PermissionsType extends Type
         $subEntity = 'PIM\\Permission';
 
         if (in_array($property, $propertiesToLoad)) {
-            foreach ($object->$property as $objectToLoad) {
+            foreach ($object->$getter() as $objectToLoad) {
                 if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
@@ -77,8 +80,8 @@ class PermissionsType extends Type
                 $data[] = $object->getId();
             }
         } else {
-            
-            foreach ($object->$property as $objectToLoad) {
+
+            foreach ($object->$getter() as $objectToLoad) {
                 if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
@@ -94,7 +97,7 @@ class PermissionsType extends Type
 
                 $data[] = $flatten
                     ? array("id" => $object->getId())
-                    : $object->$objectToLoad($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+                    : $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
             }
         }
 
@@ -105,7 +108,7 @@ class PermissionsType extends Type
     {
         $this->em->persist($object);
         $this->em->flush();
-        
+
         $query = $this->em->createQuery('DELETE FROM Areanet\PIM\\Entity\\Permission e WHERE e.group = ?1');
         $query->setParameter(1, $object);
         $query->execute();

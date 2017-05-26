@@ -122,6 +122,7 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\MultijoinType',
         '\\Areanet\\PIM\\Classes\\Types\\PermissionsType',
         '\\Areanet\\PIM\\Classes\\Types\\VirtualjoinType',
+        '\\Areanet\\PIM\\Classes\\Types\\EntitySelectorType',
     );
 
     /**
@@ -158,6 +159,11 @@ class Config{
      * @var string Load Frontend UI in folder /ui/...
      */
     public $FRONTEND_TITLE = 'APP-CMS';
+
+    /**
+     * @var boolean Benutzerdefinierte Navigation anzeigen.
+     */
+    public $FRONTEND_CUSTOM_NAVIGATION = 'false';
 
     /**
      * @var string Load Frontend UI in folder /ui/...
