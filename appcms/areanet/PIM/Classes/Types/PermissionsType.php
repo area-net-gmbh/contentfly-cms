@@ -97,7 +97,7 @@ class PermissionsType extends Type
 
                 $data[] = $flatten
                     ? array("id" => $object->getId())
-                    : $object->$objectToLoad($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+                    : $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
             }
         }
 
