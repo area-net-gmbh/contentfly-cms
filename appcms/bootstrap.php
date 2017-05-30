@@ -10,6 +10,11 @@ if(file_exists(ROOT_DIR.'/../custom/vendor/autoload.php')){
 require_once ROOT_DIR.'/../custom/config.php';
 require_once ROOT_DIR.'/../custom/version.php';
 
+if(Config\Adapter::getConfig()->DB_HOST == '$SET_DB_HOST'){
+    header('Location: /install.php');
+    exit;
+}
+
 
 define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'default');
 

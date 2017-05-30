@@ -76,6 +76,31 @@ class VirtualjoinType extends Type
         $object->$setter(implode(',', $data));
     }
 
+    public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
+    {
+        $getter = 'get'.ucfirst($property);
+
+        if(!($value = $object->$getter())){
+            return null;
+        }
+        if(is_array($value)){
+            $items = $value;
+        }else{
+            $items = explode(',', $value);
+        }
+
+
+        $data = array();
+
+        foreach($items as $item){
+            $data[] = array(
+                'id' => $item
+            );
+        }
+
+        return $data;
+    }
+
 
 
 }

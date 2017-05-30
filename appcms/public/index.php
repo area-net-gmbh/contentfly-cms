@@ -1,9 +1,4 @@
 <?php
-if(!file_exists(__DIR__.'/../../custom/config.php')){
-    header('Location: install.php');
-    exit;
-}
-
 require_once __DIR__.'/../bootstrap.php';
 
 use Areanet\PIM\Controller;
@@ -13,12 +8,6 @@ use Symfony\Component\HttpFoundation\AcceptHeader;
 $app['ui.controller'] = $app->share(function() use ($app) {
     return new Controller\UiController($app);
 });
-
-$app['setup.controller'] = $app->share(function() use ($app) {
-    return new Controller\SetupController($app);
-});
-
-$app->get('/setup', "setup.controller:setupAction");
 
 
 use Symfony\Component\Debug\ErrorHandler;
