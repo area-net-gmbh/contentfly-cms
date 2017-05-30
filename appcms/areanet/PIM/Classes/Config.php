@@ -163,7 +163,7 @@ class Config{
     /**
      * @var boolean Benutzerdefinierte Navigation anzeigen.
      */
-    public $FRONTEND_CUSTOM_NAVIGATION = 'false';
+    public $FRONTEND_CUSTOM_NAVIGATION = false;
 
     /**
      * @var string Load Frontend UI in folder /ui/...
