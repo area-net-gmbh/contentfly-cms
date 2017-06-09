@@ -10,11 +10,6 @@ if(file_exists(ROOT_DIR.'/../custom/vendor/autoload.php')){
 require_once ROOT_DIR.'/../custom/config.php';
 require_once ROOT_DIR.'/../custom/version.php';
 
-if(Config\Adapter::getConfig()->DB_HOST == '$SET_DB_HOST'){
-    header('Location: /install.php');
-    exit;
-}
-
 
 define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'default');
 
@@ -25,6 +20,11 @@ use Knp\Provider\ConsoleServiceProvider;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/Config.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
+
+if(Config\Adapter::getConfig()->DB_HOST == '$SET_DB_HOST'){
+    header('Location: /install.php');
+    exit;
+}
 
 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY){
     define('APPCMS_ID_TYPE', 'string');
@@ -165,6 +165,17 @@ $app['dispatcher']->addListener(\Knp\Console\ConsoleEvents::INIT, function(\Knp\
 $app['schema'] = $app->share(function ($app){
     $api = new \Areanet\PIM\Classes\Api($app);
     return $api->getSchema();
+});
+
+$app['database'] = $app->share(function ($app){
+    $config = \Areanet\PIM\Classes\Config\Adapter::getConfig();
+
+    $connectionParams = array(
+        'url'       => 'mysql://'.$config->DB_USER.':'.$config->DB_PASS.'@'.$config->DB_HOST.':'.$config->DB_PORT.'/'.$config->DB_NAME,
+        'charset'   => 'utf8'
+    );
+  
+    return  \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 });
 
 //Config Spatial ORM-Types
