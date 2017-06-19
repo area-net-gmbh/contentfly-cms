@@ -34,7 +34,7 @@ class CustomControllerProvider extends BaseControllerProvider
         $controllers = $app['controllers_factory'];
 
         $checkAuth = function (Request $request, Application $app) {
-            if (!$this->checkToken($request, $app)) {
+            if (!$this->checkToken($request, $app) && !$app['auth.user']) {
                 throw new AccessDeniedHttpException('Zugriff verweigert', null, 401);
             }
         };

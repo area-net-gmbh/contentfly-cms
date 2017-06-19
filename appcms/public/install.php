@@ -1,23 +1,19 @@
 <?php
 //BOILERPLATE
-
-$db_host = null;
-$db_name = null;
-$db_user = null;
-$db_pass = null;
-$system_php = null;
-$db_strategy_bool = null;
-
-
-//START
-$SET_DB_GUID_STRATEGY = null;
+$db_host                = null;
+$db_name                = null;
+$db_user                = null;
+$db_pass                = null;
+$system_php             = null;
+$db_strategy_bool       = null;
+$SET_DB_GUID_STRATEGY   = null;
 
 require_once('../areanet/PIM/Classes/Config/Factory.php');
 require_once('../areanet/PIM/Classes/Config.php');
 require_once('../version.php');
 require_once('../../custom/config.php');
 
-if($configDefault->DB_HOST != '$SET_DB_HOST'){
+if(\Areanet\PIM\Classes\Config\Adapter::getConfig()->DB_HOST != '$SET_DB_HOST'){
     header('Location: /');
 }
 
