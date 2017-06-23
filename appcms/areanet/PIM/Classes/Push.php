@@ -136,11 +136,13 @@ class Push{
                         }
                     }
                 }
-                $this->em->flush();
+
             }
 
             curl_close($ch);
 
         }
+
+        $this->em->flush();
     }
 }
