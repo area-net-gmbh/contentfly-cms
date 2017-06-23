@@ -37,7 +37,6 @@ class ImageMagick implements ProcessingInterface
 
     public function execute(BackendInterface $backend, File $fileObject, $fileSizeAlias = null, $variant = null)
     {
-        //todo: variant auswerten und nur Variante erzeugen
 
         if(!isset($this->mimeMapping[$fileObject->getType()])){
             return;

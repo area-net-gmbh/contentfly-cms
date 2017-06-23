@@ -58,7 +58,7 @@ class Factory{
      */
     public static function getInstance()
     {
-        if(self::$_instance == null){
+        if(self::$_instance === null){
             self::$_instance = new Factory();
         }
 

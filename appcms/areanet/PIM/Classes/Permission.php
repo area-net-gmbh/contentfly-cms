@@ -50,7 +50,7 @@ class Permission
 
         if($user->getIsAdmin()) return 2;
 
-        if($user->getGroup() == null) return 0;
+        if($user->getGroup() === null) return 0;
 
         foreach($user->getGroup()->getPermissions() as $permission){
             if($permission->getEntityName() == $entityName){

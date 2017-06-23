@@ -247,7 +247,7 @@ class Config{
     public function __construct($host = 'default', Config $config = null)
     {
 
-        if($config != null){
+        if($config !== null){
             foreach (get_object_vars($config) as $key => $value) {
                 $this->$key = $value;
             }

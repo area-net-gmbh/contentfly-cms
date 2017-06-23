@@ -128,7 +128,8 @@ class Push{
             $result = curl_exec($ch);
             $json   = json_decode($result);
             if($json) {
-                for ($i = 0; $i < count($json->results); $i++) {
+                $count = count($json->results);
+                for ($i = 0; $i < $count; $i++) {
                     if (isset($json->results[$i]->error)) {
                         $pushToken = $this->em->getRepository('Areanet\PIM\Entity\PushToken')->findOneBy(array('token' => $androidTokens[$i]));
                         if ($pushToken) {

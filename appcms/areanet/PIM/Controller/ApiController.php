@@ -433,7 +433,7 @@ class ApiController extends BaseController
             ;
         }
 
-        if($order != null){
+        if($order !== null){
             foreach($order as $orderBy => $orderSort){
                 $queryBuilder->addOrderBy($entityName.'.'.$orderBy, $orderSort);
             }
@@ -590,7 +590,6 @@ class ApiController extends BaseController
         }
 
         if($entityName == 'PIM\\File') {
-            //todo: Auslagern in /file/delete-API
             $backend    = Backend::getInstance();
 
             $path   = $backend->getPath($object);
@@ -1271,7 +1270,7 @@ class ApiController extends BaseController
                 }
 
 */
-                if($object instanceof File && $filedata != null){
+                if($object instanceof File && $filedata !== null){
 
                     $backendFS = new FileSystem();
                     foreach($filedata as $size){
