@@ -24,19 +24,20 @@ class PermissionsType extends Type
         return 'Permissions';
     }
 
-    public function doMatch($propertyAnnotations){
-        if(!isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Permissions'])) {
+    public function doMatch($propertyAnnotations)
+    {
+        if (!isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Permissions'])) {
             return false;
         }
 
         return true;
     }
 
-    public function processSchema($key, $defaultValue, $propertyAnnotations){
-        $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations);
-        $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Permissions'];
+    public function processSchema($key, $defaultValue, $propertyAnnotations)
+    {
+        $schema = parent::processSchema($key, $defaultValue, $propertyAnnotations);
 
-        $schema['dbtype']       = "integer";
+        $schema['dbtype'] = "integer";
 
         return $schema;
     }
@@ -44,19 +45,18 @@ class PermissionsType extends Type
     public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
     {
 
-        $getter = 'get'.ucfirst($property);
+        $getter = 'get' . ucfirst($property);
 
-        if(!$object->$getter() instanceof \Doctrine\ORM\PersistentCollection){
+        if (!$object->$getter() instanceof \Doctrine\ORM\PersistentCollection) {
             return null;
         }
 
-        $config     = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
 
-        $data       = array();
+        $data = array();
         $permission = \Areanet\PIM\Entity\Permission::ALL;
-        $subEntity  = null;
+        $subEntity = null;
 
-        if(!$this->app['auth.user']->getIsAdmin()){
+        if (!$this->app['auth.user']->getIsAdmin()) {
             return null;
         }
 
@@ -64,14 +64,14 @@ class PermissionsType extends Type
 
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if ($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))) {
                     continue;
                 }
 
-                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
-                    if($objectToLoad->getUserCreated() != $this->app['auth.user']){
+                if ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
+                    if ($objectToLoad->getUserCreated() != $this->app['auth.user']) {
                         $group = $this->app['auth.user']->getGroup();
-                        if(!($group && $objectToLoad->hasGroupId($group->getId()))){
+                        if (!($group && $objectToLoad->hasGroupId($group->getId()))) {
                             continue;
                         }
                     }
@@ -82,14 +82,14 @@ class PermissionsType extends Type
         } else {
 
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if ($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))) {
                     continue;
                 }
 
-                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
-                    if($objectToLoad->getUserCreated() != $this->app['auth.user']){
+                if ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
+                    if ($objectToLoad->getUserCreated() != $this->app['auth.user']) {
                         $group = $this->app['auth.user']->getGroup();
-                        if(!($group && $objectToLoad->hasGroupId($group->getId()))){
+                        if (!($group && $objectToLoad->hasGroupId($group->getId()))) {
                             continue;
                         }
                     }
@@ -122,16 +122,16 @@ class PermissionsType extends Type
 
         $this->em->persist($pObject);
 
-        foreach($value as $config){
+        foreach ($value as $config) {
 
             $pObject = new Permission();
             $pObject->setEntityName($config['name']);
             $pObject->setReadable($config['readable']);
             $pObject->setWritable($config['writable']);
             $pObject->setDeletable($config['deletable']);
-            if(!empty($config['extended'])){
+            if (!empty($config['extended'])) {
                 $pObject->setExtended(json_encode($config['extended']));
-            }else{
+            } else {
                 $pObject->setExtended('');
             }
             $pObject->setGroup($object);

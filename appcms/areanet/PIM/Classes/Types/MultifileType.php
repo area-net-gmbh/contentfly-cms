@@ -91,7 +91,6 @@ class MultifileType extends Type
         $config     = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
 
         $data       = array();
-        $permission = \Areanet\PIM\Entity\Permission::ALL;
         $subEntity  = null;
 
         $subEntity = 'PIM\\File';

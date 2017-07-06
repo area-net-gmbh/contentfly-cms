@@ -10,7 +10,7 @@ namespace Areanet\PIM\Classes\Exceptions;
 
 class FileNotFoundException extends \Exception
 {
-    function __construct($message = 'File not found') {
+    public function __construct($message = 'File not found') {
         parent::__construct($message);
     }
 }

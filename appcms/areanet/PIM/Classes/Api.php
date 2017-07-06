@@ -154,8 +154,7 @@ class Api
 
 
                 $propertyAnnotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
-
-                $customMany2ManyAnnotationsIterator = 1;
+                
 
                 $allPropertyAnnotations = array();
                 foreach($propertyAnnotations as $propertyAnnotation){

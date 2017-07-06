@@ -32,7 +32,6 @@ class FileController extends BaseController
      */
     public function uploadAction(Request $request){
 
-        $data = array();
 
         if(!Permission::isWritable($this->app['auth.user'], 'PIM\\File')){
             throw new AccessDeniedHttpException("Zugriff auf PIM\\File verweigert.");
@@ -70,7 +69,6 @@ class FileController extends BaseController
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::INSERTED);
                     $this->em->persist($log);
                 }else{
@@ -78,7 +76,6 @@ class FileController extends BaseController
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::UPDATED);
                     $this->em->persist($log);
                 }
@@ -206,7 +203,6 @@ class FileController extends BaseController
         $event->setParam('app',     $this->app);
         $this->app['dispatcher']->dispatch('pim.file.after.upload', $event);
 
-        $schema = $this->app['schema'];
 
         return new JsonResponse(array('message' => 'File uploaded', 'data' => $fileObject->toValueObject($this->app, 'PIM\\File')));
     }
@@ -245,7 +241,6 @@ class FileController extends BaseController
     public function getAction($id, $alias = null, $size = null, $variant = null){
 
         $fileObject = null;
-        $t1 = microtime();
         $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
         if(!$fileObject){

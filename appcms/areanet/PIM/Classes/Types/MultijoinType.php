@@ -231,7 +231,5 @@ class MultijoinType extends Type
 
         $object->$setter($collection);
     }
-
-
-
+    
 }

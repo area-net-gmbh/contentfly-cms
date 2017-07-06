@@ -46,7 +46,7 @@ class ImageMagick implements ProcessingInterface
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSizeSetting not found");
         }
 
-        $type           = $this->mimeMapping[$fileObject->getType()];
+    
         $imExecutable   = Adapter::getConfig()->IMAGEMAGICK_EXECUTABLE;
 
         if (!is_executable($imExecutable)) {

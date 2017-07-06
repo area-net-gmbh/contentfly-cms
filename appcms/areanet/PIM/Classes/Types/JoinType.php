@@ -48,7 +48,6 @@ class JoinType extends Type
         if(substr($config['accept'], 0, 1) == '\\'){
             $config['accept'] = substr($config['accept'], 1);
         }
-        $permission = \Areanet\PIM\Entity\Permission::ALL;
 
         $getterName = 'get' . ucfirst($property);
         $subobject  = $object->$getterName();
@@ -83,7 +82,6 @@ class JoinType extends Type
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
-        $getter = 'get'.ucfirst($property);
 
         $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 

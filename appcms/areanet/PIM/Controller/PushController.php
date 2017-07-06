@@ -34,7 +34,6 @@ class PushController extends BaseController
      */
     public function setTokenAction(Request $request)
     {
-        $data = array();
 
         try {
             $pushToken = new PushToken();
