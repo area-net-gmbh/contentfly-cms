@@ -277,7 +277,6 @@ class ApiController extends BaseController
         }
 
         if($lastModified){
-            //$qb->where($qb->expr()->lte('modified', $lastModified));
             $queryBuilder->andWhere($entityName.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
         }
 
@@ -421,7 +420,6 @@ class ApiController extends BaseController
         $query      = $queryBuilder->getQuery();
         $totalObjects = $query->getSingleScalarResult();
 
-        //die($currentPage*$itemsPerPage . " = " . $totalObjects);
         if($currentPage*$itemsPerPage > $totalObjects){
             $currentPage = ceil($totalObjects/$itemsPerPage);
         }
@@ -1216,7 +1214,6 @@ class ApiController extends BaseController
 
                             $data   = file_get_contents($filePath);
                             $base64 = base64_encode($data);
-                            $src = 'data: '.$object->getType().';base64,'.$base64;
                             $objectData->filedata->$size = $base64;
                         }
                     }

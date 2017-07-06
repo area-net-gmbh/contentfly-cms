@@ -49,6 +49,5 @@ class UiController extends BaseController
                 'customLoginBG' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGIN_BG
             )
         ));
-        //return $this->app->redirect('ui/default', 303);
     }
 }

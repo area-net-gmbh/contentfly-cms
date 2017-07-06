@@ -154,7 +154,7 @@ class Api
 
 
                 $propertyAnnotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
-                
+
 
                 $allPropertyAnnotations = array();
                 foreach($propertyAnnotations as $propertyAnnotation){
@@ -212,7 +212,6 @@ class Api
 
 
     public function single($entityName, $id = null, $where = null){
-        $schema     = $this->getSchema();
 
         if (substr($entityName, 0, 3) == 'PIM') {
             $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
