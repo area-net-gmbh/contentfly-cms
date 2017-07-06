@@ -159,7 +159,6 @@ class FileController extends BaseController
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::INSERTED);
                     $this->em->persist($log);
 
@@ -186,7 +185,6 @@ class FileController extends BaseController
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::UPDATED);
                     $this->em->persist($log);
 

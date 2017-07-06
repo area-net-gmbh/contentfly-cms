@@ -53,10 +53,6 @@ class OnejoinType extends Type
 
         $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 
-        /*if(!Permission::isWritable($user, $joinEntity)){
-            throw new AccessDeniedHttpException("Zugriff auf $joinEntity verweigert.");
-        }*/
-
         if(!empty($value['id'])){
             $controller->update($joinEntity, $value['id'], $value, false, $user);
         }else{

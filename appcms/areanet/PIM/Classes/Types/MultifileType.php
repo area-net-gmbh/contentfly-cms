@@ -164,14 +164,11 @@ class MultifileType extends Type
             $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
             $mappedBy   = $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'];
 
-            /*if(!Permission::isWritable($user, $acceptFrom)){
-                throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
-            }*/
+
             
             if($object->$getter()) {
                 $object->$getter()->clear();
-                //$query = $this->em->createQuery('DELETE FROM ' . $acceptFrom . ' e WHERE e.' . $mappedFrom . ' = ?1');
-
+  
                 $qb = $this->em->createQueryBuilder();
                 $qb->delete($acceptFrom, 'e');
                 $qb->where('e.'.$mappedFrom.' = ?1');

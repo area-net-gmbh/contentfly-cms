@@ -163,10 +163,7 @@ class MultijoinType extends Type
         $collection = new ArrayCollection();
         $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
         $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
-
-        /*if(!Permission::isWritable($user, $entity)){
-            throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
-        }*/
+        
         
         if($object->$getter()) {
             if ($mappedBy) {
@@ -231,5 +228,5 @@ class MultijoinType extends Type
 
         $object->$setter($collection);
     }
-    
+
 }

@@ -78,8 +78,6 @@ class SystemController extends BaseController
 
     protected function validateORM(Request $request)
     {
-        //die('php_cli '.ROOT_DIR.'/vendor/bin/doctrine orm:schema:update --force');
-
         return shell_exec('cd '.ROOT_DIR.' && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.Adapter::getConfig()->SYSTEM_PHP_CLI_COMMAND.' vendor/bin/doctrine orm:validate-schema');
     }
 

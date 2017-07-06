@@ -27,7 +27,6 @@ abstract class Serializable implements \JsonSerializable{
 
         if($app){
             $schema = $app['schema'];
-            $user   = $app['auth.user'];
         }
 
         foreach ($this as $property => $value) {

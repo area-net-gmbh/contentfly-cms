@@ -84,10 +84,7 @@ class JoinType extends Type
         $setter = 'set'.ucfirst($property);
 
         $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-
-        /*if(!Permission::isReadable($user, $entity)){
-            throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
-        }*/
+        
 
         if(is_array($value)){
             if(empty($value["id"])) return;

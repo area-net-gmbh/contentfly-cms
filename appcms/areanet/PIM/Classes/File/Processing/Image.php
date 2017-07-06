@@ -66,7 +66,6 @@ class Image implements ProcessingInterface
                 continue;
             }
 
-            $imgName        = $backend->getPath($fileObject).'/'.$fileObject->getName();
             $imgThumbName   = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
 
             if($thumbnailSetting->getForceJpeg()){
@@ -118,7 +117,6 @@ class Image implements ProcessingInterface
 
             if($thumbnailSetting->getIsResponsive() &&  $variant != '1x' || $variant == '2x' ) {
                 $quality        = $this->qualityMapping[$fileObject->getType()];
-                $imgName        = $backend->getPath($fileObject).'/'.$fileObject->getName();
                 $imgThumbName   = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
 
                 if($thumbnailSetting->getForceJpeg()){
@@ -147,7 +145,6 @@ class Image implements ProcessingInterface
             if($thumbnailSetting->getIsResponsive() &&  $variant != '2x' || $variant == '1x' ) {
 
                 $quality        = $this->qualityMapping[$fileObject->getType()];
-                $imgName        = $backend->getPath($fileObject).'/'.$fileObject->getName();
                 $imgThumbName   = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
 
                 if($thumbnailSetting->getForceJpeg()){
@@ -246,9 +243,6 @@ class Image implements ProcessingInterface
         $width  = $thumbnailSetting->getWidth();
         $height  = $thumbnailSetting->getHeight();
 
-        $width_resized  = $width;
-        $height_resized = $height;
-
         if($width > $height){
             if($orig_height/$orig_width >=  $height/$width){
                 $width_resized  = $width;
@@ -310,7 +304,6 @@ class Image implements ProcessingInterface
     }
 
     protected function resizePercentual($fileObject, $img, ThumbnailSetting $thumbnailSetting){
-        $sizePerCent = $thumbnailSetting->getPercent();
 
         return $this->resizeByPercent($fileObject, $img, $thumbnailSetting->getPercent());
     }
