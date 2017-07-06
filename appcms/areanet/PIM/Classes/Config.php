@@ -43,6 +43,11 @@ class Config{
     public $DB_PASS     = null;
 
     /**
+    * @var string $DB_PORT Database Password
+    */
+    public $DB_PORT     = 3306;
+
+    /**
      * @var string $DB_HOST Database Charset
      */
     public $DB_CHARSET  = 'utf8';
@@ -247,7 +252,7 @@ class Config{
     public function __construct($host = 'default', Config $config = null)
     {
 
-        if($config != null){
+        if($config !== null){
             foreach (get_object_vars($config) as $key => $value) {
                 $this->$key = $value;
             }

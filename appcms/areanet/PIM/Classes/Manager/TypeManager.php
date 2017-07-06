@@ -28,7 +28,7 @@ class TypeManager extends Manager
 
     public function getTypes($mode = null){
 
-        if($mode == null){
+        if($mode === null){
             return $this->types;
         }
 

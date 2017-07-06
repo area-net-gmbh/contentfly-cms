@@ -9,6 +9,7 @@ $db_strategy_bool       = null;
 $SET_DB_GUID_STRATEGY   = null;
 
 require_once('../areanet/PIM/Classes/Config/Factory.php');
+require_once('../areanet/PIM/Classes/Config/Adapter.php');
 require_once('../areanet/PIM/Classes/Config.php');
 require_once('../version.php');
 require_once('../../custom/config.php');
@@ -19,80 +20,84 @@ if(\Areanet\PIM\Classes\Config\Adapter::getConfig()->DB_HOST != '$SET_DB_HOST'){
 
 $error = null;
 
-function isEnabled($func) {
-    return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
+class PIM_Installer{
+    public static function isEnabled($func) {
+        return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
+    }
+
+    public static function install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
+
+        $db_strategy_bool = $db_strategy ? 'true' : 'false';
+
+        $configFileData = file_get_contents(__DIR__."/../../custom/config.php");
+
+        $configFileData = str_replace('$SET_DB_HOST', $db_host, $configFileData);
+        $configFileData = str_replace('$SET_DB_NAME', $db_name, $configFileData);
+        $configFileData = str_replace('$SET_DB_USER', $db_user, $configFileData);
+        $configFileData = str_replace('$SET_DB_PASS', $db_pass, $configFileData);
+        $configFileData = str_replace('$SET_DB_GUID_STRATEGY', $db_strategy_bool, $configFileData);
+        $configFileData = str_replace('$SET_SYSTEM_PHP_CLI_COMMAND', $system_php, $configFileData);
+        file_put_contents(__DIR__."/../../custom/config.php", $configFileData);
+
+        shell_exec(('cd '.__DIR__.'/.. && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.$system_php.' vendor/bin/doctrine orm:schema:update --force'));
+        shell_exec(('cd '.__DIR__.'/.. && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.$system_php.' console.php appcms:setup'));
+
+        header('Location: /');
+    }
+
+    public static function mask($input){
+        return $input;
+    }
+
+    public static function check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pass){
+
+        //SHELL-EXEC
+        if(!PIM_Installer::isEnabled('shell_exec')){
+            return 'PHP-Funktion shell_exec() ist deaktiviert.';
+        }
+
+        //CHMOD
+        if(!PIM_Installer::isEnabled('chmod')){
+            return 'PHP-Funktion chmod() ist deaktiviert.';
+        }
+
+        //CLI
+        $testCLI = shell_exec($system_php.' -v');
+        if(strpos($testCLI, 'PHP') === false){
+            return 'PHP-CLI konnte unter '.$_POST['system_php'].' nicht aufgerufen werden.';
+        }
+
+        //MySQL
+        try{
+            $dbh = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
+        }catch(Exception $e){
+            return $e->getMessage();
+        }
+
+        @chmod(__DIR__.'/../../custom/config.php', 0775);
+        @chmod(__DIR__.'/../../data/files', 0775);
+        @chmod(__DIR__.'/../../data/cache', 0775);
+
+        if(!is_writable(__DIR__.'/../../custom/config.php')){
+            return 'Konfigurationsdatei custom/config.php kann nicht geschrieben werden.';
+        }
+
+        return null;
+    }
 }
 
-function install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy){
 
-    $db_strategy_bool = $db_strategy ? 'true' : 'false';
-
-    $configFileData = file_get_contents(__DIR__."/../../custom/config.php");
-    
-    $configFileData = str_replace('$SET_DB_HOST', $db_host, $configFileData);
-    $configFileData = str_replace('$SET_DB_NAME', $db_name, $configFileData);
-    $configFileData = str_replace('$SET_DB_USER', $db_user, $configFileData);
-    $configFileData = str_replace('$SET_DB_PASS', $db_pass, $configFileData);
-    $configFileData = str_replace('$SET_DB_GUID_STRATEGY', $db_strategy_bool, $configFileData);
-    $configFileData = str_replace('$SET_SYSTEM_PHP_CLI_COMMAND', $system_php, $configFileData);
-    file_put_contents(__DIR__."/../../custom/config.php", $configFileData);
-
-    shell_exec(('cd '.__DIR__.'/.. && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.$system_php.' vendor/bin/doctrine orm:schema:update --force'));
-    shell_exec(('cd '.__DIR__.'/.. && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.$system_php.' console.php appcms:setup'));
-
-    header('Location: /');
-}
-
-function mask($input){
-    return $input;
-}
-
-function check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pass){
-
-    //SHELL-EXEC
-    if(!isEnabled('shell_exec')){
-        return 'PHP-Funktion shell_exec() ist deaktiviert.';
-    }
-
-    //CHMOD
-    if(!isEnabled('chmod')){
-        return 'PHP-Funktion chmod() ist deaktiviert.';
-    }
-
-    //CLI
-    $testCLI = shell_exec($system_php.' -v');
-    if(strpos($testCLI, 'PHP') === false){
-        return 'PHP-CLI konnte unter '.$_POST['system_php'].' nicht aufgerufen werden.';
-    }
-
-    //MySQL
-    try{
-        $dbh = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
-    }catch(Exception $e){
-        return $e->getMessage();
-    }
-
-    @chmod(__DIR__.'/../../custom/config.php', 0775);
-    @chmod(__DIR__.'/../../data/files', 0775);
-    @chmod(__DIR__.'/../../data/cache', 0775);
-
-    if(!is_writable(__DIR__.'/../../custom/config.php')){
-        return 'Konfigurationsdatei custom/config.php kann nicht geschrieben werden.';
-    }
-
-    return;
-}
 
 if(!empty($_POST['start'])){
-    $system_php             = mask($_POST['system_php']);
-    $db_host                = mask($_POST['db_host']);
-    $db_name                = mask($_POST['db_name']);
-    $db_user                = mask($_POST['db_user']);
-    $db_pass                = mask($_POST['db_pass']);
-    $db_strategy            = mask($_POST['db_strategy']);
+    $system_php             = PIM_Installer::mask($_POST['system_php']);
+    $db_host                = PIM_Installer::mask($_POST['db_host']);
+    $db_name                = PIM_Installer::mask($_POST['db_name']);
+    $db_user                = PIM_Installer::mask($_POST['db_user']);
+    $db_pass                = PIM_Installer::mask($_POST['db_pass']);
+    $db_strategy            = PIM_Installer::mask($_POST['db_strategy']);
 
-    if(!($error = check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pass))){
-        $error = install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy);
+    if(!($error = PIM_Installer::check_install_errors($system_php, $db_host, $db_name, $db_user, $db_pass))){
+        PIM_Installer::install($system_php, $db_host, $db_name, $db_user, $db_pass, $db_strategy);
     }
 
 }

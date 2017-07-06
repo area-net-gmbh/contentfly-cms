@@ -207,6 +207,7 @@
 
         function loadData() {
             var sortSettings = {};
+            vm.errorMsg = null;
             sortSettings[vm.sortProperty] = vm.sortOrder;
 
             var filter = {};
@@ -459,7 +460,7 @@
 
         function uploadFile(file, id, errFiles) {
             vm.fileUploads = [file];
-
+            vm.errorMsg = null;
             file.upload = Upload.upload({
                 url: '/file/upload',
                 data: {file: file, id: id, folder: vm.filter['folder']}
@@ -476,7 +477,8 @@
 
                 },
                 function (response) {
-                    if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
+                    vm.errorMsg = 'Fehler ' + response.status + ': ' + response.data.message;
+                    vm.fileUploads = null;
                 },
                 function (evt) {
                     file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
@@ -487,6 +489,7 @@
 
         function uploadMultiFile(files, errFiles) {
             vm.fileUploads = files;
+            vm.errorMsg = null;
 
             angular.forEach(files, function(file) {
 
@@ -533,7 +536,8 @@
 
                                         },
                                         function (response) {
-                                            if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
+                                            vm.errorMsg = 'Fehler ' + response.status + ': ' + response.data.message;
+                                            vm.fileUploads = null;
                                         },
                                         function (evt) {
                                             file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
@@ -564,7 +568,8 @@
 
                             },
                             function (response) {
-                                if (response.status > 0) vm.errorMsg = response.status + ': ' + response.data;
+                                vm.errorMsg = 'Fehler ' + response.status + ': ' + response.data.message;
+                                vm.fileUploads = null;
                             },
                             function (evt) {
                                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));

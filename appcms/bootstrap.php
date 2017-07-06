@@ -178,19 +178,6 @@ $app['database'] = $app->share(function ($app){
     return  \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 });
 
-//Config Spatial ORM-Types
-/*
-Doctrine\DBAL\Types\Type::addType('point', '\Areanet\PIM\Classes\ORM\Spatial\PointType');
-$em= $app['orm.em']->getConnection()->getDatabasePlatform();
-$em->registerDoctrineTypeMapping('point', 'point');
-
-//Doctrine Extensions
-$config = new Doctrine\ORM\Configuration();
-$config->addCustomNumericFunction('DISTANCE', '\Areanet\PIM\Classes\ORM\Spatial\PointType\Distance');
-$config->addCustomNumericFunction('POINT_STR', '\Areanet\PIM\Classes\ORM\Spatial\PointType\PointStr');
-$config->addCustomStringFunction('FIND_IN_SET', '\Areanet\PIM\Classes\ORM\Query\Mysql\FindInSet');
-//TODO: KLASSE WIRD NICHT GEFUNDEN
-*/
 
 require_once ROOT_DIR.'/../custom/app.php';
 

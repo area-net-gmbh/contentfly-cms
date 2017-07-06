@@ -183,7 +183,7 @@ class User extends Base
         unset($data->userCreated);
 
         foreach($data as $key => $value){
-            if($value == null){
+            if($value === null){
                 unset($data->$key);
             }
         }

@@ -31,7 +31,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
                 $data = null;
                 if($request->getContent()) {
                     $data = json_decode($request->getContent(), true);
-                    if ($data == null) {
+                    if ($data === null) {
                         throw new \Exception("Inavlid JSON-Data", 500);
                     }
                 }

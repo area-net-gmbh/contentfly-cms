@@ -45,6 +45,9 @@ class FileController extends BaseController
         $this->app['dispatcher']->dispatch('pim.file.before.upload', $event);
 
         foreach($request->files as $key => $file){
+
+
+
             if($request->get("id")){
 
                 $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($request->get("id"));
@@ -67,7 +70,7 @@ class FileController extends BaseController
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    $log->setData(serialize($fileObject));
+                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::INSERTED);
                     $this->em->persist($log);
                 }else{
@@ -75,7 +78,7 @@ class FileController extends BaseController
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    $log->setData(serialize($fileObject));
+                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::UPDATED);
                     $this->em->persist($log);
                 }
@@ -93,14 +96,16 @@ class FileController extends BaseController
 
                 $fileObject->setType($file->getClientMimeType());
                 $fileObject->setSize($file->getClientSize());
-
+                $fileObject->setUserCreated($this->app['auth.user']);
+                $fileObject->setUser($this->app['auth.user']);
                 $fileObject->setHash($hash);
 
                 $this->em->persist($fileObject);
                 $this->em->flush();
 
                 $backend = Backend::getInstance();
-                $file->move($backend->getPath($fileObject), $fileObject->getName());
+                $dir = $backend->getPath($fileObject);
+                $file->move($dir, $filename);
 
                 $processor = Processing::getInstance($file->getClientMimeType());
                 $processor->execute($backend, $fileObject);
@@ -144,26 +149,34 @@ class FileController extends BaseController
                     $fileObject->setType($file->getClientMimeType());
                     $fileObject->setSize($file->getClientSize());
                     $fileObject->setHash($hash);
+                    $fileObject->setUserCreated($this->app['auth.user']);
+                    $fileObject->setUser($this->app['auth.user']);
                     $this->em->persist($fileObject);
+
+                    $backend = Backend::getInstance();
+                    $dir = $backend->getPath($fileObject);
+               
+                    $file->move($dir, $filename);
 
                     $log = new Log();
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    $log->setData(serialize($fileObject));
+                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::INSERTED);
                     $this->em->persist($log);
 
                     $this->em->flush();
 
-                    $backend = Backend::getInstance();
-                    $file->move($backend->getPath($fileObject), $filename);
+
 
                     $processor = Processing::getInstance($file->getClientMimeType());
                     $processor->execute($backend, $fileObject);
 
 
                 } else {
+
+                    $fileObject->setUser($this->app['auth.user']);
 
                     if($width){
                         $fileObject->setWidth($width);
@@ -176,7 +189,7 @@ class FileController extends BaseController
                     $log->setModelName('PIM\File');
                     $log->setUser($this->app['auth.user']);
                     $log->setModelId($fileObject->getId());
-                    $log->setData(serialize($fileObject));
+                    //$log->setData(serialize($fileObject));
                     $log->setMode(Log::UPDATED);
                     $this->em->persist($log);
 

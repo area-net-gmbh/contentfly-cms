@@ -37,7 +37,6 @@ class ImageMagick implements ProcessingInterface
 
     public function execute(BackendInterface $backend, File $fileObject, $fileSizeAlias = null, $variant = null)
     {
-        //todo: variant auswerten und nur Variante erzeugen
 
         if(!isset($this->mimeMapping[$fileObject->getType()])){
             return;
@@ -49,6 +48,10 @@ class ImageMagick implements ProcessingInterface
 
         $type           = $this->mimeMapping[$fileObject->getType()];
         $imExecutable   = Adapter::getConfig()->IMAGEMAGICK_EXECUTABLE;
+
+        if (!is_executable($imExecutable)) {
+            throw new \Exception("ImageMagick-Funktion $imExecutable nicht auf dem Server ausführbar.");
+        }
 
         foreach($this->thumbnailSettings as $thumbnailSetting){
 
