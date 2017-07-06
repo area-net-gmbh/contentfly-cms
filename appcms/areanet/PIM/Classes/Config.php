@@ -43,6 +43,11 @@ class Config{
     public $DB_PASS     = null;
 
     /**
+    * @var string $DB_PORT Database Password
+    */
+    public $DB_PORT     = 3306;
+
+    /**
      * @var string $DB_HOST Database Charset
      */
     public $DB_CHARSET  = 'utf8';

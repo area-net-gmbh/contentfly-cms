@@ -229,8 +229,6 @@ class ApiController extends BaseController
         $currentPage            = $request->get('currentPage');
         $itemsPerPage           = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
         $flatten                = $request->get('flatten', false);
-        $properties             = $request->get('properties', array());
-        $properties             = is_array($properties) ? $properties : array();
         $lastModified           = $request->get('lastModified', null);
 
         if(!empty($lastModified)) {
@@ -417,6 +415,9 @@ class ApiController extends BaseController
         $event->setParam('user',           $this->app['auth.user']);
 
         $this->app['dispatcher']->dispatch('pim.entity.before.list', $event);
+
+        $properties     = $request->get('properties', array());
+        $properties     = is_array($properties) ? $properties : array();
 
         $query      = $queryBuilder->getQuery();
         $totalObjects = $query->getSingleScalarResult();
@@ -610,7 +611,7 @@ class ApiController extends BaseController
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
         $log->setUser($app['auth.user']);
-        $log->setData(serialize($object));
+        //$log->setData(serialize($object));
         $log->setMode(Log::DELETED);
 
         if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -881,7 +882,7 @@ class ApiController extends BaseController
             $log->setModelId($object->getId());
             $log->setModelName($entityName);
             $log->setUser($user);
-            $log->setData(serialize($object));
+            //$log->setData(serialize($object));
             $log->setMode(Log::INSERTED);
 
             if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -1091,7 +1092,7 @@ class ApiController extends BaseController
 
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
-        $log->setData(serialize($object));
+        //$log->setData(serialize($object));
         if($user) $log->setUser($user);
         $log->setMode(Log::UPDATED);
 
