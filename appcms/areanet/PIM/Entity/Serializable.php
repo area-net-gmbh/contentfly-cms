@@ -7,7 +7,7 @@ use Silex\Application;
 
 abstract class Serializable implements \JsonSerializable{
 
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->toValueObject();
     }

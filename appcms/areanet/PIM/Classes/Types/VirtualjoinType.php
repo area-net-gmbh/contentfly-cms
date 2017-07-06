@@ -52,13 +52,6 @@ class VirtualjoinType extends Type
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
-        $getter = 'get'.ucfirst($property);
-
-        $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-
-        /*if(!Permission::isWritable($user, $entity)){
-            throw new AccessDeniedHttpException("Zugriff auf $entity verweigert.");
-        }*/
 
         $data = array();
 
@@ -100,7 +93,5 @@ class VirtualjoinType extends Type
 
         return $data;
     }
-
-
-
+    
 }

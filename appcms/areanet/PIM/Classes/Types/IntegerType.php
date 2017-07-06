@@ -31,7 +31,6 @@ class IntegerType extends Type
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
-        $getter = 'get'.ucfirst($property);
         if(!is_array($value) && $value !== null){
             $object->$setter($value);
         }else{

@@ -55,7 +55,6 @@ class StringType extends Type
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
-        $getter = 'get'.ucfirst($property);
 
         if(empty($value)){
             $object->$setter('');
@@ -78,5 +77,4 @@ class StringType extends Type
 
     }
 
-    
 }

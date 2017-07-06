@@ -201,7 +201,4 @@ class ThumbnailSetting extends Base
         $this->isResponsive = $isResponsive;
     }
 
-        
-
-
 }

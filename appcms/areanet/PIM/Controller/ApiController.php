@@ -152,7 +152,6 @@ class ApiController extends BaseController
     protected function loadTree($entityName, $entity, $parent){
         $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isIntern' => false), array('sorting' => 'ASC'));
         $array   = array();
-        $schema  = $this->app['schema'];
 
         foreach($objects as $object){
             $data = $object->toValueObject($this->app, $entityName, true);
@@ -611,7 +610,6 @@ class ApiController extends BaseController
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
         $log->setUser($app['auth.user']);
-        //$log->setData(serialize($object));
         $log->setMode(Log::DELETED);
 
         if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -675,8 +673,6 @@ class ApiController extends BaseController
         $entityName          = $request->get('entity');
         $id                  = $request->get('id');
         $data                = $request->get('data');
-
-        $schema              = $this->app['schema'];
 
         $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
         if(substr($entityName, 0, 3) == "PIM"){
@@ -764,8 +760,6 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
-        $schema = $this->app['schema'];
-
         return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
     }
 
@@ -785,9 +779,6 @@ class ApiController extends BaseController
         $object  = new $entityPath();
 
         foreach($data as $property => $value){
-            $setter = 'set'.ucfirst($property);
-            $getter = 'get'.ucfirst($property);
-
             if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
                 throw new \Exception("Unkown property $property for entity $entityPath", 500);
             }
@@ -854,7 +845,6 @@ class ApiController extends BaseController
                 $pushTitle  = $schema[$entityName]['settings']['pushTitle'];
                 $pushText   = $schema[$entityName]['settings']['pushText'];
 
-                $additionalData = array();
 
                 $event = new \Areanet\PIM\Classes\Event();
                 $event->setParam('entity',          $entityName);
@@ -882,7 +872,6 @@ class ApiController extends BaseController
             $log->setModelId($object->getId());
             $log->setModelName($entityName);
             $log->setUser($user);
-            //$log->setData(serialize($object));
             $log->setMode(Log::INSERTED);
 
             if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -1046,8 +1035,6 @@ class ApiController extends BaseController
         foreach($data as $property => $value){
             if($property == 'modified' || $property == 'created') continue;
 
-            $setter = 'set'.ucfirst($property);
-            $getter = 'get'.ucfirst($property);
 
             if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
                 throw new \Exception("Unkown property $property for entity $entityPath", 500);
@@ -1092,7 +1079,6 @@ class ApiController extends BaseController
 
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
-        //$log->setData(serialize($object));
         if($user) $log->setUser($user);
         $log->setMode(Log::UPDATED);
 
@@ -1149,7 +1135,6 @@ class ApiController extends BaseController
     {
         $timestamp              = $request->get('lastModified');
         $filedata               = $request->get('filedata');
-        $check                  = $request->get('check', false);
         $flatten                = $request->get('flatten', false);
 
         $lastModified = null;
@@ -1162,7 +1147,6 @@ class ApiController extends BaseController
         }
 
         $entities   = array('Areanet\PIM\Entity\File');
-        $schema     = $this->app['schema'];
 
         $entityFolder = __DIR__.'/../../../../custom/Entity/';
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
@@ -1219,58 +1203,6 @@ class ApiController extends BaseController
 
                 $objectData = $object->toValueObject($this->app, $entityShortcut, $flatten);
 
-                /*if(isset($schema[$entityShortcut])) {
-
-                    foreach ($schema[$entityShortcut]['properties'] as $key => $config) {
-                        if($flatten){
-                            if (isset($config['type']) && $config['type'] == 'multifile') {
-                                $getterName = 'get' . ucfirst($key);
-                                $multiFiles = $object->$getterName();
-                                $multiData = array();
-                                foreach ($multiFiles as $multiFile) {
-                                    $multiData[] =  array("id" => $multiFile->getid());
-                                }
-                                $objectData->$key = $multiData;
-                            }
-
-                            if (isset($config['type']) && $config['type'] == 'multijoin') {
-                                $getterName = 'get' . ucfirst($key);
-                                $multiFiles = $object->$getterName();
-                                $multiData = array();
-                                foreach ($multiFiles as $multiFile) {
-                                    $multiData[] =  array("id" => $multiFile->getid());
-                                }
-                                $objectData->$key = $multiData;
-                            }
-                        }else {
-                            if (isset($config['type']) && $config['type'] == 'multifile') {
-                                $getterName = 'get' . ucfirst($key);
-                                $multiFiles = $object->$getterName();
-                                $multiData = array();
-                                foreach ($multiFiles as $multiFile) {
-                                    $multiData[] = $multiFile->toValueObject($this->app, $entityShortcut);
-                                }
-                                $objectData->$key = $multiData;
-                            }
-
-                            if (isset($config['type']) && $config['type'] == 'multijoin') {
-
-                                $getterName = 'get' . ucfirst($key);
-                                $multiFiles = $object->$getterName();
-                                $multiData = array();
-
-                                foreach ($multiFiles as $multiFile) {
-                                    $multiData[] = $multiFile->toValueObject($this->app, $entityShortcut);
-                                }
-
-
-                                $objectData->$key = $multiData;
-                            }
-                        }
-                    }
-                }
-
-*/
                 if($object instanceof File && $filedata !== null){
 
                     $backendFS = new FileSystem();

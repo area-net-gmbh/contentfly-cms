@@ -57,7 +57,6 @@ class DatetimeType extends Type
     {
        
         $setter = 'set'.ucfirst($property);
-        $getter = 'get'.ucfirst($property);
 
         if($value){
             if(is_array($value)){

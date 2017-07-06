@@ -69,7 +69,7 @@ class PIM_Installer{
 
         //MySQL
         try{
-            $dbh = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
+            new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
         }catch(Exception $e){
             return $e->getMessage();
         }

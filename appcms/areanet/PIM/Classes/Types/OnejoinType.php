@@ -50,7 +50,6 @@ class OnejoinType extends Type
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
-        $getter = 'get'.ucfirst($property);
 
         $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 

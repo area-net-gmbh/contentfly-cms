@@ -43,8 +43,6 @@ abstract class Type
     public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
-        $getter = 'get'.ucfirst($property);
-
         $object->$setter($value);
     }
 

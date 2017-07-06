@@ -134,10 +134,5 @@ class Log extends Base
         $this->data = $data;
     }
 
-
-    
-    
-
     
 }
-?>
