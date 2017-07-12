@@ -747,7 +747,7 @@ class ApiController extends BaseController
         }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(\Exception $e){
-            return new JsonResponse(array('message' => $e->getMessage()), $e->getCode());
+            return new JsonResponse(array('message' => $e->getMessage()), 500);
         }
 
         $event = new \Areanet\PIM\Classes\Event();

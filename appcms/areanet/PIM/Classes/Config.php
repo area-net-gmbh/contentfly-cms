@@ -53,6 +53,11 @@ class Config{
     public $DB_CHARSET  = 'utf8';
 
     /**
+     * @var string $DB_HOST Database Collate
+     */
+    public $DB_COLLATE  = 'utf8_unicode_ci';
+
+    /**
      * @var string $DB_NESTED_LEVELS Loading x nested levels
      */
     public $DB_NESTED_LEVELS  = 3;
