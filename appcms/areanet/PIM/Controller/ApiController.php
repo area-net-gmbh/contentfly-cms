@@ -281,8 +281,9 @@ class ApiController extends BaseController
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
         }
-
+        
         $schema     = $this->app['schema'];
+
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select("count(".$entityName.")")

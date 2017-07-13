@@ -46,6 +46,7 @@ class Api
             if(file_exists($cacheFile)){
 
                 $data = unserialize(file_get_contents($cacheFile));
+
                 return $data;
             }
         }
