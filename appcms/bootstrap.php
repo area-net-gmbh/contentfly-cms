@@ -97,7 +97,42 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
     )
 ));
 
+if(!Config\Adapter::getConfig()->APP_DEBUG){
+    $config = $app['orm.em']->getConfiguration();
+    switch (Config\Adapter::getConfig()->APP_CACHE_DRIVER){
+        case 'apc':
+            $config->setQueryCacheImpl(new \Doctrine\Common\Cache\ApcCache('query'));
+            $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ApcCache('metadata'));
+            break;
+        case 'apcu':
+            $config->setQueryCacheImpl(new \Doctrine\Common\Cache\ApcuCache('query'));
+            $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ApcuCache('metadata'));
+            break;
+        case 'memcached':
+            $cache = new \Doctrine\Common\Cache\MemcachedCache();
+            $cache->setMemcached(new Memcached());
 
+            $config->setQueryCacheImpl($cache);
+            $config->setMetadataCacheImpl($cache);
+            break;
+        case 'filesystem':
+        default:
+            $config->setQueryCacheImpl(new \Doctrine\Common\Cache\FilesystemCache(ROOT_DIR.'/../data/cache/query'));
+            $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\FilesystemCache(ROOT_DIR.'/../data/cache/metadata'));
+            break;
+    }
+}
+
+/*
+$app['orm.em']
+    ->getConfiguration()
+    //->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
+    ->setQueryCacheImpl(new \Doctrine\Common\Cache\FilesystemCache(ROOT_DIR.'/../data/cache/query'));
+
+$app['orm.em']
+    ->getConfiguration()
+    ->setMetadataCacheImpl(new \Doctrine\Common\Cache\FilesystemCache(ROOT_DIR.'/../data/cache/metadata_cache'));
+*/
 
 
 $app['typeManager'] = $app->share(function ($app) {

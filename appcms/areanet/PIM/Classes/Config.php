@@ -74,6 +74,11 @@ class Config{
     public $APP_ENABLE_SCHEMA_CACHE = true;
 
     /**
+     * @var string  Cache-Driver filesystem,apc,memcached
+     */
+    public $APP_CACHE_DRIVER = 'filesystem';
+
+    /**
      * @var integer Token Timeout in ms
      */
     public $APP_TOKEN_TIMEOUT = 1800;
