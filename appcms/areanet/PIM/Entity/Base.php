@@ -51,7 +51,7 @@ class Base extends Serializable
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
      * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id", onDelete="SET NULL")
-     * @PIM\Config(label="erstellt von", hide=true)
+     * @PIM\Config(showInList = 1000, label="Besitzer", tab="settings")
      */
     protected $userCreated;
     

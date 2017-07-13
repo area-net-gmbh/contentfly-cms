@@ -106,9 +106,11 @@ class ApiController extends BaseController
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Auszulesende Entity
+     * @apiParam {Array} [properties] Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)<code>['feld1', 'feld2', ...]</code>
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "Category",
+     *      "properties": ["title"]
      *     }
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -134,6 +136,7 @@ class ApiController extends BaseController
     public function treeAction(Request $request)
     {
         $entityName   = $request->get('entity');
+        $properties   = $request->get('properties');
 
         if (substr($entityName, 0, 3) == 'PIM') {
             $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
@@ -146,18 +149,43 @@ class ApiController extends BaseController
             $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
-        return new JsonResponse(array('message' => "treeAction", 'data' => $this->loadTree($entityName, $entityNameToLoad, null)));
+        return new JsonResponse(array('message' => "treeAction", 'data' => $this->loadTree($entityName, $entityNameToLoad, null, $properties)));
     }
 
-    protected function loadTree($entityName, $entity, $parent){
-        $objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isIntern' => false), array('sorting' => 'ASC'));
+    protected function loadTree($entityName, $entity, $parent, $properties = array()){
+        //$objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isIntern' => false), array('sorting' => 'ASC'));
+
+
+        $queryBuilder = $this->em->createQueryBuilder();
+        $queryBuilder->from($entity, $entityName)
+            ->where("$entityName.isIntern = false")
+            ->orderBy($entityName.'.sorting', 'ASC');
+
+        if($parent){
+            $queryBuilder->andWhere("$entityName.treeParent = :treeParent");
+            $queryBuilder->setParameter('treeParent', $parent);
+        }else{
+            $queryBuilder->andWhere("$entityName.treeParent IS NULL");
+        }
+
+        if(count($properties) > 0){
+            $partialProperties = implode(',', $properties);
+            $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
+        }else{
+            $queryBuilder->select($entityName);
+        }
+
+        $query   = $queryBuilder->getQuery();
+        $objects = $query->getResult();
+        //die($query->getSQL());
         $array   = array();
 
         foreach($objects as $object){
-            $data = $object->toValueObject($this->app, $entityName, true);
-            $data->treeChilds = $this->loadTree($entityName, $entity, $object);
+            $data = $object->toValueObject($this->app, $entityName, true, $properties);
+            $data->treeChilds = $this->loadTree($entityName, $entity, $object, $properties);
             $array[] = $data;
         }
+
         return $array;
     }
 
@@ -253,8 +281,9 @@ class ApiController extends BaseController
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
         }
-
+        
         $schema     = $this->app['schema'];
+
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select("count(".$entityName.")")
