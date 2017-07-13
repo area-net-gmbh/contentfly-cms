@@ -151,8 +151,6 @@
                     <th class="ng-scope">ID</th>
                     <th ng-show="vm.schema.settings.isSortable">Position</th>
                     <th ng-repeat="property in vm.schema.list">{{vm.schema.properties[property].label}}</th>
-                    <th class="ng-scope">geändert am</th>
-                    <th class="ng-scope" ng-show="vm.permissions['PIM\\User'].readable">geändert von</th>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>
                     <th></th>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_APPEND2" uiblocks="uiblocks"></pim-plugin>
@@ -164,8 +162,6 @@
                     <td title="{{object.id}}"><pim-plugin key="LIST_TABLE_BODY_COL_ID_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_ID_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-show="vm.schema.settings.isSortable"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="sorting" long="false" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-repeat="property in vm.schema.list"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
-                    <td><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
-                    <td ng-show="vm.permissions['PIM\\User'].readable"><pim-plugin key="LIST_TABLE_BODY_COL_USER_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_USER_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>
                     <td>
                         <div class="pull-right">
@@ -185,8 +181,6 @@
                     <td title="{{object.id}}"><pim-plugin key="LIST_TABLE_BODY_COL_ID_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_ID_APPEND" uiblocks="uiblocks"></td>
                     <td ng-show="vm.schema.settings.isSortable"><pim-plugin key="LIST_TABLE_BODY_COL_SORTING_PREPEND" uiblocks="uiblocks"></pim-plugin>{{object.sorting}}<pim-plugin key="LIST_TABLE_BODY_COL_SORTING_APPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-repeat="property in vm.schema.list"><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin></td>
-                    <td><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="modified" long="true" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_MODIFIED_APPEND" uiblocks="uiblocks"></pim-plugin></td>
-                    <td ng-show="vm.permissions['PIM\\User'].readable"><pim-plugin key="LIST_TABLE_BODY_COL_USER_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="user" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_USER_APPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td>
                         <div class="pull-right">
                             <span ng-show="vm.schema.settings.isSortable && vm.sortProperty == 'sorting'" class="btn btn-default btn-sm glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>

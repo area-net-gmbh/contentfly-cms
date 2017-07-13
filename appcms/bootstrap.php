@@ -97,7 +97,7 @@ $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvide
     )
 ));
 
-if(!Config\Adapter::getConfig()->APP_DEBUG){
+if(!Config\Adapter::getConfig()->APP_DEBUG && !defined('APPCMS_CONSOLE')){
     $config = $app['orm.em']->getConfiguration();
     switch (Config\Adapter::getConfig()->APP_CACHE_DRIVER){
         case 'apc':
@@ -122,18 +122,6 @@ if(!Config\Adapter::getConfig()->APP_DEBUG){
             break;
     }
 }
-
-/*
-$app['orm.em']
-    ->getConfiguration()
-    //->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
-    ->setQueryCacheImpl(new \Doctrine\Common\Cache\FilesystemCache(ROOT_DIR.'/../data/cache/query'));
-
-$app['orm.em']
-    ->getConfiguration()
-    ->setMetadataCacheImpl(new \Doctrine\Common\Cache\FilesystemCache(ROOT_DIR.'/../data/cache/metadata_cache'));
-*/
-
 
 $app['typeManager'] = $app->share(function ($app) {
     return new \Areanet\PIM\Classes\Manager\TypeManager($app);

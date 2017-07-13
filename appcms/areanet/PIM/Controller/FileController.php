@@ -71,6 +71,7 @@ class FileController extends BaseController
                     $log->setModelId($fileObject->getId());
                     $log->setMode(Log::INSERTED);
                     $this->em->persist($log);
+                    $this->em->flush();
                 }else{
                     $log = new Log();
                     $log->setModelName('PIM\File');
@@ -149,6 +150,8 @@ class FileController extends BaseController
                     $fileObject->setUserCreated($this->app['auth.user']);
                     $fileObject->setUser($this->app['auth.user']);
                     $this->em->persist($fileObject);
+
+                    $this->em->flush();
 
                     $backend = Backend::getInstance();
                     $dir = $backend->getPath($fileObject);

@@ -272,7 +272,7 @@
             var sortSettings = {};
             sortSettings[vm.sortProperty] = vm.sortOrder;
 
-            var properties = ['id', 'modified', 'created', 'user'];
+            var properties = ['id'];
 
             for (key in vm.schema.list ) {
                 properties.push(vm.schema.list[key]);
@@ -372,9 +372,21 @@
                         continue;
                     }
 
+                    var joinSchema = localStorageService.get('schema')[entity];
+
                     if (localStorageService.get('schema')[entity].settings.type == 'tree') {
 
-                        EntityService.tree({entity: entity}).then(
+                        var properties = ['id'];
+                        if (joinSchema.settings.isSortable) {
+                            properties.push('sorting');
+                        }
+                        for (var key2 in joinSchema.list) {
+                            properties.push(joinSchema.list[key2]);
+                        }
+
+                        EntityService.tree(
+                            {entity: entity, properties: properties}
+                        ).then(
                             (function (entity, key) {
                                 return function (response) {
                                     generateTree(entity, key, response.data.data, 0)
@@ -384,9 +396,9 @@
                             }
                         );
                     } else {
-                        var joinSchema = localStorageService.get('schema')[entity];
 
-                        var properties = ['id', 'modified', 'created', 'user'];
+
+                        var properties = ['id'];
                         if (joinSchema.settings.isSortable) {
                             properties.push('sorting');
                         }
@@ -617,7 +629,7 @@
 
             var joinSchema = localStorageService.get('schema')[entity];
 
-            var properties = ['id', 'modified', 'created', 'user'];
+            var properties = ['id'];
             if (joinSchema.settings.isSortable) {
                 properties.push('sorting');
             }
