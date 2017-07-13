@@ -53,6 +53,7 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
             'user'      => Config\Adapter::getConfig()->DB_USER,
             'password'  => Config\Adapter::getConfig()->DB_PASS,
             'charset'   => Config\Adapter::getConfig()->DB_CHARSET,
+            'collate'   => Config\Adapter::getConfig()->DB_COLLATE,
         )
     ),
 ));
@@ -172,7 +173,8 @@ $app['database'] = $app->share(function ($app){
 
     $connectionParams = array(
         'url'       => 'mysql://'.$config->DB_USER.':'.$config->DB_PASS.'@'.$config->DB_HOST.':'.$config->DB_PORT.'/'.$config->DB_NAME,
-        'charset'   => 'utf8'
+        'charset'   => $config->DB_CHARSET,
+        'collate'   => $config->DB_COLLATE
     );
   
     return  \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
