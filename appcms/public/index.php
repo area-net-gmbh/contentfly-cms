@@ -16,7 +16,10 @@ use Symfony\Component\Debug\ExceptionHandler;
 ExceptionHandler::register();
 ErrorHandler::register();
 
+
+
 $app->error(function (\Exception $e, $code) use($app) {
+
     if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
         return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 404));
     }else{
@@ -69,6 +72,7 @@ if(Config\Adapter::getConfig()->APP_ALLOW_ORIGIN){
         return new \Symfony\Component\HttpFoundation\JsonResponse(null, 204);
     })->assert("anything", ".*");
 }
+
 
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
 

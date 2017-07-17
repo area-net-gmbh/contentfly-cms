@@ -15,7 +15,7 @@ class Base extends Serializable
      * @ORM\Column(type=APPCMS_ID_TYPE)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy=APPCMS_ID_STRATEGY)
-     * @PIM\Config(readonly=true, hide=true, label="ID")
+     * @PIM\Config(readonly=true, label="ID", tab="settings")
      */
     protected $id;
 

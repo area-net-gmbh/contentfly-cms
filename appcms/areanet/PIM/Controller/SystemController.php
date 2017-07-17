@@ -13,6 +13,7 @@ use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Tools\SchemaValidator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -67,17 +68,31 @@ class SystemController extends BaseController
             unlink(ROOT_DIR.'/../data/cache/schema.cache');
         }
 
+        if(!Adapter::getConfig()->APP_DEBUG){
+            $this->app['orm.em']->getConfiguration()->getQueryCacheImpl()->deleteAll();
+            $this->app['orm.em']->getConfiguration()->getMetadataCacheImpl()->deleteAll();
+        }
+
         return 'Schema-Cache wurde geleert!';
     }
 
     protected function updateDatabase(Request $request)
     {
 
-        return shell_exec('cd '.ROOT_DIR.' && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.Adapter::getConfig()->SYSTEM_PHP_CLI_COMMAND.' vendor/bin/doctrine orm:schema:update --force');
+        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->app['orm.em']);
+        $classes = $this->app['orm.em']->getMetadataFactory()->getAllMetadata();
+        try {
+            $schemaTool->updateSchema($classes);
+        }catch(\Exception $e){
+            return $e->getMessage();
+        }
+
+        return "Die Datenbank wurde erfolgreich aktualisiert.";
     }
 
     protected function validateORM(Request $request)
     {
+
         return shell_exec('cd '.ROOT_DIR.' && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.Adapter::getConfig()->SYSTEM_PHP_CLI_COMMAND.' vendor/bin/doctrine orm:validate-schema');
     }
 
