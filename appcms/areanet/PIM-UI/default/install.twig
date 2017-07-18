@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>:: APP-CMS Installation :::</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="page-header">
+                <h1>APP-CMS <small>Installation</small></h1>
+            </div>
+        </div>
+    </div>
+    {% if installed|default(false)  %}
+        <div class="col-md-6 col-md-offset-3">
+            <div class="alert alert-success" role="alert">
+                <p>
+                    <b>Die Installation war erfolgreich</b><br><br>
+                    Die Installation des APP-CMS war erfolgreich. Sie können sich mit Benutzername <i>admin</i>
+                    und Passwort <i>admin</i> in das APP-CMS UI einloggen. Vergessen Sie nicht im Anschluss das
+                    Administratoren-Kennwort auf eine sichere Variante umzustellen.<br><br>
+                </p>
+                <ul><li><a href="/?no_cache={{ installed }}">Jetzt in das APP-CMS UI einloggen</a></li></ul>
+            </div>
+        </div>
+    {% else %}
+    <form method="post">
+        <input type="hidden" id="start" name="start" value="1">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                {% if errors  %}
+                <div class="alert alert-danger" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <b>Folgende Fehler sind aufgetreten:</b>
+                    <ul>
+                    {% for field,message in errors %}
+                        <li>[{{ field }}] {{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <h2>Datenbank</h2>
+                <div class="form-group">
+                    <label for="db_host">Host</label>
+                    <input type="text" class="form-control" name="db_host" id="db_host" placeholder="DB-HOST" value="{{ app.request.request.all.db_host|default('')}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_name">Name</label>
+                    <input type="text" class="form-control" name="db_name" id="db_name" placeholder="DB-NAME" value="{{ app.request.request.all.db_name|default('')}}" required >
+                </div>
+                <div class="form-group">
+                    <label for="db_user">Benutzer</label>
+                    <input type="text" class="form-control" name="db_user" id="db_user" placeholder="DB-USER" value="{{ app.request.request.all.db_user|default('')}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_pass">Passwort</label>
+                    <input type="text" class="form-control" name="db_pass" id="db_pass" placeholder="DB-PASS" value="{{ app.request.request.all.db_pass|default('')}}" required>
+                </div>
+                <h2>ID-Strategie</h2>
+                <div class="form-group">
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="db_strategy" id="db_strategy_auto" value="guid" {% if app.request.request.all.db_strategy|default('') == 'guid' %}checked{% endif %}>
+                            <b>GUID</b> (Synchronisations-Unterstützung)</label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="db_strategy" id="db_strategy_auto" value="auto" {% if app.request.request.all.db_strategy|default('') == 'auto' %}checked{% endif %}>
+                            <b>AUTO-INCREMENT</b></label>
+                    </div>
+                </div>
+                <button type="submit" name="btn_submit" class="btn btn-primary">APP-CMS jetzt installieren</button>
+            </div>
+
+        </div>
+    </form>
+    {% endif %}
+
+</div>
+</body>
+</html>

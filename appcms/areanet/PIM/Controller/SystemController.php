@@ -89,12 +89,7 @@ class SystemController extends BaseController
 
         return "Die Datenbank wurde erfolgreich aktualisiert.";
     }
-
-    protected function validateORM(Request $request)
-    {
-
-        return shell_exec('cd '.ROOT_DIR.' && SERVER_NAME="'.$_SERVER['SERVER_NAME'].'" '.Adapter::getConfig()->SYSTEM_PHP_CLI_COMMAND.' vendor/bin/doctrine orm:validate-schema');
-    }
+    
 
     protected function deleteToken(Request $request)
     {

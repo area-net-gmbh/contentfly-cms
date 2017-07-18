@@ -24,7 +24,7 @@ abstract class BaseController
     public function __construct($app)
     {
         $this->app = $app;
-        $this->setEM($this->app['orm.em']);
+        if($this->app['orm.em']) $this->setEM($this->app['orm.em']);
         $this->setTwig($this->app['twig']);
         
     }

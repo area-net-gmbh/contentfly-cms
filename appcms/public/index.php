@@ -9,13 +9,16 @@ $app['ui.controller'] = $app->share(function() use ($app) {
     return new Controller\UiController($app);
 });
 
+$app['install.controller'] = $app->share(function() use ($app) {
+    return new Controller\InstallController($app);
+});
+
 
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\Debug\ExceptionHandler;
 
 ExceptionHandler::register();
 ErrorHandler::register();
-
 
 
 $app->error(function (\Exception $e, $code) use($app) {
@@ -27,7 +30,7 @@ $app->error(function (\Exception $e, $code) use($app) {
         
         if(!$accept->has('application/json') && !$accept->has('multipart/form-data')){
             if($app['debug']){
-                die('<h1>Fehler '.$e->getCode().'</h1><h2>'.$e->getMessage().'</h2><pre>'.$e->getTraceAsString().'</pre>');
+                return new \Symfony\Component\HttpFoundation\Response('<h1>'.$e->getMessage().'</h1><pre>'.$e->getTraceAsString().'</pre>', 500);
             }else {
                 return $app->redirect('/');
             }
@@ -73,8 +76,9 @@ if(Config\Adapter::getConfig()->APP_ALLOW_ORIGIN){
     })->assert("anything", ".*");
 }
 
-
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
+$app->get(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:indexAction');
+$app->post(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:submitAction');
 
 $app->mount('/api', new \Areanet\PIM\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));
 $app->mount('/auth', new \Areanet\PIM\Classes\Controller\Provider\Base\AuthControllerProvider('/auth'));
