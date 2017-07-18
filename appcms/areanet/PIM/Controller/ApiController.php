@@ -290,6 +290,7 @@ class ApiController extends BaseController
             ->from($entityNameToLoad, $entityName)
             ->andWhere("$entityName.isIntern = false");
 
+
         if($permission == \Areanet\PIM\Entity\Permission::OWN){
             $queryBuilder->andWhere("$entityName.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityName.users) = 1");
             $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
@@ -446,7 +447,7 @@ class ApiController extends BaseController
         $properties     = $request->get('properties', array());
         $properties     = is_array($properties) ? $properties : array();
 
-        $query      = $queryBuilder->getQuery();
+        $query       = $queryBuilder->getQuery();
         $totalObjects = $query->getSingleScalarResult();
 
         if($currentPage*$itemsPerPage > $totalObjects){

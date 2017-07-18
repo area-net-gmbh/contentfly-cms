@@ -125,7 +125,6 @@ if($app['is_installed']) {
         return new \Areanet\PIM\Classes\Manager\TypeManager($app);
     });
 
-
     foreach (Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType) {
         $typeClass = new $systemType($app);
         $app['typeManager']->registerType($typeClass);
