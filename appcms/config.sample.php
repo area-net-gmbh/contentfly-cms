@@ -18,6 +18,4 @@ $configDefault->DB_GUID_STRATEGY        = '$SET_DB_GUID_STRATEGY';
 $configDefault->APP_DEBUG               = true;
 $configDefault->APP_ENABLE_SCHEMA_CACHE = false;
 
-$configDefault->SYSTEM_PHP_CLI_COMMAND = '$SET_SYSTEM_PHP_CLI_COMMAND';
-
 $configFactory->setConfig($configDefault);

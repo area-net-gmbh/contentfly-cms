@@ -2,13 +2,10 @@
 namespace Areanet\PIM\Classes\Controller\Provider;
 
 use Areanet\PIM\Classes\Config\Adapter;
-use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 abstract class BaseControllerProvider implements ControllerProviderInterface
 {
@@ -27,6 +24,12 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
     protected function setUpMiddleware(Application $app)
     {
         $app->before(function (Request $request)use ($app) {
+
+            $controller = $request->get('_controller');
+            if (substr($controller, 0, 7) != 'install' && Adapter::getConfig()->DB_HOST == '$SET_DB_HOST'){
+                return $app->redirect('install');
+            }
+
             if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
                 $data = null;
                 if($request->getContent()) {

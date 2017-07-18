@@ -166,6 +166,11 @@ class Config{
     public $APP_MAX_AGE             = 0;
 
     /**
+     * @var string Load Installer
+     */
+    public $APP_INSTALLER_URL = 'install';
+
+    /**
      * @var string Load Frontend UI in folder /ui/...
      */
     public $FRONTEND_UI = 'default';
