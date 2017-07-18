@@ -219,7 +219,7 @@ class FileController extends BaseController
      * @apiExample {curl} ID und Dateiname
      *     /file/get/12/sample.jpg
      * @apiExample {curl} ID und Größe
-     *     /file/get/12/s_large
+     *     /file/get/12/s-large
      * @apiExample {curl} Thumbnails anhand ID und Dateiname
      *     /file/get/12/small/sample.jpg
      * @apiExample {curl} Thumbnails anhand ID, Dateiname und Responsive
@@ -233,14 +233,15 @@ class FileController extends BaseController
      *
      * - /file/get/ID
      * - /file/get/ID/ALIAS
-     * - /file/get/ID/s_SIZE
+     * - /file/get/ID/s-SIZE
+     * - /file/get/ID/s-SIZE/ALIAS
      * - /file/get/ID/SIZE/ALIAS
      * - /file/get/ID/SIZE/VARIANT/ALIAS
+     * - /file/get/ID/s-SIZE/VARIANT/ALIAS
      *
      * Der Parameter ALIAS (z.B. beliebiger Dateiname) kann frei für SEO-Zwecke gesetzt werden und hat keinen Einfluss auf die Abfrage des entsprechenden Objektes. Für die Abfrage spielt lediglich die ID eine Rolle.
      */
     public function getAction($id, $alias = null, $size = null, $variant = null){
-
         $fileObject = null;
         $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
@@ -351,7 +352,6 @@ class FileController extends BaseController
                 'ETag' => $etagFile,
                 'X-Sendfile' => $fileName
             );
-            
             return new Response('', 200, $headers);
         }else{
 
