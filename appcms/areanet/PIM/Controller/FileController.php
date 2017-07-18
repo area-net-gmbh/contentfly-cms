@@ -221,6 +221,8 @@ class FileController extends BaseController
      *     /file/get/12
      * @apiExample {curl} ID und Dateiname
      *     /file/get/12/sample.jpg
+     * @apiExample {curl} ID und Größe
+     *     /file/get/12/s_large
      * @apiExample {curl} Thumbnails anhand ID und Dateiname
      *     /file/get/12/small/sample.jpg
      * @apiExample {curl} Thumbnails anhand ID, Dateiname und Responsive
@@ -234,6 +236,7 @@ class FileController extends BaseController
      *
      * - /file/get/ID
      * - /file/get/ID/ALIAS
+     * - /file/get/ID/s_SIZE
      * - /file/get/ID/SIZE/ALIAS
      * - /file/get/ID/SIZE/VARIANT/ALIAS
      *
