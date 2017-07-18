@@ -106,13 +106,8 @@ class InstallController extends BaseController
     }
 
     protected function executeInstallation(Request $request){
-        $errors = array();
 
         $db_strategy_bool = $request->get('db_strategy') == 'guid' ? 'true' : 'false';
-        $system_php = '';
-        if($request->get('system_php')){
-            $system_php = '$configDefault->SYSTEM_PHP_CLI_COMMAND = \''.$request->get('system_php').'\';';
-        }
 
         $configFileData = file_get_contents(ROOT_DIR."/../custom/config.php");
 
@@ -228,7 +223,4 @@ class InstallController extends BaseController
         return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
     }
 
-
-
-    //$errors = $app['validator']->validate($email, new Assert\Email());
 }

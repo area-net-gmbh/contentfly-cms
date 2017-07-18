@@ -43,48 +43,97 @@ class FileController extends BaseController
         $event->setParam('app',     $this->app);
         $this->app['dispatcher']->dispatch('pim.file.before.upload', $event);
 
-        foreach($request->files as $key => $file){
+        $file   = $request->files->get('file');
+
+        if($request->get("id")){
+
+            $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($request->get("id"));
+
+            if (!$fileObject) {
+                $fileObject = new File();
+
+                $metadata = $this->em->getClassMetaData(get_class($fileObject));
+                $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
+                if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
+                $fileObject->setId($request->get("id"));
+
+                $extension      = $file->getClientOriginalExtension();
+                $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
+                $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
+                $fileObject->setName($filename);
+
+                //AUDIT
+                $log = new Log();
+                $log->setModelName('PIM\File');
+                $log->setUser($this->app['auth.user']);
+                $log->setModelId($fileObject->getId());
+                $log->setMode(Log::INSERTED);
+                $this->em->persist($log);
+                $this->em->flush();
+            }else{
+                $log = new Log();
+                $log->setModelName('PIM\File');
+                $log->setUser($this->app['auth.user']);
+                $log->setModelId($fileObject->getId());
+                $log->setMode(Log::UPDATED);
+                $this->em->persist($log);
+            }
+
+            $hash = md5_file($file->getRealPath());
+
+            list($width, $height) = getimagesize($file->getRealPath());
+
+            if($width){
+                $fileObject->setWidth($width);
+            }
+            if($height){
+                $fileObject->setHeight($height);
+            }
+
+            $fileObject->setType($file->getClientMimeType());
+            $fileObject->setSize($file->getClientSize());
+            $fileObject->setUserCreated($this->app['auth.user']);
+            $fileObject->setUser($this->app['auth.user']);
+            $fileObject->setHash($hash);
+
+            $this->em->persist($fileObject);
+            $this->em->flush();
+
+            $backend = Backend::getInstance();
+            $dir = $backend->getPath($fileObject);
+            $file->move($dir, $filename);
+
+            $processor = Processing::getInstance($file->getClientMimeType());
+            $processor->execute($backend, $fileObject);
+
+        }else {
+            $hash = md5_file($file->getRealPath());
+
+            $fileObject = null;
+            if(Config\Adapter::getConfig()->FILE_HASH_MUST_UNIQUE){
+                $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
+            }
+
+            list($width, $height) = getimagesize($file->getRealPath());
+
+            $extension      = $file->getClientOriginalExtension();
+            $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
+            $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
+
+            if (!$fileObject) {
 
 
+                $fileObject = new File();
 
-            if($request->get("id")){
 
-                $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($request->get("id"));
-
-                if (!$fileObject) {
-                    $fileObject = new File();
-
-                    $metadata = $this->em->getClassMetaData(get_class($fileObject));
-                    $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-                    if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
-                    $fileObject->setId($request->get("id"));
-
-                    $extension      = $file->getClientOriginalExtension();
-                    $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
-                    $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
-                    $fileObject->setName($filename);
-
-                    //AUDIT
-                    $log = new Log();
-                    $log->setModelName('PIM\File');
-                    $log->setUser($this->app['auth.user']);
-                    $log->setModelId($fileObject->getId());
-                    $log->setMode(Log::INSERTED);
-                    $this->em->persist($log);
-                    $this->em->flush();
-                }else{
-                    $log = new Log();
-                    $log->setModelName('PIM\File');
-                    $log->setUser($this->app['auth.user']);
-                    $log->setModelId($fileObject->getId());
-                    $log->setMode(Log::UPDATED);
-                    $this->em->persist($log);
+                $folder = null;
+                if($request->get("folder")){
+                    $folder = $this->em->getRepository('Areanet\PIM\Entity\Folder')->find($request->get("folder"));
+                    if($folder){
+                        $fileObject->setFolder($folder);
+                    }
                 }
 
-                $hash = md5_file($file->getRealPath());
-
-                list($width, $height) = getimagesize($file->getRealPath());
-                
                 if($width){
                     $fileObject->setWidth($width);
                 }
@@ -92,108 +141,56 @@ class FileController extends BaseController
                     $fileObject->setHeight($height);
                 }
 
+                $fileObject->setName($filename);
                 $fileObject->setType($file->getClientMimeType());
                 $fileObject->setSize($file->getClientSize());
+                $fileObject->setHash($hash);
                 $fileObject->setUserCreated($this->app['auth.user']);
                 $fileObject->setUser($this->app['auth.user']);
-                $fileObject->setHash($hash);
-
                 $this->em->persist($fileObject);
+
                 $this->em->flush();
 
                 $backend = Backend::getInstance();
                 $dir = $backend->getPath($fileObject);
+
                 $file->move($dir, $filename);
+
+                $log = new Log();
+                $log->setModelName('PIM\File');
+                $log->setUser($this->app['auth.user']);
+                $log->setModelId($fileObject->getId());
+                $log->setMode(Log::INSERTED);
+                $this->em->persist($log);
+
+                $this->em->flush();
+
+
 
                 $processor = Processing::getInstance($file->getClientMimeType());
                 $processor->execute($backend, $fileObject);
 
-            }else {
-                $hash = md5_file($file->getRealPath());
 
-                $fileObject = null;
-                if(Config\Adapter::getConfig()->FILE_HASH_MUST_UNIQUE){
-                    $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
+            } else {
+
+                $fileObject->setUser($this->app['auth.user']);
+
+                if($width){
+                    $fileObject->setWidth($width);
+                }
+                if($height){
+                    $fileObject->setHeight($height);
                 }
 
-                list($width, $height) = getimagesize($file->getRealPath());
+                $log = new Log();
+                $log->setModelName('PIM\File');
+                $log->setUser($this->app['auth.user']);
+                $log->setModelId($fileObject->getId());
+                $log->setMode(Log::UPDATED);
+                $this->em->persist($log);
 
-                $extension      = $file->getClientOriginalExtension();
-                $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
-                $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
-
-                if (!$fileObject) {
-
-
-                    $fileObject = new File();
-
-
-                    $folder = null;
-                    if($request->get("folder")){
-                        $folder = $this->em->getRepository('Areanet\PIM\Entity\Folder')->find($request->get("folder"));
-                        if($folder){
-                            $fileObject->setFolder($folder);
-                        }
-                    }
-                    
-                    if($width){
-                        $fileObject->setWidth($width);
-                    }
-                    if($height){
-                        $fileObject->setHeight($height);
-                    }
-
-                    $fileObject->setName($filename);
-                    $fileObject->setType($file->getClientMimeType());
-                    $fileObject->setSize($file->getClientSize());
-                    $fileObject->setHash($hash);
-                    $fileObject->setUserCreated($this->app['auth.user']);
-                    $fileObject->setUser($this->app['auth.user']);
-                    $this->em->persist($fileObject);
-
-                    $this->em->flush();
-
-                    $backend = Backend::getInstance();
-                    $dir = $backend->getPath($fileObject);
-               
-                    $file->move($dir, $filename);
-
-                    $log = new Log();
-                    $log->setModelName('PIM\File');
-                    $log->setUser($this->app['auth.user']);
-                    $log->setModelId($fileObject->getId());
-                    $log->setMode(Log::INSERTED);
-                    $this->em->persist($log);
-
-                    $this->em->flush();
-
-
-
-                    $processor = Processing::getInstance($file->getClientMimeType());
-                    $processor->execute($backend, $fileObject);
-
-
-                } else {
-
-                    $fileObject->setUser($this->app['auth.user']);
-
-                    if($width){
-                        $fileObject->setWidth($width);
-                    }
-                    if($height){
-                        $fileObject->setHeight($height);
-                    }
-
-                    $log = new Log();
-                    $log->setModelName('PIM\File');
-                    $log->setUser($this->app['auth.user']);
-                    $log->setModelId($fileObject->getId());
-                    $log->setMode(Log::UPDATED);
-                    $this->em->persist($log);
-
-                    $this->em->persist($fileObject);
-                    $this->em->flush();
-                }
+                $this->em->persist($fileObject);
+                $this->em->flush();
             }
         }
 
@@ -221,6 +218,8 @@ class FileController extends BaseController
      *     /file/get/12
      * @apiExample {curl} ID und Dateiname
      *     /file/get/12/sample.jpg
+     * @apiExample {curl} ID und Größe
+     *     /file/get/12/s_large
      * @apiExample {curl} Thumbnails anhand ID und Dateiname
      *     /file/get/12/small/sample.jpg
      * @apiExample {curl} Thumbnails anhand ID, Dateiname und Responsive
@@ -234,6 +233,7 @@ class FileController extends BaseController
      *
      * - /file/get/ID
      * - /file/get/ID/ALIAS
+     * - /file/get/ID/s_SIZE
      * - /file/get/ID/SIZE/ALIAS
      * - /file/get/ID/SIZE/VARIANT/ALIAS
      *

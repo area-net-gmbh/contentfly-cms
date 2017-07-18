@@ -153,8 +153,6 @@ class ApiController extends BaseController
     }
 
     protected function loadTree($entityName, $entity, $parent, $properties = array()){
-        //$objects = $this->em->getRepository($entity)->findBy(array('treeParent' => $parent, 'isIntern' => false), array('sorting' => 'ASC'));
-
 
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder->from($entity, $entityName)
@@ -177,7 +175,7 @@ class ApiController extends BaseController
 
         $query   = $queryBuilder->getQuery();
         $objects = $query->getResult();
-        //die($query->getSQL());
+     
         $array   = array();
 
         foreach($objects as $object){
