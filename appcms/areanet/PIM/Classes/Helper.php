@@ -66,5 +66,33 @@ class Helper
         $em->persist($sizeSmall);
 
         $em->flush();
+
+        $this->createSymlink(ROOT_DIR.'/public/custom/', 'Frontend', '../../../custom/Frontend');
+        $this->createSymlink(ROOT_DIR.'/public/ui/', 'default', '../../areanet/PIM-UI/default/assets');
+    }
+
+    public function createSymlink($path, $target, $link){
+        if(!is_link($path.$target)){
+            $this->deleteFolder($path.$target);
+            if(!chdir($path)){
+                return array('symlink', "chdir to $path failed.");
+            }
+            if(!symlink($link, $target)){
+                return array('symlink', "symlink $path.$target failed.");
+            }
+        }
+
+        return array();
+    }
+
+    protected function deleteFolder($dir) {
+        if(!file_exists($dir)){
+            return null;
+        }
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            (is_dir("$dir/$file")) ? $this->deleteFolder("$dir/$file") : unlink("$dir/$file");
+        }
+        return rmdir($dir);
     }
 }
