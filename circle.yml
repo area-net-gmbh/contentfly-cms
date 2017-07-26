@@ -2,6 +2,9 @@ general:
   branches:
     only:
       - master
+machine:
+  php:
+    version: 7.0.4
 deployment:
   dev:
     branch: master
