@@ -8,11 +8,7 @@
 
 </IfModule>
 
-<IfModule mod_xsendfile.c>
-     XSendFile on
- </IfModule>
-
- <IfModule mod_deflate.c>
+<IfModule mod_deflate.c>
      AddOutputFilterByType DEFLATE text/css
      AddOutputFilterByType DEFLATE text/javascript
      AddOutputFilterByType DEFLATE application/x-javascript

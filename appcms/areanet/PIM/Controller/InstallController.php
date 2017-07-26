@@ -97,8 +97,8 @@ class InstallController extends BaseController
             $errors['custom/config.php'] =  'Konfigurationsdatei custom/config.php kann nicht geschrieben werden.';
         }
 
-        $errorsSym1 = $this->createSymlink(ROOT_DIR.'/public/custom/', 'Frontend', '../../../custom/Frontend');
-        $errorsSym2 = $this->createSymlink(ROOT_DIR.'/public/ui/', 'default', '../../areanet/PIM-UI/default/assets');
+        $errorsSym1 = $this->app['helper']->createSymlink(ROOT_DIR.'/public/custom/', 'Frontend', '../../../custom/Frontend');
+        $errorsSym2 = $this->app['helper']->createSymlink(ROOT_DIR.'/public/ui/', 'default', '../../areanet/PIM-UI/default/assets');
 
         $errors  = array_merge($errors, $errorsSym1, $errorsSym2);
 
@@ -194,30 +194,6 @@ class InstallController extends BaseController
 
     }
 
-    protected function createSymlink($path, $target, $link){
-        if(!is_link($path.$target)){
-            $this->deleteFolder($path.$target);
-            if(!chdir($path)){
-                return array('symlink', "chdir to $path failed.");
-            }
-            if(!symlink($link, $target)){
-                return array('symlink', "symlink $path.$target failed.");
-            }
-        }
-
-        return array();
-    }
-
-    protected function deleteFolder($dir) {
-        if(!file_exists($dir)){
-            return null;
-        }
-        $files = array_diff(scandir($dir), array('.','..'));
-        foreach ($files as $file) {
-            (is_dir("$dir/$file")) ? $this->deleteFolder("$dir/$file") : unlink("$dir/$file");
-        }
-        return rmdir($dir);
-    }
 
     protected static function isEnabled($func) {
         return is_callable($func) && false === stripos(ini_get('disable_functions'), $func);
