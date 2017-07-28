@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Controller;
+use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Entity\Token;
 use Silex\Application;
@@ -23,6 +24,7 @@ class AuthController extends BaseController
      *
      * @apiParam {String} alias Benutzername
      * @apiParam {String} pass Passwort
+     * @apiParam {Boolean} withSchema Schema zurückgeben
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "alias": "admin",
@@ -75,8 +77,18 @@ class AuthController extends BaseController
         $this->em->flush();
 
         $this->app['auth.user'] = $user;
-        
-        return new JsonResponse(array('message' => 'Login successful', 'token' => $token->getToken(), 'user' => $user->toValueObject($this->app, 'PIM\User', false)));
+
+        $response = array(
+            'message' => 'Login successful',
+            'token' => $token->getToken(),
+            'user' => $user->toValueObject($this->app, 'PIM\User', false)
+        );
+
+        if($request->get('withSchema')){
+            $response['schema'] = $this->app['schema'];
+        }
+
+        return new JsonResponse($response);
 
     }
 
