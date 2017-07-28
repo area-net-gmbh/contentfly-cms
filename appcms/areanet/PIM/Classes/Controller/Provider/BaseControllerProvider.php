@@ -26,7 +26,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
         $app->before(function (Request $request)use ($app) {
 
             $controller = $request->get('_controller');
-            if (substr($controller, 0, 7) != 'install' && Adapter::getConfig()->DB_HOST == '$SET_DB_HOST'){
+            if (is_string($controller) && substr($controller, 0, 7) != 'install' && Adapter::getConfig()->DB_HOST == '$SET_DB_HOST'){
                 return $app->redirect('install');
             }
 

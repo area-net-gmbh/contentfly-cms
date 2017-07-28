@@ -14,6 +14,7 @@ use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Table;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -105,7 +106,8 @@ class Api
                 'type' => 'default',
                 'tabs' => array(
                     'default'   => array('title' => 'Allgemein', 'onejoin' => false)
-                )
+                ),
+                'dbname' => null
             );
 
 
@@ -123,6 +125,10 @@ class Api
 
 
             foreach($classAnnotations as $classAnnotation) {
+
+                if ($classAnnotation instanceof Table) {
+                    $settings['dbname'] = $classAnnotation->name ? $classAnnotation->name : null;
+                }
 
                 if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
                     $settings['label']          = $classAnnotation->label ? $classAnnotation->label : $entity;

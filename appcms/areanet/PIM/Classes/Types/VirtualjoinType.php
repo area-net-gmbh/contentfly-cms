@@ -40,7 +40,7 @@ class VirtualjoinType extends Type
     public function processSchema($key, $defaultValue, $propertyAnnotations){
         $schema             = parent::processSchema($key, $defaultValue, $propertyAnnotations);
         $schema['multipe']  = true;
-        $schema['dbtype']   = null;
+        $schema['dbtype']   = 'string';
         $schema['sortable'] = false;
 
         $annotations        = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Virtualjoin'];
