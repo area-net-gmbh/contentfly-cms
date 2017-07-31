@@ -49,7 +49,10 @@ if($app['is_installed']) {
                 'user' => Config\Adapter::getConfig()->DB_USER,
                 'password' => Config\Adapter::getConfig()->DB_PASS,
                 'charset' => Config\Adapter::getConfig()->DB_CHARSET,
-                'collate' => Config\Adapter::getConfig()->DB_COLLATE,
+                'defaultTableOptions' => array(
+                    'charset' => Config\Adapter::getConfig()->DB_CHARSET,
+                    'collate' => Config\Adapter::getConfig()->DB_COLLATE
+                )
             )
         ),
     ));
