@@ -5,7 +5,7 @@
         .module('app')
         .controller('LoginCtrl', LoginCtrl);
 
-    function LoginCtrl($scope, $location, localStorageService, $cookies, $http){
+    function LoginCtrl($scope, $location, localStorageService, $cookies, $rootScope, $http){
         var vm = this;
 
         //Properties
@@ -38,6 +38,7 @@
             }).then(function successCallback(response) {
                 vm.config = response.data;
                 vm.logoIsInitialisied = true;
+                $rootScope.uiblocks = response.data.uiblocks;
             }, function errorCallback(response) {
             });
         }

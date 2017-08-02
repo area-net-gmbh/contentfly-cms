@@ -1311,7 +1311,9 @@ class ApiController extends BaseController
             'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
         );
 
-        return new JsonResponse(array('message' => 'configAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
+        $uiblocks = $this->app['uiManager']->getBlocks();
+
+        return new JsonResponse(array('message' => 'configAction', 'uiblocks' => $uiblocks, 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
     }
 
     /**

@@ -14,11 +14,11 @@ class CustomControllerProvider extends BaseControllerProvider
 {
     protected $controllerName = null;
     protected $routes = array();
-    
+
     public function __construct($basePath, $controllerName)
     {
         parent::__construct($basePath);
-        
+
         $this->controllerName = $controllerName;
     }
 
@@ -30,7 +30,7 @@ class CustomControllerProvider extends BaseControllerProvider
         });
 
         $this->setUpMiddleware($app);
-        
+
         $controllers = $app['controllers_factory'];
 
         $checkAuth = function (Request $request, Application $app) {
@@ -42,14 +42,14 @@ class CustomControllerProvider extends BaseControllerProvider
         foreach ($this->routes as $route){
             $method = $route->method;
             $action = $route->action ? $route->action : $route->route.'Action';
-            
+
             if($route->isSecure){
                 $controllers->$method('/'.$route->route, $this->basePath.'.controller:'.$action)->before($checkAuth);
             }else{
                 $controllers->$method('/'.$route->route,  $this->basePath.'.controller:'.$action);
             }
         }
-        
+
         return $controllers;
     }
 
@@ -61,13 +61,25 @@ class CustomControllerProvider extends BaseControllerProvider
         $route->isSecure    = $isSecure;
 
         $this->routes[$routeName] = $route;
-        
+
         return $this;
     }
 
     public function get($routeName, $isSecure = false, $actionName = null){
         $route = new Route();
         $route->method      = Route::GET;
+        $route->route       = $routeName;
+        $route->action      = $actionName;
+        $route->isSecure    = $isSecure;
+
+        $this->routes[$routeName] = $route;
+
+        return $this;
+    }
+
+    public function match($routeName, $isSecure = false, $actionName = null){
+        $route = new Route();
+        $route->method      = Route::MATCH;
         $route->route       = $routeName;
         $route->action      = $actionName;
         $route->isSecure    = $isSecure;

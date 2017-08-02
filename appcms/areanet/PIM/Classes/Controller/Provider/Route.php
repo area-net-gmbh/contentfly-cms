@@ -13,6 +13,7 @@ class Route
 {
     const POST = 'post';
     const GET  = 'get';
+    const MATCH  = 'match';
 
     public $method      = Route::POST;
     public $route       = null;
