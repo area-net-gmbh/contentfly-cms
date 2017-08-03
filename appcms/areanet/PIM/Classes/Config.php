@@ -43,8 +43,8 @@ class Config{
     public $DB_PASS     = null;
 
     /**
-    * @var string $DB_PORT Database Password
-    */
+     * @var string $DB_PORT Database Password
+     */
     public $DB_PORT     = 3306;
 
     /**
@@ -66,7 +66,7 @@ class Config{
      * @var boolean $DB_GUID_STRATEGY Set primary types to guid
      */
     public $DB_GUID_STRATEGY  = true;
-    
+
 
     /**
      * @var boolean Enable Schema Cache
@@ -196,6 +196,11 @@ class Config{
     public $FRONTEND_URL = '/';
 
     /**
+     * @var string URL/Path for login in the backend
+     */
+    public $FRONTEND_LOGIN_REDIRECT = '/';
+
+    /**
      * @var boolean Show custom logo custom/Frontend/ui/default/img/logo.png
      */
     public $FRONTEND_CUSTOM_LOGO = false;
@@ -231,8 +236,8 @@ class Config{
      */
     public $FILE_CACHE_LIFETIME = 604800;
 
-    
-    
+
+
     /**
      * @var string ImageMagick-Path
      */

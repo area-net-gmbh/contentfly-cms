@@ -175,7 +175,7 @@ class ApiController extends BaseController
 
         $query   = $queryBuilder->getQuery();
         $objects = $query->getResult();
-     
+
         $array   = array();
 
         foreach($objects as $object){
@@ -279,7 +279,7 @@ class ApiController extends BaseController
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
         }
-        
+
         $schema     = $this->app['schema'];
 
         $queryBuilder = $this->em->createQueryBuilder();
@@ -1346,7 +1346,8 @@ class ApiController extends BaseController
             'welcome'  => Config\Adapter::getConfig()->FRONTEND_WELCOME,
             'customNavigation' => array(
                 'enabled' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
-            )
+            ),
+            'login_redirect' => Config\Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT
         );
 
         $uiblocks = $this->app['uiManager']->getBlocks();
