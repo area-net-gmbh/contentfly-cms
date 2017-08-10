@@ -943,7 +943,8 @@ class ApiController extends BaseController
      * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
      *
      * @apiParam {String} entity zu aktualisierende Entity
-     * @apiParam {Integer} id Zu löschende Objekt-ID
+     * @apiParam {Integer} id Zu aktualisierende Objekt-ID
+     * @apiParam {String=null} pass Passwort des eingeloggten Benutzers. Muss übergeben werden, wenn die pass-Property für Entität PIM\User unter data gesetzt wird.
      * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
      * @apiParamExample {json} Request-Beispiel:
      *     {
@@ -962,6 +963,7 @@ class ApiController extends BaseController
         $entityName          = $request->get('entity');
         $id                  = $request->get('id');
         $data                = $request->get('data');
+        $currentUserPass     = $request->get('pass');
         $disableModifiedTime = $request->get('disableModifiedTime');
 
         $event = new \Areanet\PIM\Classes\Event();
@@ -976,7 +978,7 @@ class ApiController extends BaseController
         $data = $event->getParam('data');
 
         try{
-            $this->update($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user']);
+            $this->update($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user'], $currentUserPass);
         }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException $e){
@@ -1025,7 +1027,7 @@ class ApiController extends BaseController
      * @param User $user
      * @return JsonResponse
      */
-    public function update($entityName, $id, $data, $disableModifiedTime, $app, $user = null)
+    public function update($entityName, $id, $data, $disableModifiedTime, $app, $user = null, $currentUserPass = null)
     {
         $schema              = $this->app['schema'];
 
@@ -1054,6 +1056,12 @@ class ApiController extends BaseController
                 if(!($group && $object->hasGroupId($group->getId()))){
                     throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
                 }
+            }
+        }
+
+        if($object instanceof User && isset($data['pass']) && !$this->app['auth.user']->getIsAdmin()){
+            if(!$this->app['auth.user']->isPass($currentUserPass)){
+                throw new \Exception('Passwort des aktuellen Benutzers wurde nicht korrekt übergeben.');
             }
         }
 

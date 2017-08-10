@@ -7,7 +7,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_group")
- * @PIM\Config(label="Gruppe", tabs="{'permissions': 'Berechtigungen'}")
+ * @PIM\Config(label="Gruppe", labelProperty="name", tabs="{'permissions': 'Berechtigungen'}")
  */
 class Group extends Base
 {
