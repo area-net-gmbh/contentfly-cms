@@ -4,6 +4,8 @@ require_once __DIR__.'/../bootstrap.php';
 use Areanet\PIM\Controller;
 use \Areanet\PIM\Classes\Config;
 use Symfony\Component\HttpFoundation\AcceptHeader;
+use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\Debug\ExceptionHandler;
 
 $app['ui.controller'] = $app->share(function() use ($app) {
     return new Controller\UiController($app);
@@ -14,8 +16,38 @@ $app['install.controller'] = $app->share(function() use ($app) {
 });
 
 
-use Symfony\Component\Debug\ErrorHandler;
-use Symfony\Component\Debug\ExceptionHandler;
+if(Config\Adapter::getConfig()->APP_FORCE_SSL){
+    if ( !(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
+            $_SERVER['HTTPS'] == 1) ||
+        isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+        $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'))
+    {
+        $redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        header('HTTP/1.1 301 Moved Permanently');
+        header('Location: ' . $redirect);
+        exit();
+    }
+}
+
+
+if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
+    if(!isset($_SERVER['PHP_AUTH_USER'])) {
+        list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+    }
+
+    if (empty($_SERVER['PHP_AUTH_USER'])) {
+        header('WWW-Authenticate: Basic realm="APP-CMS Authentification"');
+        header('HTTP/1.0 401 Unauthorized');
+        exit;
+    } else {
+        if ($_SERVER['PHP_AUTH_USER'] != Config\Adapter::getConfig()->APP_HTTP_AUTH_USER && $_SERVER['PHP_AUTH_PW'] != Config\Adapter::getConfig()->APP_HTTP_AUTH_PASS) {
+            header('WWW-Authenticate: Basic realm="APP-CMS Authentification"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit;
+        }
+    }
+}
+
 
 ExceptionHandler::register();
 ErrorHandler::register();

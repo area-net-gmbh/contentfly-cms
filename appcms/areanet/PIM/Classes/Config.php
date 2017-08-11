@@ -171,6 +171,22 @@ class Config{
      */
     public $APP_INSTALLER_URL = 'install';
 
+
+    /**
+     * @var string Force SSL-Connection
+     */
+    public $APP_FORCE_SSL = false;
+
+    /**
+     * @var string HTTP Authentification User
+     */
+    public $APP_HTTP_AUTH_USER = null;
+
+    /**
+     * @var string HTTP Authentification Password
+     */
+    public $APP_HTTP_AUTH_PASS = null;
+
     /**
      * @var string Load Frontend UI in folder /ui/...
      */
