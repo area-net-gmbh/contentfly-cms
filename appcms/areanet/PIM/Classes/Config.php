@@ -43,8 +43,8 @@ class Config{
     public $DB_PASS     = null;
 
     /**
-    * @var string $DB_PORT Database Password
-    */
+     * @var string $DB_PORT Database Password
+     */
     public $DB_PORT     = 3306;
 
     /**
@@ -66,7 +66,7 @@ class Config{
      * @var boolean $DB_GUID_STRATEGY Set primary types to guid
      */
     public $DB_GUID_STRATEGY  = true;
-    
+
 
     /**
      * @var boolean Enable Schema Cache
@@ -132,6 +132,7 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\RteType',
         '\\Areanet\\PIM\\Classes\\Types\\OnejoinType',
         '\\Areanet\\PIM\\Classes\\Types\\JoinType',
+        '\\Areanet\\PIM\\Classes\\Types\\JoinBidirectionalType',
         '\\Areanet\\PIM\\Classes\\Types\\FileType',
         '\\Areanet\\PIM\\Classes\\Types\\MultifileType',
         '\\Areanet\\PIM\\Classes\\Types\\MultijoinType',
@@ -170,6 +171,22 @@ class Config{
      */
     public $APP_INSTALLER_URL = 'install';
 
+
+    /**
+     * @var string Force SSL-Connection
+     */
+    public $APP_FORCE_SSL = false;
+
+    /**
+     * @var string HTTP Authentification User
+     */
+    public $APP_HTTP_AUTH_USER = null;
+
+    /**
+     * @var string HTTP Authentification Password
+     */
+    public $APP_HTTP_AUTH_PASS = null;
+
     /**
      * @var string Load Frontend UI in folder /ui/...
      */
@@ -196,6 +213,11 @@ class Config{
     public $FRONTEND_URL = '/';
 
     /**
+     * @var string URL/Path for login in the backend
+     */
+    public $FRONTEND_LOGIN_REDIRECT = '/';
+
+    /**
      * @var boolean Show custom logo custom/Frontend/ui/default/img/logo.png
      */
     public $FRONTEND_CUSTOM_LOGO = false;
@@ -215,6 +237,18 @@ class Config{
      */
     public $FRONTEND_ITEMS_PER_PAGE = 20;
 
+
+    /**
+     * @var integer Show ID at position x in list (0 for hide id)
+     */
+    public $FRONTEND_SHOW_ID_IN_LIST = 1;
+
+    /**
+     * @var integer Show Owner at position x in list (0 for hide Owner)
+     */
+    public $FRONTEND_SHOW_OWNER_IN_LIST = 1000;
+
+
     /**
      * @var array Register File Processors
      */
@@ -231,8 +265,8 @@ class Config{
      */
     public $FILE_CACHE_LIFETIME = 604800;
 
-    
-    
+
+
     /**
      * @var string ImageMagick-Path
      */

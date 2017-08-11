@@ -5,7 +5,7 @@
         .module('app')
         .controller('LoginCtrl', LoginCtrl);
 
-    function LoginCtrl($scope, $location, localStorageService, $cookies, $http){
+    function LoginCtrl($scope, $location, localStorageService, $cookies, $rootScope, $http){
         var vm = this;
 
         //Properties
@@ -38,6 +38,7 @@
             }).then(function successCallback(response) {
                 vm.config = response.data;
                 vm.logoIsInitialisied = true;
+                $rootScope.uiblocks = response.data.uiblocks;
             }, function errorCallback(response) {
             });
         }
@@ -69,7 +70,7 @@
                 localStorageService.set('frontend', response.data.frontend);
                 localStorageService.set('permissions', response.data.permissions);
                 localStorageService.set('uiblocks', response.data.uiblocks);
-                $location.path("/");
+                $location.path(response.data.frontend.login_redirect);
             }, function errorCallback(response) {
                 vm.error = response.data.message;
             });

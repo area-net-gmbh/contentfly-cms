@@ -37,7 +37,8 @@ class JoinType extends Type
         $schema['accept']   = $annotations->targetEntity;
         $schema['multiple'] = false;
 
-        if($annotationsColumn = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinColumn']){
+        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinColumn'])){
+            $annotationsColumn = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinColumn'];
             $schema['nullable'] = isset($annotationsColumn->nullable) ? $annotationsColumn->nullable : true;
         }
 

@@ -175,7 +175,7 @@ class ApiController extends BaseController
 
         $query   = $queryBuilder->getQuery();
         $objects = $query->getResult();
-     
+
         $array   = array();
 
         foreach($objects as $object){
@@ -279,7 +279,7 @@ class ApiController extends BaseController
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
         }
-        
+
         $schema     = $this->app['schema'];
 
         $queryBuilder = $this->em->createQueryBuilder();
@@ -943,7 +943,8 @@ class ApiController extends BaseController
      * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
      *
      * @apiParam {String} entity zu aktualisierende Entity
-     * @apiParam {Integer} id Zu löschende Objekt-ID
+     * @apiParam {Integer} id Zu aktualisierende Objekt-ID
+     * @apiParam {String=null} pass Passwort des eingeloggten Benutzers. Muss übergeben werden, wenn die pass-Property für Entität PIM\User unter data gesetzt wird.
      * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
      * @apiParamExample {json} Request-Beispiel:
      *     {
@@ -962,6 +963,7 @@ class ApiController extends BaseController
         $entityName          = $request->get('entity');
         $id                  = $request->get('id');
         $data                = $request->get('data');
+        $currentUserPass     = $request->get('pass');
         $disableModifiedTime = $request->get('disableModifiedTime');
 
         $event = new \Areanet\PIM\Classes\Event();
@@ -976,7 +978,7 @@ class ApiController extends BaseController
         $data = $event->getParam('data');
 
         try{
-            $this->update($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user']);
+            $this->update($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user'], $currentUserPass);
         }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException $e){
@@ -1025,7 +1027,7 @@ class ApiController extends BaseController
      * @param User $user
      * @return JsonResponse
      */
-    public function update($entityName, $id, $data, $disableModifiedTime, $app, $user = null)
+    public function update($entityName, $id, $data, $disableModifiedTime, $app, $user = null, $currentUserPass = null)
     {
         $schema              = $this->app['schema'];
 
@@ -1057,6 +1059,12 @@ class ApiController extends BaseController
             }
         }
 
+        if($object instanceof User && isset($data['pass']) && !$this->app['auth.user']->getIsAdmin()){
+            if(!$this->app['auth.user']->isPass($currentUserPass)){
+                throw new \Exception('Passwort des aktuellen Benutzers wurde nicht korrekt übergeben.');
+            }
+        }
+
 
         foreach($data as $property => $value){
             if($property == 'modified' || $property == 'created') continue;
@@ -1072,10 +1080,12 @@ class ApiController extends BaseController
                 throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
 
+            
 
             $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
-
+            
         }
+        
         $object->setModified(new \DateTime());
         $object->setUser($user);
 
@@ -1311,7 +1321,9 @@ class ApiController extends BaseController
             'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
         );
 
-        return new JsonResponse(array('message' => 'configAction', 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
+        $uiblocks = $this->app['uiManager']->getBlocks();
+
+        return new JsonResponse(array('message' => 'configAction', 'uiblocks' => $uiblocks, 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
     }
 
     /**
@@ -1344,7 +1356,8 @@ class ApiController extends BaseController
             'welcome'  => Config\Adapter::getConfig()->FRONTEND_WELCOME,
             'customNavigation' => array(
                 'enabled' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
-            )
+            ),
+            'login_redirect' => Config\Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT
         );
 
         $uiblocks = $this->app['uiManager']->getBlocks();

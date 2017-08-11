@@ -15,7 +15,7 @@ class Base extends Serializable
      * @ORM\Column(type=APPCMS_ID_TYPE)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy=APPCMS_ID_STRATEGY)
-     * @PIM\Config(readonly=true, label="ID", tab="settings")
+     * @PIM\Config(readonly=true, showInList=APP_CMS_SHOW_ID_IN_LIST, label="ID", tab="settings")
      */
     protected $id;
 
@@ -51,7 +51,7 @@ class Base extends Serializable
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
      * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id", onDelete="SET NULL")
-     * @PIM\Config(showInList = 1000, label="Besitzer", tab="settings")
+     * @PIM\Config(showInList = APP_CMS_SHOW_OWNER_IN_LIST, label="Besitzer", tab="settings")
      */
     protected $userCreated;
     

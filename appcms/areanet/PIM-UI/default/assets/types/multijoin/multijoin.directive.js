@@ -35,7 +35,7 @@
                         }
                     }
 
-                },true)
+                },true);
 
                 //Properties
                 scope.choosenIds    = [];

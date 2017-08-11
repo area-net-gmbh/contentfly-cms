@@ -40,6 +40,10 @@ if($app['is_installed']) {
         define('APPCMS_ID_STRATEGY', 'AUTO');
     }
 
+    define('APP_CMS_SHOW_ID_IN_LIST', Config\Adapter::getConfig()->FRONTEND_SHOW_ID_IN_LIST);
+    define('APP_CMS_SHOW_OWNER_IN_LIST', Config\Adapter::getConfig()->FRONTEND_SHOW_OWNER_IN_LIST);
+
+
     $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
         'dbs.options' => array(
             'pim' => array(
@@ -49,7 +53,10 @@ if($app['is_installed']) {
                 'user' => Config\Adapter::getConfig()->DB_USER,
                 'password' => Config\Adapter::getConfig()->DB_PASS,
                 'charset' => Config\Adapter::getConfig()->DB_CHARSET,
-                'collate' => Config\Adapter::getConfig()->DB_COLLATE,
+                'defaultTableOptions' => array(
+                    'charset' => Config\Adapter::getConfig()->DB_CHARSET,
+                    'collate' => Config\Adapter::getConfig()->DB_COLLATE
+                )
             )
         ),
     ));

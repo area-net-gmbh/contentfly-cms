@@ -1,0 +1,35 @@
+<div ng-hide="hide">
+    <pim-plugin key="TYPE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}}<pim-plugin key="TYPE_LABEL_APPEND" uiblocks="uiblocks"></pim-plugin></label>
+    <div class="col-sm-10">
+        <div ng-hide="config.readonly">
+            <button type="button" ng-disabled="!writable" class="btn btn-default btn-sm" ng-click="addNewObject()">Hinzufügen</button>
+        </div>
+        <div>
+            <pim-plugin key="TYPE_FIELD_PREPEND" uiblocks="uiblocks"></pim-plugin>
+            <table ng-show="value.length"  class="join col-sm-12"  >
+                <thead ng-show="value.length">
+                <tr>
+                    <th class="ng-scope td-small">ID</th>
+                    <th ng-repeat="property in schema.list">{{schema.properties[property].label}}</th>
+                    <th class="td-small" ng-hide="config.readonly"></th>
+                </tr>
+                </thead>
+                <tbody ui-sortable="sortableOptions" ng-model="value" ng-show="value.length" ng-init="mappedBy = config.mappedBy">
+                <tr ng-repeat="object in value | orderBy: 'sorting'" ng-class="{disabled:config.sortable && !object.isActive}">
+                    <td class="td-small" title="{{object.id}}"><pim-autoformat property="id" schema="schema" object="object"></pim-autoformat></td>
+                    <td ng-repeat="property in schema.list"><i ng-show="object.pim_blocked">gesperrt</i><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
+                    <td class="td-small align-right" ng-hide="config.readonly">
+                        <span  ng-show="config.sortable && writable" class="glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>
+                        <button ng-hide="!writable_object" class="btn btn-default btn-xs" type="button" ng-click="editObject($index)"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>
+                        <button ng-hide="!deletable" class="btn btn-danger btn-xs" type="button" ng-click="removeObject($index)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <pim-plugin key="TYPE_FIELD_APPEND" uiblocks="uiblocks"></pim-plugin>
+        </div>
+
+    </div>
+    <pim-plugin key="TYPE_APPEND" uiblocks="uiblocks"></pim-plugin>
+</div>

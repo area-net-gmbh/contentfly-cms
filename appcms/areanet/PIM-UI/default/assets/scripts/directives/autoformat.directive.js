@@ -44,9 +44,9 @@
                             }
 
                             var joinSchema    = localStorageService.get('schema')[entity];
-                        
+
                             if(scope.object[property]){
-                               
+
                                 if(joinSchema.settings.labelProperty){
                                     element.text(scope.object[property][joinSchema.settings.labelProperty]);
                                 }else{
@@ -97,7 +97,7 @@
                         default:
                             break;
                     }
-                })
+                });
 
                 function strip_tags(input, allowed){
                     if (!(typeof input === 'string' || input instanceof String)){
