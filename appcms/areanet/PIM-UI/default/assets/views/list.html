@@ -148,7 +148,6 @@
                 <thead>
                 <tr>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                    <th class="ng-scope">ID</th>
                     <th ng-show="vm.schema.settings.isSortable">Position</th>
                     <th ng-repeat="property in vm.schema.list">{{vm.schema.properties[property].label}}</th>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>
@@ -159,7 +158,6 @@
                 <tbody ng-if="!vm.schema.settings.isSortable">
                 <tr   dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)" >
                     <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                    <td title="{{object.id}}"><pim-plugin key="LIST_TABLE_BODY_COL_ID_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="id" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_ID_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-show="vm.schema.settings.isSortable"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="sorting" long="false" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-repeat="property in vm.schema.list"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>

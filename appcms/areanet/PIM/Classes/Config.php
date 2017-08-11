@@ -237,6 +237,18 @@ class Config{
      */
     public $FRONTEND_ITEMS_PER_PAGE = 20;
 
+
+    /**
+     * @var integer Show ID at position x in list (0 for hide id)
+     */
+    public $FRONTEND_SHOW_ID_IN_LIST = 1;
+
+    /**
+     * @var integer Show Owner at position x in list (0 for hide Owner)
+     */
+    public $FRONTEND_SHOW_OWNER_IN_LIST = 1000;
+
+
     /**
      * @var array Register File Processors
      */
