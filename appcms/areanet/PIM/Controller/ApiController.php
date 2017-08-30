@@ -1182,7 +1182,7 @@ class ApiController extends BaseController
             }
         }
 
-        $entities   = array('Areanet\PIM\Entity\File');
+        $entities   = array('Areanet\PIM\Entity\File', 'Areanet\PIM\Entity\User', 'Areanet\PIM\Entity\Group');
 
         $entityFolder = __DIR__.'/../../../../custom/Entity/';
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
@@ -1348,78 +1348,15 @@ class ApiController extends BaseController
      */
     public function schemaAction()
     {
+        $api = new Api($this->app);
+        $extendedSchema = $api->getExtendedSchema();
 
-        $frontend = array(
-            'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,
-            'formImageSquarePreview' => Config\Adapter::getConfig()->FRONTEND_FORM_IMAGE_SQUARE_PREVIEW,
-            'title'  => Config\Adapter::getConfig()->FRONTEND_TITLE,
-            'welcome'  => Config\Adapter::getConfig()->FRONTEND_WELCOME,
-            'customNavigation' => array(
-                'enabled' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
-            ),
-            'login_redirect' => Config\Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT
-        );
+        $returnData = array('message' => 'schemaAction');
+        $returnData = array_merge($returnData, $extendedSchema);
 
-        $uiblocks = $this->app['uiManager']->getBlocks();
-
-        $schema         = $this->app['schema'];
-        $permissions    = $this->getPermissions();
-
-        if(Config\Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION){
-            $frontend['customNavigation']['items'] = array();
-
-            $queryBuilder = $this->em->createQueryBuilder();
-            $queryBuilder
-                ->select("navItem")
-                ->from("Areanet\PIM\Entity\NavItem", "navItem")
-                ->join("navItem.nav", "nav")
-                ->where('navItem.nav IS NOT NULL')
-                ->orderBy('nav.sorting')
-                ->orderBy('navItem.sorting');
-
-            $items = $queryBuilder->getQuery()->getResult();
-            foreach($items as $item){
-
-                $entityUriName = str_replace('Areanet\PIM\Entity', 'PIM/', $item->getEntity());
-                $entityUriName = str_replace('Custom\Entity', '', $entityUriName);
-
-                if(empty($frontend['customNavigation']['items'][$item->getNav()->getId()])){
-                    $frontend['customNavigation']['items'][$item->getNav()->getId()] = array(
-                        'title' => $item->getNav()->getTitle(),
-                        'icon' => $item->getNav()->getIcon() ? $item->getNav()->getIcon() : 'glyphicon glyphicon-th-large',
-                        'items' => array()
-                    );
-                }
-
-                $frontend['customNavigation']['items'][$item->getNav()->getId()]['items'][] = array(
-                    'entity' => $item->getEntity(),
-                    'title'  => $item->getTitle() ? $item->getTitle() : $schema[$item->getEntity()]['settings']['label'],
-                    'uri'    => $item->getUri() ? $item->getUri() : '#/list/'.$entityUriName,
-                );
-            }
-        }
-
-        return new JsonResponse(array('message' => 'schemaAction', 'frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions));
+        return new JsonResponse($returnData);
     }
-
-    protected function getPermissions()
-    {
-        $schema = $this->app['schema'];
-
-        $permissions = array();
-        foreach($schema as $entityName => $config){
-
-            $permissions[$entityName] = array(
-                'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
-                'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
-                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName),
-                'extended'  => Permission::getExtended($this->app['auth.user'], $entityName)
-            );
-        }
-
-        return $permissions;
-    }
-
+    
 
     public function mailAction(Request $request)
     {

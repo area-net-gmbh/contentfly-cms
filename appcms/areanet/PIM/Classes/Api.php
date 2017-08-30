@@ -38,6 +38,60 @@ class Api
         $this->app = $app;
         $this->em  = $app['orm.em'];
     }
+    
+    public function getExtendedSchema(){
+        $frontend = array(
+            'customLogo' => Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,
+            'formImageSquarePreview' => Adapter::getConfig()->FRONTEND_FORM_IMAGE_SQUARE_PREVIEW,
+            'title'  => Adapter::getConfig()->FRONTEND_TITLE,
+            'welcome'  => Adapter::getConfig()->FRONTEND_WELCOME,
+            'customNavigation' => array(
+                'enabled' => Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
+            ),
+            'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT
+        );
+
+        $uiblocks = $this->app['uiManager']->getBlocks();
+
+        $schema         = $this->app['schema'];
+        $permissions    = $this->getPermissions();
+
+        if(Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION){
+            $frontend['customNavigation']['items'] = array();
+
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder
+                ->select("navItem")
+                ->from("Areanet\PIM\Entity\NavItem", "navItem")
+                ->join("navItem.nav", "nav")
+                ->where('navItem.nav IS NOT NULL')
+                ->orderBy('nav.sorting')
+                ->orderBy('navItem.sorting');
+
+            $items = $queryBuilder->getQuery()->getResult();
+            foreach($items as $item){
+
+                $entityUriName = str_replace('Areanet\PIM\Entity', 'PIM/', $item->getEntity());
+                $entityUriName = str_replace('Custom\Entity', '', $entityUriName);
+
+                if(empty($frontend['customNavigation']['items'][$item->getNav()->getId()])){
+                    $frontend['customNavigation']['items'][$item->getNav()->getId()] = array(
+                        'title' => $item->getNav()->getTitle(),
+                        'icon' => $item->getNav()->getIcon() ? $item->getNav()->getIcon() : 'glyphicon glyphicon-th-large',
+                        'items' => array()
+                    );
+                }
+
+                $frontend['customNavigation']['items'][$item->getNav()->getId()]['items'][] = array(
+                    'entity' => $item->getEntity(),
+                    'title'  => $item->getTitle() ? $item->getTitle() : $schema[$item->getEntity()]['settings']['label'],
+                    'uri'    => $item->getUri() ? $item->getUri() : '#/list/'.$entityUriName,
+                );
+            }
+        }
+
+        return array('frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions);
+    }
 
     public function getSchema(){
         $cacheFile = ROOT_DIR.'/../data/cache/schema.cache';
@@ -265,6 +319,24 @@ class Api
         }
 
         return $object->toValueObject($this->app, $entityName, false);
+    }
+
+    protected function getPermissions()
+    {
+        $schema = $this->app['schema'];
+
+        $permissions = array();
+        foreach($schema as $entityName => $config){
+
+            $permissions[$entityName] = array(
+                'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
+                'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
+                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName),
+                'extended'  => Permission::getExtended($this->app['auth.user'], $entityName)
+            );
+        }
+
+        return $permissions;
     }
 
 }

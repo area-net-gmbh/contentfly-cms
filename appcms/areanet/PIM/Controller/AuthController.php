@@ -85,7 +85,8 @@ class AuthController extends BaseController
         );
 
         if($request->get('withSchema')){
-            $response['schema'] = $this->app['schema'];
+            $api = new Api($this->app);
+            $response['schema'] = $api->getExtendedSchema();
         }
 
         return new JsonResponse($response);

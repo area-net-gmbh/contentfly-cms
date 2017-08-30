@@ -71,6 +71,7 @@ class FileController extends BaseController
                 $this->em->persist($log);
                 $this->em->flush();
             }else{
+                $filename = $fileObject->getName();
                 $log = new Log();
                 $log->setModelName('PIM\File');
                 $log->setUser($this->app['auth.user']);

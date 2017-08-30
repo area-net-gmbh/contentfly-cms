@@ -143,7 +143,12 @@ class MultifileType extends Type
                     }
                 }
 
-                $data[] = $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+
+                if($flatten){
+                    $data[] = array('id' => $objectToLoad->getId());
+                } else{
+                    $data[] = $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+                }
             }
         }
 
