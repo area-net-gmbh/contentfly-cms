@@ -6,7 +6,6 @@ deployment:
     branch: /.*?/
     commands:
       - ant -lib apache-commons-net.jar deploy-dev
-      - ant -lib apache-commons-net.jar apidoc-dev
   release:
     tag: /.*/
     commands:
