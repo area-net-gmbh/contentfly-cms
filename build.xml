@@ -168,7 +168,7 @@ define('CUSTOM_VERSION', '0.0.0');
     <!-- DEPLOY DEVELOPMENT VERSION -->
     <target name="deploy-dev" depends="zip-dev">
         <ftp server="${env.FTP_SERVER}"
-             remotedir="${env.FTP_REMOTE}"
+             remotedir="${env.FTP_REMOTE}/dev"
              userid="${env.FTP_USER}"
              password="${env.FTP_PASS}"
              passive="yes">
