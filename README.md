@@ -1,4 +1,4 @@
-# APP-CMS
+# APP-CMS.
 - **Lizenz**: Duale Lizenz AGPL v3 / Properitär
 - **Webseite**: http://www.das-app-cms.de
 
