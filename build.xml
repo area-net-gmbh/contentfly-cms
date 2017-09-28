@@ -172,7 +172,7 @@ define('CUSTOM_VERSION', '0.0.0');
              userid="${env.FTP_USER}"
              password="${env.FTP_PASS}"
              passive="yes">
-            <fileset file="appcms-${version}.zip"/>
+            <fileset file="appcms-${devversion}.zip"/>
         </ftp>
     </target>
 
