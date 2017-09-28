@@ -1,13 +1,9 @@
-general:
-  branches:
-    only:
-      - master
 machine:
   php:
     version: 7.0.4
 deployment:
   dev:
-    branch: master
+    branch: /.*?/
     commands:
       - ant -lib apache-commons-net.jar deploy-dev
       - ant -lib apache-commons-net.jar apidoc-dev

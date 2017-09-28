@@ -151,6 +151,7 @@ define('CUSTOM_VERSION', '0.0.0');
         </exec>
     </target>
 
+    <!-- GET VERSION -->
     <target name="getversion">
         <loadfile srcfile="appcms/version.php" property="version">
             <filterchain>
@@ -171,20 +172,33 @@ define('CUSTOM_VERSION', '0.0.0');
              userid="${env.FTP_USER}"
              password="${env.FTP_PASS}"
              passive="yes">
-            <fileset file="appcms-dev.zip"/>
+            <fileset file="appcms-${version}.zip"/>
         </ftp>
     </target>
 
-    <target name="zip-dev">
+    <target name="zip-dev" depends="getdevversion">
         <exec executable="zip">
             <arg value="--symlinks"/>
             <arg value="-r"/>
-            <arg value="appcms-dev.zip"/>
+            <arg value="appcms-${devversion}.zip"/>
             <arg value="appcms"/>
             <arg value="custom"/>
             <arg value="data"/>
             <arg value="licence.txt"/>
             <arg value="README.md"/>
         </exec>
+    </target>
+
+    <!-- GET VERSION -->
+    <target name="getdevversion">
+        <loadfile srcfile="appcms/version.php" property="devversion">
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern="define"/>
+                </linecontainsregexp>
+
+                <replaceregex pattern="define\(\'APP_VERSION\', \'([0-9]).([0-9]).([0-9])\'\);" replace="\1.\2" />
+            </filterchain>
+        </loadfile>
     </target>
 </project>
