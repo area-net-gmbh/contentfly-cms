@@ -78,6 +78,8 @@ $app['auth'] = $app->share(function ($app) {
 
 if($app['is_installed']) {
 
+    $app['helper']->createSymlinks();
+
     $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
         'orm.proxies_dir' => ROOT_DIR . '/../data/cache/doctrine',
         'orm.em.options' => array(

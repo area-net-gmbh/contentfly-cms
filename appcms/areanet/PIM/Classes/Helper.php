@@ -67,11 +67,15 @@ class Helper
 
         $em->flush();
 
+        $this->createSymlinks();
+    }
+
+    public function createSymlinks(){
         $this->createSymlink(ROOT_DIR.'/public/custom/', 'Frontend', '../../../custom/Frontend');
         $this->createSymlink(ROOT_DIR.'/public/ui/', 'default', '../../areanet/PIM-UI/default/assets');
     }
 
-    public function createSymlink($path, $target, $link){
+    protected function createSymlink($path, $target, $link){
         if(!is_link($path.$target)){
             $this->deleteFolder($path.$target);
             if(!chdir($path)){
