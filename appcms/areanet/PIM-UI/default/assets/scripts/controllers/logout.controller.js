@@ -16,7 +16,7 @@
         localStorageService.remove('savedFilter');
         localStorageService.remove('uiblocks');
         localStorageService.clearAll();
-        $cookies.remove('XSRF-TOKEN');
+        $cookies.remove('APPCMS-TOKEN');
         $rootScope.userLoggedIn = false;
         $rootScope.permissions  = null;
         $location.path('/login');

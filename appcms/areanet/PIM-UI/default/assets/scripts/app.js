@@ -7,6 +7,11 @@
 
     function run($rootScope, $location, $cookies, localStorageService, $http){
 
+        if ($cookies.get('APPCMS-TOKEN') != null) {
+            $http.defaults.headers.common = {
+                'APPMCS-TOKEN': $cookies.get('APPCMS-TOKEN')
+            };
+        }
 
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
 
@@ -25,7 +30,7 @@
 
             if(next.secure){
                 //localStorageService.set('localStorageKey','Add this!');
-                if ($cookies.get('XSRF-TOKEN') == null) {
+                if ($cookies.get('APPCMS-TOKEN') == null) {
                     $location.path("/login");
                 }else{
                     $rootScope.userLoggedIn = true;

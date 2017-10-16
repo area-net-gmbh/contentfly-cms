@@ -50,7 +50,7 @@
                 data: {alias: vm.alias, pass: vm.password}
             }).then(function successCallback(response) {
                 localStorageService.set('user', response.data.user);
-                $cookies.put('XSRF-TOKEN', response.data.token);
+                $cookies.put('APPCMS-TOKEN', response.data.token);
 
                 schema();
             }, function errorCallback(response) {
