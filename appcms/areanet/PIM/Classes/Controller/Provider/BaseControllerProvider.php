@@ -12,7 +12,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
     const LOGIN_PATH           = '/login';
     const TOKEN_HEADER_KEY_ALT = 'X-XSRF-TOKEN';
-    const TOKEN_HEADER_KEY     = 'APPMS-TOKEN';
+    const TOKEN_HEADER_KEY     = 'appmcs-token';
     const TOKEN_REQUEST_KEY    = '_token';
     protected $basePath = '';
 
@@ -91,7 +91,6 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
     protected function checkToken(Request $request, Application $app){
         $tokenString = $request->headers->get(self::TOKEN_HEADER_KEY, $request->headers->get(self::TOKEN_HEADER_KEY_ALT, $request->get(self::TOKEN_REQUEST_KEY)));
-       
         if(!$tokenString){
             return false;
         }
