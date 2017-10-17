@@ -4,13 +4,14 @@
 
 ## Die APP-CMS Plattform
 
-- **Server**: https://github.com/appcms/server
-- **iOS SDK**: https://github.com/appcms/ios-sdk
+- **Server**: https://github.com/area-net-gmbh/appcms-server
+- **Cordova SDK / Ionic Native**: _coming soon_
+- **iOS SDK**: _coming soon_
 - **Android SDK**: _coming soon_
 
 ## Tools und mehr
 
-- Vagrant-Umgebung für Server: https://github.com/appcms/vagrant
+- Vagrant-Umgebung für Server: https://github.com/area-net-gmbh/appcms-vagrant
 - Download + Dokumentation: http://www.das-app-cms.de
 
 ## Einführung
@@ -87,7 +88,7 @@ Mit dem Sever können serverseitig beliebige Inhalte gespeichert und verwaltet w
 
 ## Dokumentation
 
-- http://www.das-app-cms.de/docs/server
+- http://www.das-app-cms.de/docs/server/1.3.1
 
 # Lizenz
 
