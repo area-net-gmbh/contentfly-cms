@@ -52,17 +52,20 @@
                 localStorageService.set('user', response.data.user);
                 $cookies.put('APPCMS-TOKEN', response.data.token);
 
-                schema();
+                schema(response.data.token);
             }, function errorCallback(response) {
                 vm.error = response.data.message;
             });
         }
 
-        function schema(){
+        function schema(token){
 
             $http({
                 method: 'GET',
-                url: '/api/schema'
+                url: '/api/schema',
+                headers: {
+                    'APPCMS-TOKEN': token
+                }
             }).then(function successCallback(response) {
                 localStorageService.set('schema', response.data.data);
                 localStorageService.set('version', response.data.version);
