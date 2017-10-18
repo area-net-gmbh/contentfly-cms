@@ -90,7 +90,7 @@ define('CUSTOM_VERSION', '0.0.0');
         <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
     </target>
 
-
+    
     <!-- GENERATE API-DOC FOR RELEASE VERSION -->
     <target name="apidoc-release" description="API-Dokumentation wird erstellt..." >
         <exec executable="apidoc" dir="./">

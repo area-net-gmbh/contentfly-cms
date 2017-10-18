@@ -32,10 +32,10 @@ use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Query;
 use Silex\Application;
 
-use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\File\Exception\AccesssDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\AccesssDeniedHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 
@@ -51,7 +51,7 @@ class ApiController extends BaseController
      * @api {post} /api/single single
      * @apiName Single
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Auszulesende Entity
@@ -102,7 +102,7 @@ class ApiController extends BaseController
      * @api {post} /api/tree tree
      * @apiName Baumansicht
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Auszulesende Entity
@@ -192,7 +192,7 @@ class ApiController extends BaseController
      * @api {post} /api/list list
      * @apiName List
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Auszulesende Entity
@@ -277,7 +277,7 @@ class ApiController extends BaseController
 
 
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
+            throw new AccesssDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
         }
 
         $schema     = $this->app['schema'];
@@ -527,7 +527,7 @@ class ApiController extends BaseController
      * @api {post} /api/delete delete
      * @apiName Delete
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} entity Zu löschende Entity
@@ -575,7 +575,7 @@ class ApiController extends BaseController
         }
 
         if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+            throw new AccesssDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         $object = $this->em->getRepository($entityPath)->find($id);
@@ -584,14 +584,14 @@ class ApiController extends BaseController
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+            throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+                    throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
                 }
             }
         }
@@ -675,7 +675,7 @@ class ApiController extends BaseController
      * @api {post} /api/replace replace
      * @apiName Replace
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
@@ -737,7 +737,7 @@ class ApiController extends BaseController
      * @api {post} /api/insert insert
      * @apiName Insert
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
@@ -799,7 +799,7 @@ class ApiController extends BaseController
         }
 
         if(!Permission::isWritable($this->app['auth.user'], $entityName)){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+            throw new AccesssDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         $object  = new $entityPath();
@@ -937,7 +937,7 @@ class ApiController extends BaseController
      * @api {post} /api/update update
      * @apiName Update
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
@@ -1037,7 +1037,7 @@ class ApiController extends BaseController
         }
 
         if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+            throw new AccesssDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         $object = $this->em->getRepository($entityPath)->find($id);
@@ -1047,14 +1047,14 @@ class ApiController extends BaseController
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+            throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+                    throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
                 }
             }
         }
@@ -1133,7 +1133,7 @@ class ApiController extends BaseController
      * @api {post} /api/all all
      * @apiName All
      * @apiGroup Objekte
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiDescription Gibt alle Objekte aller Entitys zurück
@@ -1331,7 +1331,7 @@ class ApiController extends BaseController
      * @api {get} /api/schema schema
      * @apiName Schema
      * @apiGroup Settings
-     * @apiHeader {String} X-Token Acces-Token
+     * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiDescription Gibt das Schema aller Entities zurück
