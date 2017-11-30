@@ -56,7 +56,8 @@
                         resolve: {
                             entity: function(){ return id ? entityChooser2 : entityChooser1;},
                             title: function(){ return 'Neues Objekt anlegen'; },
-                            object: function(){ return null; }
+                            object: function(){ return null; },
+                            readonly: false
                         },
                         size: 'lg'
                     });

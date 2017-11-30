@@ -183,7 +183,7 @@
                                             hideCancelButton: true
                                         }
                                     });
-                                    loadData();
+
                                 }
                             }
                         );
@@ -548,17 +548,18 @@
             }
         }
 
-        function openForm(object){
+        function openForm(object, readonly){
 
             if(vm.schema.settings.readonly){
                 return;
             }
 
-            var modaltitle = 'Neues Objekt anlegen';
+            var modaltitle  = 'Neues Objekt anlegen';
+            var prefixTitle = readonly != 1 ? ' bearbeiten' : ' ansehen';
             if(object && vm.schema.settings.labelProperty){
-                modaltitle = vm.schema.settings.label + ' ' + (object[vm.schema.settings.labelProperty] ? object[vm.schema.settings.labelProperty] : 'ID' + object.id) + ' bearbeiten';
+                modaltitle = vm.schema.settings.label + ' ' + (object[vm.schema.settings.labelProperty] ? object[vm.schema.settings.labelProperty] : 'ID' + object.id) + prefixTitle;
             }else if(object){
-                modaltitle = '<span title="' + object.id + '">Objekt ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id) + ' bearbeiten</span>';
+                modaltitle = '<span title="' + object.id + '">Objekt ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id) + prefixTitle + '</span>';
             }else{
                 object = {};
 
@@ -578,7 +579,8 @@
                 resolve: {
                     entity: function(){ return vm.entity;},
                     title: function(){ return modaltitle; },
-                    object: function(){ return object; }
+                    object: function(){ return object; },
+                    readonly: readonly != 1 ? false : true
                 },
                 backdrop: 'static',
                 size: 'xl'

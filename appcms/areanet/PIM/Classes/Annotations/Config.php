@@ -11,6 +11,11 @@ final class Config extends Annotation
     /**
      * @var integer
      */
+    public $viewMode = 0;
+
+    /**
+     * @var integer
+     */
     public $showInList = 0;
 
     /**

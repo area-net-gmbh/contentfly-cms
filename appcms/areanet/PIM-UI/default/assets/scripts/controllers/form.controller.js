@@ -5,7 +5,7 @@
         .module('app')
         .controller('FormCtrl', FormCtrl);
 
-    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment, EntityService, FileService) {
+    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment, EntityService, FileService, readonly) {
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
@@ -22,6 +22,7 @@
         vm.isLoading        = true;
         vm.isSubmit         = false;
         vm.isPush           = vm.schema['settings']['isPush'];
+        vm.readonly         = readonly;
         vm.fileUploads      = {};
         vm.forms            = {};
         vm.modaltitle       = title;
@@ -32,6 +33,7 @@
         vm.save                 = save;
         vm.cancel               = cancel;
         vm.changeValue          = onChangeValue;
+        vm.delete               = doDelete;
 
         //Startup
         init();
@@ -69,6 +71,86 @@
                     if (doDelete) doSave(true);
                 },
                 function(){}
+            );
+        }
+
+        function doDelete(object){
+
+            if(vm.schema.settings.readonly){
+                return;
+            }
+
+            var modaltitle = 'Wollen Sie den <b title="' + object.id + '">Eintrag ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id)  + '</b> wirklich löschen?';
+            if(vm.schema.settings.labelProperty){
+                modaltitle = 'Wollen Sie <b>' + vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + '</b> wirklich löschen?';
+            }
+
+            var modalInstance = $uibModal.open({
+                templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
+                controller: 'ModalCtrl as vm',
+                resolve: {
+                    title: function(){ return 'Eintrag löschen'; },
+                    body: function(){ return modaltitle; },
+                    object: function(){ return object; },
+                    hideCancelButton: false
+                }
+            });
+
+            modalInstance.result.then(
+                function (doDelete) {
+
+
+                    if(doDelete){
+
+                        vm.objectsAvailable = false;
+                        vm.objectsNotAvailable = false;
+
+                        var data = {
+                            entity: vm.entity,
+                            id: object.id
+                        };
+
+                        EntityService.delete(data).then(
+                            function successCallback(response) {
+                                $uibModalInstance.close(vm.object);
+                            },
+                            function errorCallback(response) {
+                                if(response.status == 401){
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
+                                        controller: 'ReloginCtrl as vm',
+                                        backdrop: 'static'
+                                    });
+
+                                    modalInstance.result.then(
+                                        function () {
+                                            $uibModalInstance.close(false);
+                                        },
+                                        function () {
+                                            $uibModalInstance.close();
+                                            $location.path('/logout');
+                                        }
+                                    );
+
+                                }else{
+                                    var modalInstance = $uibModal.open({
+                                        templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
+                                        controller: 'ModalCtrl as vm',
+                                        resolve: {
+                                            title: function(){ return 'Fehler beim Löschen'; },
+                                            body: function(){ return response.data.message; },
+                                            hideCancelButton: true
+                                        }
+                                    });
+                                    $uibModalInstance.close(false);
+                                }
+                            }
+                        );
+                    }
+                },
+                function () {
+
+                }
             );
         }
 

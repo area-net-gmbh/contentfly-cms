@@ -150,7 +150,8 @@
                 resolve: {
                     entity: function(){ return vm.entity;},
                     title: function(){ return modaltitle; },
-                    object: function(){ return object; }
+                    object: function(){ return object; },
+                    readonly: false
                 },
                 size: 'xl',
                 backdrop: 'static'

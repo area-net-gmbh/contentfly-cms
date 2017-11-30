@@ -20,6 +20,7 @@
                 //Properties
                 scope.readable      = true;
                 scope.uploadable    = true;
+                scope.readonly      = false;
 
                 //Functions
                 scope.addFile       = addFile;
@@ -96,7 +97,8 @@
                         resolve: {
                             entity: function(){ return 'PIM\\File';},
                             title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
-                            object: function(){ return scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index]; }
+                            object: function(){ return scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index]; },
+                            readonly: false
                         },
                         size: 'xl'
                     });
@@ -162,7 +164,7 @@
                     
                     scope.readable      = permissions['PIM\\File'].readable;
                     scope.uploadable    = permissions['PIM\\File'].writable;
-                    
+                    scope.readonly        = parseInt(attrs.readonly) > 0;
                     if(scope.config.acceptFrom){
                         var entityForm = null;
                         if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
@@ -175,11 +177,11 @@
 
 
                         scope.deletable         = permissions[entityForm].deletable;
-                        scope.writable_object   = permissions['PIM\\File'].writable;
+                        scope.writable_object   = permissions['PIM\\File'].writable && !scope.readonly;
                         scope.writable          = parseInt(attrs.writable) > 0 && permissions[entityForm].writable > 0;
                     }else{
 
-                        scope.writable_object   = permissions['PIM\\File'].writable;
+                        scope.writable_object   = permissions['PIM\\File'].writable && !scope.readonly;
                         scope.deletable         = parseInt(attrs.writable) > 0;
                         scope.writable          = parseInt(attrs.writable) > 0;
                     }

@@ -244,7 +244,6 @@ class ApiController extends BaseController
      */
     public function listAction(Request $request)
     {
-        $data = array();
 
         $entityName             = $request->get('entity');
         $groupBy                = $request->get('groupBy', false);
@@ -256,252 +255,22 @@ class ApiController extends BaseController
         $flatten                = $request->get('flatten', false);
         $lastModified           = $request->get('lastModified', null);
 
-        if(!empty($lastModified)) {
-            try {
-                $lastModified = new \Datetime($lastModified);
-            } catch (\Exception $e) {
+        $properties             = $request->get('properties', array());
+        $properties             = is_array($properties) ? $properties : array();
 
-            }
-        }
+        $api        = new Api($this->app, $request);
 
-        if (substr($entityName, 0, 3) == 'PIM') {
-            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        }elseif(substr($entityName, 0, 7) == 'Areanet'){
-            $splitter = explode('\\', $entityName);
-            $entityNameToLoad = $entityName;
-            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
-        }else{
-            $entityName = ucfirst($request->get('entity'));
-            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
-        }
-
-
-        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
-            throw new AccesssDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
-        }
-
-        $schema     = $this->app['schema'];
-
-        $queryBuilder = $this->em->createQueryBuilder();
-        $queryBuilder
-            ->select("count(".$entityName.")")
-            ->from($entityNameToLoad, $entityName)
-            ->andWhere("$entityName.isIntern = false");
-
-
-        if($permission == \Areanet\PIM\Entity\Permission::OWN){
-            $queryBuilder->andWhere("$entityName.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityName.users) = 1");
-            $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
-        }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
-            $group = $this->app['auth.user']->getGroup();
-            if(!$group){
-                $queryBuilder->andWhere("$entityName.userCreated = :userCreated");
-                $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
-            }else{
-                $queryBuilder->andWhere("$entityName.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityName.groups) = 1");
-                $queryBuilder->setParameter('userGroup', $group);
-                $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
-            }
-        }
-
-        if($lastModified){
-            $queryBuilder->andWhere($entityName.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
-        }
-
-        if($where){
-            $placeholdCounter   = 0;
-            $joinedCounter      = 0;
-
-            foreach($where as $field => $value){
-
-                if(!isset($schema[$entityName]['properties'][$field])){
-
-                    continue;
-                }
-
-                if($schema[$entityName]['properties'][$field]['type'] == 'multijoin'){
-                    if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
-                        if($value == -1) {
-                            $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
-                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
-                            $queryBuilder->andWhere("joined$joinedCounter.$mappedBy IS NULL");
-                        }else{
-                            $searchJoinedEntity = $schema[$entityName]['properties'][$field]['accept'];
-                            $searchJoinedObject = $this->em->getRepository($searchJoinedEntity)->find($value);
-                            $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
-
-                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
-                            $queryBuilder->andWhere("joined$joinedCounter.$mappedBy = :$field");
-                            $queryBuilder->setParameter($field, $searchJoinedObject);
-                            $placeholdCounter++;
-                        }
-
-                    }else{
-
-                        $queryBuilder->leftJoin("$entityName.$field", 'k');
-                        if($value == -1){
-                            $queryBuilder->andWhere("k.id IS NULL");
-                        }else{
-                            $queryBuilder->andWhere("k.id = :$field");
-                            $queryBuilder->setParameter($field, $value);
-                            $placeholdCounter++;
-                        }
-
-                    }
-
-                }else{
-                    switch($schema[$entityName]['properties'][$field]['type']){
-                        case 'join':
-                            $value = $value;
-                            if($value == -1){
-                                $queryBuilder->andWhere("$entityName.$field IS NULL");
-                            }else{
-                                $queryBuilder->andWhere("$entityName.$field = :$field");
-                                $queryBuilder->setParameter($field, $value);
-                                $placeholdCounter++;
-                            }
-                            break;
-                        case 'boolean':
-                            if(strtolower($value) == 'false'){
-                                $value = 0;
-                            }elseif(strtolower($value) == 'true'){
-                                $value = 1;
-                            }else{
-                                $value = boolval($value);
-                            }
-
-                            $queryBuilder->andWhere("$entityName.$field = :$field");
-                            $queryBuilder->setParameter($field, $value);
-                            $placeholdCounter++;
-
-                            break;
-                        case 'integer':
-                            $value = intval($value);
-
-                            $queryBuilder->andWhere("$entityName.$field = :$field");
-                            $queryBuilder->setParameter($field, $value);
-                            $placeholdCounter++;
-
-                            break;
-                        default:
-
-                            $queryBuilder->andWhere("$entityName.$field = :$field");
-                            $queryBuilder->setParameter($field, $value);
-                            $placeholdCounter++;
-
-                            break;
-                    }
-
-
-                }
-
-            }
-
-            if(isset($where['fulltext'])){
-                $orX = $queryBuilder->expr()->orX();
-                $fulltextTypes = array('string', 'text', 'textarea', 'rte');
-
-                $orX->add("$entityName.id = :FT_id");
-                $queryBuilder->setParameter("FT_id", $where['fulltext']);
-
-                foreach($schema[$entityName]['properties'] as $field => $fieldOptions){
-
-                    if(in_array($fieldOptions['type'], $fulltextTypes)){
-                        $orX->add("$entityName.$field LIKE :FT_$field");
-                        $queryBuilder->setParameter("FT_$field", '%' . $where['fulltext'] . '%');
-                    }
-                }
-
-                $queryBuilder->andWhere($orX);
-            }
-
-            if(isset($where['mimetypes'])){
-
-                if($where['mimetypes'] == 'other'){
-                    $types = array();
-                    foreach($this->_MIMETYPES as $mimetypes){
-                        $types = array_merge($types, $mimetypes);
-                    }
-                    $queryBuilder->andWhere($queryBuilder->expr()->notIn("$entityName.type", $types));
-                }elseif(isset($this->_MIMETYPES[$where['mimetypes']])){
-
-                    $queryBuilder->andWhere($queryBuilder->expr()->in("$entityName.type", $this->_MIMETYPES[$where['mimetypes']]));
-
-                }
-
-
-            }
-        }
-
-        $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('request',        $request);
-        $event->setParam('entity',         $entityName);
-        $event->setParam('queryBuilder',   $queryBuilder);
-        $event->setParam('app',            $this->app);
-        $event->setParam('user',           $this->app['auth.user']);
-
-        $this->app['dispatcher']->dispatch('pim.entity.before.list', $event);
-
-        $properties     = $request->get('properties', array());
-        $properties     = is_array($properties) ? $properties : array();
-
-        $query       = $queryBuilder->getQuery();
-        $totalObjects = $query->getSingleScalarResult();
-
-        if($currentPage*$itemsPerPage > $totalObjects){
-            $currentPage = ceil($totalObjects/$itemsPerPage);
-        }
-
-        if($currentPage) {
-            $queryBuilder
-                ->setFirstResult($itemsPerPage * ($currentPage - 1))
-                ->setMaxResults($itemsPerPage)
-            ;
-        }
-
-        if($order !== null){
-            foreach($order as $orderBy => $orderSort){
-                $queryBuilder->addOrderBy($entityName.'.'.$orderBy, $orderSort);
-            }
-        }else{
-            $queryBuilder->orderBy($entityName.'.id', 'DESC');
-        }
-
-        if($groupBy){
-            $queryBuilder->groupBy($entityName.".".$groupBy);
-        }
-
-        if(count($properties) > 0){
-            $partialProperties = implode(',', $properties);
-            $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
-            $query  = $queryBuilder->getQuery();
-        }else{
-            $queryBuilder->select($entityName);
-            $query = $queryBuilder->getQuery();
-        }
-
-
-        $objects = $query->getResult();
-
-        if($doCount){
-            return new JsonResponse(array('message' => "listAction", 'data' => count($objects)));
-        }
-
-        if(!$objects){
+        if(!($data = $api->getList($entityName, $where, $order, $groupBy, $properties, $lastModified, $flatten, $currentPage, $itemsPerPage))){
             return new JsonResponse(array('message' => "Not found"), 404);
         }
 
-        $array = array();
-        foreach($objects as $object){
-            $objectData = $object->toValueObject($this->app, $entityName,  $flatten, $properties);
-
-            $array[] = $objectData;
-
+        if($doCount){
+            return new JsonResponse(array('message' => "listAction", 'data' => count($data['objects'])));
         }
 
 
         if($currentPage) {
-            $data = array('message' => "listAction",  'data' => $array, 'itemsPerPage' => $itemsPerPage, 'totalItems' => $totalObjects);
+            $data = array('message' => "listAction",  'data' => $data['objects'], 'itemsPerPage' => $itemsPerPage, 'totalItems' => $data['totalObjects']);
 
             if($lastModified){
                 $currentDate = new \Datetime();
@@ -510,7 +279,7 @@ class ApiController extends BaseController
 
             return new JsonResponse($data);
         } else {
-            $data = array('message' => "listAction", 'data' => $array);
+            $data = array('message' => "listAction", 'data' => $data['objects']);
 
             if($lastModified){
                 $currentDate = new \Datetime();

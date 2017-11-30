@@ -45,6 +45,7 @@
                 scope.hide          = false;
                 scope.propertyCount = 0;
                 scope.objects       = [];
+                scope.readonly      = false;
                 scope.schema        = null;
                 scope.selectedIndex = 0;
                 scope.sortableOptions = {
@@ -82,7 +83,8 @@
                         resolve: {
                             entity: function(){ return entity;},
                             title: function(){ return 'Neues Objekt anlegen'; },
-                            object: function(){ return null; }
+                            object: function(){ return null; },
+                            readonly: false
                         },
                         size: 'xl'
                     });
@@ -173,13 +175,16 @@
                     var id     = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy].id : scope.value[index].id;
                     var object = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index];
 
+                    console.log("Test");
+
                     var modalInstance = $uibModal.open({
                         templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
                             title: function(){ return '<span title="' + id + '">Objekt ' + (id.length > 5 ? id.substr(0, 5) + '...' : id) + ' bearbeiten</span>'; },
-                            object: function(){ return object; }
+                            object: function(){ return object; },
+                            readonly: false
                         },
                         size: 'xl'
                     });
@@ -216,6 +221,8 @@
                         return;
                     }
 
+                    scope.readonly = parseInt(attrs.readonly) > 0;
+
                     if(scope.config.acceptFrom){
                         var entityForm = null;
                         if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
@@ -228,13 +235,13 @@
                         scope.hide = !permissions[entity].readable || !permissions[entityForm].readable;
 
 
-                        scope.deletable         = permissions[entityForm].deletable;
-                        scope.writable_object   = permissions[entity].writable;
+                        scope.deletable         = permissions[entityForm].deletable && !scope.readonly;
+                        scope.writable_object   = permissions[entity].writable && !scope.readonly;
                         scope.writable          = parseInt(attrs.writable) > 0 && permissions[entityForm].writable > 0;
                     }else{
                         scope.hide              = !permissions[entity].readable;
-                        scope.writable_object   = permissions[entity].writable;
-                        scope.deletable         = parseInt(attrs.writable) > 0;
+                        scope.writable_object   = permissions[entity].writable && !scope.readonly;
+                        scope.deletable         = parseInt(attrs.writable) > 0 && !scope.readonly;
                         scope.writable          = parseInt(attrs.writable) > 0;
                     }
 

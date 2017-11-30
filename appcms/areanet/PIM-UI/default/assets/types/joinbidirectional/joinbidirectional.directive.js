@@ -24,7 +24,7 @@
                 scope.deletable     = false;
                 scope.hide          = false;
                 scope.propertyCount = 0;
-
+                scope.readonly      = false;
                 scope.schema        = null;
                 scope.sortProperty  = 'id';
                 scope.sortableOptions = {
@@ -81,7 +81,8 @@
                         resolve: {
                             entity: function(){ return entity;},
                             title: function(){ return 'Neues Objekt anlegen'; },
-                            object: function(){ return object; }
+                            object: function(){ return object; },
+                            readonly: false
                         },
                         size: 'xl'
                     });
@@ -108,7 +109,8 @@
                         resolve: {
                             entity: function(){ return entity;},
                             title: function(){ return '<span title="' + id + '">Objekt ' + (id.length > 5 ? id.substr(0, 5) + '...' : id) + ' bearbeiten</span>'; },
-                            object: function(){ return object; }
+                            object: function(){ return object; },
+                            readonly: false
                         },
                         size: 'xl'
                     });

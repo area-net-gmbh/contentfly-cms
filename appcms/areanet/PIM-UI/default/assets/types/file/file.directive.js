@@ -24,6 +24,7 @@
                 scope.uploadable        = true;
                 scope.writable_object   = true;
                 scope.writable          = true;
+                scope.readonly          = false;
 
                 //Functions
                 scope.addFile       = addFile;
@@ -140,9 +141,10 @@
                     
                     scope.readable        = permissions['PIM\\File'].readable;
                     scope.uploadable      = permissions['PIM\\File'].writable;
-                    scope.writable_object = permissions['PIM\\File'].writable;
+                    scope.readonly        = parseInt(attrs.readonly) > 0;
+                    scope.writable_object = permissions['PIM\\File'].writable && !scope.readonly;
                     scope.writable        = parseInt(attrs.writable) > 0;
-                    
+
                 }
 
                 function removeFile () {

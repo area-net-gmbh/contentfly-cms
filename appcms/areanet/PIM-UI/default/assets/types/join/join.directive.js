@@ -26,6 +26,7 @@
                 scope.hide              = false;
                 scope.propertyCount     = 0;
                 scope.objects           = [];
+                scope.readonly          = false;
                 scope.schema            = null;
                 scope.selectedIndex     = 0;
                 scope.totalPages        = 1;
@@ -56,7 +57,8 @@
                         resolve: {
                             entity: function(){ return entity;},
                             title: function(){ return 'Neues Objekt anlegen'; },
-                            object: function(){ return null; }
+                            object: function(){ return null; },
+                            readonly: false
                         },
                         size: 'xl'
                     });
@@ -104,7 +106,8 @@
                         resolve: {
                             entity: function(){ return entity;},
                             title: function(){ return '<span title="' + scope.value.id + '">Objekt ' + (scope.value.id.length > 5 ? scope.value.id.substr(0, 5) + '...' : scope.value.id) + ' bearbeiten</span>'; },
-                            object: function(){ return scope.value; }
+                            object: function(){ return scope.value; },
+                            readonly: false
                         },
                         size: 'xl'
                     });
@@ -204,7 +207,8 @@
 
 
                     scope.hide              = !permissions[entity].readable;
-                    scope.writable_object   = permissions[entity].writable;
+                    scope.readonly          = parseInt(attrs.readonly) > 0;
+                    scope.writable_object   = permissions[entity].writable && !scope.readonly;
                     scope.writable          = parseInt(attrs.writable) > 0;
 
                     scope.schema    = localStorageService.get('schema')[entity];
