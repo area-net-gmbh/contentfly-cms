@@ -156,7 +156,7 @@
                 </tr>
                 </thead>
                 <tbody ng-if="!vm.schema.settings.isSortable">
-                <tr   dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" ng-dblclick="vm.openForm(object)" >
+                <tr   dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage"  ng-dblclick="vm.openForm(object, (vm.schema.settings.viewMode == 1))" >
                     <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                     <td ng-show="vm.schema.settings.isSortable"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="sorting" long="false" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td ng-repeat="property in vm.schema.list"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
