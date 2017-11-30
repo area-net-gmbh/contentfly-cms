@@ -32,9 +32,11 @@ use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Query;
 use Silex\Application;
 
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\Exception\AccesssDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\AccesssDeniedHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -806,7 +808,7 @@ class ApiController extends BaseController
         }
 
         if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
-            throw new AccesssDeniedHttpException("Zugriff auf $entityName verweigert.");
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         $object = $this->em->getRepository($entityPath)->find($id);
@@ -816,14 +818,14 @@ class ApiController extends BaseController
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
-            throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
                 }
             }
         }

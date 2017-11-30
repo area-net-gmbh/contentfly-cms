@@ -43,7 +43,7 @@ class Api
         $this->em       = $app['orm.em'];
         $this->request  = $request;
     }
-    
+
     public function getExtendedSchema(){
         $frontend = array(
             'customLogo' => Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,
@@ -453,10 +453,18 @@ class Api
                         }
                     }
                 }
+
+                $event = new \Areanet\PIM\Classes\Event();
+                $event->setParam('classAnnotation', $classAnnotation);
+                $event->setParam('settings',        $settings);
+                $this->app['dispatcher']->dispatch('pim.schema.after.classAnnotation', $event);
+                $settings = $event->getParam('settings');
             }
 
-            $list       = array();
-            $properties = array();
+            $list               = array();
+            $properties         = array();
+            $customProperties   = array();
+
             foreach ($props as $prop) {
 
 
@@ -469,6 +477,15 @@ class Api
                 $allPropertyAnnotations = array();
                 foreach($propertyAnnotations as $propertyAnnotation){
                     $allPropertyAnnotations[get_class($propertyAnnotation)] = $propertyAnnotation;
+
+                    $event = new \Areanet\PIM\Classes\Event();
+                    $event->setParam('propertyAnnotation', $propertyAnnotation);
+                    $event->setParam('properties', isset($customProperties[$prop->getName()]) ? $customProperties[$prop->getName()] : array());
+                    $this->app['dispatcher']->dispatch('pim.schema.after.propertyAnnotation', $event);
+
+                    if(($customProperties = $event->getParam('properties'))){
+                        $customProperties[$prop->getName()] =  $customProperties;
+                    }
 
                 }
                 krsort($allPropertyAnnotations);
@@ -494,10 +511,16 @@ class Api
                     }
                 }
 
+                if(!empty($properties[$prop->getName()]) && !empty($customProperties[$prop->getName()])){
+                    $properties[$prop->getName()] = array_merge($properties[$prop->getName()], $customProperties[$prop->getName()]);
+                }
+
 
                 if(isset($properties[$prop->getName()]['showInList']) && $properties[$prop->getName()]['showInList'] !== false){
                     $list[$properties[$prop->getName()]['showInList']] = $prop->getName();
                 }
+
+
 
 
             }
@@ -520,7 +543,7 @@ class Api
     }
 
     public function getSinge($entityName, $id = null, $where = null){
-       return $this->single($entityName, $id, $where);
+        return $this->single($entityName, $id, $where);
     }
 
     public function single($entityName, $id = null, $where = null){
