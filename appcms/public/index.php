@@ -32,7 +32,8 @@ if(Config\Adapter::getConfig()->APP_FORCE_SSL){
 
 if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
     if(!isset($_SERVER['PHP_AUTH_USER'])) {
-        list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+        $authString = empty($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : $_SERVER['HTTP_AUTHORIZATION'];
+        list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($authString, 6)));
     }
 
     if (empty($_SERVER['PHP_AUTH_USER'])) {

@@ -203,9 +203,13 @@ $app['database'] = $app->share(function ($app){
     $config = \Areanet\PIM\Classes\Config\Adapter::getConfig();
 
     $connectionParams = array(
-        'url'       => 'mysql://'.$config->DB_USER.':'.$config->DB_PASS.'@'.$config->DB_HOST.':'.$config->DB_PORT.'/'.$config->DB_NAME,
-        'charset'   => $config->DB_CHARSET,
-        'collate'   => $config->DB_COLLATE
+        'dbname'    => $config->DB_NAME,
+        'user'      => $config->DB_USER,
+        'password'  => $config->DB_PASS,
+        'port'      => $config->DB_PORT,
+        'host'      => $config->DB_HOST,
+        'driver'    => 'pdo_mysql',
+        'charset'   => $config->DB_CHARSET
     );
 
     return  \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
