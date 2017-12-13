@@ -6,8 +6,8 @@ use Areanet\PIM\Classes\Annotations\MatrixChooser;
 use Areanet\PIM\Classes\Api;
 use \Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
-use Areanet\PIM\Classes\Exceptions\Config\EntityDuplicateException;
-use Areanet\PIM\Classes\Exceptions\Config\EntityNotFoundException;
+use Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException;
+use Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException;
 use Areanet\PIM\Classes\Exceptions\File\FileExistsException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
@@ -15,7 +15,6 @@ use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\File\Processing\Standard;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Push;
-use Areanet\PIM\Classes\TypeManager;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
@@ -33,11 +32,9 @@ use Doctrine\ORM\Query;
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
-use Symfony\Component\HttpFoundation\File\Exception\AccesssDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\AccesssDeniedHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 
@@ -50,143 +47,197 @@ class ApiController extends BaseController
 
     /**
      * @apiVersion 1.3.0
-     * @api {post} /api/single single
-     * @apiName Single
+     * @api {post} /api/all all
+     * @apiName All
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
-     * @apiParam {String} entity Auszulesende Entity
-     * @apiParam {String/Integer} id = null ID des Objektes
-     * @apiParam {Object} where = null Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
-     * @apiParamExample {json} Request-Beispiel über ID:
+     * @apiDescription Gibt alle Objekte aller Entitys zurück
+     *
+     * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
+     * @apiParam {Boolean} [flatten="false"] Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
+     * @apiParamExample {json} Request-Beispiel:
      *     {
-     *      "entity": "News",
-     *      "id": 1
-     *     }
-     * @apiParamExample {json} Request-Beispiel über WHERE:
-     *     {
-     *      "entity": "Kunden",
-     *      "where": {"kundennummer": 200200}
-     *     }
+     *      "lastModified": "2016-02-20 15:30:22"
+     *      }
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
      *     {
-     *       "message": "singleAction",
+     *       "message": "allAction",
+     *       "lastModified": "2016-02-21 12:20:00"
      *       "data:" {
-     *          "id": 1,
-     *          "isHidden": false,
-     *          "isDeleted": false,
-     *          "title": "Eine News"
-     *       }
-     *   }
-     * @apiError 404 Objekt nicht gefunden
+     *          "News": [
+     *              {
+     *                  "id": 1,
+     *                  "isHidden": false,
+     *                  "isDeleted": false,
+     *                  "title": "Eine News"
+     *              },
+     *              ...
+     *          },
+     *          "EntityXYZ": [
+     *              {...},
+     *              {...},
+     *              ...
+     *          ]
+     *      }
+     *     }
      */
-    public function singleAction(Request $request)
+    public function allAction(Request $request)
     {
+        $timestamp              = $request->get('lastModified');
+        $filedata               = $request->get('filedata');
+        $flatten                = $request->get('flatten', false);
 
-        $data       = array();
+        $lastModified = null;
+        if(!empty($timestamp)) {
+            try {
+                $lastModified = new \Datetime($timestamp);
+            } catch (\Exception $e) {
 
-        $entityName = $request->get('entity');
-        $id         = $request->get('id');
-        $where      = $request->get('where');
+            }
+        }
 
-        $api  = new Api($this->app);
-        $data = $api->single($entityName, $id, $where);
+        $api = new Api($this->app, $request);
+        $all = $api->getAll($lastModified, $flatten, $filedata);
 
+        $currentDate = new \Datetime();
 
-        return new JsonResponse(array('message' => "singleAction", 'data' => $data));
-
+        return new JsonResponse(array('message' => 'allAction',  'lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
     }
 
     /**
      * @apiVersion 1.3.0
-     * @api {post} /api/tree tree
-     * @apiName Baumansicht
+     * @api {get} /api/config config
+     * @apiName Config
+     * @apiGroup Settings
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiDescription Grundlegende, frei-zugängliche Konfiguration, z.B. für Login-Seite
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "devmode": false,
+     *       "version": "1.3.0"
+     *       "data:" {
+     *         ...
+     *       }
+     *     }
+     */
+    public function configAction()
+    {
+        $frontend = array(
+            'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
+        );
+
+        $uiblocks = $this->app['uiManager']->getBlocks();
+
+        return new JsonResponse(array('message' => 'configAction', 'uiblocks' => $uiblocks, 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
+    }
+
+    /**
+     * @apiVersion 1.3.0
+     * @api {post} /api/delete delete
+     * @apiName Delete
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
-     * @apiParam {String} entity Auszulesende Entity
-     * @apiParam {Array} [properties] Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)<code>['feld1', 'feld2', ...]</code>
+     * @apiParam {String} entity Zu löschende Entity
+     * @apiParam {Integer} id Zu löschende Objekt-ID
      * @apiParamExample {json} Request-Beispiel:
      *     {
-     *      "entity": "Category",
-     *      "properties": ["title"]
-     *     }
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "message": "treeAction",
-     *       "data:" [
-     *          {
-     *              "id": 1,
-     *              "isHidden": false,
-     *              "isDeleted": false,
-     *              "title": "Eine Kategorie",
-     *              "treeChilds" : [
-     *                  {
-     *                      ....
-     *                  }
-     *              ]
-     *          },
-     *          {...},
-     *          ...
-     *      ]
-     *   }
+     *      "entity": "News",
+     *      "id": 12
+     *      }
      */
-    public function treeAction(Request $request)
+    public function deleteAction(Request $request, Application $app)
     {
-        $entityName   = $request->get('entity');
-        $properties   = $request->get('properties');
+        $entityName = ucfirst($request->get('entity'));
+        $id         = $request->get('id');
 
-        if (substr($entityName, 0, 3) == 'PIM') {
-            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        }elseif(substr($entityName, 0, 7) == 'Areanet'){
-            $splitter = explode('\\', $entityName);
-            $entityNameToLoad = $entityName;
-            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
-        }else{
-            $entityName = ucfirst($request->get('entity'));
-            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
-        }
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('app',     $app);
 
-        return new JsonResponse(array('message' => "treeAction", 'data' => $this->loadTree($entityName, $entityNameToLoad, null, $properties)));
+        $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
+
+        $api = new Api($this->app, $request);
+        $api->doDelete($entityName, $id, $app);
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('id',      $id);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
+
+        return new JsonResponse(array('message' => 'deleteAction: '.$id));
     }
 
-    protected function loadTree($entityName, $entity, $parent, $properties = array()){
 
-        $queryBuilder = $this->em->createQueryBuilder();
-        $queryBuilder->from($entity, $entityName)
-            ->where("$entityName.isIntern = false")
-            ->orderBy($entityName.'.sorting', 'ASC');
+    /**
+     * @apiVersion 1.3.0
+     * @api {post} /api/insert insert
+     * @apiName Insert
+     * @apiGroup Objekte
+     * @apiHeader {String} APPMS-TOKEN Access-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
+     *
+     * @apiParam {String} entity Einzutragende Entity
+     * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
+     * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *      "entity": "News",
+     *      "data": {
+     *          "title": "Eine neue News",
+     *          "subtitle: "Untertitel der neuen News",
+     *          "date": "2016-02-18 15:30:00"
+     *      }
+     * @apiError 500 Ein Objekt mit einem gleichen UNIQUE-INDEX ist bereits vorhanden
+     * @apiError 501 Unbekannter Serverfehler
+     */
+    public function insertAction(Request $request, Application $app)
+    {
+        $entityName          = ucfirst($request->get('entity'));
+        $data                = $request->get('data');
 
-        if($parent){
-            $queryBuilder->andWhere("$entityName.treeParent = :treeParent");
-            $queryBuilder->setParameter('treeParent', $parent);
-        }else{
-            $queryBuilder->andWhere("$entityName.treeParent IS NULL");
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.before.insert', $event);
+
+        $data = $event->getParam('data');
+
+        try {
+            $api = new Api($this->app, $request);
+            $object = $api->doInsert($entityName, $data, $app, $app['auth.user']);
+        }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
+            return new JsonResponse(array('message' => $e->getMessage()), 500);
+        }catch(\Exception $e){
+            return new JsonResponse(array('message' => $e->getMessage()), 500);
         }
 
-        if(count($properties) > 0){
-            $partialProperties = implode(',', $properties);
-            $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
-        }else{
-            $queryBuilder->select($entityName);
-        }
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('user',    $app['auth.user']);
+        $event->setParam('object',  $object);
+        $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
-        $query   = $queryBuilder->getQuery();
-        $objects = $query->getResult();
-
-        $array   = array();
-
-        foreach($objects as $object){
-            $data = $object->toValueObject($this->app, $entityName, true, $properties);
-            $data->treeChilds = $this->loadTree($entityName, $entity, $object, $properties);
-            $array[] = $data;
-        }
-
-        return $array;
+        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
     }
 
     /**
@@ -292,153 +343,119 @@ class ApiController extends BaseController
         }
     }
 
+    public function mailAction(Request $request)
+    {
+
+
+        $mailto = $request->get("mailto");
+        if(!$mailto){
+            return new JsonResponse(array('message' => "No mailto address"), 500);
+        }
+        $data    = $request->get("data", array());
+        $subject = $request->get("subject", "Anfrage über PIM-API");
+
+        $body = "";
+        foreach($data as $name=>$value){
+            $body .= $name.":\t\t\t".$value."\n";
+        }
+
+        mail($mailto, $subject, $body, 'From: '.APP_MAILFROM);
+
+        $return = array(
+            'mailto' => $mailto,
+            'subject' => $subject
+        );
+
+        $data = json_encode($return);
+        return new JsonResponse(array('message' => "ok", "data" => $data));
+    }
+
+    public function multiupdateAction(Request $request, Application $app)
+    {
+        $objects             = $request->get('objects');
+        $disableModifiedTime = $request->get('disableModifiedTime');
+
+        foreach($objects as $object){
+            try{
+                $api = new Api($this->app, $request);
+                $api->doUpdate($object['entity'], $object['id'], $object['data'], $disableModifiedTime, $app, $app['auth.user']);
+            }catch(EntityDuplicateException $e){
+                continue;
+            }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException $e){
+                continue;
+            }
+        }
+
+        return new JsonResponse(array('message' => 'multiupdate'));
+    }
 
     /**
      * @apiVersion 1.3.0
-     * @api {post} /api/delete delete
-     * @apiName Delete
+     * @api {post} /api/update update
+     * @apiName Update
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
-     * @apiParam {String} entity Zu löschende Entity
-     * @apiParam {Integer} id Zu löschende Objekt-ID
+     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
+     *
+     * @apiParam {String} entity zu aktualisierende Entity
+     * @apiParam {Integer} id Zu aktualisierende Objekt-ID
+     * @apiParam {String=null} pass Passwort des eingeloggten Benutzers. Muss übergeben werden, wenn die pass-Property für Entität PIM\User unter data gesetzt wird.
+     * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "News",
-     *      "id": 12
+     *      "id": 12,
+     *      "data": {
+     *          "title": "Eine geänderte News",
+     *          "subtitle: "Untertitel der geänderten News",
+     *          "date": "2016-02-18 15:30:00"
      *      }
+     * @apiError 400 zu aktualisierendes Objekt ist nicht vorhanden
+     * @apiError 500 Ein Objekt mit einem gleichen UNIQUE-INDEX ist bereits vorhanden
      */
-    public function deleteAction(Request $request, Application $app)
+    public function updateAction(Request $request, Application $app)
     {
-        $entityName = ucfirst($request->get('entity'));
-        $id         = $request->get('id');
+        $entityName          = $request->get('entity');
+        $id                  = $request->get('id');
+        $data                = $request->get('data');
+        $currentUserPass     = $request->get('pass');
+        $disableModifiedTime = $request->get('disableModifiedTime');
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
         $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
         $event->setParam('app',     $app);
+        $this->app['dispatcher']->dispatch('pim.entity.before.udpdate', $event);
 
-        $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
+        $data = $event->getParam('data');
 
-        $this->delete($entityName, $id, $app);
-
+        try{
+            $api = new Api($this->app, $request);
+            $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user'], $currentUserPass);
+        }catch(EntityDuplicateException $e){
+            return new JsonResponse(array('message' => $e->getMessage()), 500);
+        }catch(EntityNotFoundException $e){
+            return new JsonResponse(array('message' => "Not found"), 404);
+        }catch(\Exception $e){
+            return new JsonResponse(array('message' => $e->getMessage()), 500);
+        }
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
         $event->setParam('user',    $app['auth.user']);
+        $event->setParam('data',    $data);
         $event->setParam('app',     $app);
-        $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
+        $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
 
-        return new JsonResponse(array('message' => 'deleteAction: '.$id));
-    }
+        return new JsonResponse(array('message' => 'updateAction', 'id' => $id));
 
-    public function delete($entityName, $id, Application $app){
-        $schema = $this->app['schema'];
-
-        $entityPath = 'Custom\Entity\\'.$entityName;
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }
-
-        if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityName))){
-            throw new AccesssDeniedHttpException("Zugriff auf $entityName verweigert.");
-        }
-
-        $object = $this->em->getRepository($entityPath)->find($id);
-        if(!$object){
-            throw new \Exception("Das Objekt wurde nicht gefunden.", 404);
-        }
-
-        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
-            throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
-        }
-
-        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
-            if($object->getUserCreated() != $this->app['auth.user']){
-                $group = $this->app['auth.user']->getGroup();
-                if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccesssDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
-                }
-            }
-        }
-
-        if($entityPath == 'Areanet\PIM\Entity\User'){
-
-            if($object->getAlias() == 'admin'){
-                throw new \Exception("Der Hauptadministrator kann nicht gelöscht werden.", 400);
-            }
-
-        }
-
-        $parent = null;
-        if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
-            $subObjects = $this->em->getRepository($entityPath)->findBy(array('treeParent' => $object->getId()));
-            if($subObjects){
-                foreach($subObjects as $subObject){
-                    $this->delete($entityName, $subObject->getId(), $app);
-                }
-            }
-            $parent = $object->getTreeParent();
-        }
-
-        if($entityName == 'PIM\\File') {
-            $backend    = Backend::getInstance();
-
-            $path   = $backend->getPath($object);
-            foreach (new \DirectoryIterator($path) as $fileInfo) {
-                if ($fileInfo->isDot() || !$fileInfo->isFile()) continue;
-                unlink($fileInfo->getPathname());
-            }
-            @rmdir($path);
-        }
-
-        /**
-         * Log delete actions
-         */
-        $schema = $this->app['schema'];
-
-        $log = new Log();
-
-        $log->setModelId($object->getId());
-        $log->setModelName(ucfirst($entityName));
-        $log->setUser($app['auth.user']);
-        $log->setMode(Log::DELETED);
-
-        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
-            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
-            $label = $object->$labelGetter();
-            $log->setModelLabel($label);
-        }
-
-        $this->em->persist($log);
-        $this->em->flush();
-
-        $this->em->remove($object);
-        $this->em->flush();
-
-        if($schema[ucfirst($entityName)]['settings']['isSortable']){
-            $oldPos = $object->getSorting();
-            if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
-                if(!$parent){
-                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
-                }else{
-                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
-                }
-
-            }else{
-                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0");
-            }
-            $query->execute();
-        }
-
-        $this->em->flush();
-
-        return $object;
     }
 
     /**
@@ -505,600 +522,6 @@ class ApiController extends BaseController
 
     /**
      * @apiVersion 1.3.0
-     * @api {post} /api/insert insert
-     * @apiName Insert
-     * @apiGroup Objekte
-     * @apiHeader {String} APPMS-TOKEN Access-Token
-     * @apiHeader {String} Content-Type=application/json
-     *
-     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
-     *
-     * @apiParam {String} entity Einzutragende Entity
-     * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
-     * @apiParamExample {json} Request-Beispiel:
-     *     {
-     *      "entity": "News",
-     *      "data": {
-     *          "title": "Eine neue News",
-     *          "subtitle: "Untertitel der neuen News",
-     *          "date": "2016-02-18 15:30:00"
-     *      }
-     * @apiError 500 Ein Objekt mit einem gleichen UNIQUE-INDEX ist bereits vorhanden
-     * @apiError 501 Unbekannter Serverfehler
-     */
-    public function insertAction(Request $request, Application $app)
-    {
-        $entityName          = ucfirst($request->get('entity'));
-        $data                = $request->get('data');
-
-        $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
-        $event->setParam('request', $request);
-        $event->setParam('user',    $app['auth.user']);
-        $event->setParam('data',    $data);
-        $event->setParam('app',     $app);
-        $this->app['dispatcher']->dispatch('pim.entity.before.insert', $event);
-
-        $data = $event->getParam('data');
-
-        try {
-            $object = $this->insert($entityName, $data, $app, $app['auth.user']);
-        }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }catch(\Exception $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }
-
-        $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
-        $event->setParam('request', $request);
-        $event->setParam('user',    $app['auth.user']);
-        $event->setParam('object',  $object);
-        $event->setParam('app',     $app);
-        $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
-
-        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
-    }
-
-    public function insert($entityName, $data, $app, $user)
-    {
-        $schema              = $this->app['schema'];
-
-        $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }
-
-        if(!Permission::isWritable($this->app['auth.user'], $entityName)){
-            throw new AccesssDeniedHttpException("Zugriff auf $entityName verweigert.");
-        }
-
-        $object  = new $entityPath();
-
-        foreach($data as $property => $value){
-            if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
-                throw new \Exception("Unkown property $property for entity $entityPath", 500);
-            }
-
-            $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
-            $typeObject = $this->app['typeManager']->getType($type);
-            if(!$typeObject){
-                throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
-            }
-
-            if($schema[ucfirst($entityName)]['properties'][$property]['unique']){
-                $objectDuplicated = $this->em->getRepository($entityPath)->findOneBy(array($property => $value));
-                if($objectDuplicated) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
-            }
-
-            if($property == 'id'){
-                $metadata = $this->em->getClassMetaData(get_class($object));
-                $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
-                if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
-            }
-
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
-
-        }
-
-        if($object instanceof Base){
-            $object->setUserCreated($user);
-            $object->setUser($user);
-        }
-
-        try {
-
-            $this->em->persist($object);
-
-
-            if($schema[ucfirst($entityName)]['settings']['isSortable']){
-                if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
-                    $parent = $object->getTreeParent();
-                    if(!$parent){
-                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.treeParent IS NULL");
-                    }else {
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.treeParent = '".$parent->getId()."'");
-                    }
-                }elseif($schema[ucfirst($entityName)]['settings']['sortRestrictTo']) {
-                    $restrictToProperty = $schema[ucfirst($entityName)]['settings']['sortRestrictTo'];
-                    $getter             = 'get'.ucfirst($restrictToProperty);
-                    $restrictToObject   = $object->$getter();
-                    if(!$restrictToObject){
-                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty IS NULL");
-                    }else{
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty = '".$restrictToObject->getId()."'");
-                    }
-                }else{
-                    $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1");
-                }
-
-                $query->execute();
-            }
-
-            $this->em->flush();
-
-            $isPush = $schema[$entityName]['settings']['isPush'];
-            if($isPush){
-                $pushTitle  = $schema[$entityName]['settings']['pushTitle'];
-                $pushText   = $schema[$entityName]['settings']['pushText'];
-
-
-                $event = new \Areanet\PIM\Classes\Event();
-                $event->setParam('entity',          $entityName);
-                $event->setParam('data',            $data);
-                $event->setParam('user',            $app['auth.user']);
-                $event->setParam('additionalData',  array());
-                $event->setParam('pushTitle',       $pushTitle);
-                $event->setParam('pushText',        $pushText);
-                $event->setParam('app',             $app);
-                $this->app['dispatcher']->dispatch('pim.push.before.send', $event);
-
-                $additionalData = $event->getParam('additionalData');
-                $pushTitle      = $event->getParam('pushTitle');
-                $pushText       = $event->getParam('pushText');
-
-                $push = new Push($this->em, $object);
-                $push->send($pushTitle, $pushText, $additionalData);
-            }
-
-            /**
-             * Log insert actions
-             */
-            $log = new Log();
-
-            $log->setModelId($object->getId());
-            $log->setModelName($entityName);
-            $log->setUser($user);
-            $log->setMode(Log::INSERTED);
-
-            if($schema[ucfirst($entityName)]['settings']['labelProperty']){
-                $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
-                $label = $object->$labelGetter();
-                $log->setModelLabel($label);
-            }
-
-            $this->em->persist($log);
-            $this->em->flush();
-        }catch(UniqueConstraintViolationException $e){
-            if($entityPath == 'Areanet\PIM\Entity\User'){
-                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
-            }
-            $uniqueObjectLoaded = false;
-
-            foreach($schema[$entityName]['properties'] as $property => $propertySettings){
-
-                if($propertySettings['unique']){
-                    $object = $this->em->getRepository($entityPath)->findOneBy(array($property => $data[$property]));
-                    if(!$object){
-                        throw new \Exception("Unbekannter Fehler", 501);
-                    }
-                    $uniqueObjectLoaded = true;
-                    break;
-                }
-            }
-
-            if(!$uniqueObjectLoaded) throw new \Exception("Unbekannter Fehler", 500);
-        }
-
-        return $object;
-    }
-
-    /**
-     * @apiVersion 1.3.0
-     * @api {post} /api/update update
-     * @apiName Update
-     * @apiGroup Objekte
-     * @apiHeader {String} APPMS-TOKEN Access-Token
-     * @apiHeader {String} Content-Type=application/json
-     *
-     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
-     *
-     * @apiParam {String} entity zu aktualisierende Entity
-     * @apiParam {Integer} id Zu aktualisierende Objekt-ID
-     * @apiParam {String=null} pass Passwort des eingeloggten Benutzers. Muss übergeben werden, wenn die pass-Property für Entität PIM\User unter data gesetzt wird.
-     * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
-     * @apiParamExample {json} Request-Beispiel:
-     *     {
-     *      "entity": "News",
-     *      "id": 12,
-     *      "data": {
-     *          "title": "Eine geänderte News",
-     *          "subtitle: "Untertitel der geänderten News",
-     *          "date": "2016-02-18 15:30:00"
-     *      }
-     * @apiError 400 zu aktualisierendes Objekt ist nicht vorhanden
-     * @apiError 500 Ein Objekt mit einem gleichen UNIQUE-INDEX ist bereits vorhanden
-     */
-    public function updateAction(Request $request, Application $app)
-    {
-        $entityName          = $request->get('entity');
-        $id                  = $request->get('id');
-        $data                = $request->get('data');
-        $currentUserPass     = $request->get('pass');
-        $disableModifiedTime = $request->get('disableModifiedTime');
-
-        $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
-        $event->setParam('request', $request);
-        $event->setParam('id',      $id);
-        $event->setParam('user',    $app['auth.user']);
-        $event->setParam('data',    $data);
-        $event->setParam('app',     $app);
-        $this->app['dispatcher']->dispatch('pim.entity.before.udpdate', $event);
-
-        $data = $event->getParam('data');
-
-        try{
-            $this->update($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user'], $currentUserPass);
-        }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException $e){
-            return new JsonResponse(array('message' => "Not found"), 404);
-        }catch(\Exception $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }
-
-        $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
-        $event->setParam('request', $request);
-        $event->setParam('id',      $id);
-        $event->setParam('user',    $app['auth.user']);
-        $event->setParam('data',    $data);
-        $event->setParam('app',     $app);
-        $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
-
-        return new JsonResponse(array('message' => 'updateAction', 'id' => $id));
-
-    }
-
-    public function multiupdateAction(Request $request, Application $app)
-    {
-        $objects             = $request->get('objects');
-        $disableModifiedTime = $request->get('disableModifiedTime');
-
-        foreach($objects as $object){
-            try{
-                $this->update($object['entity'], $object['id'], $object['data'], $disableModifiedTime, $app, $app['auth.user']);
-            }catch(EntityDuplicateException $e){
-                continue;
-            }catch(EntityNotFoundException $e){
-                continue;
-            }
-        }
-
-        return new JsonResponse(array('message' => 'multiupdate'));
-    }
-
-
-    /**
-     * @param string $entityName
-     * @param integer $id
-     * @param array $data
-     * @param boolean $disableModifiedTime
-     * @param User $user
-     * @return JsonResponse
-     */
-    public function update($entityName, $id, $data, $disableModifiedTime, $app, $user = null, $currentUserPass = null)
-    {
-        $schema              = $this->app['schema'];
-
-        $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }
-
-        if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
-        }
-
-        $object = $this->em->getRepository($entityPath)->find($id);
-        if(!$object){
-            throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException();
-
-        }
-
-        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
-        }
-
-        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
-            if($object->getUserCreated() != $this->app['auth.user']){
-                $group = $this->app['auth.user']->getGroup();
-                if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
-                }
-            }
-        }
-
-        if($object instanceof User && isset($data['pass']) && !$this->app['auth.user']->getIsAdmin()){
-            if(!$this->app['auth.user']->isPass($currentUserPass)){
-                throw new \Exception('Passwort des aktuellen Benutzers wurde nicht korrekt übergeben.');
-            }
-        }
-
-
-        foreach($data as $property => $value){
-            if($property == 'modified' || $property == 'created') continue;
-
-
-            if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
-                throw new \Exception("Unkown property $property for entity $entityPath", 500);
-            }
-
-            $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
-            $typeObject =  $this->app['typeManager']->getType($type);
-            if(!$typeObject){
-                throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
-            }
-
-            
-
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
-            
-        }
-        
-        $object->setModified(new \DateTime());
-        $object->setUser($user);
-
-        try{
-            if($disableModifiedTime){
-                $object->doDisableModifiedTime(true);
-            }
-
-            $this->em->persist($object);
-            $this->em->flush();
-
-        }catch(UniqueConstraintViolationException $e){
-            if($entityPath == 'Areanet\PIM\Entity\User'){
-                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
-            }elseif($entityPath == 'Areanet\PIM\Entity\File') {
-                $existingFile = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId()));
-
-                throw new FileExistsException("Die Datei ist in diesem Ordner bereits vorhanden. Wollen Sie die bestehende Datei überschreiben?", $existingFile->getId());
-            }else{
-                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein gleicher Eintrag ist bereits vorhanden.");
-            }
-        }
-        /**
-         * Log update actions
-         */
-        $log = new Log();
-
-        $log->setModelId($object->getId());
-        $log->setModelName(ucfirst($entityName));
-        if($user) $log->setUser($user);
-        $log->setMode(Log::UPDATED);
-
-        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
-            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
-            $label = $object->$labelGetter();
-            $log->setModelLabel($label);
-        }
-
-        $this->em->persist($log);
-        $this->em->flush();
-    }
-
-    /**
-     * @apiVersion 1.3.0
-     * @api {post} /api/all all
-     * @apiName All
-     * @apiGroup Objekte
-     * @apiHeader {String} APPMS-TOKEN Access-Token
-     * @apiHeader {String} Content-Type=application/json
-     *
-     * @apiDescription Gibt alle Objekte aller Entitys zurück
-     *
-     * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
-     * @apiParam {Boolean} [flatten="false"] Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
-     * @apiParamExample {json} Request-Beispiel:
-     *     {
-     *      "lastModified": "2016-02-20 15:30:22"
-     *      }
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "message": "allAction",
-     *       "lastModified": "2016-02-21 12:20:00"
-     *       "data:" {
-     *          "News": [
-     *              {
-     *                  "id": 1,
-     *                  "isHidden": false,
-     *                  "isDeleted": false,
-     *                  "title": "Eine News"
-     *              },
-     *              ...
-     *          },
-     *          "EntityXYZ": [
-     *              {...},
-     *              {...},
-     *              ...
-     *          ]
-     *      }
-     *     }
-     */
-    public function allAction(Request $request)
-    {
-        $timestamp              = $request->get('lastModified');
-        $filedata               = $request->get('filedata');
-        $flatten                = $request->get('flatten', false);
-
-        $lastModified = null;
-        if(!empty($timestamp)) {
-            try {
-                $lastModified = new \Datetime($timestamp);
-            } catch (\Exception $e) {
-
-            }
-        }
-
-        $entities   = array('Areanet\PIM\Entity\File', 'Areanet\PIM\Entity\User', 'Areanet\PIM\Entity\Group');
-
-        $entityFolder = __DIR__.'/../../../../custom/Entity/';
-        foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
-            if($fileInfo->isDot()) continue;
-
-            $entities[] = 'Custom\Entity\\'.ucfirst($fileInfo->getBasename('.php'));
-        }
-
-        $all = array();
-
-        foreach($entities as $entityName){
-            $entityShortcut = substr($entityName, strrpos($entityName, '\\') + 1);
-            if(substr($entityName, 0, 11) == 'Areanet\\PIM'){
-                $entityShortcut = 'PIM\\'.$entityShortcut;
-            }
-
-            if(!($permission = Permission::isReadable($this->app['auth.user'], $entityShortcut))){
-                continue;
-            }
-
-            $qb = $this->em->createQueryBuilder();
-
-            $qb->select($entityShortcut)
-                ->from($entityName, $entityShortcut);
-
-            $qb->where("1 = 1");
-
-            if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                $qb->andWhere("$entityShortcut.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityShortcut.users) = 1");
-                $qb->setParameter('userCreated', $this->app['auth.user']);
-            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
-                $group = $this->app['auth.user']->getGroup();
-                if(!$group){
-                    $qb->andWhere("$entityShortcut.userCreated = :userCreated");
-                    $qb->setParameter('userCreated', $this->app['auth.user']);
-                }else{
-                    $qb->andWhere("$entityShortcut.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityShortcut.groups) = 1");
-                    $qb->setParameter('userGroup', $group);
-                    $qb->setParameter('userCreated', $this->app['auth.user']);
-                }
-            }
-
-            if($lastModified) {
-                $qb->andWhere($entityShortcut . '.modified >= :lastModified');
-                $qb->setParameter('lastModified', $lastModified);
-            }
-
-            $query = $qb->getQuery();
-            $objects = $query->getResult();
-
-
-            $array = array();
-            foreach($objects as $object){
-
-                $objectData = $object->toValueObject($this->app, $entityShortcut, $flatten);
-
-                if($object instanceof File && $filedata !== null){
-
-                    $backendFS = new FileSystem();
-                    foreach($filedata as $size){
-                        $sizePrefix = $size == 'org' ? '' : $size.'-';
-                        $path       = $backendFS->getPath($object);
-                        $filePath   = $path.'/'.$sizePrefix.$object->getName();
-
-                        if(file_exists($filePath)){
-                            if(!isset($objectData->filedata)) $objectData->filedata = new \stdClass();
-
-                            $data   = file_get_contents($filePath);
-                            $base64 = base64_encode($data);
-                            $objectData->filedata->$size = $base64;
-                        }
-                    }
-                }
-
-                $array[] = $objectData;
-            }
-
-            //GET DELETED
-            $qb = $this->em->createQueryBuilder();
-
-            $qb->select('log')
-                ->from('Areanet\PIM\Entity\\Log', 'log')
-                ->where('log.modelName = :modelName')
-                ->andWhere("log.mode = 'DEL' OR log.mode = 'Gelöscht'")
-                ->setParameter('modelName', $entityShortcut);
-
-            if($lastModified) {
-                $qb->andWhere('log.created >= :lastModified');
-                $qb->setParameter('lastModified', $lastModified);
-            }
-
-            $query = $qb->getQuery();
-            $objects = $query->getResult();
-
-            foreach($objects as $object){
-                $array[] = array(
-                    'id' => $object->getModelId(),
-                    'isDeleted' => true
-                );
-            }
-
-            if(!count($array)){
-                continue;
-            }
-
-            $all[$entityShortcut] = $array;
-        }
-
-        $currentDate = new \Datetime();
-
-        return new JsonResponse(array('message' => 'allAction',  'lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
-    }
-
-    /**
-     * @apiVersion 1.3.0
-     * @api {get} /api/config config
-     * @apiName Config
-     * @apiGroup Settings
-     * @apiHeader {String} Content-Type=application/json
-     *
-     * @apiDescription Grundlegende, frei-zugängliche Konfiguration, z.B. für Login-Seite
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "devmode": false,
-     *       "version": "1.3.0"
-     *       "data:" {
-     *         ...
-     *       }
-     *     }
-     */
-    public function configAction()
-    {
-        $frontend = array(
-            'customLogo' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGO
-        );
-
-        $uiblocks = $this->app['uiManager']->getBlocks();
-
-        return new JsonResponse(array('message' => 'configAction', 'uiblocks' => $uiblocks, 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
-    }
-
-    /**
-     * @apiVersion 1.3.0
      * @api {get} /api/schema schema
      * @apiName Schema
      * @apiGroup Settings
@@ -1127,32 +550,127 @@ class ApiController extends BaseController
 
         return new JsonResponse($returnData);
     }
-    
 
-    public function mailAction(Request $request)
+    /**
+     * @apiVersion 1.3.0
+     * @api {post} /api/single single
+     * @apiName Single
+     * @apiGroup Objekte
+     * @apiHeader {String} APPMS-TOKEN Access-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam {String} entity Auszulesende Entity
+     * @apiParam {String/Integer} id = null ID des Objektes
+     * @apiParam {Object} where = null Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
+     * @apiParamExample {json} Request-Beispiel über ID:
+     *     {
+     *      "entity": "News",
+     *      "id": 1
+     *     }
+     * @apiParamExample {json} Request-Beispiel über WHERE:
+     *     {
+     *      "entity": "Kunden",
+     *      "where": {"kundennummer": 200200}
+     *     }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "message": "singleAction",
+     *       "data:" {
+     *          "id": 1,
+     *          "isHidden": false,
+     *          "isDeleted": false,
+     *          "title": "Eine News"
+     *       }
+     *   }
+     * @apiError 404 Objekt nicht gefunden
+     */
+    public function singleAction(Request $request)
     {
 
+        $data       = array();
 
-        $mailto = $request->get("mailto");
-        if(!$mailto){
-            return new JsonResponse(array('message' => "No mailto address"), 500);
-        }
-        $data    = $request->get("data", array());
-        $subject = $request->get("subject", "Anfrage über PIM-API");
+        $entityName = $request->get('entity');
+        $id         = $request->get('id');
+        $where      = $request->get('where');
 
-        $body = "";
-        foreach($data as $name=>$value){
-            $body .= $name.":\t\t\t".$value."\n";
-        }
+        $api  = new Api($this->app);
+        $data = $api->getSingle($entityName, $id, $where);
 
-        mail($mailto, $subject, $body, 'From: '.APP_MAILFROM);
 
-        $return = array(
-            'mailto' => $mailto,
-            'subject' => $subject
-        );
+        return new JsonResponse(array('message' => "singleAction", 'data' => $data));
 
-        $data = json_encode($return);
-        return new JsonResponse(array('message' => "ok", "data" => $data));
     }
+
+    /**
+     * @apiVersion 1.3.0
+     * @api {post} /api/tree tree
+     * @apiName Baumansicht
+     * @apiGroup Objekte
+     * @apiHeader {String} APPMS-TOKEN Access-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam {String} entity Auszulesende Entity
+     * @apiParam {Array} [properties] Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)<code>['feld1', 'feld2', ...]</code>
+     * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *      "entity": "Category",
+     *      "properties": ["title"]
+     *     }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "message": "treeAction",
+     *       "data:" [
+     *          {
+     *              "id": 1,
+     *              "isHidden": false,
+     *              "isDeleted": false,
+     *              "title": "Eine Kategorie",
+     *              "treeChilds" : [
+     *                  {
+     *                      ....
+     *                  }
+     *              ]
+     *          },
+     *          {...},
+     *          ...
+     *      ]
+     *   }
+     */
+    public function treeAction(Request $request)
+    {
+        $entityName   = $request->get('entity');
+        $properties   = $request->get('properties');
+
+        $api  = new Api($this->app);
+        $tree = $api->getTree($entityName, null, $properties);
+
+        return new JsonResponse(array('message' => "treeAction", 'data' => $tree));
+    }
+
+    /**
+     * @apiVersion 1.4.0
+     * @api {post} /api/query query
+     * @apiName Query
+     * @apiGroup Objekte
+     * @apiHeader {String} APPMS-TOKEN Access-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam
+    * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *     }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     */
+    public function queryAction(Request $request){
+        $api    = new Api($this->app, $request);
+        $data   = $api->getQuery();
+
+        return new JsonResponse(array('message' => "queryAction", 'data' => $data));
+    }
+    
+
+
 }
