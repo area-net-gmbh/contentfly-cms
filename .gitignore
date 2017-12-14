@@ -8,6 +8,8 @@ appcms/vendor
 .idea/*
 ansible/*
 template
+docker-compose.yml
+docker/*
 Vagrantfile
 custom/*
 data/*

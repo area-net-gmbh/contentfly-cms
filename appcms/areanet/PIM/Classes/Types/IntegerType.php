@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
@@ -28,7 +29,7 @@ class IntegerType extends Type
         return ($annotation->type == 'integer');
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
         if(!is_array($value) && $value !== null){

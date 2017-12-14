@@ -17,6 +17,7 @@ use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\Log;
 use Areanet\PIM\Entity\User;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Table;
@@ -39,6 +40,9 @@ class Api
     /** @var EntityManager $em */
     protected $em;
 
+    /** @var Connection $database */
+    protected $database;
+
     /** @var  @var Request $request */
     protected $request;
 
@@ -46,6 +50,8 @@ class Api
     {
         $this->app      = $app;
         $this->em       = $app['orm.em'];
+        $this->database = $app['database'];
+
         $this->request  = $request;
     }
 
@@ -671,7 +677,6 @@ class Api
                 }else{
                     switch($schema[$entityName]['properties'][$field]['type']){
                         case 'join':
-                            $value = $value;
                             if($value == -1){
                                 $queryBuilder->andWhere("$entityName.$field IS NULL");
                             }else{
@@ -1030,14 +1035,17 @@ class Api
             );
         }
 
+        $data['_hash'] = md5(serialize($data));
+
         if(Adapter::getConfig()->APP_ENABLE_SCHEMA_CACHE){
+
             file_put_contents($cacheFile, serialize($data));
         }
 
         return $data;
     }
 
-    public function getSinge($entityName, $id = null, $where = null){
+    public function getSingle($entityName, $id = null, $where = null){
 
         if (substr($entityName, 0, 3) == 'PIM') {
             $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
@@ -1086,6 +1094,15 @@ class Api
         return $object->toValueObject($this->app, $entityName, false);
     }
 
+    protected function getTableName($entityName){
+
+        if(empty($this->app['schema'][$entityName])){
+            return $entityName;
+        }
+
+        return isset($this->app['schema'][$entityName]['settings']['dbname']) ? $this->app['schema'][$entityName]['settings']['dbname'] : $entityName;
+    }
+
     public function getTree($entityName, $parent, $properties = array()){
 
         if (substr($entityName, 0, 3) == 'PIM') {
@@ -1132,8 +1149,163 @@ class Api
         return $array;
     }
 
-    public function getQuery(){
+    public function getQuery(Array $params){
+        $queryBuilder = $this->database->createQueryBuilder();
+
+        $paramCount = 0;
+
+        if(!isset($params['select']) || !isset($params['from'])){
+            throw new \Exception("Mandatory keys 'from' or 'select' missing.");
+        }
+
+        foreach($params as $method => $params){
+
+            if($method == 'delete' || $method == 'insert'|| $method == 'update'){
+                throw new \Exception("'delete', 'insert' oder 'update not allowed in query.");
+            }
+
+            if(method_exists($queryBuilder, $method)){
+                if(is_array($params)){
+                    if($this->isIndexedArray($params)){
+                        //array('select' => array('field1', 'field2'))
+
+                        if(in_array($method, array('join', 'innerJoin', 'leftJoin', 'rightJoin'))){
+
+                            if(count($params) != 4){
+                                throw new \Exception("Wrong Parameter-Count for '$method'");
+                            }
+
+                            $entityName     = $params[1];
+                            $entityAlias    = $params[2];
+
+                            if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
+                                throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+                            }
+
+                            if($permission == \Areanet\PIM\Entity\Permission::OWN){
+                                $queryBuilder->andWhere("$entityAlias.userCreated = ? OR FIND_IN_SET(?, $entityAlias.users) = 1");
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                $paramCount++;
+                            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                                $group = $this->app['auth.user']->getGroup();
+                                if(!$group){
+                                    $queryBuilder->andWhere("$entityAlias.userCreated = ?");
+                                    $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                    $paramCount++;
+                                }else{
+                                    $queryBuilder->andWhere("$entityAlias.userCreated = ? OR FIND_IN_SET(?, $entityAlias.groups) = 1");
+                                    $queryBuilder->setParameter($paramCount, $group);
+                                    $paramCount++;
+                                    $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                    $paramCount++;
+                                }
+                            }
+
+                            $params[1] = $this->getTableName($entityName);
+                        }
+
+                        call_user_func_array(array($queryBuilder, $method), $params);
+
+                    }else{
+                        reset($params);
+                        $queryKey       = key($params);
+                        $queryParams    = $params[$queryKey];
+
+                        if($method == 'from'){
+                            //$queryKey     = entityName
+                            //$queryParams  = entityAlias
+
+                            if(!($permission = Permission::isReadable($this->app['auth.user'], $queryKey))){
+                                throw new AccessDeniedHttpException("Zugriff auf $queryKey verweigert.");
+                            }
+
+                            if($permission == \Areanet\PIM\Entity\Permission::OWN){
+                                $queryBuilder->andWhere("$queryParams.userCreated = ? OR FIND_IN_SET(?, $queryParams.users) = 1");
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                $paramCount++;
+                            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                                $group = $this->app['auth.user']->getGroup();
+                                if(!$group){
+                                    $queryBuilder->andWhere("$queryParams.userCreated = ?");
+                                    $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                    $paramCount++;
+                                }else{
+                                    $queryBuilder->andWhere("$queryParams.userCreated = ? OR FIND_IN_SET(?, $queryParams.groups) = 1");
+                                    $queryBuilder->setParameter($paramCount, $group);
+                                    $paramCount++;
+                                    $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                    $paramCount++;
+                                }
+                            }
+
+                            $queryKey = $this->getTableName($queryKey);
+                        }
+
+                        if(is_array($queryParams)){
+                            //array('where' => array('field1 = ? OR field2 = ?' => array('field1', 'field2'))
+                            $queryBuilder->$method($queryKey);
+                            foreach($queryParams as $queryParam){
+                                $queryBuilder->setParameter($paramCount, $queryParam);
+                                $paramCount++;
+                            }
+                        }elseif(strpos($queryKey, '?') !== false){
+                            //array('where' => array('field1 = ?' => 'field2')
+                            $queryBuilder->$method($queryKey);
+                            $queryBuilder->setParameter($paramCount, $queryParams);
+                            $paramCount++;
+                        }else{
+                            //array('where' => array('tableName' => 'tableAlias')
+                            $queryBuilder->$method($queryKey, $queryParams);
+                        }
+
+                    }
+                }else{
+                    //array('from' => 'entity')
+                    if($method == 'from'){
+
+                        if(!($permission = Permission::isReadable($this->app['auth.user'], $params))){
+                            throw new AccessDeniedHttpException("Zugriff auf $params verweigert.");
+                        }
+
+                        if($permission == \Areanet\PIM\Entity\Permission::OWN){
+                            $queryBuilder->andWhere("userCreated = ? OR FIND_IN_SET(?, users) = 1");
+                            $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                            $paramCount++;
+                        }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                            $group = $this->app['auth.user']->getGroup();
+                            if(!$group){
+                                $queryBuilder->andWhere("userCreated = ?");
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                $paramCount++;
+                            }else{
+                                $queryBuilder->andWhere("userCreated = ? OR FIND_IN_SET(?, groups) = 1");
+                                $queryBuilder->setParameter($paramCount, $group);
+                                $paramCount++;
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                $paramCount++;
+                            }
+                        }
+
+                        $params = $this->getTableName($params);
+                    }
+
+
+
+                    $queryBuilder->$method($params);
+                }
+
+            }
+        }
+
+        return $queryBuilder->execute()->fetchAll();
 
     }
+
+    protected function isIndexedArray(&$arr) {
+        for (reset($arr); is_int(key($arr)); next($arr));
+        return is_null(key($arr));
+    }
+
+
 
 }

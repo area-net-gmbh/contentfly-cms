@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
@@ -104,7 +105,7 @@ class PermissionsType extends Type
         return $data;
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $this->em->persist($object);
         $this->em->flush();

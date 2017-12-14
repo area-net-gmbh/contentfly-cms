@@ -1,10 +1,8 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
-use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Type;
-use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class OnejoinType extends Type
@@ -47,16 +45,16 @@ class OnejoinType extends Type
         return $schema;
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
 
         $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 
         if(!empty($value['id'])){
-            $controller->update($joinEntity, $value['id'], $value, false, $user);
+            $api->doUpdate($joinEntity, $value['id'], $value, false, $user);
         }else{
-            $joinObject = $controller->insert($joinEntity, $value, $user);
+            $joinObject = $api->doInsert($joinEntity, $value, $user);
 
             $object->$setter($joinObject);
         }

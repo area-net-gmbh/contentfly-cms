@@ -1,9 +1,9 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Exceptions\FileNotFoundException;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
-use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
 
 
@@ -88,7 +88,7 @@ class FileType extends Type
             : $subobject->toValueObject($this->app, $config['accept'], $flatten, array(), ($level + 1));
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
 

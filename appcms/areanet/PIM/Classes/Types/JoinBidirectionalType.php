@@ -136,7 +136,7 @@ class JoinBidirectionalType extends Type
         return $data;
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
     {
 
     }

@@ -36,7 +36,6 @@
         function addToken(){
             TokenService.add(vm.tokenReferrer, vm.token, vm.tokenUser).then(
                 function successCallback(response) {
-                    console.log(response);
                     vm.tokens.push(response.data.message);
 
                     vm.tokenReferrer = null;
@@ -291,6 +290,7 @@
 
                 var entities = {};
                 for (var entity in $rootScope.schema) {
+                    if(entity == '_hash') continue;
                     if(entity.substr(0, 4) == 'PIM\\' || $rootScope.schema[entity]["settings"]["hide"]) continue;
                     entities[entity] = $rootScope.schema[entity]["settings"]["label"];
                 }

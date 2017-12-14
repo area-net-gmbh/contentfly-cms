@@ -104,7 +104,7 @@ class ApiController extends BaseController
 
         $currentDate = new \Datetime();
 
-        return new JsonResponse(array('message' => 'allAction',  'lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
+        return $this->renderResponse(array('lastModified' => $currentDate->format('Y-m-d H:i:s'),  'data' => $all), count($all) ? 200 : 204);
     }
 
     /**
@@ -134,7 +134,7 @@ class ApiController extends BaseController
 
         $uiblocks = $this->app['uiManager']->getBlocks();
 
-        return new JsonResponse(array('message' => 'configAction', 'uiblocks' => $uiblocks, 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
+        return $this->renderResponse(array('uiblocks' => $uiblocks, 'frontend' => $frontend, 'devmode' => Config\Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION));
     }
 
     /**
@@ -178,7 +178,7 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
 
-        return new JsonResponse(array('message' => 'deleteAction: '.$id));
+        return $this->renderResponse(array('id' => $id));
     }
 
 
@@ -237,7 +237,7 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
-        return new JsonResponse(array('message' => 'Object inserted', 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
+        return $this->renderResponse(array('id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
     }
 
     /**
@@ -318,28 +318,26 @@ class ApiController extends BaseController
         }
 
         if($doCount){
-            return new JsonResponse(array('message' => "listAction", 'data' => count($data['objects'])));
+            return $this->renderResponse(array('data' => count($data['objects'])));
         }
 
 
         if($currentPage) {
-            $data = array('message' => "listAction",  'data' => $data['objects'], 'itemsPerPage' => $itemsPerPage, 'totalItems' => $data['totalObjects']);
+            $data = array('data' => $data['objects'], 'itemsPerPage' => $itemsPerPage, 'totalItems' => $data['totalObjects']);
 
             if($lastModified){
                 $currentDate = new \Datetime();
                 $data['lastModified'] = $currentDate->format('Y-m-d H:i:s');
             }
-
-            return new JsonResponse($data);
+            return $this->renderResponse($data);
         } else {
-            $data = array('message' => "listAction", 'data' => $data['objects']);
+            $data = array('data' => $data['objects']);
 
             if($lastModified){
                 $currentDate = new \Datetime();
                 $data['lastModified'] = $currentDate->format('Y-m-d H:i:s');
             }
-
-            return new JsonResponse($data);
+            return $this->renderResponse($data);
         }
     }
 
@@ -367,7 +365,7 @@ class ApiController extends BaseController
         );
 
         $data = json_encode($return);
-        return new JsonResponse(array('message' => "ok", "data" => $data));
+        return $this->renderResponse(array('data' => $data));
     }
 
     public function multiupdateAction(Request $request, Application $app)
@@ -386,7 +384,7 @@ class ApiController extends BaseController
             }
         }
 
-        return new JsonResponse(array('message' => 'multiupdate'));
+        return $this->renderResponse(array());
     }
 
     /**
@@ -454,8 +452,14 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
 
-        return new JsonResponse(array('message' => 'updateAction', 'id' => $id));
+        return $this->renderResponse(array('id' => $id));
 
+    }
+
+    protected function renderResponse(Array $data, $status = 200){
+        $data['version'] = APP_VERSION;
+        $data['schema']  = $this->app['schema']['_hash'];
+        return new JsonResponse($data, $status);
     }
 
     /**
@@ -545,10 +549,8 @@ class ApiController extends BaseController
         $api = new Api($this->app);
         $extendedSchema = $api->getExtendedSchema();
 
-        $returnData = array('message' => 'schemaAction');
-        $returnData = array_merge($returnData, $extendedSchema);
+        return $this->renderResponse($extendedSchema);
 
-        return new JsonResponse($returnData);
     }
 
     /**
@@ -597,8 +599,7 @@ class ApiController extends BaseController
         $api  = new Api($this->app);
         $data = $api->getSingle($entityName, $id, $where);
 
-
-        return new JsonResponse(array('message' => "singleAction", 'data' => $data));
+        return $this->renderResponse(array('data' => $data));
 
     }
 
@@ -646,7 +647,7 @@ class ApiController extends BaseController
         $api  = new Api($this->app);
         $tree = $api->getTree($entityName, null, $properties);
 
-        return new JsonResponse(array('message' => "treeAction", 'data' => $tree));
+        return $this->renderResponse(array('data' => $tree));
     }
 
     /**
@@ -658,17 +659,19 @@ class ApiController extends BaseController
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam
-    * @apiParamExample {json} Request-Beispiel:
+     * @apiParamExample {json} Request-Beispiel:
      *     {
      *     }
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
      */
     public function queryAction(Request $request){
-        $api    = new Api($this->app, $request);
-        $data   = $api->getQuery();
+        $params = $request->request->all();
 
-        return new JsonResponse(array('message' => "queryAction", 'data' => $data));
+        $api    = new Api($this->app, $request);
+        $data   = $api->getQuery($params);
+
+        return $this->renderResponse(array('data' => $data));
     }
     
 

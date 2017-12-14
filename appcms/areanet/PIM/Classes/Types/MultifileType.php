@@ -1,12 +1,12 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Exceptions\FileNotFoundException;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
-use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
 class MultifileType extends Type
@@ -155,7 +155,7 @@ class MultifileType extends Type
         return $data;
     }
 
-    public function toDatabase(ApiController $controller, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
     {
         $setter = 'set'.ucfirst($property);
         $getter = 'get'.ucfirst($property);

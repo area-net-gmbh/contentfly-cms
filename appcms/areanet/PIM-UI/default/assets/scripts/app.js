@@ -44,6 +44,7 @@
                   
                     var entities = {};
                     for (var entity in $rootScope.schema) {
+                        if(entity == '_hash') continue;
                         if(entity.substr(0, 4) == 'PIM\\' || $rootScope.schema[entity]["settings"]["hide"] || !$rootScope.permissions[entity]["readable"]) continue;
                         entities[entity] = $rootScope.schema[entity]["settings"]["label"];
                     }
