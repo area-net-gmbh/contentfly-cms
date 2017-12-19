@@ -39,7 +39,7 @@ if($app['is_installed']) {
         define('APPCMS_ID_TYPE', 'string');
         define('APPCMS_ID_STRATEGY', 'UUID');
     } else {
-        define('APPCMS_ID_TYPE', 'integer');
+        define('APPCMS_ID_TYPE', Config\Adapter::getConfig()->DB_ID_INTEGER_TYPE);
         define('APPCMS_ID_STRATEGY', 'AUTO');
     }
 

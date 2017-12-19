@@ -26,7 +26,7 @@ class IntegerType extends Type
 
         $annotation = $propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'];
 
-        return ($annotation->type == 'integer');
+        return ($annotation->type == 'integer' || $annotation->type == 'bigint' || $annotation->type == 'smallint');
     }
 
     public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)

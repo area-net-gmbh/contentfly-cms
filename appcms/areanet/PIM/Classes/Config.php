@@ -67,6 +67,10 @@ class Config{
      */
     public $DB_GUID_STRATEGY  = true;
 
+    /**
+     * @var boolean $DB_ID_INTEGER_TYPE Type of id integer fields
+     */
+    public $DB_ID_INTEGER_TYPE  = 'integer';
 
     /**
      * @var boolean Enable Schema Cache
