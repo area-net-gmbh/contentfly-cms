@@ -2,7 +2,10 @@
 namespace Areanet\PIM\Controller;
 use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\LoginProvider;
+use Areanet\PIM\Classes\Manager\LoginManager;
 use Areanet\PIM\Entity\Token;
+use Areanet\PIM\Entity\User;
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,17 +48,34 @@ class AuthController extends BaseController
     public function loginAction(Request $request)
     {
 
-        $user = $this->em->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $request->get('alias')));
-        if(!$user){
-            return new JsonResponse(array('message' => 'Ungültiger Benutzername.'), 401);
-        }
+        $loginProviderClass = $request->get('loginManager');
+        if(($loginProvider = $this->getLoginProvider($request, $loginProviderClass))){
+            try {
+                $user = $loginProvider->auth();
+                if(!($user instanceof User)){
+                    return new JsonResponse(array('message' => 'Ungültiger Benutzer vom LoginManager'), 401);
+                }
+            }catch(\Exception $e){
+                return new JsonResponse(array('message' => $e->getMessage()), 401);
+            }
+        }else{
 
-        if(!$user->getIsActive()){
-            return new JsonResponse(array('message' => 'Der Benutzer ist gesperrt.'), 401);
-        }
+            $user = $this->em->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $request->get('alias')));
+            if(!$user){
+                return new JsonResponse(array('message' => 'Ungültiger Benutzername.'), 401);
+            }
 
-        if(!$user->isPass($request->get('pass'))){
-            return new JsonResponse(array('message' => 'Benutzername und/oder Passwort fehlerhaft.'), 401);
+            if(!$user->getIsActive()){
+                return new JsonResponse(array('message' => 'Der Benutzer ist gesperrt.'), 401);
+            }
+
+            if($user->getLoginManager()){
+                return new JsonResponse(array('message' => 'Der Benutzer ist nur über LoginManager authorisierbar.'), 401);
+            }
+
+            if(!$user->isPass($request->get('pass'))){
+                return new JsonResponse(array('message' => 'Benutzername und/oder Passwort fehlerhaft.'), 401);
+            }
         }
 
         if(self::CHECK_LOGIN_INTERVAL) {
@@ -110,5 +130,24 @@ class AuthController extends BaseController
         unset($this->app['auth.user']);
 
         return new JsonResponse(array('message' => 'Logout successful'));
+    }
+
+    protected function getLoginProvider(Request $request, $loginProviderClassName){
+        if(empty($loginProviderClassName)){
+            return null;
+        }
+
+        $loginProviderClass = "Custom\Classes\\$loginProviderClassName";
+
+        if(!class_exists($loginProviderClass)){
+            return null;
+        }
+
+        $loginProvider = new $loginProviderClass($this->app, $request);
+        if(!($loginProvider instanceof LoginManager)){
+            return null;
+        }
+
+        return $loginProvider;
     }
 }

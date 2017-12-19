@@ -53,6 +53,12 @@ class User extends Base
      */
     protected $salt;
 
+    /**
+     * @ORM\Column(type="string", length=100)
+     * @PIM\Config(label="Login-Manager", tab="settings", readonly=true)
+     */
+    protected $loginManager;
+
     public function __construct()
     {
         parent::__construct();
@@ -169,6 +175,24 @@ class User extends Base
     {
         $this->group = $group;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLoginManager()
+    {
+        return $this->loginManager;
+    }
+
+    /**
+     * @param mixed $loginManager
+     */
+    public function setLoginManager($loginManager)
+    {
+        $this->loginManager = $loginManager;
+    }
+
+
 
     public function toValueObject(Application $app = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
     {
