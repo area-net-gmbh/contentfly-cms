@@ -1,5 +1,6 @@
 <?php
 namespace Areanet\PIM\Classes;
+use Areanet\PIM\Classes\Manager\LoginManager;
 use Areanet\PIM\Entity\User;
 use Silex\Application;
 
@@ -33,18 +34,50 @@ class Auth{
         }
     }
 
-    public function login($alias, $pass){
-        $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $alias));
-        if(!$user){
-            throw new \Exception('Ungültiger Benutzername.', 401);
+    protected function getLoginProvider($loginProviderClassName){
+        if(empty($loginProviderClassName)){
+            return null;
         }
 
-        if(!$user->getIsActive()){
-            throw new \Exception('Ungültiger Benutzername.', 401);
+        $loginProviderClass = "Custom\Classes\\$loginProviderClassName";
+
+        if(!class_exists($loginProviderClass)){
+            return null;
         }
 
-        if(!$user->isPass($pass)){
-            throw new \Exception('Benutzername und/oder Passwort fehlerhaft.', 401);
+        $loginProvider = new $loginProviderClass($this->app, null);
+        if(!($loginProvider instanceof LoginManager)){
+            return null;
+        }
+
+        return $loginProvider;
+    }
+
+    public function login($alias, $pass, $loginManager = null){
+
+        if(($loginProvider = $this->getLoginProvider($loginManager))){
+            try {
+                $user = $loginProvider->auth();
+                if(!($user instanceof User)){
+                    throw new \Exception('Ungültiger Benutzer vom LoginManager', 401);
+                }
+            }catch(\Exception $e){
+                throw new \Exception($e->getMessage(), 401);
+            }
+        }else {
+
+            $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $alias));
+            if (!$user) {
+                throw new \Exception('Ungültiger Benutzername.', 401);
+            }
+
+            if (!$user->getIsActive()) {
+                throw new \Exception('Ungültiger Benutzername.', 401);
+            }
+
+            if (!$user->isPass($pass)) {
+                throw new \Exception('Benutzername und/oder Passwort fehlerhaft.', 401);
+            }
         }
 
         $this->app['session']->set('auth.userid', $user->getId());

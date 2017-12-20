@@ -12,7 +12,7 @@ abstract class LoginManager extends Manager
     /* @var $request Request */
     var $request = null;
 
-    public function __construct(Application $app, Request $request)
+    public function __construct(Application $app, Request $request = null)
     {
         $this->request = $request;
 
