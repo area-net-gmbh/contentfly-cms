@@ -33,6 +33,10 @@ abstract class LoginManager extends Manager
             $user->setLoginManager($class);
             $this->app['orm.em']->persist($user);
             $this->app['orm.em']->flush();
+        }else{
+            $user->setIsAdmin($isAdmin);
+            if($group) $user->setGroup($group);
+            $this->app['orm.em']->flush();
         }
 
         return $user;

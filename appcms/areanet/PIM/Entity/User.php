@@ -12,9 +12,9 @@ use Silex\Application;
  */
 class User extends Base
 {
-    
+
     use \Custom\Traits\User;
-    
+
     /**
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(showInList=20, label="Admin")
@@ -58,6 +58,8 @@ class User extends Base
      * @PIM\Config(label="Login-Manager", tab="settings", readonly=true)
      */
     protected $loginManager;
+
+    protected $tempData;
 
     public function __construct()
     {
@@ -192,13 +194,31 @@ class User extends Base
         $this->loginManager = $loginManager;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTempData()
+    {
+        return $this->tempData;
+    }
+
+    /**
+     * @param mixed $tempData
+     */
+    public function setTempData($tempData)
+    {
+        $this->tempData = $tempData;
+    }
+
+
+
 
 
     public function toValueObject(Application $app = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
     {
 
         $data = parent::toValueObject($app, $entityName, $flatten, $propertiesToLoad , $level);
-       
+
         unset($data->salt);
         unset($data->pass);
         unset($data->user);

@@ -104,6 +104,10 @@ class AuthController extends BaseController
             'user' => $user->toValueObject($this->app, 'PIM\User', false)
         );
 
+        if(($tempData = $user->getTempData())){
+            $response['data'] = $tempData;
+        }
+
         if($request->get('withSchema')){
             $api = new Api($this->app);
             $response['schema'] = $api->getExtendedSchema();
