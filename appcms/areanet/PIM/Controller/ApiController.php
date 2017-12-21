@@ -457,8 +457,8 @@ class ApiController extends BaseController
     }
 
     protected function renderResponse(Array $data, $status = 200){
-        $data['version'] = APP_VERSION;
-        $data['schema']  = $this->app['schema']['_hash'];
+        $data['version']    = APP_VERSION;
+        $data['hash']       = $this->app['schema']['_hash'];
         return new JsonResponse($data, $status);
     }
 
