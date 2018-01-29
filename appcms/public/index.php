@@ -6,14 +6,19 @@ use \Areanet\PIM\Classes\Config;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\Debug\ExceptionHandler;
+use Symfony\Component\HttpFoundation\Request;
 
-$app['ui.controller'] = $app->share(function() use ($app) {
+$app['ui.controller'] = function() use ($app) {
     return new Controller\UiController($app);
-});
+};
 
-$app['install.controller'] = $app->share(function() use ($app) {
+$app['install.controller'] = function() use ($app) {
     return new Controller\InstallController($app);
-});
+};
+
+$app['request'] = function()use ($app){
+    return $app['request_stack'] ? $app['request_stack']->getCurrentRequest() : null;
+};
 
 
 if(Config\Adapter::getConfig()->APP_FORCE_SSL){
@@ -54,13 +59,13 @@ ExceptionHandler::register();
 ErrorHandler::register();
 
 
-$app->error(function (\Exception $e, $code) use($app) {
+$app->error(function (\Exception $e, Request $request, $code) use($app) {
 
     if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
         return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 404));
     }else{
         $accept = AcceptHeader::fromString($app["request"]->headers->get('Content-Type'));
-        
+
         if(!$accept->has('application/json') && !$accept->has('multipart/form-data')){
             if($app['debug']){
                 return new \Symfony\Component\HttpFoundation\Response('<h1>'.$e->getMessage().'</h1><pre>'.$e->getTraceAsString().'</pre>', 500);
@@ -101,7 +106,6 @@ if(Config\Adapter::getConfig()->APP_ALLOW_ORIGIN){
         $response->headers->set('Access-Control-Allow-Headers', Config\Adapter::getConfig()->APP_ALLOW_HEADERS);
         $response->headers->set('Access-Control-Allow-Methods', Config\Adapter::getConfig()->APP_ALLOW_METHODS);
         $response->headers->set('Access-Control-Max-Age', Config\Adapter::getConfig()->APP_MAX_AGE);
-
     });
 
     $app->options("{anything}", function () {

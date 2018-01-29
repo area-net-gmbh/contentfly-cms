@@ -34,6 +34,7 @@ class Helper
         }
 
         $admin->setAlias("admin");
+        $admin->setLoginManager('');
         $admin->setPass("admin");
         $admin->setIsAdmin(true);
 

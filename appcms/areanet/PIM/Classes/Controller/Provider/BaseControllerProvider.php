@@ -2,8 +2,8 @@
 namespace Areanet\PIM\Classes\Controller\Provider;
 
 use Areanet\PIM\Classes\Config\Adapter;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
-use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -91,10 +91,11 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
     protected function checkToken(Request $request, Application $app){
         $tokenString = $request->headers->get(self::TOKEN_HEADER_KEY, null);
-
         if(empty($tokenString)){
             $tokenString = $request->headers->get(self::TOKEN_HEADER_KEY_ALT, $request->get(self::TOKEN_REQUEST_KEY));
         }
+        $headers = $request->headers->all();
+
 
         if(empty($tokenString)){
             return false;

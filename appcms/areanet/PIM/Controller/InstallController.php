@@ -145,7 +145,7 @@ class InstallController extends BaseController
             )
         ));
 
-        $this->app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
+        $this->app->register(new \Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
             'orm.proxies_dir' => ROOT_DIR . '/../data/cache/doctrine',
             'orm.em.options' => array(
                 'connection' => 'pim',
@@ -169,9 +169,9 @@ class InstallController extends BaseController
             )
         ));
 
-        $this->app['typeManager'] = $this->app->share(function ($app) {
+        $this->app['typeManager'] = function ($app) {
             return new \Areanet\PIM\Classes\Manager\TypeManager($app);
-        });
+        };
 
 
         foreach (Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType) {
@@ -187,7 +187,8 @@ class InstallController extends BaseController
             $this->app['helper']->install($this->app['orm.em']);
 
         }catch(\Exception $e){
-            return array('database' => "Die Datenbank konnte nicht initialisiert werden.");
+
+            return array('database' => "Die Datenbank konnte nicht initialisiert werden: " . $e->getMessage());
         }
 
         return array();

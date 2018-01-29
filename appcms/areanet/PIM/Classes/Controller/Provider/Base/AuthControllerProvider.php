@@ -15,9 +15,9 @@ class AuthControllerProvider extends BaseControllerProvider
 
     public function connect(Application $app)
     {
-        $app['auth.controller'] = $app->share(function() use ($app) {
+        $app['auth.controller'] = function($app) {
             return new AuthController($app);
-        });
+        };
 
         $this->setUpMiddleware($app);
 

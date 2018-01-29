@@ -13,9 +13,9 @@ class FileControllerProvider extends BaseControllerProvider
 
     public function connect(Application $app)
     {
-        $app['file.controller'] = $app->share(function() use ($app) {
+        $app['file.controller'] = function() use ($app) {
             return new FileController($app);
-        });
+        };
 
         $this->setUpMiddleware($app);
 

@@ -9,7 +9,7 @@
 
         if ($cookies.get('APPCMS-TOKEN') != null) {
             $http.defaults.headers.common = {
-                'APPMCS-TOKEN': $cookies.get('APPCMS-TOKEN')
+                'APPCMS-TOKEN': $cookies.get('APPCMS-TOKEN')
             };
         }
 

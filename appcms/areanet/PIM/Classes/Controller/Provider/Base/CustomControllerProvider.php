@@ -24,10 +24,10 @@ class CustomControllerProvider extends BaseControllerProvider
 
     public function connect(Application $app)
     {
-        $app[$this->basePath.'.controller'] = $app->share(function() use ($app) {
+        $app[$this->basePath.'.controller'] = function() use ($app) {
             $controllerName = $this->controllerName;
             return new $controllerName($app);
-        });
+        };
 
         $this->setUpMiddleware($app);
 

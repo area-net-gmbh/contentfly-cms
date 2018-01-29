@@ -28,7 +28,7 @@ class Image implements ProcessingInterface
     {
         $this->thumbnailSettings[$thumbnailSetting->getAlias()] = $thumbnailSetting;
     }
-    
+
     public function getMimeTypes()
     {
         return array('image/jpeg', 'image/gif', 'image/png');
@@ -62,6 +62,7 @@ class Image implements ProcessingInterface
 
         foreach($this->thumbnailSettings as $thumbnailSetting){
 
+
             if($fileSizeAlias && $fileSizeAlias != $thumbnailSetting->getAlias()){
                 continue;
             }
@@ -75,7 +76,6 @@ class Image implements ProcessingInterface
             }
 
             if(!$variant || !file_exists($imgThumbName)) {
-
                 $orig_width = imagesx($img);
                 $orig_height = imagesy($img);
 
@@ -131,8 +131,8 @@ class Image implements ProcessingInterface
                     $quality        = $this->qualityMapping['image/jpeg'];
                 }
 
-                $img   = $loadMethodName($imgThumbName);
-                $thumb = $this->resizeByPercent($fileObject, $img, 2/3*100);
+                $imgThumb   = $loadMethodName($imgThumbName);
+                $thumb = $this->resizeByPercent($fileObject, $imgThumb, 2/3*100);
 
                 $imgThumbNameList = explode("/", $imgThumbName);
                 $imgThumbNameList[count($imgThumbNameList) - 1] = "2x@" . $imgThumbNameList[count($imgThumbNameList) - 1];
@@ -140,12 +140,14 @@ class Image implements ProcessingInterface
 
                 $saveMethodName($thumb, $imgThumbName2x, $quality);
 
+                imagedestroy($thumb);
+
             }
 
             if($thumbnailSetting->getIsResponsive() &&  $variant != '2x' || $variant == '1x' ) {
-
                 $quality        = $this->qualityMapping[$fileObject->getType()];
                 $imgThumbName   = $backend->getPath($fileObject).'/'.$thumbnailSetting->getAlias().'-'.$fileObject->getName();
+
 
                 if($thumbnailSetting->getForceJpeg()){
                     $imgThumbNameList = explode('.', $imgThumbName);
@@ -159,16 +161,20 @@ class Image implements ProcessingInterface
                     $quality        = $this->qualityMapping['image/jpeg'];
                 }
 
-                $img   = $loadMethodName($imgThumbName);
-                $thumb = $this->resizeByPercent($fileObject, $img, 1/3*100);
+                $imgThumb   = $loadMethodName($imgThumbName);
+                $thumb = $this->resizeByPercent($fileObject, $imgThumb, 1/3*100);
 
                 $imgThumbNameList = explode("/", $imgThumbName);
                 $imgThumbNameList[count($imgThumbNameList) - 1] = "1x@" . $imgThumbNameList[count($imgThumbNameList) - 1];
                 $imgThumbName2x = implode('/', $imgThumbNameList);
-               
+
                 $saveMethodName($thumb, $imgThumbName2x, $quality);
 
+                imagedestroy($thumb);
+
             }
+
+
 
         }
     }
@@ -178,7 +184,7 @@ class Image implements ProcessingInterface
         $orig_width  = imagesx($img);
         $orig_height = imagesy($img);
 
-        $width       = $thumbnailSetting->getWidth();
+        $width       = $thumbnailSetting->getWidth() < $orig_width ? $thumbnailSetting->getWidth() : $orig_width;
         $height      = (($orig_height * $width) / $orig_width);
 
         $thumb = imagecreatetruecolor($width, $height);
@@ -210,7 +216,7 @@ class Image implements ProcessingInterface
         $orig_width  = imagesx($img);
         $orig_height = imagesy($img);
 
-        $height     = $thumbnailSetting->getHeight();
+        $height     = $thumbnailSetting->getHeight() < $orig_height ? $thumbnailSetting->getHeight() : $orig_height;
         $width      = (($orig_width * $height) / $orig_height);
 
         $thumb = imagecreatetruecolor($width, $height);

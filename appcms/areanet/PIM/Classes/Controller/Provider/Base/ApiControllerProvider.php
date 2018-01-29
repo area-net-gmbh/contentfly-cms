@@ -5,7 +5,6 @@ use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\Provider\BaseControllerProvider;
 use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
-use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -15,9 +14,9 @@ class ApiControllerProvider extends BaseControllerProvider
 
     public function connect(Application $app)
     {
-        $app['api.controller'] = $app->share(function() use ($app) {
+        $app['api.controller'] = function($app) {
             return new ApiController($app);
-        });
+        };
 
         $this->setUpMiddleware($app);
 

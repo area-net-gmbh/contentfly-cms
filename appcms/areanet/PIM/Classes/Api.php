@@ -20,6 +20,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\Table;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
@@ -927,6 +928,11 @@ class Api
 
 
             foreach($classAnnotations as $classAnnotation) {
+
+                if($classAnnotation instanceof MappedSuperclass){
+                    $skipEntity = true;
+                    break;
+                }
 
                 if ($classAnnotation instanceof Table) {
                     $settings['dbname'] = $classAnnotation->name ? $classAnnotation->name : null;

@@ -22,6 +22,7 @@ use Knp\Provider\ConsoleServiceProvider;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
 
+
 $app = new Application();
 $app->register(new Silex\Provider\SessionServiceProvider());
 $app['is_installed'] = (Config\Adapter::getConfig()->DB_HOST != '$SET_DB_HOST');
@@ -68,19 +69,19 @@ $app->register(new ConsoleServiceProvider(), array(
 ));
 
 
-$app['helper'] = $app->share(function ($app) {
+$app['helper'] = function () {
     return new \Areanet\PIM\Classes\Helper();
-});
+};
 
-$app['auth'] = $app->share(function ($app) {
+$app['auth'] = function ($app) {
     return new \Areanet\PIM\Classes\Auth($app);
-});
+};
 
 if($app['is_installed']) {
 
     $app['helper']->createSymlinks();
 
-    $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
+    $app->register(new \Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
         'orm.proxies_dir' => ROOT_DIR . '/../data/cache/doctrine',
         'orm.em.options' => array(
             'connection' => 'pim',
@@ -130,9 +131,9 @@ if($app['is_installed']) {
         }
     }
 
-    $app['typeManager'] = $app->share(function ($app) {
+    $app['typeManager'] = function ($app) {
         return new \Areanet\PIM\Classes\Manager\TypeManager($app);
-    });
+    };
 
     foreach (Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType) {
         $typeClass = new $systemType($app);
@@ -177,29 +178,29 @@ if($app['is_installed']) {
 
 $app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
 
-$app['consoleManager'] = $app->share(function ($app) {
+$app['consoleManager'] = function ($app) {
     return new \Areanet\PIM\Classes\Manager\ConsoleManager($app);
-});
+};
 
-$app['uiManager'] = $app->share(function ($app) {
+$app['uiManager'] = function ($app) {
     return new \Areanet\PIM\Classes\Manager\UIManager($app);
-});
+};
 
-$app['routeManager'] = $app->share(function ($app) {
+$app['routeManager'] = function ($app) {
     return new \Areanet\PIM\Classes\Manager\RouteManager($app);
-});
-
+};
+/*
 $app['dispatcher']->addListener(\Knp\Console\ConsoleEvents::INIT, function(\Knp\Console\ConsoleEvent $event) {
     $app = $event->getApplication();
     $app->add(new \Areanet\PIM\Command\SetupCommand());
-});
+});*/
 
-$app['schema'] = $app->share(function ($app){
+$app['schema'] = function ($app){
     $api = new \Areanet\PIM\Classes\Api($app);
     return $api->getSchema();
-});
+};
 
-$app['database'] = $app->share(function ($app){
+$app['database'] = function ($app){
     $config = \Areanet\PIM\Classes\Config\Adapter::getConfig();
 
     $connectionParams = array(
@@ -213,7 +214,7 @@ $app['database'] = $app->share(function ($app){
     );
 
     return  \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
-});
+};
 
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 

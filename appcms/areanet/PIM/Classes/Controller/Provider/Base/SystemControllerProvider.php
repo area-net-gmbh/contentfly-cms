@@ -17,9 +17,9 @@ class SystemControllerProvider extends BaseControllerProvider
 
     public function connect(Application $app)
     {
-        $app['system.controller'] = $app->share(function() use ($app) {
+        $app['system.controller'] = function($app) {
             return new SystemController($app);
-        });
+        };
 
         $this->setUpMiddleware($app);
 

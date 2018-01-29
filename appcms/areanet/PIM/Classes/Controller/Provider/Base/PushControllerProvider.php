@@ -15,9 +15,9 @@ class PushControllerProvider extends BaseControllerProvider
 
     public function connect(Application $app)
     {
-        $app['push.controller'] = $app->share(function() use ($app) {
+        $app['push.controller'] = function($app) {
             return new PushController($app);
-        });
+        };
 
         $this->setUpMiddleware($app);
 
