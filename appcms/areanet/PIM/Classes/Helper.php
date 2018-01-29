@@ -72,16 +72,23 @@ class Helper
     }
 
     public function createSymlinks(){
-        $this->createSymlink(ROOT_DIR.'/public/custom/', 'Frontend', '../../../custom/Frontend');
-        $this->createSymlink(ROOT_DIR.'/public/ui/', 'default', '../../areanet/PIM-UI/default/assets');
+        $docRoot = $_SERVER['DOCUMENT_ROOT'];
+
+        $this->createSymlink($docRoot.'/custom/', 'Frontend', ROOT_DIR.'/../custom/Frontend');
+        $this->createSymlink($docRoot.'/ui/', 'default', ROOT_DIR.'/areanet/PIM-UI/default/assets');
     }
 
     public function createSymlink($path, $target, $link){
+
         if(!is_link($path.$target)){
             $this->deleteFolder($path.$target);
+            if(!is_dir($path)){
+                mkdir($path);
+            }
             if(!chdir($path)){
                 return array('symlink', "chdir to $path failed.");
             }
+
             if(!symlink($link, $target)){
                 return array('symlink', "symlink $path.$target failed.");
             }
