@@ -601,6 +601,7 @@ class Api
             $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
+        $entityNameAlias = md5($entityName);
 
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
@@ -610,28 +611,28 @@ class Api
 
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
-            ->select("count(".$entityName.")")
-            ->from($entityNameToLoad, $entityName)
-            ->andWhere("$entityName.isIntern = false");
+            ->select("count(".$entityNameAlias.")")
+            ->from($entityNameToLoad, $entityNameAlias)
+            ->andWhere("$entityNameAlias.isIntern = false");
 
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN){
-            $queryBuilder->andWhere("$entityName.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityName.users) = 1");
+            $queryBuilder->andWhere("$entityNameAlias.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityNameAlias.users) = 1");
             $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
         }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
             $group = $this->app['auth.user']->getGroup();
             if(!$group){
-                $queryBuilder->andWhere("$entityName.userCreated = :userCreated");
+                $queryBuilder->andWhere("$entityNameAlias.userCreated = :userCreated");
                 $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
             }else{
-                $queryBuilder->andWhere("$entityName.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityName.groups) = 1");
+                $queryBuilder->andWhere("$entityNameAlias.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityNameAlias.groups) = 1");
                 $queryBuilder->setParameter('userGroup', $group);
                 $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
             }
         }
 
         if($lastModified){
-            $queryBuilder->andWhere($entityName.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
+            $queryBuilder->andWhere($entityNameAlias.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
         }
 
         if($where){
@@ -649,14 +650,14 @@ class Api
                     if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
                         if($value == -1) {
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
-                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
+                            $queryBuilder->leftJoin("$entityNameAlias.$field", "joined$joinedCounter");
                             $queryBuilder->andWhere("joined$joinedCounter.$mappedBy IS NULL");
                         }else{
                             $searchJoinedEntity = $schema[$entityName]['properties'][$field]['accept'];
                             $searchJoinedObject = $this->em->getRepository($searchJoinedEntity)->find($value);
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
 
-                            $queryBuilder->leftJoin("$entityName.$field", "joined$joinedCounter");
+                            $queryBuilder->leftJoin("$entityNameAlias.$field", "joined$joinedCounter");
                             $queryBuilder->andWhere("joined$joinedCounter.$mappedBy = :$field");
                             $queryBuilder->setParameter($field, $searchJoinedObject);
                             $placeholdCounter++;
@@ -664,7 +665,7 @@ class Api
 
                     }else{
 
-                        $queryBuilder->leftJoin("$entityName.$field", 'k');
+                        $queryBuilder->leftJoin("$entityNameAlias.$field", 'k');
                         if($value == -1){
                             $queryBuilder->andWhere("k.id IS NULL");
                         }else{
@@ -679,9 +680,9 @@ class Api
                     switch($schema[$entityName]['properties'][$field]['type']){
                         case 'join':
                             if($value == -1){
-                                $queryBuilder->andWhere("$entityName.$field IS NULL");
+                                $queryBuilder->andWhere("$entityNameAlias.$field IS NULL");
                             }else{
-                                $queryBuilder->andWhere("$entityName.$field = :$field");
+                                $queryBuilder->andWhere("$entityNameAlias.$field = :$field");
                                 $queryBuilder->setParameter($field, $value);
                                 $placeholdCounter++;
                             }
@@ -695,7 +696,7 @@ class Api
                                 $value = boolval($value);
                             }
 
-                            $queryBuilder->andWhere("$entityName.$field = :$field");
+                            $queryBuilder->andWhere("$entityNameAlias.$field = :$field");
                             $queryBuilder->setParameter($field, $value);
                             $placeholdCounter++;
 
@@ -703,14 +704,14 @@ class Api
                         case 'integer':
                             $value = intval($value);
 
-                            $queryBuilder->andWhere("$entityName.$field = :$field");
+                            $queryBuilder->andWhere("$entityNameAlias.$field = :$field");
                             $queryBuilder->setParameter($field, $value);
                             $placeholdCounter++;
 
                             break;
                         default:
 
-                            $queryBuilder->andWhere("$entityName.$field = :$field");
+                            $queryBuilder->andWhere("$entityNameAlias.$field = :$field");
                             $queryBuilder->setParameter($field, $value);
                             $placeholdCounter++;
 
@@ -726,13 +727,13 @@ class Api
                 $orX = $queryBuilder->expr()->orX();
                 $fulltextTypes = array('string', 'text', 'textarea', 'rte');
 
-                $orX->add("$entityName.id = :FT_id");
+                $orX->add("$entityNameAlias.id = :FT_id");
                 $queryBuilder->setParameter("FT_id", $where['fulltext']);
 
                 foreach($schema[$entityName]['properties'] as $field => $fieldOptions){
 
                     if(in_array($fieldOptions['type'], $fulltextTypes)){
-                        $orX->add("$entityName.$field LIKE :FT_$field");
+                        $orX->add("$entityNameAlias.$field LIKE :FT_$field");
                         $queryBuilder->setParameter("FT_$field", '%' . $where['fulltext'] . '%');
                     }
                 }
@@ -747,10 +748,10 @@ class Api
                     foreach($this->_MIMETYPES as $mimetypes){
                         $types = array_merge($types, $mimetypes);
                     }
-                    $queryBuilder->andWhere($queryBuilder->expr()->notIn("$entityName.type", $types));
+                    $queryBuilder->andWhere($queryBuilder->expr()->notIn("$entityNameAlias.type", $types));
                 }elseif(isset($this->_MIMETYPES[$where['mimetypes']])){
 
-                    $queryBuilder->andWhere($queryBuilder->expr()->in("$entityName.type", $this->_MIMETYPES[$where['mimetypes']]));
+                    $queryBuilder->andWhere($queryBuilder->expr()->in("$entityNameAlias.type", $this->_MIMETYPES[$where['mimetypes']]));
 
                 }
 
@@ -783,22 +784,22 @@ class Api
 
         if($order !== null){
             foreach($order as $orderBy => $orderSort){
-                $queryBuilder->addOrderBy($entityName.'.'.$orderBy, $orderSort);
+                $queryBuilder->addOrderBy($entityNameAlias.'.'.$orderBy, $orderSort);
             }
         }else{
-            $queryBuilder->orderBy($entityName.'.id', 'DESC');
+            $queryBuilder->orderBy($entityNameAlias.'.id', 'DESC');
         }
 
         if($groupBy){
-            $queryBuilder->groupBy($entityName.".".$groupBy);
+            $queryBuilder->groupBy($entityNameAlias.".".$groupBy);
         }
 
         if(count($properties) > 0){
             $partialProperties = implode(',', $properties);
-            $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
+            $queryBuilder->select('partial '.$entityNameAlias.'.{id,'.$partialProperties.'}');
             $query  = $queryBuilder->getQuery();
         }else{
-            $queryBuilder->select($entityName);
+            $queryBuilder->select($entityNameAlias);
             $query = $queryBuilder->getQuery();
         }
 
