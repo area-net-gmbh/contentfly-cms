@@ -16,6 +16,9 @@ define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'defau
 use Silex\Application;
 use \Areanet\PIM\Classes\Config;
 use Knp\Provider\ConsoleServiceProvider;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/Config.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
@@ -189,16 +192,20 @@ $app['uiManager'] = function ($app) {
 $app['routeManager'] = function ($app) {
     return new \Areanet\PIM\Classes\Manager\RouteManager($app);
 };
-/*
-$app['dispatcher']->addListener(\Knp\Console\ConsoleEvents::INIT, function(\Knp\Console\ConsoleEvent $event) {
-    $app = $event->getApplication();
-    $app->add(new \Areanet\PIM\Command\SetupCommand());
-});*/
+
+$app->extend('dispatcher', function (EventDispatcherInterface $dispatcher, $app) {
+    $dispatcher->addListener(\Knp\Console\ConsoleEvents::INIT, function (\Knp\Console\ConsoleEvent $event) {
+        $app = $event->getApplication();
+        $app->add(new \Areanet\PIM\Command\SetupCommand());
+    });
+    return $dispatcher;
+});
 
 $app['schema'] = function ($app){
     $api = new \Areanet\PIM\Classes\Api($app);
     return $api->getSchema();
 };
+
 
 $app['database'] = function ($app){
     $config = \Areanet\PIM\Classes\Config\Adapter::getConfig();
@@ -218,6 +225,8 @@ $app['database'] = function ($app){
 
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 
+
 require_once ROOT_DIR.'/../custom/app.php';
 
 $app['routeManager']->bindRoutes();
+

@@ -20,7 +20,6 @@ $app['request'] = function()use ($app){
     return $app['request_stack'] ? $app['request_stack']->getCurrentRequest() : null;
 };
 
-
 if(Config\Adapter::getConfig()->APP_FORCE_SSL){
     if ( !(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
             $_SERVER['HTTPS'] == 1) ||
@@ -97,6 +96,7 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
 
 });
 
+
 if(Config\Adapter::getConfig()->APP_ALLOW_ORIGIN){
 
     $app->after(function (\Symfony\Component\HttpFoundation\Request $request, \Symfony\Component\HttpFoundation\Response $response) {
@@ -124,4 +124,5 @@ $app->mount('/push', new \Areanet\PIM\Classes\Controller\Provider\Base\PushContr
 $app->mount('/system', new \Areanet\PIM\Classes\Controller\Provider\Base\SystemControllerProvider('/system'));
 
 $app->run();
+
 

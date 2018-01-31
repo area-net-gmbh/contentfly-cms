@@ -5,6 +5,9 @@ use Silex\Application;
 
 class Manager
 {
+    /** @var Application */
+    protected $app;
+
     /**
      * Manager constructor.
      *

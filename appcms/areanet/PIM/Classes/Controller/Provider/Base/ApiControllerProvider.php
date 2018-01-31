@@ -20,7 +20,6 @@ class ApiControllerProvider extends BaseControllerProvider
 
         $this->setUpMiddleware($app);
 
-
         $controllers = $app['controllers_factory'];
 
         $checkAuth = function (Request $request, Application $app) {
