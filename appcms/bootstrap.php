@@ -82,7 +82,7 @@ $app['auth'] = function ($app) {
 
 if($app['is_installed']) {
 
-    $app['helper']->createSymlinks();
+    if(!defined('APPCMS_CONSOLE')) $app['helper']->createSymlinks();
 
     $app->register(new \Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
         'orm.proxies_dir' => ROOT_DIR . '/../data/cache/doctrine',

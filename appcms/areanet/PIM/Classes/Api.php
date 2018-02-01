@@ -601,7 +601,7 @@ class Api
             $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
-        $entityNameAlias = md5($entityName);
+        $entityNameAlias = 'a'.md5($entityName);
 
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
