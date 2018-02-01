@@ -181,6 +181,22 @@ body.emotionalBackground{
     font-size:14px;
 }
 
+#list th{
+    cursor: pointer;
+}
+
+#list th .glyphicon{
+    opacity: 0;
+}
+
+#list th:hover .glyphicon{
+    opacity: 0.25;
+}
+
+
+#list th .glyphicon.glyphicon-show{
+    opacity: 1;
+}
 
 
 #pim-content{

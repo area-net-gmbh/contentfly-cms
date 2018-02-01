@@ -149,7 +149,10 @@
                 <tr>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                     <th ng-show="vm.schema.settings.isSortable">Position</th>
-                    <th ng-repeat="property in vm.schema.list">{{vm.schema.properties[property].label}}</th>
+                    <th ng-click="vm.sortBy(property)" ng-repeat="property in vm.schema.list">
+                        {{vm.schema.properties[property].label}}
+                        <span ng-class="{ 'glyphicon-arrow-up': vm.sortOrder === 'ASC', 'glyphicon-show' : vm.sortProperty == property, 'glyphicon-arrow-down' : vm.sortOrder === 'DESC' }"  class="glyphicon "></span>
+                    </th>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>
                     <th></th>
                     <pim-plugin key="LIST_TABLE_HEADER_COLS_APPEND2" uiblocks="uiblocks"></pim-plugin>
