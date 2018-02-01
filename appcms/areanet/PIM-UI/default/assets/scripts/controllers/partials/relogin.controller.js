@@ -25,7 +25,7 @@
                 url: '/auth/login',
                 data: {alias: user.alias, pass: vm.password}
             }).then(function successCallback(response) {
-                $cookies.put('XSRF-TOKEN', response.data.token);
+                $cookies.put('APPCMS-TOKEN', response.data.token);
                 $uibModalInstance.close(true);
             }, function errorCallback(response) {
                 vm.error = response.data.message;
