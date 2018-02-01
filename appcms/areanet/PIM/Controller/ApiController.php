@@ -429,6 +429,7 @@ class ApiController extends BaseController
         $event->setParam('data',    $data);
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.before.udpdate', $event);
+        $this->app['dispatcher']->dispatch('pim.entity.before.update', $event);
 
         $data = $event->getParam('data');
 
@@ -451,6 +452,7 @@ class ApiController extends BaseController
         $event->setParam('data',    $data);
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
+        $this->app['dispatcher']->dispatch('pim.entity.after.update', $event);
 
         return $this->renderResponse(array('id' => $id));
 
