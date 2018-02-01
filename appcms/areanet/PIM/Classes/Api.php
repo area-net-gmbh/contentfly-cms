@@ -927,6 +927,7 @@ class Api
 
             $classAnnotations = $annotationReader->getClassAnnotations($reflect);
 
+            $skipEntity = false;
 
             foreach($classAnnotations as $classAnnotation) {
 
@@ -967,6 +968,8 @@ class Api
                 $this->app['dispatcher']->dispatch('pim.schema.after.classAnnotation', $event);
                 $settings = $event->getParam('settings');
             }
+
+            if($skipEntity) continue;
 
             $list               = array();
             $properties         = array();
