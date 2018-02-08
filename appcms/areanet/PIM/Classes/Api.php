@@ -54,7 +54,13 @@ class Api
         $this->app              = $app;
         $this->em               = $app['orm.em'];
         $this->database         = $app['database'];
-        $this->app['auth.user'] = $user ? $user : $this->app['auth.user'];
+
+        if($user){
+            $this->app['auth.user'] = $user;
+        }else{
+            $this->app['auth.user'] = isset($this->app['auth.user']) ? $this->app['auth.user'] : null;
+        }
+
         $this->request          = $request;
     }
 
