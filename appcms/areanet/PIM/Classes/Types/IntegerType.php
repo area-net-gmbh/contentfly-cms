@@ -29,7 +29,7 @@ class IntegerType extends Type
         return ($annotation->type == 'integer' || $annotation->type == 'bigint' || $annotation->type == 'smallint');
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
     {
         $setter = 'set'.ucfirst($property);
         if(!is_array($value) && $value !== null){

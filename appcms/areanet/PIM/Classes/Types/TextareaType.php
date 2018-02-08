@@ -75,7 +75,7 @@ class TextareaType extends Type
 
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
     {
         $setter = 'set'.ucfirst($property);
 

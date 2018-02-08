@@ -229,7 +229,7 @@ class Base extends Serializable
     public function getUsers($asString = false)
     {
         if($asString){
-            return $this->groups;
+            return $this->users;
         }
 
         $ids = explode(',', $this->users);

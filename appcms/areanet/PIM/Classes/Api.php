@@ -213,7 +213,7 @@ class Api
                 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
             }
 
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user']);
+            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user'], $data);
 
         }
 

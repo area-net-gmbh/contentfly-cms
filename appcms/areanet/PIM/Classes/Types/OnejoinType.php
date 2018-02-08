@@ -85,18 +85,17 @@ class OnejoinType extends Type
             : $subobject->toValueObject($this->app, $config['accept'], $flatten, array(), ($level + 1));
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
     {
-        $setter = 'set'.ucfirst($property);
-
+        $setter     = 'set'.ucfirst($property);
         $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 
         if(!empty($value['id'])){
             $api->doUpdate($joinEntity, $value['id'], $value, false);
         }else{
-            $value['users'] = $object->getUsers();
-            $value['groups'] = $object->getGroups();
-            
+            $value['users']     = isset($data['users']) ? $data['users'] : array();
+            $value['groups']    = isset($data['groups']) ? $data['groups'] : array();
+
             $joinObject = $api->doInsert($joinEntity, $value);
             $object->$setter($joinObject);
         }
