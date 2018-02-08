@@ -226,8 +226,12 @@ class Base extends Serializable
     /**
      * @return mixed
      */
-    public function getUsers()
+    public function getUsers($asString = false)
     {
+        if($asString){
+            return $this->groups;
+        }
+
         $ids = explode(',', $this->users);
 
         $data = array();
@@ -263,8 +267,12 @@ class Base extends Serializable
     /**
      * @return mixed
      */
-    public function getGroups()
+    public function getGroups($asString = false)
     {
+        if($asString){
+            return $this->groups;
+        }
+
         $ids = explode(',', $this->groups);
 
         $data = array();

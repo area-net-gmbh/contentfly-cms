@@ -12,6 +12,7 @@ namespace Areanet\PIM\Classes;
 use Areanet\PIM\Classes\Config\Adapter;
 use Areanet\PIM\Classes\Exceptions\File\FileExistsException;
 use Areanet\PIM\Classes\File\Backend;
+use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\Log;
@@ -20,6 +21,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\Table;
 use Silex\Application;
@@ -47,16 +49,16 @@ class Api
     /** @var  @var Request $request */
     protected $request;
 
-    public function __construct($app, $request = null)
+    public function __construct($app, $request = null, User $user = null)
     {
-        $this->app      = $app;
-        $this->em       = $app['orm.em'];
-        $this->database = $app['database'];
-
-        $this->request  = $request;
+        $this->app              = $app;
+        $this->em               = $app['orm.em'];
+        $this->database         = $app['database'];
+        $this->app['auth.user'] = $user ? $user : $this->app['auth.user'];
+        $this->request          = $request;
     }
 
-    public function doDelete($entityName, $id, Application $app){
+    public function doDelete($entityName, $id){
         $schema = $this->app['schema'];
 
         $entityPath = 'Custom\Entity\\'.$entityName;
@@ -99,7 +101,7 @@ class Api
             $subObjects = $this->em->getRepository($entityPath)->findBy(array('treeParent' => $object->getId()));
             if($subObjects){
                 foreach($subObjects as $subObject){
-                    $this->delete($entityName, $subObject->getId(), $app);
+                    $this->delete($entityName, $subObject->getId(), $this->app);
                 }
             }
             $parent = $object->getTreeParent();
@@ -125,7 +127,7 @@ class Api
 
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
-        $log->setUser($app['auth.user']);
+        $log->setUser($this->app['auth.user']);
         $log->setMode(Log::DELETED);
 
         if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -136,6 +138,14 @@ class Api
 
         $this->em->persist($log);
         $this->em->flush();
+
+        foreach($schema[ucfirst($entityName)]['properties'] as $property => $propertyConfig){
+            if($propertyConfig['type'] == 'onejoin'){
+                $getterJoinedEntity = 'get'.ucfirst($property);
+                $joinedEntity       = $object->$getterJoinedEntity();
+                if($joinedEntity) $this->em->remove($joinedEntity);
+            }
+        }
 
         $this->em->remove($object);
         $this->em->flush();
@@ -160,9 +170,9 @@ class Api
         return $object;
     }
 
-    public function doInsert($entityName, $data, $app, $user)
+    public function doInsert($entityName, $data)
     {
-        $schema              = $this->app['schema'];
+        $schema  = $this->app['schema'];
 
         $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
         if(substr($entityName, 0, 3) == "PIM"){
@@ -197,13 +207,13 @@ class Api
                 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
             }
 
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
+            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user']);
 
         }
 
         if($object instanceof Base){
-            $object->setUserCreated($user);
-            $object->setUser($user);
+            $object->setUserCreated($this->app['auth.user']);
+            $object->setUser($this->app['auth.user']);
         }
 
         try {
@@ -246,11 +256,11 @@ class Api
                 $event = new \Areanet\PIM\Classes\Event();
                 $event->setParam('entity',          $entityName);
                 $event->setParam('data',            $data);
-                $event->setParam('user',            $app['auth.user']);
+                $event->setParam('user',            $this->app['auth.user']);
                 $event->setParam('additionalData',  array());
                 $event->setParam('pushTitle',       $pushTitle);
                 $event->setParam('pushText',        $pushText);
-                $event->setParam('app',             $app);
+                $event->setParam('app',             $this->app);
                 $this->app['dispatcher']->dispatch('pim.push.before.send', $event);
 
                 $additionalData = $event->getParam('additionalData');
@@ -268,7 +278,7 @@ class Api
 
             $log->setModelId($object->getId());
             $log->setModelName($entityName);
-            $log->setUser($user);
+            $log->setUser($this->app['auth.user']);
             $log->setMode(Log::INSERTED);
 
             if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -311,7 +321,7 @@ class Api
      * @param User $user
      * @return JsonResponse
      */
-    public function doUpdate($entityName, $id, $data, $disableModifiedTime, $app, $user = null, $currentUserPass = null)
+    public function doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass = null)
     {
         $schema  = $this->app['schema'];
 
@@ -366,12 +376,22 @@ class Api
 
 
 
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $user);
+            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user']);
 
         }
 
+        foreach($schema[ucfirst($entityName)]['properties'] as $property => $propertyConfig){
+            if($propertyConfig['type'] == 'onejoin'){
+                $getterJoinedEntity = 'get'.ucfirst($property);
+                $joinedEntity       = $object->$getterJoinedEntity();
+                $joinedEntity->setUsers($object->getUsers(true));
+                $joinedEntity->setGroups($object->getGroups(true));
+                $joinedEntity->setUserCreated($object->getUserCreated());
+            }
+        }
+
         $object->setModified(new \DateTime());
-        $object->setUser($user);
+        $object->setUser($this->app['auth.user']);
 
         try{
             if($disableModifiedTime){
@@ -399,7 +419,7 @@ class Api
 
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
-        if($user) $log->setUser($user);
+        $log->setUser($this->app['auth.user']);
         $log->setMode(Log::UPDATED);
 
         if($schema[ucfirst($entityName)]['settings']['labelProperty']){

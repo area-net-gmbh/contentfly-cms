@@ -26,6 +26,11 @@
                 data: {alias: user.alias, pass: vm.password}
             }).then(function successCallback(response) {
                 $cookies.put('APPCMS-TOKEN', response.data.token);
+
+                $http.defaults.headers.common = {
+                  'APPCMS-TOKEN': response.data.token
+                };
+
                 $uibModalInstance.close(true);
             }, function errorCallback(response) {
                 vm.error = response.data.message;

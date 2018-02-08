@@ -168,7 +168,7 @@ class ApiController extends BaseController
         $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
 
         $api = new Api($this->app, $request);
-        $api->doDelete($entityName, $id, $app);
+        $api->doDelete($entityName, $id);
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
@@ -222,7 +222,7 @@ class ApiController extends BaseController
 
         try {
             $api = new Api($this->app, $request);
-            $object = $api->doInsert($entityName, $data, $app, $app['auth.user']);
+            $object = $api->doInsert($entityName, $data);
         }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(\Exception $e){
@@ -376,7 +376,7 @@ class ApiController extends BaseController
         foreach($objects as $object){
             try{
                 $api = new Api($this->app, $request);
-                $api->doUpdate($object['entity'], $object['id'], $object['data'], $disableModifiedTime, $app, $app['auth.user']);
+                $api->doUpdate($object['entity'], $object['id'], $object['data'], $disableModifiedTime);
             }catch(EntityDuplicateException $e){
                 continue;
             }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException $e){
@@ -435,7 +435,7 @@ class ApiController extends BaseController
 
         try{
             $api = new Api($this->app, $request);
-            $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $app, $app['auth.user'], $currentUserPass);
+            $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass);
         }catch(EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(EntityNotFoundException $e){

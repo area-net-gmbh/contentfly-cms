@@ -52,6 +52,7 @@ class VirtualjoinType extends Type
 
     public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user)
     {
+
         $setter = 'set'.ucfirst($property);
 
         $data = array();

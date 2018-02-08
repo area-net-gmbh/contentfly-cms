@@ -32,10 +32,12 @@ abstract class Serializable implements \JsonSerializable{
         foreach ($this as $property => $value) {
 
             if(count($propertiesToLoad) && !in_array($property, $propertiesToLoad)){
+
                 continue;
             }
 
             if(!$app || !isset($schema[$entityName]['properties'][$property])){
+
                 continue;
             }
             $config = $schema[$entityName]['properties'][$property];
