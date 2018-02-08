@@ -73,6 +73,7 @@ class Helper
 
     public function createSymlinks(){
         $docRoot = $_SERVER['DOCUMENT_ROOT'];
+
         $arrDocRoot = explode('/', $docRoot);
         $arrRootDir = explode('/', ROOT_DIR, -1);
 

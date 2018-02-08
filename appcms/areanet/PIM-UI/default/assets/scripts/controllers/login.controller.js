@@ -52,6 +52,10 @@
                 localStorageService.set('user', response.data.user);
                 $cookies.put('APPCMS-TOKEN', response.data.token);
 
+                  $http.defaults.headers.common = {
+                    'APPCMS-TOKEN': response.data.token
+                  };
+
                 schema(response.data.token);
             }, function errorCallback(response) {
                 vm.error = response.data.message;
