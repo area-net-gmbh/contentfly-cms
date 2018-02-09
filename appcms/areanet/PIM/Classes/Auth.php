@@ -14,9 +14,6 @@ class Auth{
     /** @var Application $app */
     protected $app;
 
-    /** @var User $app */
-    protected $user;
-
     protected $token;
 
     /**
@@ -28,6 +25,10 @@ class Auth{
     {
         $this->app = $app;
 
+
+    }
+
+    public function init(){
         if(($userId = $this->app['session']->get('auth.userid'))){
             $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->find($userId);
             if($user) $this->setUser($user);
@@ -53,31 +54,24 @@ class Auth{
         return $loginProvider;
     }
 
-    public function login($alias, $pass, $loginManager = null){
+    public function login($alias, $pass){
 
-        if(($loginProvider = $this->getLoginProvider($loginManager))){
-            try {
-                $user = $loginProvider->auth();
-                if(!($user instanceof User)){
-                    throw new \Exception('Ungültiger Benutzer vom LoginManager', 401);
-                }
-            }catch(\Exception $e){
-                throw new \Exception($e->getMessage(), 401);
-            }
-        }else {
 
-            $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $alias));
-            if (!$user) {
-                throw new \Exception('Ungültiger Benutzername.', 401);
-            }
+        $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $alias));
+        if (!$user) {
+            throw new \Exception('Ungültiger Benutzername.', 401);
+        }
 
-            if (!$user->getIsActive()) {
-                throw new \Exception('Ungültiger Benutzername.', 401);
-            }
+        if(!$user->getIsActive()){
+            throw new \Exception(array('message' => 'Der Benutzer ist gesperrt.'), 401);
+        }
 
-            if (!$user->isPass($pass)) {
-                throw new \Exception('Benutzername und/oder Passwort fehlerhaft.', 401);
-            }
+        if($user->getLoginManager()){
+            throw new \Exception(array('message' => 'Der Benutzer ist nur über LoginManager authorisierbar.'), 401);
+        }
+
+        if (!$user->isPass($pass)) {
+            throw new \Exception('Benutzername und/oder Passwort fehlerhaft.', 401);
         }
 
         $this->app['session']->set('auth.userid', $user->getId());
@@ -97,7 +91,7 @@ class Auth{
      */
     public function getUser()
     {
-        return $this->user;
+        return isset($this->app['auth.user']) ? $this->app['auth.user'] : null;
     }
 
 
@@ -106,7 +100,7 @@ class Auth{
      */
     public function setUser($user)
     {
-        $this->user = $user;
+        $this->app['auth.user'] = $user;
     }
 
     /**

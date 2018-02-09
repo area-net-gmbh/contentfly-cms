@@ -24,6 +24,8 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\Table;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -886,7 +888,8 @@ class Api
         $entityFolder = ROOT_DIR.'/../custom/Entity/';
 
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
-            if($fileInfo->isDot() || substr($fileInfo->getBasename('.php'), 0, 1) == '.') continue;
+            if($fileInfo->isDot()) continue;
+            if(substr($fileInfo->getBasename('.php'), 0, 1) == '.') continue;
             $entities[] = $fileInfo->getBasename('.php');
         }
         $entities[] = "PIM\\File";

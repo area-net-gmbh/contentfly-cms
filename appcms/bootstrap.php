@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 $app = new Application();
 $app->register(new Silex\Provider\SessionServiceProvider());
 $app['is_installed'] = (Config\Adapter::getConfig()->DB_HOST != '$SET_DB_HOST');
+$app['auth.user'] = null;
 
 Config\Adapter::setHostname(HOST);
 date_default_timezone_set(Config\Adapter::getConfig()->APP_TIMEZONE);
@@ -225,7 +226,7 @@ $app['database'] = function ($app){
 
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 
-
+$app['auth']->init();
 require_once ROOT_DIR.'/../custom/app.php';
 
 $app['routeManager']->bindRoutes();
