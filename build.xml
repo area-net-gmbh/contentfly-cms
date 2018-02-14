@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="APP-CMS" default="main" basedir=".">
+<project name="CONTENTFLY-CMS" default="main" basedir=".">
 
     <property environment="env"/>
 
@@ -128,7 +128,7 @@ define('CUSTOM_VERSION', '0.0.0');
         <exec executable="zip">
             <arg value="--symlinks"/>
             <arg value="-r"/>
-            <arg value="appcms-${version}.zip"/>
+            <arg value="contentfly-${version}.zip"/>
             <arg value="appcms"/>
             <arg value="custom"/>
             <arg value="data"/>
@@ -166,7 +166,7 @@ define('CUSTOM_VERSION', '0.0.0');
         <exec executable="zip">
             <arg value="--symlinks"/>
             <arg value="-r"/>
-            <arg value="appcms-${devversion}.zip"/>
+            <arg value="contentfly-${devversion}.zip"/>
             <arg value="appcms"/>
             <arg value="custom"/>
             <arg value="data"/>
