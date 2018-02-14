@@ -17,6 +17,14 @@ class Log extends Base
     const UPDATED   = 'UPT';
 
     /**
+     * @ORM\Column(type=APPCMS_ID_TYPE)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy=APPCMS_ID_STRATEGY)
+     * @PIM\Config(readonly=true, showInList=0, label="ID", tab="settings")
+     */
+    protected $id;
+
+    /**
      * @ORM\Column(type="boolean", nullable=true)
      * @PIM\Config(showInList=0, label="Versteckt")
      */
@@ -24,13 +32,13 @@ class Log extends Base
 
     /**
      * @ORM\Column(name="model_name", type="string")
-     * @PIM\Config(showInList=20,label="Objekt", isFilterable=true)
+     * @PIM\Config(showInList=30,label="Objekt", isFilterable=true)
      */
     protected $modelName;
 
     /**
      * @ORM\Column(name="model_id", type=APPCMS_ID_TYPE, nullable=false)
-     * @PIM\Config(showInList=30, label="Objekt-ID")
+     * @PIM\Config(showInList=20, label="Objekt-ID")
      */
     protected $modelId;
 
@@ -46,6 +54,20 @@ class Log extends Base
      * @PIM\Select(options="Geändert, Gelöscht, Erstellt")
      */
     protected $mode;
+
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", nullable=true)
+     * @PIM\Config(hide=true, showInList=60, label="Datum")
+     */
+    protected $created;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
+     * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id", onDelete="SET NULL")
+     * @PIM\Config(showInList = 70, label="Benutzer", tab="settings")
+     */
+    protected $userCreated;
 
     /**
      * @ORM\Column(type="text", nullable=true)

@@ -135,7 +135,7 @@ class Api
 
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
-        $log->setUser($this->app['auth.user']);
+        $log->setUserCreated($this->app['auth.user']);
         $log->setMode(Log::DELETED);
 
         if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -286,7 +286,7 @@ class Api
 
             $log->setModelId($object->getId());
             $log->setModelName($entityName);
-            $log->setUser($this->app['auth.user']);
+            $log->setUserCreated($this->app['auth.user']);
             $log->setMode(Log::INSERTED);
 
             if($schema[ucfirst($entityName)]['settings']['labelProperty']){
@@ -427,7 +427,7 @@ class Api
 
         $log->setModelId($object->getId());
         $log->setModelName(ucfirst($entityName));
-        $log->setUser($this->app['auth.user']);
+        $log->setUserCreated($this->app['auth.user']);
         $log->setMode(Log::UPDATED);
 
         if($schema[ucfirst($entityName)]['settings']['labelProperty']){
