@@ -12,7 +12,7 @@ class BaseSortable extends Base
 {
     /**
      * @ORM\Column(type="integer", options={"default" = 0}, nullable=true)
-     * @PIM\Config(hide=true, label="Position")
+     * @PIM\Config(hide=true, showInList=2, label="Position")
      */
     protected $sorting = 0;
 
