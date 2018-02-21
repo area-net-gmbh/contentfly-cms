@@ -31,8 +31,8 @@ class FileType extends Type
     }
 
 
-    public function processSchema($key, $defaultValue, $propertyAnnotations){
-        $schema             = parent::processSchema($key, $defaultValue, $propertyAnnotations);
+    public function processSchema($key, $defaultValue, $propertyAnnotations, $entityName){
+        $schema             = parent::processSchema($key, $defaultValue, $propertyAnnotations, $entityName);
         $schema['multipe']  = false;
         $schema['accept']   = '*';
         $schema['dbtype']   = 'integer';
