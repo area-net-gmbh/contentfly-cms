@@ -3,38 +3,35 @@ namespace Areanet\PIM\Classes\Types;
 use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
-use Areanet\PIM\Controller\ApiController;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
-use Doctrine\Common\Annotations\Annotation;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
-class JoinBidirectionalType extends Type
+class CheckboxType extends Type
 {
+    public function getPriority()
+    {
+        return 10;
+    }
+
     public function getAlias()
     {
-        return 'joinbidirectional';
+        return 'checkbox';
     }
 
     public function getAnnotationFile()
     {
-        return null;
+        return 'Checkbox';
     }
 
     public function doMatch($propertyAnnotations){
 
-
-        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany']) && !isset($propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'])){
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'];
-            if($annotations->targetEntity != 'Areanet\PIM\Entity\BaseTree'){
-                return true;
-            }
+        if(!isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Checkbox'])){
+            return false;
         }
-
-        return false;
+        return true;
     }
 
 
@@ -43,35 +40,18 @@ class JoinBidirectionalType extends Type
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
         $schema['sortable'] = false;
+        $schema['group']    = isset($propertyAnnotations->group) ? $key.'/'.$propertyAnnotations->group : $key.'/'.$entityName;
 
+        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
+            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
+            $schema['accept'] = $annotations->targetEntity;
 
-        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'])) {
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'];
-            $schema['targetEntity'] = $annotations->targetEntity;
-            $schema['mappedBy']     = $annotations->mappedBy;
-            $schema['foreignTable'] = $this->em->getClassMetadata($annotations->targetEntity)->getTableName();
-
-
-
-            $targetEntity = new $annotations->targetEntity();
-            if($targetEntity instanceof BaseSortable){
-                $annotationReader   = new AnnotationReader();
-                $reflect            = new \ReflectionClass($targetEntity);
-                $classAnnotations   = $annotationReader->getClassAnnotations($reflect);
-
-                foreach($classAnnotations as $classAnnotation) {
-                    if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
-                        if(isset($classAnnotation->sortRestrictTo) && $classAnnotation->sortRestrictTo == $annotations->mappedBy){
-                            $schema['sortable'] = true;
-                            break;
-                        }
-                    }
-                }
+            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'])) {
+                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
+                $schema['foreign'] = $annotations->name;
 
             }
-
         }
-
 
         return $schema;
     }
@@ -87,12 +67,26 @@ class JoinBidirectionalType extends Type
         $config     = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
 
         $data       = array();
+        $permission = \Areanet\PIM\Entity\Permission::ALL;
         $subEntity  = null;
 
-        $targetEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['targetEntity']);
+        if(isset($config['accept'])){
+            $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+            $subEntity              = $config['accept'];
 
-        if(!($permission = Permission::isReadable($this->app['auth.user'], $targetEntity))){
-            return null;
+            if (!($permission = Permission::isReadable($this->app['auth.user'], $config['accept']))) {
+                return null;
+            }
+
+            if (isset($config['acceptFrom'])) {
+                $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
+                $subEntity              = $config['acceptFrom'];
+
+                if(!($permission = Permission::isReadable($this->app['auth.user'], $config['acceptFrom']))){
+                    return null;
+                }
+
+            }
         }
 
         if (in_array($property, $propertiesToLoad)) {
@@ -129,7 +123,11 @@ class JoinBidirectionalType extends Type
                     }
                 }
 
-                $data[] = $objectToLoad->toValueObject($this->app, $targetEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+                if($flatten){
+                    $data[] = array('id' => $objectToLoad->getId());
+                } else{
+                    $data[] = $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+                }
 
             }
         }
@@ -139,6 +137,37 @@ class JoinBidirectionalType extends Type
 
     public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
     {
+        $setter = 'set'.ucfirst($property);
+        $getter = 'get'.ucfirst($property);
+
+        $collection = new ArrayCollection();
+        $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
+
+
+        if($object->$getter()) {
+            $object->$getter()->clear();
+        }
+
+        if(!is_array($value) || !count($value)){
+            return;
+        }
+
+        $sorting = 0;
+        foreach($value as $id){
+
+            if(is_array($id)){
+                if(empty($id["id"])) continue;
+
+                $id = $id["id"];
+            }
+
+            $objectToJoin = $this->em->getRepository($entity)->find($id);
+
+            $collection->add($objectToJoin);
+
+        }
+
+        $object->$setter($collection);
 
     }
 

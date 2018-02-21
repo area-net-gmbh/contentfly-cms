@@ -903,6 +903,8 @@ class Api
         $entities[] = "PIM\\Permission";
         $entities[] = "PIM\\Nav";
         $entities[] = "PIM\\NavItem";
+        $entities[] = "PIM\\Option";
+        $entities[] = "PIM\\OptionGroup";
 
         $data     = array();
 
@@ -917,6 +919,7 @@ class Api
             $object    = new $className();
             $reflect   = new \ReflectionClass($object);
             $props     = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
+            $entityName = substr($entity, 4);
 
             $defaultValues = $reflect->getDefaultProperties();
 
@@ -1034,7 +1037,7 @@ class Api
                 foreach($this->app['typeManager']->getTypes() as $type){
                     if($type->doMatch($allPropertyAnnotations) && $type->getPriority() >= $lastMatchedPriority){
 
-                        $propertySchema                 = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations);
+                        $propertySchema                 = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations, $entityName);
                         $properties[$prop->getName()]   = $propertySchema;
 
                         if(($tab = $type->getTab())){
