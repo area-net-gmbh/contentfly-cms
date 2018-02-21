@@ -27,8 +27,8 @@ class OnejoinType extends Type
         return true;
     }
 
-    public function processSchema($key, $defaultValue, $propertyAnnotations){
-        $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations);
+    public function processSchema($key, $defaultValue, $propertyAnnotations, $entityName){
+        $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations, $entityName);
         $propertyAnnotations    = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToOne'];
 
 

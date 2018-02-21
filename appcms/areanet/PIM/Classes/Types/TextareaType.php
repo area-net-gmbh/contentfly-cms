@@ -38,9 +38,9 @@ class TextareaType extends Type
         return ($annotation->type == 'text');
     }
 
-    public function processSchema($key, $defaultValue, $propertyAnnotations)
+    public function processSchema($key, $defaultValue, $propertyAnnotations, $entityName)
     {
-        $schema = parent::processSchema($key, $defaultValue, $propertyAnnotations);
+        $schema = parent::processSchema($key, $defaultValue, $propertyAnnotations, $entityName);
 
         if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Textarea'])){
 
