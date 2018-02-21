@@ -7,10 +7,17 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_optiongroup")
- * @PIM\Config(label="Option Group", labelProperty="name", hide=true)
+ * @PIM\Config(label="Option Group", labelProperty="name")
  */
 class OptionGroup extends Base
 {
+
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
 
     /**
      * @ORM\Column(type="string", nullable=false, unique=true)

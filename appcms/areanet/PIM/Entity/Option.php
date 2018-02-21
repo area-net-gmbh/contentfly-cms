@@ -13,15 +13,21 @@ class Option extends Base
 {
 
     /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
      * @ORM\Column(type="string", nullable=false)
-     * @PIM\Config(label="Wert", showInList=20)
+     * @PIM\Config(label="value", showInList=20)
      */
     protected $value;
 
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\OptionGroup")
-     * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
-     * @PIM\Config(label="Checkbox Gruppe", isFilterable=true, readonly=true)
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     protected $group;
 
