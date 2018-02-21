@@ -41,6 +41,7 @@ class CheckboxType extends Type
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
         $schema['sortable'] = false;
+        $schema['group']    = isset($propertyAnnotations->group) ? $key.'/'.$propertyAnnotations->group : $key.'/'.$entityName;
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
@@ -167,6 +168,7 @@ class CheckboxType extends Type
             return;
         }
 
+        $sorting = 0;
         foreach($value as $id){
 
             if(is_array($id)){

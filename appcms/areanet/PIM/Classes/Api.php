@@ -976,11 +976,12 @@ class Api
         if(count($properties) > 0){
             $partialProperties = implode(',', $properties);
             $queryBuilder->select('partial '.$entityNameAlias.'.{id,'.$partialProperties.'}');
-                        $query  = $queryBuilder->getQuery();
+            $query  = $queryBuilder->getQuery();
         }else{
             $queryBuilder->select($entityNameAlias);
             $query = $queryBuilder->getQuery();
         }
+
 
         $objects = $query->getResult();
 
@@ -1069,7 +1070,7 @@ class Api
             $object    = new $className();
             $reflect   = new \ReflectionClass($object);
             $props     = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
-            $entityName = $entity;
+            $entityName = substr($entity, 4);
 
             $defaultValues = $reflect->getDefaultProperties();
 
