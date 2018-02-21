@@ -370,6 +370,8 @@ class Api
 
 
         foreach($data as $property => $value){
+            if($property == 'modified' || $property == 'created') continue;
+
 
             if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
                 throw new \Exception("Unkown property $property for entity $entityPath", 500);
@@ -1025,7 +1027,7 @@ class Api
             $object    = new $className();
             $reflect   = new \ReflectionClass($object);
             $props     = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
-            $entityName = $entity;
+            $entityName = substr($entity, 4);
 
             $defaultValues = $reflect->getDefaultProperties();
 
