@@ -5,6 +5,7 @@ use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\OptionGroup;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -40,18 +41,22 @@ class CheckboxType extends Type
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
         $schema['sortable'] = false;
-        $schema['group']    = isset($propertyAnnotations->group) ? $key.'/'.$propertyAnnotations->group : $key.'/'.$entityName;
 
-        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
-            $schema['accept'] = $annotations->targetEntity;
+        $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Checkbox'];
 
-            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'])) {
-                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
-                $schema['foreign'] = $annotations->name;
+        $optionsGroupName = isset($propertyAnnotations->group) ? $propertyAnnotations->group : $key;
+        $optionsGroupObject = $this->em->getRepository('Areanet\\PIM\\Entity\\OptionGroup')->findBy(array('name' => $entityName.'/'.$optionsGroupName));
 
-            }
+        $newOptionsGroupObject = null;
+        if(!$optionsGroupObject) {
+            $newOptionsGroupObject = new OptionGroup();
+            $newOptionsGroupObject->setName($entityName.'/'.$optionsGroupName);
+            $this->em->persist($newOptionsGroupObject);
+            $this->em->flush();
         }
+
+        $schema['group']                = ($optionsGroupObject) ? $optionsGroupObject[0]->getId() : $newOptionsGroupObject->getId();
+        $schema['horizontalAlignment']  = $propertyAnnotations->horizontalAlignment;
 
         return $schema;
     }
@@ -68,26 +73,6 @@ class CheckboxType extends Type
 
         $data       = array();
         $permission = \Areanet\PIM\Entity\Permission::ALL;
-        $subEntity  = null;
-
-        if(isset($config['accept'])){
-            $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
-            $subEntity              = $config['accept'];
-
-            if (!($permission = Permission::isReadable($this->app['auth.user'], $config['accept']))) {
-                return null;
-            }
-
-            if (isset($config['acceptFrom'])) {
-                $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
-                $subEntity              = $config['acceptFrom'];
-
-                if(!($permission = Permission::isReadable($this->app['auth.user'], $config['acceptFrom']))){
-                    return null;
-                }
-
-            }
-        }
 
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
@@ -152,7 +137,6 @@ class CheckboxType extends Type
             return;
         }
 
-        $sorting = 0;
         foreach($value as $id){
 
             if(is_array($id)){

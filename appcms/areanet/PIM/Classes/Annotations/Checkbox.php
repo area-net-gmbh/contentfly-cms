@@ -12,4 +12,10 @@ final class Checkbox extends Annotation
      * @var string
      */
     public $group = null;
+
+/**
+* @var boolean
+*/
+    public $horizontalAlignment = false;
+
 }

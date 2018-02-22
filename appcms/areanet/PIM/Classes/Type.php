@@ -62,7 +62,7 @@ abstract class Type
         $this->tab->config = $config;
     }
 
-    public function processSchema($key, $defaultValue, $propertyAnnotations, $entityName = null)
+    public function processSchema($key, $defaultValue, $propertyAnnotations, $entityName)
     {
         $schema = array(
             'label' => $key
