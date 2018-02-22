@@ -148,7 +148,7 @@ class Config{
     /**
      * @var string Allow CORS '*' or 'domain.de'
      */
-    public $APP_CS_POLICY        = "default-src 'self' 'unsafe-inline' 'unsafe-eval';";
+    public $APP_CS_POLICY        = "default-src 'self' 'unsafe-inline' 'unsafe-eval'  https://maxcdn.bootstrapcdn.com;";
 
     /**
      * @var string Allow CORS '*' or 'domain.de'
