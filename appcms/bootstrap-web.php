@@ -40,6 +40,10 @@ header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 header("X-XSS-Protection: 1; mode=block");
 
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 1);
+
 if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
     if(!isset($_SERVER['PHP_AUTH_USER'])) {
         $authString = empty($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : $_SERVER['HTTP_AUTHORIZATION'];
