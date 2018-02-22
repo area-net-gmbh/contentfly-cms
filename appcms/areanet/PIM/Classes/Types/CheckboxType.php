@@ -41,17 +41,6 @@ class CheckboxType extends Type
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
         $schema['sortable'] = false;
-        $schema['group']    = isset($propertyAnnotations->group) ? $key.'/'.$propertyAnnotations->group : $key.'/'.$entityName;
-
-        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
-            $schema['accept'] = $annotations->targetEntity;
-
-            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'])) {
-                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
-                $schema['foreign'] = $annotations->name;
-            }
-        }
 
         $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Checkbox'];
 
@@ -84,26 +73,6 @@ class CheckboxType extends Type
 
         $data       = array();
         $permission = \Areanet\PIM\Entity\Permission::ALL;
-        $subEntity  = null;
-
-        if(isset($config['accept'])){
-            $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
-            $subEntity              = $config['accept'];
-
-            if (!($permission = Permission::isReadable($this->app['auth.user'], $config['accept']))) {
-                return null;
-            }
-
-            if (isset($config['acceptFrom'])) {
-                $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
-                $subEntity              = $config['acceptFrom'];
-
-                if(!($permission = Permission::isReadable($this->app['auth.user'], $config['acceptFrom']))){
-                    return null;
-                }
-
-            }
-        }
 
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
@@ -168,7 +137,6 @@ class CheckboxType extends Type
             return;
         }
 
-        $sorting = 0;
         foreach($value as $id){
 
             if(is_array($id)){

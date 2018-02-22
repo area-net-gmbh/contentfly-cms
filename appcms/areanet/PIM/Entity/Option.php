@@ -16,6 +16,7 @@ class Option extends Base
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @PIM\Config(hide=true)
      */
     protected $id;
 
@@ -27,8 +28,8 @@ class Option extends Base
 
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\OptionGroup")
-     * @ORM\JoinColumn(onDelete="SET NULL")
-     * @PIM\Config(label="Gruppe", isFilterable=true, readonly=true)
+     * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
+     * @PIM\Config(label="Checkbox Gruppe", isFilterable=true, readonly=true)
      */
     protected $group;
 
