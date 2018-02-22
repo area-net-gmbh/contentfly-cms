@@ -31,8 +31,14 @@ if(Config\Adapter::getConfig()->APP_FORCE_SSL){
         header('Location: ' . $redirect);
         exit();
     }
+
+    header("Strict-Transport-Security:max-age=63072000");
 }
 
+header("Content-Security-Policy: ".Config\Adapter::getConfig()->APP_CS_POLICY);
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+header("X-XSS-Protection: 1; mode=block");
 
 if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
     if(!isset($_SERVER['PHP_AUTH_USER'])) {

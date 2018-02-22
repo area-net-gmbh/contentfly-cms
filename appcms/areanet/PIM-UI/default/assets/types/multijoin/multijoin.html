@@ -2,6 +2,7 @@
     <pim-plugin key="TYPE_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}}<pim-plugin key="TYPE_LABEL_APPEND" uiblocks="uiblocks"></pim-plugin></label>
     <div class="col-sm-10">
+
         <div ng-hide="config.readonly">
             <button type="button" ng-disabled="!writable" class="btn btn-default btn-sm" ng-hide="chooserOpened" ng-click="openChooser()">Auswählen</button>
             <div class="input-group" ng-show="chooserOpened">

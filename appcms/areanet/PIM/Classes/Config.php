@@ -148,6 +148,11 @@ class Config{
     /**
      * @var string Allow CORS '*' or 'domain.de'
      */
+    public $APP_CS_POLICY        = "default-src 'self' 'unsafe-inline' 'unsafe-eval';";
+
+    /**
+     * @var string Allow CORS '*' or 'domain.de'
+     */
     public $APP_ALLOW_ORIGIN        = null;
 
     /**
