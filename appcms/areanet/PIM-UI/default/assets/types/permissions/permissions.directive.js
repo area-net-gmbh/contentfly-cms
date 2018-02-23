@@ -136,7 +136,7 @@
                 }
                 
                 function init(){
-                    var excludedEntities = ['PIM\\Permission', 'PIM\\Log', 'PIM\\Tag', 'PIM\\PushToken', 'PIM\\ThumbnailSetting'];
+                    var excludedEntities = ['PIM\\Permission', 'PIM\\Log', 'PIM\\Tag', 'PIM\\PushToken', 'PIM\\ThumbnailSetting','_hash'];
 
                     var index       = 0;
                     var indexCustom = 0;
