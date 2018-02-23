@@ -18,20 +18,24 @@
             link: function(scope, element, attrs){
                 var entity       = null;
 
-                scope.$watch('value',function(data){
-
-                    console.log(scope.value);
-
-
+                scope.$watch('checkboxObjects|filter:{selected:true}',function(data){
+                    var values = [];
+                    for(var i = 0; i < scope.checkboxObjects.length; i++) {
+                        if(scope.checkboxObjects[i].selected) {
+                            values.push(scope.checkboxObjects[i].id.toString());
+                        }
+                    }
+                    scope.onChangeCallback({key: scope.key, value: values});
                 },true);
 
                 //Properties
-                scope.hide          = false;
-                scope.readonly      = false;
-                scope.schema        = null;
-                scope.value = scope.value ? scope.value : [];
-                scope.checkboxClass = null;
-                scope.options = [];
+                scope.hide              = false;
+                scope.readonly          = false;
+                scope.schema            = null;
+                scope.value             = scope.value ? scope.value : [];
+                scope.checkboxClass     = null;
+                scope.options           = [];
+                scope.checkboxObjects   = [];
 
                 //Functions
                 scope.loadData      = loadData;
@@ -48,6 +52,7 @@
                     if(!permissions){
                         return;
                     }
+
                     scope.schema = localStorageService.get('schema')['PIM\\Option'];
                     if(scope.config.horizontalAlignment) {
                         scope.checkboxClass = 'checkbox-inline';
@@ -59,7 +64,6 @@
                 }
 
                 function loadData(){
-
                     var properties  = ['id', 'modified', 'created', 'user'];
                     var where       = {group: scope.config.group};
 
@@ -76,13 +80,31 @@
                     EntityService.list(data).then(
                         function successCallback(response) {
                             scope.options       = response.data.data;
-                            console.log(scope.options);
+                            var compareArr = [];
+                            for(var n = 0; n < scope.value.length; n++){
+                                compareArr.push(scope.value[n].id.toString())
+                            }
+                            for(var i = 0; i < scope.options.length; i++) {
+                                if(scope.value.length > 0) {
+                                    if($.inArray( scope.options[i].id.toString(), compareArr ) !== -1) {
+                                        scope.checkboxObjects.push({id: scope.options[i].id, value: scope.options[i].value, selected: true});
+                                    } else {
+                                        scope.checkboxObjects.push({id: scope.options[i].id, value: scope.options[i].value, selected: false});
+                                    }
+                                } else {
+                                    scope.checkboxObjects.push({id: scope.options[i].id, value: scope.options[i].value, selected: false});
+                                }
+                            }
                         },
                         function errorCallback(response) {
                             scope.options = [];
                         }
                     );
+
+
+
                 }
+
 
 
             }
