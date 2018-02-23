@@ -13,13 +13,6 @@ class OptionGroup extends Base
 {
 
     /**
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    protected $id;
-
-    /**
      * @ORM\Column(type="string", nullable=false, unique=true)
      * @PIM\Config(label="name", showInList=20)
      */

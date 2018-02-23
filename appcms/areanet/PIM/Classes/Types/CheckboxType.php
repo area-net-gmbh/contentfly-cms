@@ -42,6 +42,16 @@ class CheckboxType extends Type
         $schema['dbtype']   = null;
         $schema['sortable'] = false;
 
+        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
+            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
+            $schema['accept'] = $annotations->targetEntity;
+
+            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'])) {
+                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
+                $schema['foreign'] = $annotations->name;
+            }
+        }
+
         $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Checkbox'];
 
         $optionsGroupName = isset($propertyAnnotations->group) ? $propertyAnnotations->group : $key;
@@ -73,6 +83,26 @@ class CheckboxType extends Type
 
         $data       = array();
         $permission = \Areanet\PIM\Entity\Permission::ALL;
+        $subEntity  = null;
+
+        if(isset($config['accept'])){
+            $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+            $subEntity              = $config['accept'];
+
+            if (!($permission = Permission::isReadable($this->app['auth.user'], $config['accept']))) {
+                return null;
+            }
+
+            if (isset($config['acceptFrom'])) {
+                $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
+                $subEntity              = $config['acceptFrom'];
+
+                if(!($permission = Permission::isReadable($this->app['auth.user'], $config['acceptFrom']))){
+                    return null;
+                }
+
+            }
+        }
 
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
