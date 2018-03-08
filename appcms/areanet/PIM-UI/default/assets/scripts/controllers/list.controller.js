@@ -548,12 +548,12 @@
             }
         }
 
-        function openForm(object, readonly){
+        function openForm(object, index, readonly){
 
             if(vm.schema.settings.readonly){
                 return;
             }
-
+            var doInsert    = false;
             var modaltitle  = 'Neues Objekt anlegen';
             var prefixTitle = readonly != 1 ? ' bearbeiten' : ' ansehen';
             if(object && vm.schema.settings.labelProperty){
@@ -561,6 +561,7 @@
             }else if(object){
                 modaltitle = '<span title="' + object.id + '">Objekt ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id) + prefixTitle + '</span>';
             }else{
+                doInsert = true;
                 object = {};
 
                 for (var key in vm.schema.properties) {
@@ -588,10 +589,13 @@
 
 
             modalInstance.result.then(
-                function (isSaved) {
-                    if(isSaved){
-                        loadData();
+                function (updatedObject) {
+                    if(doInsert){
+                      loadData();
+                    }else{
+                      vm.objects[index] = updatedObject;
                     }
+
                 },
                 function () {
                 }

@@ -158,7 +158,7 @@
                 </tr>
                 </thead>
                 <tbody ng-if="!vm.schema.settings.isSortable">
-                <tr   dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage"  ng-dblclick="vm.openForm(object, (vm.schema.settings.viewMode == 1))" >
+                <tr   dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage track by $index" total-items="vm.totalItems" current-page="vm.currentPage"  ng-dblclick="vm.openForm(object, $index, (vm.schema.settings.viewMode == 1))" >
                     <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                     <td ng-repeat="property in vm.schema.list"><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <pim-plugin key="LIST_TABLE_BODY_COLS_APPEND1" uiblocks="uiblocks"></pim-plugin>
@@ -166,8 +166,8 @@
                         <div class="pull-right">
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                             <button type="button" ng-hide="!vm.permissions[vm.entity].deletable || vm.schema.settings.readonly || vm.schema.settings.viewMode == 1" ng-click="vm.delete(object)"  class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-                            <button type="button" ng-show="vm.schema.settings.viewMode == 1" ng-click="vm.openForm(object, 1)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"  aria-hidden="true"></span></button>
-                            <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.openForm(object)" class="btn btn-primary btn-xs"><span class="glyphicon ng-class: {'glyphicon-pencil' : vm.permissions[vm.entity].writable, 'glyphicon-eye-open' : !vm.permissions[vm.entity].writable}"  aria-hidden="true"></span></button>
+                            <button type="button" ng-show="vm.schema.settings.viewMode == 1" ng-click="vm.openForm(object, $index, 1)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"  aria-hidden="true"></span></button>
+                            <button type="button" ng-hide="vm.schema.settings.isPush || vm.schema.settings.readonly" ng-click="vm.openForm(object, $index)" class="btn btn-primary btn-xs"><span class="glyphicon ng-class: {'glyphicon-pencil' : vm.permissions[vm.entity].writable, 'glyphicon-eye-open' : !vm.permissions[vm.entity].writable}"  aria-hidden="true"></span></button>
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
 
                         </div>

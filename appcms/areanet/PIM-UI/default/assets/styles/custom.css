@@ -761,7 +761,7 @@ li.grid:hover .image-edit{
 
 
 #login{
-    background-color: rgba(255, 255, 255, 0.7) !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
     -webkit-box-shadow: 2px 2px 8px 0px rgba(0,0,0,0.35);
     -moz-box-shadow: 2px 2px 8px 0px rgba(0,0,0,0.35);
     box-shadow: 2px 2px 8px 0px rgba(0,0,0,0.35);
@@ -771,7 +771,6 @@ li.grid:hover .image-edit{
     text-align: center;
     margin-bottom:20px;
     margin-top:10px;
-    background-color:#FFFFFF;
     height:70px;
     border-radius: 8px;
 }

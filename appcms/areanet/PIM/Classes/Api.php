@@ -15,6 +15,7 @@ use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
+use Areanet\PIM\Entity\File;
 use Areanet\PIM\Entity\Log;
 use Areanet\PIM\Entity\User;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -447,7 +448,7 @@ class Api
         $entityFolder = __DIR__.'/../../../../custom/Entity/';
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
             if($fileInfo->isDot()) continue;
-
+            if(substr($fileInfo->getBasename('.php'), 0, 1) == '.') continue;
             $entities[] = 'Custom\Entity\\'.ucfirst($fileInfo->getBasename('.php'));
         }
 
@@ -459,34 +460,36 @@ class Api
                 $entityShortcut = 'PIM\\'.$entityShortcut;
             }
 
+            $entityNameAlias = 'a'.md5($entityShortcut);
+
             if(!($permission = Permission::isReadable($this->app['auth.user'], $entityShortcut))){
                 continue;
             }
 
             $qb = $this->em->createQueryBuilder();
 
-            $qb->select($entityShortcut)
-                ->from($entityName, $entityShortcut);
+            $qb->select($entityNameAlias)
+                ->from($entityName, $entityNameAlias);
 
             $qb->where("1 = 1");
 
             if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                $qb->andWhere("$entityShortcut.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityShortcut.users) = 1");
+                $qb->andWhere("$entityNameAlias.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityNameAlias.users) = 1");
                 $qb->setParameter('userCreated', $this->app['auth.user']);
             }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
                 $group = $this->app['auth.user']->getGroup();
                 if(!$group){
-                    $qb->andWhere("$entityShortcut.userCreated = :userCreated");
+                    $qb->andWhere("$entityNameAlias.userCreated = :userCreated");
                     $qb->setParameter('userCreated', $this->app['auth.user']);
                 }else{
-                    $qb->andWhere("$entityShortcut.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityShortcut.groups) = 1");
+                    $qb->andWhere("$entityNameAlias.userCreated = :userCreated OR FIND_IN_SET(:userGroup, $entityNameAlias.groups) = 1");
                     $qb->setParameter('userGroup', $group);
                     $qb->setParameter('userCreated', $this->app['auth.user']);
                 }
             }
 
             if($lastModified) {
-                $qb->andWhere($entityShortcut . '.modified >= :lastModified');
+                $qb->andWhere($entityNameAlias . '.modified >= :lastModified');
                 $qb->setParameter('lastModified', $lastModified);
             }
 
@@ -501,7 +504,7 @@ class Api
 
                 if($object instanceof File && $filedata !== null){
 
-                    $backendFS = new FileSystem();
+                    $backendFS = new Backend\FileSystem();
                     foreach($filedata as $size){
                         $sizePrefix = $size == 'org' ? '' : $size.'-';
                         $path       = $backendFS->getPath($object);
@@ -524,7 +527,7 @@ class Api
             $qb = $this->em->createQueryBuilder();
 
             $qb->select('log')
-                ->from('Areanet\PIM\Entity\\Log', 'log')
+                ->from('Areanet\PIM\Entity\Log', 'log')
                 ->where('log.modelName = :modelName')
                 ->andWhere("log.mode = 'DEL' OR log.mode = 'Gelöscht'")
                 ->setParameter('modelName', $entityShortcut);

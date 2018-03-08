@@ -46,7 +46,7 @@ class ApiController extends BaseController
     );
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/all all
      * @apiName All
      * @apiGroup Objekte
@@ -108,7 +108,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {get} /api/config config
      * @apiName Config
      * @apiGroup Settings
@@ -120,7 +120,7 @@ class ApiController extends BaseController
      *     HTTP/1.1 200 OK
      *     {
      *       "devmode": false,
-     *       "version": "1.3.0"
+     *       "version": "1.4.0"
      *       "data:" {
      *         ...
      *       }
@@ -138,7 +138,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/delete delete
      * @apiName Delete
      * @apiGroup Objekte
@@ -183,7 +183,7 @@ class ApiController extends BaseController
 
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/insert insert
      * @apiName Insert
      * @apiGroup Objekte
@@ -241,7 +241,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/list list
      * @apiName List
      * @apiGroup Objekte
@@ -388,7 +388,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/update update
      * @apiName Update
      * @apiGroup Objekte
@@ -465,7 +465,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/replace replace
      * @apiName Replace
      * @apiGroup Objekte
@@ -527,7 +527,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {get} /api/schema schema
      * @apiName Schema
      * @apiGroup Settings
@@ -540,7 +540,7 @@ class ApiController extends BaseController
      *     HTTP/1.1 200 OK
      *     {
      *       "devmode": false,
-     *       "version": "1.3.0"
+     *       "version": "1.4.0"
      *       "data:" {
      *         ...
      *       }
@@ -556,7 +556,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/single single
      * @apiName Single
      * @apiGroup Objekte
@@ -606,7 +606,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.3.0
+     * @apiVersion 1.4.0
      * @api {post} /api/tree tree
      * @apiName Baumansicht
      * @apiGroup Objekte

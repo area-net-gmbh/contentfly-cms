@@ -204,7 +204,7 @@ class Config{
     /**
      * @var string Load Frontend UI in folder /ui/...
      */
-    public $FRONTEND_TITLE = 'APP-CMS';
+    public $FRONTEND_TITLE = 'Contentfly CMS - Let your content fly!';
 
     /**
      * @var boolean Benutzerdefinierte Navigation anzeigen.
@@ -214,7 +214,7 @@ class Config{
     /**
      * @var string Load Frontend UI in folder /ui/...
      */
-    public $FRONTEND_WELCOME = 'Willkommen im APP-CMS';
+    public $FRONTEND_WELCOME = 'Contentfly CMS - Let your content fly!';
 
     /**
      * @var string URL/Path for login in the backend

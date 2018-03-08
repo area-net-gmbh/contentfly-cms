@@ -193,7 +193,7 @@
 
                             modalInstance.result.then(
                                 function () {
-                                    doSave(andClose);
+                                    doSave(vm.object);
                                 },
                                 function () {
                                     $uibModalInstance.close();
@@ -243,7 +243,7 @@
 
                             modalInstance.result.then(
                                 function () {
-                                    doSave(andClose);
+                                    doSave(vm.object);
                                 },
                                 function () {
                                     $uibModalInstance.close();
@@ -421,7 +421,7 @@
 
 
             } else {
-                doSave(andClose);
+                doSave(vm.object);
             }
 
         }

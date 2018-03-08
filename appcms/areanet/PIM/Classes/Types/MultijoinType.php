@@ -81,6 +81,7 @@ class MultijoinType extends Type
 
     public function fromDatabase(Base $object, $entityName, $property, $flatten = false, $level = 0, $propertiesToLoad = array())
     {
+
         $getter = 'get'.ucfirst($property);
 
         if(!$object->$getter() instanceof \Doctrine\ORM\PersistentCollection){

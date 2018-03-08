@@ -76,14 +76,14 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
         $accept = AcceptHeader::fromString($app["request"]->headers->get('Content-Type'));
 
         if(!$accept->has('application/json') && !$accept->has('multipart/form-data')){
-            if($app['debug']){
+            if(Config\Adapter::getConfig()->APP_DEBUG){
                 return new \Symfony\Component\HttpFoundation\Response('<h1>'.$e->getMessage().'</h1><pre>'.$e->getTraceAsString().'</pre>', 500);
             }else {
                 return $app->redirect('/');
             }
         }
 
-        if($app['debug']){
+        if(Config\Adapter::getConfig()->APP_DEBUG){
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
             }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
@@ -93,10 +93,11 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
             }
 
         }else{
+
             if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId),  $e->getCode() ? $e->getCode() : 500);
             }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 404);
+                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $e->getCode() ? $e->getCode() : 404);
             }else{
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
             }
