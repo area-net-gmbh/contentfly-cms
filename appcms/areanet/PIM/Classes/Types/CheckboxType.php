@@ -5,40 +5,34 @@ use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\OptionGroup;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
-class MultijoinType extends Type
+class CheckboxType extends Type
 {
+    public function getPriority()
+    {
+        return 10;
+    }
+
     public function getAlias()
     {
-        return 'multijoin';
+        return 'checkbox';
     }
 
     public function getAnnotationFile()
     {
-        return null;
+        return 'Checkbox';
     }
 
     public function doMatch($propertyAnnotations){
 
-
-        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany']) && isset($propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'])){
-            $annotations = $propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'];
-            if($annotations->targetEntity != 'Areanet\PIM\Entity\File'){
-                return true;
-            }
+        if(!isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Checkbox'])){
+            return false;
         }
-
-        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])){
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
-            if($annotations->targetEntity != 'Areanet\PIM\Entity\File'){
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
 
@@ -47,24 +41,6 @@ class MultijoinType extends Type
         $schema['multipe']  = true;
         $schema['dbtype']   = null;
         $schema['sortable'] = false;
-
-
-        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'])) {
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'];
-            $schema['acceptFrom'] = $annotations->targetEntity;
-            $schema['mappedFrom'] = $annotations->mappedBy;
-            $schema['foreign']    = $this->em->getClassMetadata($annotations->targetEntity)->getTableName();
-
-
-            $targetEntity = new $annotations->targetEntity();
-            if($targetEntity instanceof BaseSortable){
-                $schema['sortable'] = true;
-            }
-
-            $annotations2       = $propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'];
-            $schema['mappedBy'] = $annotations2->mappedBy;
-            $schema['accept']   = $annotations2->targetEntity;
-        }
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
@@ -75,6 +51,22 @@ class MultijoinType extends Type
                 $schema['foreign'] = $annotations->name;
             }
         }
+
+        $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Checkbox'];
+
+        $optionsGroupName = isset($propertyAnnotations->group) ? $propertyAnnotations->group : $key;
+        $optionsGroupObject = $this->em->getRepository('Areanet\\PIM\\Entity\\OptionGroup')->findBy(array('name' => $entityName.'/'.$optionsGroupName));
+
+        $newOptionsGroupObject = null;
+        if(!$optionsGroupObject) {
+            $newOptionsGroupObject = new OptionGroup();
+            $newOptionsGroupObject->setName($entityName.'/'.$optionsGroupName);
+            $this->em->persist($newOptionsGroupObject);
+            $this->em->flush();
+        }
+
+        $schema['group']                = ($optionsGroupObject) ? $optionsGroupObject[0]->getId() : $newOptionsGroupObject->getId();
+        $schema['horizontalAlignment']  = $propertyAnnotations->horizontalAlignment;
 
         return $schema;
     }
@@ -165,36 +157,16 @@ class MultijoinType extends Type
 
         $collection = new ArrayCollection();
         $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-        $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
-        
-        
+
+
         if($object->$getter()) {
-            if ($mappedBy) {
-                $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-
-                if(!Permission::isWritable($user, $acceptFrom)){
-                    throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
-                }
-                                
-                $object->$getter()->clear();
-                
-                $qb = $this->em->createQueryBuilder();
-                $qb->delete($acceptFrom, 'e');
-                $qb->where('e.'.$mappedFrom.' = ?1');
-
-                $qb->setParameter(1, $object->getId());
-                $qb->getQuery()->execute();
-            } else {
-                $object->$getter()->clear();
-            }
+            $object->$getter()->clear();
         }
 
         if(!is_array($value) || !count($value)){
             return;
         }
 
-        $sorting = 0;
         foreach($value as $id){
 
             if(is_array($id)){
@@ -202,31 +174,11 @@ class MultijoinType extends Type
 
                 $id = $id["id"];
             }
-            
+
             $objectToJoin = $this->em->getRepository($entity)->find($id);
 
-            
-            if($mappedBy){
-                $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
-                $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-                $mappedEntity   = new $acceptFrom();
+            $collection->add($objectToJoin);
 
-                $mappedSetter = 'set'.ucfirst($mappedBy);
-                $mappedEntity->$mappedSetter($objectToJoin);
-
-                $mappedSetter = 'set'.ucfirst($mappedFrom);
-                $mappedEntity->$mappedSetter($object);
-
-                if($isSortable){
-                    $mappedEntity->setSorting($sorting++);
-                }
-
-                $this->em->persist($mappedEntity);
-                $collection->add($mappedEntity);
-            }else{
-                $collection->add($objectToJoin);
-            }
         }
 
         $object->$setter($collection);
