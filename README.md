@@ -1,3 +1,5 @@
+![Contentfly CMS](https://www.contentfly-cms.de/file/get/7d937604-23e2-11e8-b76e-00ac10d52400)
+
 # Contentfly
 - **Lizenz**: Duale Lizenz AGPL v3 / Properitär
 - **Webseite**: http://www.contentfly-cms.de
