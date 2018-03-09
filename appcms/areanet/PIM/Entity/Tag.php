@@ -7,7 +7,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_tag")
- * @PIM\Config(label="Tag", sortBy="title", sortOrder="ASC")
+ * @PIM\Config(label="Tag", labelProperty="title", sortBy="title", sortOrder="ASC")
  */
 class Tag extends Base
 {

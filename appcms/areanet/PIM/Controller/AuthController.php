@@ -22,11 +22,15 @@ class AuthController extends BaseController
      * @api {post} /auth/login login
      * @apiName Login
      * @apiGroup User
+     * @apiDescription API-Endpoint zur Authentifizierung eines Benutzers.
+     *
+     * Über einen benutzerdefinierten Login-Manager kann das standardmäßige Login-Verhalten des Contentfly CMS erweitert oder angepasst werden.
      * @apiHeader {String} X-Token Acces-Token
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String} alias Benutzername
      * @apiParam {String} pass Passwort
+     * @apiParam {String} loginManager Optionaler Login-Manager
      * @apiParam {Boolean} withSchema Schema zurückgeben
      * @apiParamExample {json} Request-Beispiel:
      *     {

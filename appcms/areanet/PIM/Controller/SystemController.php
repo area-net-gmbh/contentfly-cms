@@ -29,6 +29,7 @@ class SystemController extends BaseController
      * @apiVersion 1.3.0
      * @api {post} /system/do do
      * @apiName Ausführen
+     * @apiDescription Führt Systembefehle aus.
      * @apiGroup System
      * @apiHeader {String} X-Token Acces-Token
      * @apiHeader {String} Content-Type=application/json

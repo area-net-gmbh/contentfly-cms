@@ -167,31 +167,33 @@ class MultijoinType extends Type
         $collection = new ArrayCollection();
         $entity     = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
         $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
-        
-        
-        if($object->$getter()) {
-            if ($mappedBy) {
-                $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
 
-                if(!Permission::isWritable($user, $acceptFrom)){
-                    throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
-                }
-                                
-                $object->$getter()->clear();
-                
-                $qb = $this->em->createQueryBuilder();
-                $qb->delete($acceptFrom, 'e');
-                $qb->where('e.'.$mappedFrom.' = ?1');
-
-                $qb->setParameter(1, $object->getId());
-                $qb->getQuery()->execute();
-            } else {
-                $object->$getter()->clear();
-            }
-        }
 
         if(!is_array($value) || !count($value)){
+
+            if($object->$getter()) {
+                $emptyCollection = new ArrayCollection();
+                if ($mappedBy) {
+                    $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                    $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+
+                    if(!Permission::isWritable($user, $acceptFrom)){
+                        throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
+                    }
+
+                    $object->$setter($emptyCollection);
+
+                    $qb = $this->em->createQueryBuilder();
+                    $qb->delete($acceptFrom, 'e');
+                    $qb->where('e.'.$mappedFrom.' = ?1');
+
+                    $qb->setParameter(1, $object->getId());
+                    $qb->getQuery()->execute();
+                } else {
+                    $object->$setter($emptyCollection);
+                }
+            }
+
             return;
         }
 
@@ -203,10 +205,10 @@ class MultijoinType extends Type
 
                 $id = $id["id"];
             }
-            
+
             $objectToJoin = $this->em->getRepository($entity)->find($id);
 
-            
+
             if($mappedBy){
                 $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
                 $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];

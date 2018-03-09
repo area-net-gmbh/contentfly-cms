@@ -24,7 +24,7 @@ class PushController extends BaseController
      * @apiHeader {String} X-Token Acces-Token
      * @apiHeader {String} Content-Type=application/json
      *
-     * @apiDescription Gibt das Schema aller Entities zurück
+     * @apiDescription Speichert einen Access-Token für Push-Notifications eines mobilen Devices.
      *
      * @apiParam {String} token Device-Token.
      * @apiParam {String="ios","android"} platform Betriebssystem des Gerätes.

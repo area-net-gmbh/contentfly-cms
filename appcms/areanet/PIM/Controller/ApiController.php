@@ -50,6 +50,7 @@ class ApiController extends BaseController
      * @api {post} /api/all all
      * @apiName All
      * @apiGroup Objekte
+     * @apiDeprecated
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
@@ -141,6 +142,7 @@ class ApiController extends BaseController
      * @apiVersion 1.4.0
      * @api {post} /api/delete delete
      * @apiName Delete
+     * @apiDescription API-Endpoint zum Löschen eines Objektes einer Entität.
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
@@ -186,11 +188,12 @@ class ApiController extends BaseController
      * @apiVersion 1.4.0
      * @api {post} /api/insert insert
      * @apiName Insert
+     * @apiDescription API-Endpoint zum Hinzufügen eines neues Objektes einer Entität.
+     *
+     * Datumsfelder sollten im ISO 8601-Format übertragen werden.
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
-     *
-     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
      *
      * @apiParam {String} entity Einzutragende Entity
      * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
@@ -200,7 +203,22 @@ class ApiController extends BaseController
      *      "data": {
      *          "title": "Eine neue News",
      *          "subtitle: "Untertitel der neuen News",
-     *          "date": "2016-02-18 15:30:00"
+     *          "date": "2016-02-18 15:30:00",
+     *          // Join 1:n
+     *          "category": {
+     *              "id": 1
+     *          },
+     *          // Datum im Format yyyy-mm-dd hh:ii:ss
+     *          "active_from": "2016-02-18 15:30:00",
+     *          // Multijoin n:m
+     *          "cross_selling": [
+     *              {
+     *                  "id": 2
+     *              },
+     *              {
+     *                  "id": 6
+     *              }
+     *           ]
      *      }
      * @apiError 500 Ein Objekt mit einem gleichen UNIQUE-INDEX ist bereits vorhanden
      * @apiError 501 Unbekannter Serverfehler
@@ -244,6 +262,9 @@ class ApiController extends BaseController
      * @apiVersion 1.4.0
      * @api {post} /api/list list
      * @apiName List
+     * @apiDescription API-Endpoint zum Abruf von Objekten einer Entität.
+     *
+     * Die Rückgabe der Daten erfolgt im JSON-Format auf Basis des Doctrine ORM. Joins (1:n) und Multijoins (n:m) werden automatisch umgewandelt und als Unterobjekte zurückgegeben. Das kann bei vielen Objekten mit Joins/Multijoins zu Performance-Problemen führen. Abhilfe bietet der Parameter flatten.
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
@@ -394,8 +415,9 @@ class ApiController extends BaseController
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
+     * @apiDescription API-Endpoint zum Hinzufügen eines neues Objektes einer Entität.
      *
-     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
+     * Datumsfelder sollten im ISO 8601-Format übertragen werden.
      *
      * @apiParam {String} entity zu aktualisierende Entity
      * @apiParam {Integer} id Zu aktualisierende Objekt-ID
@@ -472,7 +494,9 @@ class ApiController extends BaseController
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
-     * @apiDescription Datumsfelder sollten im ISO 8601-Format übertragen werden.
+     * @apiDescription API-Endpoint zum Abruf von Objekten einer Entität. Ist das Objekt vorhanden, wird ein Insert, ansonsten ein Update durchgeführt.
+     *
+     * Datumsfelder sollten im ISO 8601-Format übertragen werden.
      *
      * @apiParam {String} entity zu aktualisierende oder einzufügende Entity
      * @apiParam {Integer} id Objekt-ID (wenn vorhanden, wird das Objekt aktualisiert, ansonten neu angelegt)
@@ -534,7 +558,7 @@ class ApiController extends BaseController
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
-     * @apiDescription Gibt das Schema aller Entities zurück
+     * @apiDescription Gibt das Schema aller Entitäten zurück.
      *
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -559,6 +583,9 @@ class ApiController extends BaseController
      * @apiVersion 1.4.0
      * @api {post} /api/single single
      * @apiName Single
+     * @apiDescription API-Endpoint zum Abruf eines einzelnen Objektes einer Entität.
+     *
+     * Die Rückgabe der Daten erfolgt im JSON-Format auf Basis des Doctrine ORM. Joins (1:n) und Multijoins (n:m) werden automatisch umgewandelt und als Unterobjekte zurückgegeben.
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
@@ -609,6 +636,9 @@ class ApiController extends BaseController
      * @apiVersion 1.4.0
      * @api {post} /api/tree tree
      * @apiName Baumansicht
+     * @apiDescription API-Endpoint, zum Abruf einer Baumstruktur.
+     *
+     * Die Entität muss vom Typ Areanet\PIM\Entity\BaseTree
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
@@ -655,17 +685,48 @@ class ApiController extends BaseController
     /**
      * @apiVersion 1.4.0
      * @api {post} /api/query query
+     * @apiDescription Erweiterter API-Endpoint, über den nahezu beliebige Abfragen auf die Datenbank/Entitäten gestellt werden können. Die Abfragesyntax basiert dabei auf dem DBAL-QueryBuilder (http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/query-builder.html) von Doctrine. Der JSON-Request (siehe Beispiele unten) wird im Contentfly CMS in eine analoge DBAL-Abfrage über den QueryBuilder umgewandelt.
+     *
+     * Die Rückgabe der Daten erfolgt im JSON-Format. Durch die DBAL-Abfrage erfolgt die Rückgabe direkt auf Datenbankebene und nicht auf Doctrine Entitäten.
      * @apiName Query
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
      *
-     * @apiParam
-     * @apiParamExample {json} Request-Beispiel:
+     * @apiParamExample {json} Einfache Abfrage:
      *     {
+     *      "select": "*",
+     *      "from": "Product"
+     *     }
+     * @apiParamExample {json} Einfache Abfrage mit Where
+     *     {
+     *      "select": "*",
+     *      "from": "Product",
+     *      "where": {"active": true},
+     *     }
+     * @apiParamExample {json} Abfrage mit Group, Count(), Limit und Offset
+     *     {
+     *      "select": ['title', 'field2', 'COUNT(id) AS users'],
+     *      "from": "Product",
+     *      "where": {"active": true},
+     *      "groupBy": "category",
+     *      "having": {"field": "value"},
+     *      "orderBy": {"field": "ASC"},
+     *      "addOrderBy": {"field": "DESC"},
+     *      "setFirstResult": 10, //Offfset,
+     *      "setMaxResults": 20, //Limit
      *     }
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
+     *      [
+     *          {
+     *              "name" : "Produkt1",
+     *              "active": true
+     *          },
+     *          {
+     *              ..
+     *          }
+     *      ]
      */
     public function queryAction(Request $request){
         $params = $request->request->all();
@@ -675,7 +736,7 @@ class ApiController extends BaseController
 
         return $this->renderResponse(array('data' => $data));
     }
-    
+
 
 
 }
