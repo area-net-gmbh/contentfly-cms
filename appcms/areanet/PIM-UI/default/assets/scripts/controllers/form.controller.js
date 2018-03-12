@@ -421,7 +421,7 @@
 
 
             } else {
-                doSave(vm.object);
+                doSave(andClose);
             }
 
         }
