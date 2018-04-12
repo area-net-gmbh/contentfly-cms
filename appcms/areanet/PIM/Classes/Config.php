@@ -143,6 +143,7 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\PermissionsType',
         '\\Areanet\\PIM\\Classes\\Types\\VirtualjoinType',
         '\\Areanet\\PIM\\Classes\\Types\\EntitySelectorType',
+        '\\Areanet\\PIM\\Classes\\Types\\CheckboxType',
     );
 
     /**
@@ -200,6 +201,11 @@ class Config{
      * @var string Load Frontend UI in folder /ui/...
      */
     public $FRONTEND_UI = 'default';
+
+    /**
+     * @var string Name of the General-Tab
+     */
+    public $FRONTEND_TAB_GENERAL_NAME = 'Allgemein';
 
     /**
      * @var string Load Frontend UI in folder /ui/...

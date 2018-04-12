@@ -85,6 +85,17 @@
                         </ui-select>
                     </div>
 
+
+                    <div ng-if="vm.filterJoins[key]" ng-switch-when="checkbox">
+                        <label >{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control"  ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                            <option value="">alle anzeigen</option>
+                            <option value="-1">ohne Zuordnung</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
+                        </select>
+                    </div>
+
                     <label ng-if="vm.filterJoins[key]" ng-switch-when="virtualjoin">{{vm.schema.properties[key].label}}</label>
                     <select class="form-control" ng-if="vm.filterJoins[key]" ng-switch-when="virtualjoin" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                         <option value="">alle anzeigen</option>
