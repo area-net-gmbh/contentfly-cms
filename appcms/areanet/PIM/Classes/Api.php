@@ -1048,7 +1048,7 @@ class Api
                 'labelProperty' => null,
                 'type' => 'default',
                 'tabs' => array(
-                    'default'   => array('title' => 'Allgemein', 'onejoin' => false)
+                    'default'   => array('title' => Adapter::getConfig()->FRONTEND_TAB_GENERAL_NAME, 'onejoin' => false)
                 ),
                 'dbname' => null,
                 'viewMode' => 0
