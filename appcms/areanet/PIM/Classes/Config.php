@@ -203,6 +203,11 @@ class Config{
     public $FRONTEND_UI = 'default';
 
     /**
+     * @var string Name of the General-Tab
+     */
+    public $FRONTEND_TAB_GENERAL_NAME = 'Allgemein';
+
+    /**
      * @var string Load Frontend UI in folder /ui/...
      */
     public $FRONTEND_TITLE = 'Contentfly CMS - Let your content fly!';
