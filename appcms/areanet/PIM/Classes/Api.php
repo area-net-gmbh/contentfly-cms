@@ -557,6 +557,63 @@ class Api
         return $all;
     }
 
+    public function getCount($lastMofified){
+
+        $data = array(
+            'dataCount'     => 0,
+            'filesCount'    => 0,
+            'filesSize'     => 0,
+        );
+
+        $schema = $this->getSchema();
+        foreach($schema as $entityName => $entityConfig){
+            if($entityName == 'PIM\\File' || $entityName == 'PIM\\Folder' || $entityName == '_hash'){
+                continue;
+            }
+
+            $tableName = $entityConfig['settings']['dbname'];
+
+            $query = "SELECT COUNT(*) AS `records` FROM `$tableName`";
+
+            $params = array();
+            if($lastMofified){
+                if(is_array($lastMofified)){
+                    if(isset($lastMofified[$entityName])){
+                        $query .= " WHERE `modified` > ?";
+                        $params = array($lastMofified[$entityName]);
+                    }
+                }else{
+                    $query .= " WHERE `modified` > ?";
+                    $params = array($lastMofified);
+                }
+            }
+
+            $entityCount        = $this->app['database']->fetchColumn($query, $params, 0);
+            $data['dataCount'] += $entityCount;
+        }
+
+        $query = "SELECT COUNT(*) AS `records`, SUM(size) AS `size` FROM `pim_file`";
+
+        $params = array();
+        if($lastMofified){
+            if(is_array($lastMofified)){
+                if(isset($lastMofified['PIM\\File'])){
+                    $query .= " WHERE `modified` > ?";
+                    $params = array($lastMofified['PIM\\File']);
+                }
+            }else{
+                $query .= " WHERE `modified` > ?";
+                $params = array($lastMofified);
+            }
+        }
+
+        $files              = $this->app['database']->fetchAssoc($query, $params);
+        $data['filesCount'] = intval($files['records']);
+        $data['filesSize']  = $files['size'] ? $files['size'] : 0;
+
+        return $data;
+    }
+
     public function getExtendedSchema(){
         $frontend = array(
             'customLogo' => Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,
