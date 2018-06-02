@@ -71,44 +71,12 @@ class Helper
         $this->createSymlinks();
     }
 
-    public function createSymlinks(){
-        $docRoot = $_SERVER['DOCUMENT_ROOT'];
-
-        $arrDocRoot = explode('/', $docRoot);
-        $arrRootDir = explode('/', ROOT_DIR, -1);
-
-        array_shift($arrDocRoot);
-        array_shift($arrRootDir);
-
-        $folderEquals   = 0;
-        $countDocRoot   = count($arrDocRoot);
-        for($i = 0; $i < $countDocRoot; $i++){
-            if(isset($arrRootDir[$i]) && $arrRootDir[$i] == $arrDocRoot[$i]){
-                $folderEquals++;
-                array_shift($arrRootDir);
-            }else{
-                break;
-            }
-        }
-
-        $symlinkRelPath  = str_repeat('../', $countDocRoot - $folderEquals + 1);
-        $symlinkRelPath .= count($arrRootDir) ? implode('/', $arrRootDir).'/' : '';
-
-        $this->createSymlink($docRoot.'/custom/', 'Frontend', $symlinkRelPath.'custom/Frontend');
-        $this->createSymlink($docRoot.'/ui/', 'default', $symlinkRelPath.'appcms/areanet/PIM-UI/default/assets');
-    }
-
     public function createSymlink($path, $target, $link){
-
         if(!is_link($path.$target)){
             $this->deleteFolder($path.$target);
-            if(!is_dir($path)){
-                mkdir($path);
-            }
             if(!chdir($path)){
                 return array('symlink', "chdir to $path failed.");
             }
-
             if(!symlink($link, $target)){
                 return array('symlink', "symlink $path.$target failed.");
             }
