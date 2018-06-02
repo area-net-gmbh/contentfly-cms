@@ -566,8 +566,15 @@ class Api
         );
 
         $schema = $this->getSchema();
+
+        $entitiesToExclude = array(
+            'PIM\\File', 'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\PushToken', 'PIM\\ThumbnailSetting',
+            'PIM\\Permission', 'PIM\\Nav', 'PIM\\NavItem', 'PIM\\Log', '_hash'
+        );
+
         foreach($schema as $entityName => $entityConfig){
-            if($entityName == 'PIM\\File' || $entityName == 'PIM\\Folder' || $entityName == '_hash'){
+
+            if(in_array($entityName, $entitiesToExclude)){
                 continue;
             }
 
@@ -575,21 +582,57 @@ class Api
 
             $query = "SELECT COUNT(*) AS `records` FROM `$tableName`";
 
-            $params = array();
+            $params  = array();
+            $tsQuery = "";
             if($lastMofified){
                 if(is_array($lastMofified)){
                     if(isset($lastMofified[$entityName])){
-                        $query .= " WHERE `modified` > ?";
+                        $tsQuery = " WHERE `modified` > ?";
                         $params = array($lastMofified[$entityName]);
                     }
                 }else{
-                    $query .= " WHERE `modified` > ?";
+                    $tsQuery = " WHERE `modified` > ?";
                     $params = array($lastMofified);
                 }
             }
 
+            $query .= $tsQuery;
+
             $entityCount        = $this->app['database']->fetchColumn($query, $params, 0);
             $data['dataCount'] += $entityCount;
+
+            foreach($entityConfig['properties'] as $field => $fieldOptions){
+                if($fieldOptions['type'] == 'multifile'){
+                    $joinTableName = $fieldOptions['foreign'] ? $fieldOptions['foreign'] :  $tableName + "_" + $field;
+                    $joinQuery  = "
+                        SELECT COUNT(*) AS `records` 
+                        FROM `$joinTableName` 
+                        INNER JOIN `pim_file`  
+                        ON file_id = id";
+
+                    $joinQuery .= $tsQuery;
+
+                    $joinEntityCount    = $this->app['database']->fetchColumn($joinQuery, $params, 0);
+                    $data['dataCount'] += $joinEntityCount;
+                }
+
+                if($fieldOptions['type'] == 'multijoin' && ! empty($fieldOptions['foreign'])){
+                    $joinTableName = $fieldOptions['foreign'];
+                    $joinField     = str_replace('_', '', $tableName).'_id';
+
+                    $joinQuery  = "
+                        SELECT COUNT(*) AS `records` 
+                        FROM `$joinTableName` 
+                        INNER JOIN `$tableName`  
+                        ON $joinField = id";
+
+                    $joinQuery .= $tsQuery;
+
+                    $joinEntityCount    = $this->app['database']->fetchColumn($joinQuery, $params, 0);
+
+                    $data['dataCount'] += $joinEntityCount;
+                }
+            }
         }
 
         $query = "SELECT COUNT(*) AS `records`, SUM(size) AS `size` FROM `pim_file`";
