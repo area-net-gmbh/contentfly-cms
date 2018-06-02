@@ -72,9 +72,12 @@ class MultifileType extends Type
             $schema['mappedBy'] = $annotations2->mappedBy;
             
         }
-
+        
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
+            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'])) {
+                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
+                $schema['foreign'] = $annotations->name;
+            }
         }
 
         return $schema;
