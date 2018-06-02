@@ -85,7 +85,7 @@ if($app['is_installed']) {
 
     if(!defined('APPCMS_CONSOLE')) $app['helper']->createSymlinks();
 
-    $app->register(new \Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
+    $app->register(new \Dflydev\Silex\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
         'orm.proxies_dir' => ROOT_DIR . '/../data/cache/doctrine',
         'orm.em.options' => array(
             'connection' => 'pim',
@@ -104,6 +104,7 @@ if($app['is_installed']) {
                 ),
             )
         ),
+        'orm.auto_generate_proxies' => Config\Adapter::getConfig()->APP_AUTOGENERATE_PROXIES,
         'orm.custom.functions.numeric' => array(
             'Find_In_Set' => '\Areanet\PIM\Classes\ORM\Query\Mysql\FindInSet'
         )

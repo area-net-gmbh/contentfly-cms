@@ -73,6 +73,11 @@ class Config{
     public $DB_ID_INTEGER_TYPE  = 'integer';
 
     /**
+     * @var boolean Doctrine erstellt Proxy-Klassen automatisch zur Laufzeit
+     */
+    public $APP_AUTOGENERATE_PROXIES = true;
+
+    /**
      * @var boolean Enable Schema Cache
      */
     public $APP_ENABLE_SCHEMA_CACHE = true;
