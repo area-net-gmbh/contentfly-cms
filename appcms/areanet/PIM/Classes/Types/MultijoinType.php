@@ -169,31 +169,30 @@ class MultijoinType extends Type
         $mappedBy   = isset($schema[ucfirst($entityName)]['properties'][$property]['mappedBy']) ? $schema[ucfirst($entityName)]['properties'][$property]['mappedBy'] : null;
 
 
-        if(!is_array($value) || !count($value)){
+        if($object->$getter()) {
+            $emptyCollection = new ArrayCollection();
+            if ($mappedBy) {
+                $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
 
-            if($object->$getter()) {
-                $emptyCollection = new ArrayCollection();
-                if ($mappedBy) {
-                    $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
-                    $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
-
-                    if(!Permission::isWritable($user, $acceptFrom)){
-                        throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
-                    }
-
-                    $object->$setter($emptyCollection);
-
-                    $qb = $this->em->createQueryBuilder();
-                    $qb->delete($acceptFrom, 'e');
-                    $qb->where('e.'.$mappedFrom.' = ?1');
-
-                    $qb->setParameter(1, $object->getId());
-                    $qb->getQuery()->execute();
-                } else {
-                    $object->$setter($emptyCollection);
+                if(!Permission::isWritable($user, $acceptFrom)){
+                    throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
                 }
-            }
 
+                $object->$setter($emptyCollection);
+
+                $qb = $this->em->createQueryBuilder();
+                $qb->delete($acceptFrom, 'e');
+                $qb->where('e.'.$mappedFrom.' = ?1');
+
+                $qb->setParameter(1, $object->getId());
+                $qb->getQuery()->execute();
+            } else {
+                $object->$setter($emptyCollection);
+            }
+        }
+
+        if(!is_array($value) || !count($value)){
             return;
         }
 
