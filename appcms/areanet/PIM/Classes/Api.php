@@ -1068,9 +1068,9 @@ class Api
                 $className = "\Custom\Entity\\$entity";
             }
 
-            $object    = new $className();
-            $reflect   = new \ReflectionClass($object);
-            $props     = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
+            $object     = new $className();
+            $reflect    = new \ReflectionClass($object);
+            $props      = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
             $entityName = $entity;
 
             $defaultValues = $reflect->getDefaultProperties();
