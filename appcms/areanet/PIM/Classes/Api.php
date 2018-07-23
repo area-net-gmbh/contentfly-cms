@@ -1311,6 +1311,8 @@ class Api
                 throw new \Exception("'delete', 'insert' oder 'update not allowed in query.");
             }
 
+            $method = $method == 'where' ? 'andWhere' : $method;
+
             if(method_exists($queryBuilder, $method)){
                 if(is_array($params)){
                     if($this->isIndexedArray($params)){
