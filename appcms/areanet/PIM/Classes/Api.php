@@ -1324,8 +1324,10 @@ class Api
                             }
 
                             if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                                $queryBuilder->andWhere("$entityAlias.userCreated = ? OR FIND_IN_SET(?, $entityAlias.users) = 1");
-                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                $queryBuilder->andWhere("$entityAlias.usercreated_id = ? OR FIND_IN_SET(?, $entityAlias.users) = 1");
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                $paramCount++;
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                 $paramCount++;
                             }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
                                 $group = $this->app['auth.user']->getGroup();
@@ -1361,8 +1363,10 @@ class Api
                             }
 
                             if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                                $queryBuilder->andWhere("$queryParams.userCreated = ? OR FIND_IN_SET(?, $queryParams.users) = 1");
-                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                                $queryBuilder->andWhere("$queryParams.usercreated_id = ? OR FIND_IN_SET(?, $queryParams.users) = 1");
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                $paramCount++;
+                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                 $paramCount++;
                             }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
                                 $group = $this->app['auth.user']->getGroup();
@@ -1409,8 +1413,10 @@ class Api
                         }
 
                         if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                            $queryBuilder->andWhere("userCreated = ? OR FIND_IN_SET(?, users) = 1");
-                            $queryBuilder->setParameter($paramCount, $this->app['auth.user']);
+                            $queryBuilder->andWhere("usercreated_id = ? OR FIND_IN_SET(?, users) = 1");
+                            $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                            $paramCount++;
+                            $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                             $paramCount++;
                         }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
                             $group = $this->app['auth.user']->getGroup();
