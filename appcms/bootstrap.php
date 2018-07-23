@@ -1,6 +1,10 @@
 <?php
 define('ROOT_DIR', __DIR__);
 
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 1);
+
 require_once ROOT_DIR.'/version.php';
 require_once ROOT_DIR.'/vendor/autoload.php';
 if(file_exists(ROOT_DIR.'/../custom/vendor/autoload.php')){

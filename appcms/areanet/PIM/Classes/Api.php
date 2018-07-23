@@ -370,8 +370,6 @@ class Api
 
 
         foreach($data as $property => $value){
-            if($property == 'modified' || $property == 'created') continue;
-
 
             if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
                 throw new \Exception("Unkown property $property for entity $entityPath", 500);

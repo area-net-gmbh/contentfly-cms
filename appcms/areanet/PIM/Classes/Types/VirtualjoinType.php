@@ -57,6 +57,11 @@ class VirtualjoinType extends Type
 
         $data = array();
 
+        if(!is_array($value)){
+            $object->$setter($value);
+            return;
+        }
+
         foreach($value as $id){
 
             if(is_array($id)){
