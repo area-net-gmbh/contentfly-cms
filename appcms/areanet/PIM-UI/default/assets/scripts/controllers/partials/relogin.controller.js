@@ -5,7 +5,7 @@
         .module('app')
         .controller('ReloginCtrl', ReloginCtrl);
 
-    function ReloginCtrl($scope, $uibModalInstance, localStorageService, $http, $cookies){
+    function ReloginCtrl($scope, $uibModalInstance, localStorageService, $http, $cookies, $location){
         var vm = this;
 
         //Properties
@@ -41,6 +41,7 @@
 
         function cancel() {
             $uibModalInstance.dismiss(false);
+            $location.path('/logout')
         }
     }
 
