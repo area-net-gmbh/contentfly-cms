@@ -43,7 +43,7 @@
                             }
 
                             var joinSchema    = localStorageService.get('schema')[entity];
-    
+
                             if(scope.object[property]){
 
                               if(joinSchema.settings.labelProperty){
