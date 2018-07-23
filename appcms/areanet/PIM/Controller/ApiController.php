@@ -766,10 +766,11 @@ class ApiController extends BaseController
     public function queryAction(Request $request){
         $params = $request->request->all();
 
-        $api    = new Api($this->app, $request);
-        $data   = $api->getQuery($params);
+        $api            = new Api($this->app, $request);
+        $data           = $api->getQuery($params);
+        $currentDate    = new \Datetime();
 
-        return $this->renderResponse(array('data' => $data));
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'params' => $params, 'data' => $data));
     }
 
 
