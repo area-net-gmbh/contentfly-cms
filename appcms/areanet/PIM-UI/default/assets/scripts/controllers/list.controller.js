@@ -282,7 +282,7 @@
                 vm.schema.settings.isSortable = false;
             }
 
-                        
+
             var filter = {};
             for (var key in vm.filter) {
                 if(vm.filter[key]){
