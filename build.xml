@@ -101,10 +101,10 @@ define('CUSTOM_VERSION', '0.0.0');
              server="${env.FTP_SERVER}"
              userid="${env.FTP_USER}"
              password="${env.FTP_PASS}"
-             remotedir="${env.FTP_REMOTE_APIDOC}/${version}"/>
+             remotedir="${env.FTP_REMOTE_APIDOC}/${apiversion}"/>
 
         <ftp server="${env.FTP_SERVER}"
-             remotedir="${env.FTP_REMOTE_APIDOC}/${version}"
+             remotedir="${env.FTP_REMOTE_APIDOC}/${apiversion}"
              userid="${env.FTP_USER}"
              password="${env.FTP_PASS}"
              passive="yes">
@@ -146,6 +146,19 @@ define('CUSTOM_VERSION', '0.0.0');
                 </linecontainsregexp>
 
                 <replaceregex pattern="define\(\'APP_VERSION\', \'([0-9]).([0-9]).([0-9])\'\);" replace="\1.\2.\3" />
+            </filterchain>
+        </loadfile>
+    </target>
+
+    <!-- GET API-VERSION -->
+    <target name="getapiversion">
+        <loadfile srcfile="apidoc.json" property="apiversion">
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern="define"/>
+                </linecontainsregexp>
+
+                <replaceregex pattern="&quot;version&quot;: &quot;([0-9]).([0-9])&quot;" replace="\1.\2." />
             </filterchain>
         </loadfile>
     </target>
