@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:ng="http://angularjs.org" lang="de" ng-app="app" {% if frontend.customLoginBG  %}class="custom"{% endif %}>
+<html xmlns:ng="http://angularjs.org" lang="de" ng-app="app" n {% if frontend.customLoginBG  %}class="custom"{% endif %}>
 
 <head>
     <meta charset="utf-8">
@@ -41,6 +41,7 @@
                     <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
                         <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_PREPEND" uiblocks="uiblocks"></pim-plugin>
                         <li class="version">Version {{::version}}</li>
+                        <li><a class="dropdown" ng-click="openPasswordForm()"><span class="glyphicon glyphicon-lock"></span> Passwort ändern</a></li>
                         <li><a class="dropdown" href="#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
                         <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_APPEND" uiblocks="uiblocks"></pim-plugin>
                     </ul>
@@ -122,6 +123,7 @@
     <p>Anwendung wird geladen...</p>
 </div>
 <pim-plugin key="INDEX_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
+<div id="toast"></div>
 {% endverbatim %}
 <!-- Angular Files -->
 <script src="/ui/default/bower_components/jquery/dist/jquery.min.js?v={{ app_version }}"></script>
@@ -203,6 +205,7 @@
 <script src="/ui/default/scripts/controllers/partials/file-edit.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/partials/video-add.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/partials/relogin.controller.js?v={{ app_version }}"></script>
+<script src="/ui/default/scripts/controllers/partials/password.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/login.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/logout.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/list.controller.js?v={{ app_version }}"></script>
@@ -211,7 +214,6 @@
 <script src="/ui/default/scripts/controllers/dashboard.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/settings.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/error.controller.js?v={{ app_version }}"></script>
-
 
 <!-- Dynamic Scripts -->
 {% for jsFile in jsFiles %}

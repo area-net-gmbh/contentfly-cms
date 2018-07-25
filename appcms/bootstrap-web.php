@@ -63,7 +63,6 @@ if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
 ExceptionHandler::register();
 ErrorHandler::register();
 
-
 $app->error(function (\Exception $e, Request $request, $code) use($app) {
 
     if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
@@ -85,6 +84,7 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
             }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 404);
             }else{
+                die("test: " . $e->getMessage()."= == ".$e->getCode());
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
             }
 
@@ -95,6 +95,7 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
             }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $e->getCode() ? $e->getCode() : 404);
             }else{
+                die("test: " . $e->getMessage()."= == ".$e->getCode());
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
             }
 

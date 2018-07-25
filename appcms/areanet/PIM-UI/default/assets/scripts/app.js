@@ -5,13 +5,44 @@
         .module('app')
         .run(run);
 
-    function run($rootScope, $location, $cookies, localStorageService, $http){
+    function run($rootScope, $location, $cookies, localStorageService, $http, $uibModal){
+
 
         if ($cookies.get('APPCMS-TOKEN') != null) {
             $http.defaults.headers.common = {
                 'APPCMS-TOKEN': $cookies.get('APPCMS-TOKEN')
             };
         }
+
+        $rootScope.toast = function(text){
+          var x = document.getElementById("toast");
+          x.innerHTML = text;
+          x.className = "show";
+          setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        };
+
+        $rootScope.openPasswordForm = function(){
+
+       
+          var modalInstance = $uibModal.open({
+            templateUrl: '/ui/default/views/partials/password.html?v=' + APP_VERSION,
+            controller: 'PasswordCtrl as vm',
+            resolve: {
+              object: function(){ return $rootScope.user; }
+            },
+            backdrop: 'static',
+            size: 'xl'
+          });
+
+
+          modalInstance.result.then(
+            function () {
+              $rootScope.toast("Das Passwort wurde erfolgreich geändert.");
+            },
+            function () {
+            }
+          );
+        };
 
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
 

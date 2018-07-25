@@ -25,13 +25,11 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\Table;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpFoundation\Request;
+
 
 class Api
 {
@@ -364,7 +362,7 @@ class Api
 
         if($object instanceof User && isset($data['pass']) && !$this->app['auth.user']->getIsAdmin()){
             if(!$this->app['auth.user']->isPass($currentUserPass)){
-                throw new \Exception('Passwort des aktuellen Benutzers wurde nicht korrekt übergeben.');
+                throw new \Exception('Passwort des aktuellen Benutzers wurde nicht korrekt übergeben.', 501);
             }
         }
 
