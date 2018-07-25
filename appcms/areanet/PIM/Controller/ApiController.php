@@ -530,8 +530,10 @@ class ApiController extends BaseController
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(EntityNotFoundException $e){
             return new JsonResponse(array('message' => "Not found"), 404);
+        }catch(AccessDeniedHttpException $e){
+            return new JsonResponse(array('message' => $e->getMessage()), 403);
         }catch(\Exception $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
+            return new JsonResponse(array('message' => $e->getMessage()), $e->getCode() ? $e->getCode() : 500);
         }
 
         $event = new \Areanet\PIM\Classes\Event();

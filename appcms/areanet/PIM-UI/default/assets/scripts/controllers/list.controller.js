@@ -330,7 +330,6 @@
             vm.countLabel = 'Datensatz ' + ((vm.itemsPerPage * (data.currentPage-1))+1) + ' bis ' + end + ' von insgesamt ' + vm.totalItems;
           }
 
-          console.log("LABEL = " + vm.countLabel);
           vm.objectsAvailable = true;
           vm.objectsNotAvailable = false;
         },
