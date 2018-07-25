@@ -199,7 +199,6 @@
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
-                            title: function(){ return '<span title="' + id + '">Objekt ' + (id.length > 5 ? id.substr(0, 5) + '...' : id) + ' bearbeiten</span>'; },
                             object: function(){ return object; },
                             readonly: false
                         },

@@ -5,7 +5,7 @@
         .module('app')
         .controller('FormCtrl', FormCtrl);
 
-    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, title, entity, object, Upload, moment, EntityService, FileService, readonly) {
+    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, Upload, moment, EntityService, FileService, readonly) {
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
@@ -25,7 +25,8 @@
         vm.readonly         = readonly;
         vm.fileUploads      = {};
         vm.forms            = {};
-        vm.modaltitle       = title;
+        vm.modaltitle1      = '';
+        vm.modaltitle2      = '';
         vm.password         = {};
         vm.permissions      = localStorageService.get('permissions');
 
@@ -293,6 +294,18 @@
 
             if(object){
                 vm.object = object;
+            }
+
+            if(object && object.id){
+                vm.modaltitle1 = vm.schema.settings.label + (vm.readonly ? ' ansehen    ' : ' bearbeiten');
+                if(vm.schema.settings.labelProperty && object[vm.schema.settings.labelProperty]){
+                    vm.modaltitle2 = object[vm.schema.settings.labelProperty];
+                }else{
+                  vm.modaltitle2 = object.id;
+                }
+            }else{
+              vm.modaltitle1 = '';
+              vm.modaltitle2 = vm.schema.settings.label + ' anlegen';
             }
 
             angular.forEach(vm.schema.properties, function (config, key) {

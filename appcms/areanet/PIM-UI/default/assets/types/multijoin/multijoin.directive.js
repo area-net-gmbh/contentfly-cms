@@ -175,14 +175,12 @@
                     var id     = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy].id : scope.value[index].id;
                     var object = scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index];
 
-                    console.log("Test");
 
                     var modalInstance = $uibModal.open({
                         templateUrl: '/ui/default/views/form.html',
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
-                            title: function(){ return '<span title="' + id + '">Objekt ' + (id.length > 5 ? id.substr(0, 5) + '...' : id) + ' bearbeiten</span>'; },
                             object: function(){ return object; },
                             readonly: false
                         },

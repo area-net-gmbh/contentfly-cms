@@ -7,7 +7,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_option")
- * @PIM\Config(label="Option", labelProperty="value")
+ * @PIM\Config(label="Option", labelProperty="value", sortBy="value", sortOrder="ASC")
  */
 class Option extends Base
 {

@@ -105,7 +105,6 @@
                         controller: 'FormCtrl as vm',
                         resolve: {
                             entity: function(){ return entity;},
-                            title: function(){ return '<span title="' + scope.value.id + '">Objekt ' + (scope.value.id.length > 5 ? scope.value.id.substr(0, 5) + '...' : scope.value.id) + ' bearbeiten</span>'; },
                             object: function(){ return scope.value; },
                             readonly: false
                         },
