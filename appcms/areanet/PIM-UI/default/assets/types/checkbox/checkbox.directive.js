@@ -97,10 +97,14 @@
                         properties.push(scope.schema.list[key]);
                     }
 
+                    var sortSettings = {};
+                    sortSettings['value'] = 'ASC';
+
                     var data = {
                         entity: 'PIM\\Option',
                         properties: properties,
-                        where: where
+                        where: where,
+                        order: sortSettings
                     };
 
                     EntityService.list(data).then(

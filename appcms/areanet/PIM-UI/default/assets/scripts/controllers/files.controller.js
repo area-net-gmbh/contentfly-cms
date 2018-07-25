@@ -137,19 +137,12 @@
         }
 
         function openForm(object){
-            var modaltitle = 'Neues Objekt anlegen';
-            if(object && vm.schema.settings.labelProperty){
-                modaltitle = vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + ' bearbeiten';
-            }else if(object){
-                modaltitle = 'Objekt ' + object.id + ' bearbeiten';
-            }
 
             var modalInstance = $uibModal.open({
                 templateUrl: '/ui/default/views/form.html?v=' + APP_VERSION,
                 controller: 'FormCtrl as  vm',
                 resolve: {
                     entity: function(){ return vm.entity;},
-                    title: function(){ return modaltitle; },
                     object: function(){ return object; },
                     readonly: false
                 },
