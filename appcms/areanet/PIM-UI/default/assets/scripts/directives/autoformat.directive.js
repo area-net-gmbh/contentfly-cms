@@ -29,8 +29,8 @@
                             if(!scope.object[property]){
                                 return;
                             }
-                            var value = long ? scope.object[property].LOCAL_TIME : scope.object[property].LOCAL;
-                            element.text(value);
+                            var momentJS = moment(scope.object[property].ISO8601);
+                            element.text(momentJS.format(scope.schema.properties[property].format));
                             break;
                         case 'boolean':
                             element.text(scope.object[property] ? 'Ja' : 'Nein');

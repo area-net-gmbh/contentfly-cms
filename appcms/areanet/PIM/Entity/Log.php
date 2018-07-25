@@ -59,6 +59,7 @@ class Log extends Base
      * @var \DateTime
      * @ORM\Column(type="datetime", nullable=true)
      * @PIM\Config(hide=true, showInList=60, label="Datum")
+     * @PIM\Datetime(format="DD.MM.YYYY, HH:mm [Uhr]")
      */
     protected $created;
 

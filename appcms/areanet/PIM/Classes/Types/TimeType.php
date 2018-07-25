@@ -21,9 +21,9 @@ class TimeType extends Type
 
     public function processSchema($key, $defaultValue, $propertyAnnotations, $entityName){
         $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations, $entityName);
-        $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Time'];
+        $propertyAnnotations    = isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Time']) ? $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Time'] : null;
 
-        $schema['format'] = $propertyAnnotations->format ? $propertyAnnotations->format : Time::DEFAULT_FORMAT;
+        $schema['format'] = $propertyAnnotations && $propertyAnnotations->format ? $propertyAnnotations->format : Time::DEFAULT_FORMAT;
         $schema['dbType'] = "time";
 
         return $schema;
