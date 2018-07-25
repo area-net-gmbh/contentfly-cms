@@ -12,6 +12,7 @@
 
 
     //Properties
+    vm.countLabel          = '';
     vm.permissions         = localStorageService.get('permissions');
     vm.objects             = [];
     vm.objectsAvailable    = false;
@@ -321,6 +322,15 @@
           vm.totalItems = response.data.totalItems;
           vm.objects = response.data.data;
 
+
+          if(data.currentPage == 0 || (vm.itemsPerPage * data.currentPage) >=  vm.totalItems && data.currentPage == 1){
+            vm.countLabel = vm.totalItems + ' Datensätze';
+          }else{
+            var end = (vm.itemsPerPage * data.currentPage) > vm.totalItems ? vm.totalItems : (vm.itemsPerPage * data.currentPage);
+            vm.countLabel = 'Datensatz ' + ((vm.itemsPerPage * (data.currentPage-1))+1) + ' bis ' + end + ' von insgesamt ' + vm.totalItems;
+          }
+
+          console.log("LABEL = " + vm.countLabel);
           vm.objectsAvailable = true;
           vm.objectsNotAvailable = false;
         },

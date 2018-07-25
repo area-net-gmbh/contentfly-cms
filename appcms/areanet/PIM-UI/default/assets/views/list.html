@@ -2,7 +2,8 @@
 <div class="row header">
     <div class="col-lg-9 col-lg-offset-0 col-xl-8 col-xl-offset-1">
         <pim-plugin key="LIST_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <h3>{{::vm.schema.settings.label}} anzeigen</h3>
+        <h3>{{::vm.schema.settings.label}} anzeigen<br><small>{{vm.countLabel}}</small></h3>
+
         <pim-plugin key="LIST_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
         <div class="btn-group btn-sorting" uib-dropdown>
             <button class="btn btn-default" id="dropdown-sorting" type="button" uib-dropdown-toggle>
