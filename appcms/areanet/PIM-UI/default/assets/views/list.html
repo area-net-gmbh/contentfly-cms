@@ -31,7 +31,7 @@
             </button>
             <div uib-dropdown-menu aria-labelledby="dropdown-filter" class="form-inline">
                 <pim-plugin key="LIST_HEADER_FILTER_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <div class="form-group" ng-hide="config.hide && !config.isFilterable" ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type" >
+                <div class="form-group" ng-hide="config.hide || !config.isFilterable" ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type" >
 
                     <label ng-switch-when="boolean">{{vm.schema.properties[key].label}}</label>
                     <select class="form-control" ng-switch-when="boolean" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
