@@ -420,7 +420,7 @@ class ApiController extends BaseController
             }
             return $this->renderResponse($data);
         } else {
-            $data = array('data' => $data['objects']);
+            $data = array('data' => $data['objects'], 'totalItems' => $data['totalObjects']);
 
             if($lastModified){
                 $currentDate = new \Datetime();

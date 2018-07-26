@@ -385,8 +385,7 @@
 
           vm.totalItems = response.data.totalItems;
           vm.objects = response.data.data;
-
-
+          
           if(data.currentPage == 0 || (vm.itemsPerPage * data.currentPage) >=  vm.totalItems && data.currentPage == 1){
             vm.countLabel = vm.totalItems + (vm.totalItems == 1 ? ' Datensatz' : ' Datensätze');
           }else{
