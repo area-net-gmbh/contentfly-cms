@@ -16,7 +16,12 @@ class ExportControllerProvider extends BaseControllerProvider
     public function connect(Application $app)
     {
         $app['export.controller'] = function($app) {
-            return new ExportController($app);
+            $controller = Config\Adapter::getConfig()->APP_EXPORT_CONTROLLER;
+            if(!class_exists($controller)){
+                throw new \Exception('Export-Controller '.$controller.' konnt nicht geladen werden.',  500);
+            }
+
+            return new $controller($app);
         };
 
         $this->setUpMiddleware($app);
@@ -29,10 +34,11 @@ class ExportControllerProvider extends BaseControllerProvider
             }
         };
 
+        foreach(Config\Adapter::getConfig()->APP_EXPORT_METHODS as $action => $label){
 
-        $controllers->post('/csv',   "export.controller:csvAction")->before($checkAuth);
-        $controllers->post('/excel',   "export.controller:excelAction")->before($checkAuth);
-        $controllers->post('/xml',   "export.controller:xmlAction")->before($checkAuth);
+            $controllers->post('/'.$action,   'export.controller:'.$action.'Action')->before($checkAuth);
+        }
+
         return $controllers;
     }
 

@@ -664,7 +664,8 @@ class Api
             'customNavigation' => array(
                 'enabled' => Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
             ),
-            'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT
+            'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT,
+            'exportMethods' => Adapter::getConfig()->APP_EXPORT_METHODS
         );
 
         $uiblocks = $this->app['uiManager']->getBlocks();
