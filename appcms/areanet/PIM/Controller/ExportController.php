@@ -81,68 +81,72 @@ class ExportController extends BaseController
         $xml = new \SimpleXMLElement('<items/>');
         $xml->addAttribute('entity', $entityName);
 
-        foreach($data['objects'] as $object){
-            $item = $xml->addChild('item');
-            $item->addAttribute('id', $object->id);
-            foreach($object as $key => $value){
-                if(in_array($key, array('views', 'isIntern', 'id'))) continue;
+        if($data) {
+            foreach ($data['objects'] as $object) {
+                $item = $xml->addChild('item');
+                $item->addAttribute('id', $object->id);
+                foreach ($object as $key => $value) {
+                    if (in_array($key, array('views', 'isIntern', 'id', 'permissions'))) continue;
 
 
-                switch($entitySchema['properties'][$key]['type']){
-                    case 'boolean':
-                        $item->addChild($key, $value ? 1 : 0);
-                        break;
-                    case 'join':
-                    case 'onejoin':
-                    case 'file':
-                        $subitem = $item->addChild($key);
-                        if($value){
-                            if(is_array($value)){
-                                $subitem->addChild('id', isset($value['id']) ? $value['id'] : '');
-                            }else{
-                                $subitem->addChild('id', isset($value->id) ? $value->id : '');
+                    switch ($entitySchema['properties'][$key]['type']) {
+
+                        case 'boolean':
+                            $item->addChild($key, $value ? 1 : 0);
+                            break;
+                        case 'join':
+                        case 'onejoin':
+                        case 'file':
+                            $subitem = $item->addChild($key);
+                            if ($value) {
+                                if (is_array($value)) {
+                                    $subitem->addChild('id', isset($value['id']) ? $value['id'] : '');
+                                } else {
+                                    $subitem->addChild('id', isset($value->id) ? $value->id : '');
+                                }
+
                             }
-
-                        }
-                        break;
-                    case 'multijoin':
-                    case 'multifile':
-                    case 'checkbox':
-                        $subitem = $item->addChild($key);
-                        if($value){
-                            foreach($value as $subobject){
-                                if($subobject){
-                                    if(is_array($subobject)){
-                                        $subitem->addChild('id', isset($subobject['id']) ? $subobject['id'] : '');
-                                    }else{
-                                        $subitem->addChild('id', isset($subobject->id) ? $subobject->id : '');
+                            break;
+                        case 'multijoin':
+                        case 'multifile':
+                        case 'checkbox':
+                            $subitem = $item->addChild($key);
+                            if ($value) {
+                                foreach ($value as $subobject) {
+                                    if ($subobject) {
+                                        if (is_array($subobject)) {
+                                            $subitem->addChild('id', isset($subobject['id']) ? $subobject['id'] : '');
+                                        } else {
+                                            $subitem->addChild('id', isset($subobject->id) ? $subobject->id : '');
+                                        }
                                     }
                                 }
                             }
-                        }
-                        break;
-                    case 'datetime':
-                        if(isset($value['ISO8601'])){
-                            $date       = new \DateTime($value['ISO8601']);
-                            $format     = $entitySchema['properties'][$key]['format'];
-                            $item->addChild($key, $date->format($helper->convertMomentFormatToPhp($format)));
-                        }else{
-                            $item->addChild($key, '');
-                        }
-                        break;
-                    default:
-                        $item->addChild($key, $value);
-                        break;
+                            break;
+                        case 'datetime':
+                            if (isset($value['ISO8601'])) {
+                                $date = new \DateTime($value['ISO8601']);
+                                $format = $entitySchema['properties'][$key]['format'];
+                                $item->addChild($key, $date->format($helper->convertMomentFormatToPhp($format)));
+                            } else {
+                                $item->addChild($key, '');
+                            }
+                            break;
+                        default:
+
+                            $item->addChild($key, $value);
+                            break;
+                    }
                 }
+
+                $event = new \Areanet\PIM\Classes\Event();
+                $event->setParam('entity', $entityName);
+                $event->setParam('request', $request);
+                $event->setParam('item', $item);
+                $event->setParam('object', $object);
+                $this->app['dispatcher']->dispatch('pim.export.xml.item', $event);
+
             }
-
-            $event = new \Areanet\PIM\Classes\Event();
-            $event->setParam('entity',  $entityName);
-            $event->setParam('request', $request);
-            $event->setParam('item', $item);
-            $event->setParam('object', $object);
-            $this->app['dispatcher']->dispatch('pim.export.xml.item', $event);
-
         }
 
         $response = new Response();
@@ -182,83 +186,85 @@ class ExportController extends BaseController
         $csvHeader          = array();
         $csvRows            = array();
 
-        foreach($data['objects'] as $object){
-            $csvRow = array();
+        if($data) {
+            foreach ($data['objects'] as $object) {
+                $csvRow = array();
 
-            foreach($object as $key => $value){
-                if(in_array($key, array('views', 'isIntern'))) continue;
+                foreach ($object as $key => $value) {
+                    if (in_array($key, array('views', 'isIntern', 'id', 'permissions'))) continue;
 
 
-                switch($entitySchema['properties'][$key]['type']){
-                    case 'boolean':
-                    case 'integer':
-                        $csvRow[] = $value ? 1 : 0;
-                        if(!$csvHeaderInited) $csvHeader[$key] = 'integer';
-                        break;
-                    case 'double':
-                    case 'float':
-                        if(!$csvHeaderInited) $csvHeader[$key] = 'float';
-                    case 'join':
-                    case 'onejoin':
-                    case 'file':
+                    switch ($entitySchema['properties'][$key]['type']) {
+                        case 'boolean':
+                        case 'integer':
+                            $csvRow[] = $value ? 1 : 0;
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'integer';
+                            break;
+                        case 'double':
+                        case 'float':
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'float';
+                        case 'join':
+                        case 'onejoin':
+                        case 'file':
 
-                        if($value){
+                            if ($value) {
 
-                            if(is_array($value)){
-                                $csvRow[] = isset($value['id']) ? $value['id'] : '';
-                            }else{
-                                $csvRow[] = isset($value->id) ? $value->id : '';
+                                if (is_array($value)) {
+                                    $csvRow[] = isset($value['id']) ? $value['id'] : '';
+                                } else {
+                                    $csvRow[] = isset($value->id) ? $value->id : '';
+                                }
+
                             }
 
-                        }
-
-                        if(!$csvHeaderInited) $csvHeader[$key] = 'string';
-                        break;
-                    case 'multijoin':
-                    case 'multifile':
-                    case 'checkbox':
-                        $values = array();
-                        if($value){
-                            foreach($value as $subobjects){
-                                if(is_array($subobjects)){
-                                    $values[] = isset($subobjects['id']) ? $subobjects['id'] : '';
-                                }else{
-                                    $values[] = isset($subobjects->id) ? $subobjects->id : '';
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'string';
+                            break;
+                        case 'multijoin':
+                        case 'multifile':
+                        case 'checkbox':
+                            $values = array();
+                            if ($value) {
+                                foreach ($value as $subobjects) {
+                                    if (is_array($subobjects)) {
+                                        $values[] = isset($subobjects['id']) ? $subobjects['id'] : '';
+                                    } else {
+                                        $values[] = isset($subobjects->id) ? $subobjects->id : '';
+                                    }
                                 }
                             }
-                        }
-                        $csvRow[] = join(',', $values);
-                        if(!$csvHeaderInited) $csvHeader[$key] = 'string';
-                        break;
-                    case 'datetime':
-                        if(isset($value['ISO8601'])){
-                            $date       = new \DateTime($value['ISO8601']);
-                            $format     = $entitySchema['properties'][$key]['format'];
-                            $csvRow[]   = $date->format($helper->convertMomentFormatToPhp($format));
-                            if(!$csvHeaderInited) $csvHeader[$key] = 'text';
-                        }else{
-                            if(!$csvHeaderInited) $csvHeader[$key] = 'text';
-                            $csvRow[] = '';
-                        }
-                        if(!$csvHeaderInited) $csvHeader[$key] = 'text';
-                        break;
-                    default:
-                        $csvRow[] = $value;
-                        if(!$csvHeaderInited) $csvHeader[$key] = 'text';
-                        break;
+                            $csvRow[] = join(',', $values);
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'string';
+                            break;
+                        case 'datetime':
+                            if (isset($value['ISO8601'])) {
+                                $date = new \DateTime($value['ISO8601']);
+                                $format = $entitySchema['properties'][$key]['format'];
+                                $csvRow[] = $date->format($helper->convertMomentFormatToPhp($format));
+                                if (!$csvHeaderInited) $csvHeader[$key] = 'text';
+                            } else {
+                                if (!$csvHeaderInited) $csvHeader[$key] = 'text';
+                                $csvRow[] = '';
+                            }
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'text';
+                            break;
+                        default:
+                            $csvRow[] = $value;
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'text';
+                            break;
+                    }
+
+                    $event = new \Areanet\PIM\Classes\Event();
+                    $event->setParam('entity', $entityName);
+                    $event->setParam('request', $request);
+                    $event->setParam('csvRow', $csvRow);
+                    $event->setParam('object', $object);
+                    $this->app['dispatcher']->dispatch('pim.export.csv-excel.item', $event);
+
                 }
 
-                $event = new \Areanet\PIM\Classes\Event();
-                $event->setParam('entity',  $entityName);
-                $event->setParam('request', $request);
-                $event->setParam('csvRow', $csvRow);
-                $event->setParam('object', $object);
-                $this->app['dispatcher']->dispatch('pim.export.csv-excel.item', $event);
-
+                $csvRows[] = $event->getParam('csvRow');
+                $csvHeaderInited = true;
             }
-
-            $csvRows[]          = $event->getParam('csvRow');
-            $csvHeaderInited    = true;
         }
 
         $returnData = new \stdClass();
