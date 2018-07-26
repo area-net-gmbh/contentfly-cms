@@ -9,6 +9,7 @@
 
         return{
             delete: doDelete,
+            exportData: exportData,
             list: list,
             insert: insert,
             update: update,
@@ -27,6 +28,15 @@
                 data: data
             });
         }
+
+          function exportData(type, data){
+            return $http({
+              method: 'POST',
+              url: '/export/' + type,
+              data: data,
+              responseType: 'blob'
+            });
+          }
         
         function list(data){
             return $http({

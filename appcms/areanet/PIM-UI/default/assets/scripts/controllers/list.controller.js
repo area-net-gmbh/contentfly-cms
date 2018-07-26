@@ -5,7 +5,7 @@
     .module('app')
     .controller('ListCtrl', ListCtrl);
 
-  function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location){
+  function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location, FileSaver, Blob){
 
     var vm              = this;
     var oldPageNumber   = 1;
@@ -81,6 +81,7 @@
     vm.closeFilter          = closeFilter;
     vm.delete               = doDelete;
     vm.executeFilter        = executeFilter;
+    vm.exportData           = exportData;
     vm.openForm             = openForm;
     vm.paginationChanged    = paginationChanged;
     vm.redirect             = redirect;
@@ -241,6 +242,70 @@
           generateTree(entity, field, data[i]['treeChilds'], subDepth);
         }
       }
+    }
+
+    function exportData(type){
+
+      var filter = {};
+      for (var key in vm.filter) {
+        if(vm.filter[key]){
+          filter[key] = vm.filter[key];
+          if(vm.schema.properties[key] && vm.schema.properties[key].type == 'boolean'){
+            filter[key] = vm.filter[key] == 'true' || vm.filter[key] == '1' ? true : false;
+          }
+        }
+      }
+
+      var data = {
+        entity: vm.entity,
+        where: filter
+      };
+      EntityService.exportData(type, data).then(
+        function successCallback(response) {
+          switch(type){
+            case 'csv':
+              var data = new Blob([response.data], { type: 'text/csv' });
+              FileSaver.saveAs(data, 'export.csv');
+              break;
+            case 'excel':
+              //console.log(response.data);
+              var data = new Blob([response.data], { type: 'application/vnd.ms-excel' });
+              FileSaver.saveAs(data, 'export.xlsx');
+              break;
+            case 'xml':
+              //console.log(response.data);
+              var data = new Blob([response.data], { type: 'text/xml' });
+              FileSaver.saveAs(data, 'export.xml');
+              break;
+          }
+
+        },
+        function errorCallback(response) {
+
+
+          if(response.status == 401){
+            var modalInstance = $uibModal.open({
+              templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
+              controller: 'ReloginCtrl as vm',
+              backdrop: 'static'
+            });
+
+            modalInstance.result.then(
+              function () {
+                loadData();
+              },
+              function () {
+                $uibModalInstance.close();
+                $location.path('/logout');
+              }
+            );
+          }
+
+          if(response.status == 403){
+            $location.path('/error');
+          }
+        }
+      );
     }
 
     function init(){

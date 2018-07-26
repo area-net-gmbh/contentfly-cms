@@ -5,7 +5,8 @@
         "dflydev/doctrine-orm-service-provider": "^2.0.1",
         "knplabs/console-service-provider": "^2.1.0",
         "doctrine/dbal": "^2.6.3",
-        "symfony/validator": "4.0.4"
+        "symfony/validator": "4.0.4",
+        "ellumilel/php-excel-writer": "^0.1.6"
     },
     "autoload": {
         "psr-4": {

@@ -15,6 +15,42 @@ use Doctrine\ORM\EntityManager;
 
 class Helper
 {
+
+    public function convertMomentFormatToPhp($format){
+        $replacements = [
+            'DD'   => 'd',
+            'ddd'  => 'D',
+            'D'    => 'j',
+            'dddd' => 'l',
+            'E'    => 'N',
+            'o'    => 'S',
+            'e'    => 'w',
+            'DDD'  => 'z',
+            'W'    => 'W',
+            'MMMM' => 'F',
+            'MM'   => 'm',
+            'MMM'  => 'M',
+            'M'    => 'n',
+            'YYYY' => 'Y',
+            'YY'   => 'y',
+            'a'    => 'a',
+            'A'    => 'A',
+            'h'    => 'g',
+            'H'    => 'G',
+            'hh'   => 'h',
+            'HH'   => 'H',
+            'mm'   => 'i',
+            'ss'   => 's',
+            'SSS'  => 'u',
+            'zz'   => 'e',
+            'X'    => 'U',
+        ];
+
+        $phpFormat = strtr($format, $replacements);
+
+        return $phpFormat;
+    }
+
     public function getFullEntityName($entityShortName)
     {
         if (substr($entityShortName, 0, 3) == 'PIM') {
