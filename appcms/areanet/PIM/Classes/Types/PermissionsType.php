@@ -130,6 +130,7 @@ class PermissionsType extends Type
             $pObject->setReadable($config['readable']);
             $pObject->setWritable($config['writable']);
             $pObject->setDeletable($config['deletable']);
+            $pObject->setExport($config['export']);
             if (!empty($config['extended'])) {
                 $pObject->setExtended(json_encode($config['extended']));
             } else {

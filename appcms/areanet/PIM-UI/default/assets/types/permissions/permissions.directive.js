@@ -41,6 +41,7 @@
                                 scope.matrix[i].readable  = scope.value[key].readable;
                                 scope.matrix[i].writable  = scope.value[key].writable;
                                 scope.matrix[i].deletable = scope.value[key].deletable;
+                                scope.matrix[i].export    = scope.value[key].export;
                                 scope.matrix[i].extended  = scope.value[key].extended ? JSON.parse(scope.value[key].extended) : null;
                                 break;
                             }
@@ -51,6 +52,7 @@
                                 scope.matrixCustom[i].readable  = scope.value[key].readable;
                                 scope.matrixCustom[i].writable  = scope.value[key].writable;
                                 scope.matrixCustom[i].deletable = scope.value[key].deletable;
+                                scope.matrixCustom[i].export    = scope.value[key].export;
                                 scope.matrixCustom[i].extended  = scope.value[key].extended ? JSON.parse(scope.value[key].extended) : null;
                                 break;
                             }
@@ -110,6 +112,7 @@
                         scope[matrix][entityIndex]['extended'] = null;
                     }
 
+
                     scope.onChangeCallback({key: scope.key, value: scope.matrix.concat(scope.matrixCustom)});
 
                 }
@@ -117,19 +120,23 @@
                 function changePermission(index, mode, isCustomMatrix){
                     var matrix = isCustomMatrix ? 'matrixCustom' : 'matrix';
 
-                    switch(scope[matrix][index][mode]){
+                    if(mode == 'export'){
+                        scope[matrix][index][mode] = scope[matrix][index][mode] == 0 ? 2 : 0;
+                    }else{
+                      switch(scope[matrix][index][mode]){
                         case 0:
-                            scope[matrix][index][mode] = 1;
-                            break;
+                          scope[matrix][index][mode] = 1;
+                          break;
                         case 1:
-                            scope[matrix][index][mode] = 3;
-                            break;
+                          scope[matrix][index][mode] = 3;
+                          break;
                         case 3:
-                            scope[matrix][index][mode] = 2;
-                            break;
+                          scope[matrix][index][mode] = 2;
+                          break;
                         case 2:
-                            scope[matrix][index][mode] = 0;
-                            break;
+                          scope[matrix][index][mode] = 0;
+                          break;
+                      }
                     }
 
                     scope.onChangeCallback({key: scope.key, value: scope.matrix.concat(scope.matrixCustom)});
@@ -150,7 +157,8 @@
                             'label' : scope.schema[entityName].settings.label,
                             'readable' : 0,
                             'writable' : 0,
-                            'deletable' : 0
+                            'deletable' : 0,
+                            'export' : 0
                         };
 
                         if(entityName.substr(0,4) == 'PIM\\'){

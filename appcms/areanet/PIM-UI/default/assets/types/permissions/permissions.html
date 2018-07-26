@@ -39,6 +39,7 @@
                 <th class="alignCenter">Lesen</th>
                 <th class="alignCenter">Bearbeiten</th>
                 <th class="alignCenter">Löschen</th>
+                <th class="alignCenter">Export</th>
                 <th></th>
             </tr>
         </thead>
@@ -62,6 +63,10 @@
                     <span ng-show="config.deletable == 1">eigene</span>
                     <span ng-show="config.deletable == 3">Gruppe</span>
                     <span ng-show="config.deletable == 2">alle</span>
+                </td>
+                <td class="permission-button permission-{{config.export}}" ng-click="changePermission(config.index, 'export', false)">
+                    <span ng-show="config.export == 0">nein</span>
+                    <span ng-show="config.export == 2">ja</span>
                 </td>
                 <td class="permission-button permission_extended ng-class:{'permission_extended_active': config.extended}" ng-click="showExtendedPermissions(config, false)">Feldebene <span class="glyphicon glyphicon-chevron-right"></span></td>
             </tr>
@@ -95,6 +100,10 @@
                 <span ng-show="config.deletable == 1">eigene</span>
                 <span ng-show="config.deletable == 3">Gruppe</span>
                 <span ng-show="config.deletable == 2">alle</span>
+            </td>
+            <td class="permission-button permission-{{config.export}}" ng-click="changePermission(config.index, 'export', true)">
+                <span ng-show="config.export == 0">nein</span>
+                <span ng-show="config.export == 2">ja</span>
             </td>
             <td class="permission-button permission_extended ng-class:{'permission_extended_active': config.extended}" ng-click="showExtendedPermissions(config, true)">Feldebene&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></td>
         </tr>
