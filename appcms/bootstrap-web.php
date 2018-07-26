@@ -126,6 +126,7 @@ $app->get(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:in
 $app->post(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:submitAction');
 
 $app->mount('/api', new \Areanet\PIM\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));
+$app->mount('/export', new \Areanet\PIM\Classes\Controller\Provider\Base\ExportControllerProvider('/export'));
 $app->mount('/auth', new \Areanet\PIM\Classes\Controller\Provider\Base\AuthControllerProvider('/auth'));
 $app->mount('/file', new \Areanet\PIM\Classes\Controller\Provider\Base\FileControllerProvider('/file'));
 $app->mount('/push', new \Areanet\PIM\Classes\Controller\Provider\Base\PushControllerProvider('/push'));

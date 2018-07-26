@@ -23,7 +23,7 @@
 
         $rootScope.openPasswordForm = function(){
 
-       
+
           var modalInstance = $uibModal.open({
             templateUrl: '/ui/default/views/partials/password.html?v=' + APP_VERSION,
             controller: 'PasswordCtrl as vm',

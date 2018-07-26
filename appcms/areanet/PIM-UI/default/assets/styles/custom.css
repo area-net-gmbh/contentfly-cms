@@ -871,6 +871,11 @@ ul.ui-select-choices{
     }
 }
 
+ul.dropdown{
+    margin-top:0 !important;
+    margin-left:0 !important;
+}
+
 #toast {
     visibility: hidden;
     min-width: 250px;

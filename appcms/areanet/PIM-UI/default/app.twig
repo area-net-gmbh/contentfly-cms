@@ -143,6 +143,9 @@
 <script src="/ui/default/bower_components/angular-ui-select/dist/select.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-ui-sortable/sortable.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angularUtils-pagination/dirPagination.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/Blob.js/Blob.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/file-saver.js/FileSaver.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-file-saver/dist/angular-file-saver.js?v={{ app_version }}"></script>
 
 <!-- Dynamic Angular Modules -->
 {% for modulePath in angularModules %}
@@ -165,7 +168,8 @@
         'textAngular',
         'ui.bootstrap',
         'ui.sortable',
-        'ui.select'
+        'ui.select',
+        'ngFileSaver'
     ];
 
     {% for moduleName in angularModules|keys %}

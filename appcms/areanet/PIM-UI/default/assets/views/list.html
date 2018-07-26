@@ -13,7 +13,7 @@
                 <span ng-show="vm.sortOrder === 'ASC'" class="glyphicon glyphicon-arrow-up"></span>
                 <span ng-show="vm.sortOrder === 'DESC'" class="glyphicon glyphicon-arrow-down"></span>
             </button>
-            <ul uib-dropdown-menu aria-labelledby="dropdown-sorting">
+            <ul uib-dropdown-menu aria-labelledby="dropdown-sorting" class="dropdown">
                 <pim-plugin key="LIST_HEADER_SORTING_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li><a ng-click="vm.sortBy('id')">ID</a></li>
                 <li ng-show="vm.schema.settings.isSortable"><a ng-click="vm.sortBy('sorting')">Position</a></li>
@@ -133,6 +133,19 @@
             </div>
         </div>
         <pim-plugin key="LIST_HEADER_FILTER_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <div class="btn-group btn-sorting" uib-dropdown>
+            <button class="btn btn-default" id="dropdown-export" type="button" uib-dropdown-toggle>
+                <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+            </button>
+            <ul uib-dropdown-menu aria-labelledby="dropdown-export" class="dropdown">
+                <pim-plugin key="LIST_HEADER_EXPORT_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li><a ng-click="vm.exportData('csv')">CSV</a></li>
+                <li><a ng-click="vm.exportData('excel')">EXCEL</a></li>
+                <li><a ng-click="vm.exportData('xml')">XML</a></li>
+                <pim-plugin key="LIST_HEADER_EXPORT_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </div>
+        <pim-plugin key="LIST_HEADER_EXPORT_APPEND" uiblocks="uiblocks"></pim-plugin>
         <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable" on-page-change="vm.paginationChanged(newPageNumber)"></dir-pagination-controls>
         <pim-plugin key="LIST_HEADER_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
