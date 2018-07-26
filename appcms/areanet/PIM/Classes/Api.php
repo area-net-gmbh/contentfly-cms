@@ -820,7 +820,7 @@ class Api
                     continue;
                 }
 
-                if($schema[$entityName]['properties'][$field]['type'] == 'multijoin'){
+                if($schema[$entityName]['properties'][$field]['type'] == 'multijoin' || $schema[$entityName]['properties'][$field]['type'] == 'checkbox'){
                     if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
                         if($value == -1) {
                             $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];

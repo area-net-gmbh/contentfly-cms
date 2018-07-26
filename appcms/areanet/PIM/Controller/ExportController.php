@@ -38,8 +38,9 @@ class ExportController extends BaseController
         $wExcel = new ExcelWriter();
 
         $wExcel->writeSheetHeader('Export', $data->header);
-        foreach($data->rows as $row){
-            $wExcel->writeSheetRow('Export',$row);
+
+        foreach ($data->rows as $row) {
+            $wExcel->writeSheetRow('Export', $row);
         }
 
         $response = new Response();
@@ -183,10 +184,11 @@ class ExportController extends BaseController
         $entitySchema       = $schema[ucfirst($entityName)];
         $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten);
         $csvHeaderInited    = false;
-        $csvHeader          = array();
+        $csvHeader          = array('' => 'text');
         $csvRows            = array();
 
         if($data) {
+            $csvHeader = array();
             foreach ($data['objects'] as $object) {
                 $csvRow = array();
 
