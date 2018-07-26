@@ -47,6 +47,12 @@ class Permission extends Base
     protected $deletable;
 
     /**
+     * @ORM\Column(type="integer")
+     * @PIM\Config(showInList=80,label="Export")
+     */
+    protected $export = 0;
+
+    /**
      * @ORM\Column(type="text", nullable = true)
      * @PIM\Config(label="Erweitert")
      */
@@ -149,6 +155,24 @@ class Permission extends Base
     {
         $this->extended = $extended;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getExport()
+    {
+        return $this->export;
+    }
+
+    /**
+     * @param mixed $export
+     */
+    public function setExport($export)
+    {
+        $this->export = $export;
+    }
+
+
     
 
 

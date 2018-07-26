@@ -1013,6 +1013,7 @@ class Api
                 'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
                 'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
                 'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName),
+                'export'    => Permission::canExport($this->app['auth.user'], $entityName),
                 'extended'  => Permission::getExtended($this->app['auth.user'], $entityName)
             );
         }

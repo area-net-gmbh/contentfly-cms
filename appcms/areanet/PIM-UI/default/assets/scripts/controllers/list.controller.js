@@ -28,7 +28,8 @@
       vm.entity = $routeParams.entity;
     }
 
-    vm.schema  = localStorageService.get('schema')[vm.entity];
+    vm.canExport  = vm.permissions[vm.entity].export;
+    vm.schema     = localStorageService.get('schema')[vm.entity];
 
     if(!vm.schema){
       $location.path('/');
@@ -265,17 +266,15 @@
           switch(type){
             case 'csv':
               var data = new Blob([response.data], { type: 'text/csv' });
-              FileSaver.saveAs(data, 'export.csv');
+              FileSaver.saveAs(data, vm.entity.toLowerCase() + '.csv');
               break;
             case 'excel':
-              //console.log(response.data);
               var data = new Blob([response.data], { type: 'application/vnd.ms-excel' });
-              FileSaver.saveAs(data, 'export.xlsx');
+              FileSaver.saveAs(data, vm.entity.toLowerCase() +  '.xlsx');
               break;
             case 'xml':
-              //console.log(response.data);
               var data = new Blob([response.data], { type: 'text/xml' });
-              FileSaver.saveAs(data, 'export.xml');
+              FileSaver.saveAs(data, vm.entity.toLowerCase() + '.xml');
               break;
           }
 

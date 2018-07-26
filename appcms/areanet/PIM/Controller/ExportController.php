@@ -4,7 +4,10 @@ namespace Areanet\PIM\Controller;
 use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\Helper;
+use Areanet\PIM\Classes\Permission;
 use Ellumilel\ExcelWriter;
+use PHPMailer\PHPMailer\Exception;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,6 +56,10 @@ class ExportController extends BaseController
         $entityName         = $request->get('entity', 'Produkt');
         $where              = $request->get('where', null);
 
+        if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
+            throw new Exception("Export von $entityName verweigert.", 403);
+        }
+
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
@@ -86,16 +93,32 @@ class ExportController extends BaseController
                         $item->addChild($key, $value ? 1 : 0);
                         break;
                     case 'join':
+                    case 'onejoin':
                     case 'file':
                         $subitem = $item->addChild($key);
-                        if($value) $subitem->addChild('id', isset($value->id) ? $value->id : $value);
+                        if($value){
+                            if(is_array($value)){
+                                $subitem->addChild('id', isset($value['id']) ? $value['id'] : '');
+                            }else{
+                                $subitem->addChild('id', isset($value->id) ? $value->id : '');
+                            }
+
+                        }
                         break;
                     case 'multijoin':
                     case 'multifile':
                     case 'checkbox':
                         $subitem = $item->addChild($key);
-                        foreach($value as $subobject){
-                            $subitem->addChild('id', isset($subobject->id) ? $subobject->id : $subobject);
+                        if($value){
+                            foreach($value as $subobject){
+                                if($subobject){
+                                    if(is_array($subobject)){
+                                        $subitem->addChild('id', isset($subobject['id']) ? $subobject['id'] : '');
+                                    }else{
+                                        $subitem->addChild('id', isset($subobject->id) ? $subobject->id : '');
+                                    }
+                                }
+                            }
                         }
                         break;
                     case 'datetime':
@@ -133,6 +156,10 @@ class ExportController extends BaseController
     private function loadFlatData(Request $request){
         $entityName         = $request->get('entity', 'Produkt');
         $where              = $request->get('where', null);
+
+        if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
+            throw new Exception("Export von $entityName verweigert.", 403);
+        }
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
@@ -172,16 +199,33 @@ class ExportController extends BaseController
                     case 'float':
                         if(!$csvHeaderInited) $csvHeader[$key] = 'float';
                     case 'join':
+                    case 'onejoin':
                     case 'file':
-                        $csvRow[] = isset($value->id) ? $value->id : $value;
+
+                        if($value){
+
+                            if(is_array($value)){
+                                $csvRow[] = isset($value['id']) ? $value['id'] : '';
+                            }else{
+                                $csvRow[] = isset($value->id) ? $value->id : '';
+                            }
+
+                        }
+
                         if(!$csvHeaderInited) $csvHeader[$key] = 'string';
                         break;
                     case 'multijoin':
                     case 'multifile':
                     case 'checkbox':
                         $values = array();
-                        foreach($value as $subobjects){
-                            $values[] = isset($subobjects->id) ? $subobjects->id : $subobjects;
+                        if($value){
+                            foreach($value as $subobjects){
+                                if(is_array($subobjects)){
+                                    $values[] = isset($subobjects['id']) ? $subobjects['id'] : '';
+                                }else{
+                                    $values[] = isset($subobjects->id) ? $subobjects->id : '';
+                                }
+                            }
                         }
                         $csvRow[] = join(',', $values);
                         if(!$csvHeaderInited) $csvHeader[$key] = 'string';
