@@ -139,9 +139,7 @@
             </button>
             <ul uib-dropdown-menu aria-labelledby="dropdown-export" class="dropdown">
                 <pim-plugin key="LIST_HEADER_EXPORT_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li><a ng-click="vm.exportData('csv')">CSV</a></li>
-                <li><a ng-click="vm.exportData('excel')">EXCEL</a></li>
-                <li><a ng-click="vm.exportData('xml')">XML</a></li>
+                <li ng-repeat="(action, label) in vm.frontend.exportMethods"><a ng-click="vm.exportData(action)">{{label}}</a></li>
                 <pim-plugin key="LIST_HEADER_EXPORT_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </div>

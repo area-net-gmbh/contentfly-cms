@@ -208,6 +208,16 @@ class Config{
     public $APP_HTTP_AUTH_PASS = null;
 
     /**
+     * @var array Export-Methoden
+     */
+    public $APP_EXPORT_METHODS = array('csv' => 'CSV', 'excel' => 'Excel', 'xml' => 'XML');
+
+    /**
+     * @var string Export-Controller
+     */
+    public $APP_EXPORT_CONTROLLER = 'Areanet\PIM\Controller\ExportController';
+
+    /**
      * @var string Load Frontend UI in folder /ui/...
      */
     public $FRONTEND_UI = 'default';
