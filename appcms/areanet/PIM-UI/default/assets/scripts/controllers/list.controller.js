@@ -29,7 +29,7 @@
       vm.entity = $routeParams.entity;
     }
 
-    vm.canExport  = vm.permissions[vm.entity].export;
+    vm.canExport  = vm.permissions[vm.entity].export && vm.frontend.exportMethods && Object.keys(vm.frontend.exportMethods).length;
     vm.schema     = localStorageService.get('schema')[vm.entity];
 
     if(!vm.schema){
