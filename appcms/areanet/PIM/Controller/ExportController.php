@@ -97,18 +97,35 @@ class ExportController extends BaseController
                     switch ($entitySchema['properties'][$key]['type']) {
 
                         case 'boolean':
-                            $item->addChild($key, $value ? 1 : 0);
+                            $subitem = $item->addChild($key, $value ? 1 : 0);
+                            $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
                             break;
                         case 'join':
                         case 'onejoin':
                         case 'file':
                             $subitem = $item->addChild($key);
+                            $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
+                            if($entitySchema['properties'][$key]['type'] == 'file'){
+                                $subitem->addAttribute('entity', 'PIM\\File');
+                            }else{
+                                $entityShortName = $helper->getShortEntityName($entitySchema['properties'][$key]['accept']);
+                                $subitem->addAttribute('entity', $entityShortName);
+                            }
+
                             if ($value) {
+                                $subitem2 =  $subitem->addChild('item');
                                 if (is_array($value)) {
-                                    $subitem->addChild('id', isset($value['id']) ? $value['id'] : '');
+                                    $subitem2->addAttribute('id', isset($value['id']) ? $value['id'] : '');
                                 } else {
-                                    $subitem->addChild('id', isset($value->id) ? $value->id : '');
+                                    $subitem2->addAttribute('id', isset($value->id) ? $value->id : '');
                                 }
+
+                                $event = new \Areanet\PIM\Classes\Event();
+                                $event->setParam('entity', $entityName);
+                                $event->setParam('request', $request);
+                                $event->setParam('subitem2', $subitem2);
+                                $event->setParam('value', $value);
+                                $this->app['dispatcher']->dispatch('pim.export.xml.join.subitem', $event);
 
                             }
                             break;
@@ -116,14 +133,31 @@ class ExportController extends BaseController
                         case 'multifile':
                         case 'checkbox':
                             $subitem = $item->addChild($key);
+                            $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
+                            if($entitySchema['properties'][$key]['type'] == 'multifile'){
+                                $subitem->addAttribute('entity', 'PIM\\File');
+                            }else{
+                                $entityShortName = $helper->getShortEntityName($entitySchema['properties'][$key]['accept']);
+                                $subitem->addAttribute('entity', $entityShortName);
+                            }
+
                             if ($value) {
                                 foreach ($value as $subobject) {
                                     if ($subobject) {
+                                        $subitem2 =  $subitem->addChild('item');
                                         if (is_array($subobject)) {
-                                            $subitem->addChild('id', isset($subobject['id']) ? $subobject['id'] : '');
+                                            $subitem2->addAttribute('id', isset($subobject['id']) ? $subobject['id'] : '');
                                         } else {
-                                            $subitem->addChild('id', isset($subobject->id) ? $subobject->id : '');
+                                            $subitem2->addAttribute('id', isset($subobject->id) ? $subobject->id : '');
                                         }
+
+                                        $event = new \Areanet\PIM\Classes\Event();
+                                        $event->setParam('entity', $entityName);
+                                        $event->setParam('request', $request);
+                                        $event->setParam('subitem2', $subitem2);
+                                        $event->setParam('value', $value);
+                                        $this->app['dispatcher']->dispatch('pim.export.xml.multijoin.subitem', $event);
+
                                     }
                                 }
                             }
@@ -132,14 +166,16 @@ class ExportController extends BaseController
                             if (isset($value['ISO8601'])) {
                                 $date = new \DateTime($value['ISO8601']);
                                 $format = $entitySchema['properties'][$key]['format'];
-                                $item->addChild($key, $date->format($helper->convertMomentFormatToPhp($format)));
+                                $subitem = $item->addChild($key, $date->format($helper->convertMomentFormatToPhp($format)));
+                                $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
                             } else {
-                                $item->addChild($key, '');
+                                $subitem = $item->addChild($key, '');
+                                $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
                             }
                             break;
                         default:
-
-                            $item->addChild($key, htmlspecialchars($value));
+                            $subitem = $item->addChild($key, htmlspecialchars($value));
+                            $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
                             break;
                     }
                 }
@@ -212,13 +248,21 @@ class ExportController extends BaseController
                         case 'file':
 
                             if ($value) {
-
+                                $flattenedValue = null;
                                 if (is_array($value)) {
-                                    $csvRow[] = isset($value['id']) ? $value['id'] : '';
+                                    $flattenedValue = isset($value['id']) ? $value['id'] : '';
                                 } else {
-                                    $csvRow[] = isset($value->id) ? $value->id : '';
+                                    $flattenedValue = isset($value->id) ? $value->id : '';
                                 }
 
+                                $event = new \Areanet\PIM\Classes\Event();
+                                $event->setParam('entity', $entityName);
+                                $event->setParam('request', $request);
+                                $event->setParam('flattenedValue', $flattenedValue);
+                                $event->setParam('value', $value);
+                                $this->app['dispatcher']->dispatch('pim.export.csv-excel.join.subitem', $event);
+
+                                $csvRow[] = $event->getParam('flattenedValue');
                             }else{
                                 $csvRow[] = '';
                             }
@@ -230,12 +274,22 @@ class ExportController extends BaseController
                         case 'checkbox':
                             $values = array();
                             if ($value) {
-                                foreach ($value as $subobjects) {
-                                    if (is_array($subobjects)) {
-                                        $values[] = isset($subobjects['id']) ? $subobjects['id'] : '';
+                                foreach ($value as $subobject) {
+                                    $flattenedValue = null;
+                                    if (is_array($subobject)) {
+                                        $flattenedValue = isset($subobject['id']) ? $subobject['id'] : '';
                                     } else {
-                                        $values[] = isset($subobjects->id) ? $subobjects->id : '';
+                                        $flattenedValue = isset($subobject->id) ? $subobject->id : '';
                                     }
+
+                                    $event = new \Areanet\PIM\Classes\Event();
+                                    $event->setParam('entity', $entityName);
+                                    $event->setParam('request', $request);
+                                    $event->setParam('flattenedValue', $flattenedValue);
+                                    $event->setParam('subobject', $subobject);
+                                    $this->app['dispatcher']->dispatch('pim.export.csv-excel.join.subitem', $event);
+
+                                    $values[] = $event->getParam('flattenedValue');
                                 }
                             }
                             $csvRow[] = join(',', $values);
