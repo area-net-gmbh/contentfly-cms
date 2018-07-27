@@ -135,8 +135,11 @@
 
         <pim-plugin key="LIST_HEADER_FILTER_APPEND" uiblocks="uiblocks"></pim-plugin>
         <div class="btn-group btn-sorting" uib-dropdown ng-show="vm.canExport">
-            <button class="btn btn-default" id="dropdown-export" type="button" uib-dropdown-toggle ng-disabled="!vm.objectsAvailable">
-                <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+            <button class="btn btn-default" id="dropdown-export" type="button" uib-dropdown-toggle ng-disabled="!vm.objectsAvailable || vm.isExporting">
+                <span class="glyphicon glyphicon-download-alt" aria-hidden="true" ng-hide="vm.isExporting"></span>
+                <div class="loader-inner loader-small ball-pulse" ng-show="vm.isExporting">
+                    <div></div>
+                </div>
             </button>
             <ul uib-dropdown-menu aria-labelledby="dropdown-export" class="dropdown">
                 <pim-plugin key="LIST_HEADER_EXPORT_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
