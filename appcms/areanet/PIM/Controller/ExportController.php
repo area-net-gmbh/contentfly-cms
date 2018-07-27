@@ -267,7 +267,7 @@ class ExportController extends BaseController
                                 $csvRow[] = '';
                             }
 
-                            if (!$csvHeaderInited) $csvHeader[$key] = 'text';
+                            if (!$csvHeaderInited) $csvHeader[$key] = APPCMS_ID_TYPE;
                             break;
                         case 'multijoin':
                         case 'multifile':
@@ -287,13 +287,13 @@ class ExportController extends BaseController
                                     $event->setParam('request', $request);
                                     $event->setParam('flattenedValue', $flattenedValue);
                                     $event->setParam('subobject', $subobject);
-                                    $this->app['dispatcher']->dispatch('pim.export.csv-excel.join.subitem', $event);
+                                    $this->app['dispatcher']->dispatch('pim.export.csv-excel.multijoin.subitem', $event);
 
                                     $values[] = $event->getParam('flattenedValue');
                                 }
                             }
                             $csvRow[] = join(',', $values);
-                            if (!$csvHeaderInited) $csvHeader[$key] = 'text';
+                            if (!$csvHeaderInited) $csvHeader[$key] = APPCMS_ID_TYPE;
                             break;
                         case 'datetime':
                             if (isset($value['ISO8601'])) {
