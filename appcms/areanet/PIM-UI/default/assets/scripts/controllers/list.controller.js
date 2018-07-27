@@ -266,6 +266,7 @@
         function successCallback(response) {
           switch(type){
             case 'csv':
+              //console.log(response.data);
               var data = new Blob([response.data], { type: 'text/csv' });
               FileSaver.saveAs(data, vm.entity.toLowerCase() + '.csv');
               break;

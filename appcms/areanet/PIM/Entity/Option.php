@@ -21,7 +21,7 @@ class Option extends Base
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\OptionGroup")
      * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
-     * @PIM\Config(label="Checkbox Gruppe", isFilterable=true, readonly=true)
+     * @PIM\Config(label="Checkbox Gruppe", showInList=15, isFilterable=true, readonly=true)
      */
     protected $group;
 
