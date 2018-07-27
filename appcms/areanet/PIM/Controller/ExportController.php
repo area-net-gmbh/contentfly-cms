@@ -264,7 +264,7 @@ class ExportController extends BaseController
 
                                 $csvRow[] = $event->getParam('flattenedValue');
                             }else{
-                                $csvRow[] = '';
+                                $csvRow[] = null;
                             }
 
                             if (!$csvHeaderInited) $csvHeader[$key] = APPCMS_ID_TYPE;
@@ -293,7 +293,7 @@ class ExportController extends BaseController
                                 }
                             }
                             $csvRow[] = join(',', $values);
-                            if (!$csvHeaderInited) $csvHeader[$key] = APPCMS_ID_TYPE;
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'string';
                             break;
                         case 'datetime':
                             if (isset($value['ISO8601'])) {
