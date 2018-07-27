@@ -62,6 +62,17 @@ class Helper
         return $entityNameToLoad;
     }
 
+    public function getShortEntityName($entityFullName)
+    {
+        if (substr($entityFullName, 0, 7) == 'Areanet') {
+            $entityShortName = 'PIM\\' . substr($entityFullName, 19);
+        } else {
+            $entityShortName = substr($entityFullName, 14);
+        }
+
+        return $entityShortName;
+    }
+
     public function install(EntityManager $em){
         //Admin-Benutzer
         $admin = $em->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => 'admin'));
