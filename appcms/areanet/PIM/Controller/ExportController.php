@@ -22,10 +22,15 @@ class ExportController extends BaseController
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', 'attachment; filename=export.csv');
 
+
         $output = fopen('php://output', 'w');
-        fputcsv($output, array_keys($data->header));
+
+        stream_filter_register("newlines", "Areanet\PIM\Controller\StreamFilterNewlines");
+        stream_filter_append($output, "newlines");
+
+        fputcsv($output, array_keys($data->header), ';', '"');
         foreach($data->rows as $csvRow){
-            fputcsv($output, $csvRow);
+            fputcsv($output, $csvRow, ';', '"');
         }
 
         return $response;
@@ -38,7 +43,6 @@ class ExportController extends BaseController
         $wExcel = new ExcelWriter();
 
         $wExcel->writeSheetHeader('Export', $data->header);
-
         foreach ($data->rows as $row) {
             $wExcel->writeSheetRow('Export', $row);
         }
@@ -135,7 +139,7 @@ class ExportController extends BaseController
                             break;
                         default:
 
-                            $item->addChild($key, $value);
+                            $item->addChild($key, htmlspecialchars($value));
                             break;
                     }
                 }
@@ -184,17 +188,15 @@ class ExportController extends BaseController
         $entitySchema       = $schema[ucfirst($entityName)];
         $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten);
         $csvHeaderInited    = false;
-        $csvHeader          = array('' => 'text');
+        $csvHeader          = array('id' => APPCMS_ID_TYPE);
         $csvRows            = array();
 
         if($data) {
-            $csvHeader = array();
             foreach ($data['objects'] as $object) {
-                $csvRow = array();
+                $csvRow = array($object->id);
 
                 foreach ($object as $key => $value) {
                     if (in_array($key, array('views', 'isIntern', 'id', 'permissions'))) continue;
-
 
                     switch ($entitySchema['properties'][$key]['type']) {
                         case 'boolean':
@@ -217,9 +219,11 @@ class ExportController extends BaseController
                                     $csvRow[] = isset($value->id) ? $value->id : '';
                                 }
 
+                            }else{
+                                $csvRow[] = '';
                             }
 
-                            if (!$csvHeaderInited) $csvHeader[$key] = 'string';
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'text';
                             break;
                         case 'multijoin':
                         case 'multifile':
@@ -235,7 +239,7 @@ class ExportController extends BaseController
                                 }
                             }
                             $csvRow[] = join(',', $values);
-                            if (!$csvHeaderInited) $csvHeader[$key] = 'string';
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'text';
                             break;
                         case 'datetime':
                             if (isset($value['ISO8601'])) {
@@ -274,5 +278,17 @@ class ExportController extends BaseController
         $returnData->rows   = $csvRows;
 
         return $returnData;
+    }
+}
+
+class StreamFilterNewlines extends \php_user_filter {
+    function filter($in, $out, &$consumed, $closing) {
+
+        while ( $bucket = stream_bucket_make_writeable($in) ) {
+            $bucket->data = preg_replace('/([^\r])\n/', "$1\r\n", $bucket->data);
+            $consumed += $bucket->datalen;
+            stream_bucket_append($out, $bucket);
+        }
+        return PSFS_PASS_ON;
     }
 }
