@@ -19,6 +19,7 @@
     vm.objectsAvailable    = false;
     vm.objectsNotAvailable = false;
 
+    vm.isExporting   = false;
     vm.itemsPerPage  = 0;
     vm.totalItems    = 0;
     vm.currentPage   = 1;
@@ -247,6 +248,7 @@
     }
 
     function exportData(type){
+      vm.isExporting = true;
 
       var filter = {};
       for (var key in vm.filter) {
@@ -279,10 +281,12 @@
               FileSaver.saveAs(data, vm.entity.toLowerCase() + '.xml');
               break;
           }
+          vm.isExporting = false;
 
         },
         function errorCallback(response) {
 
+          vm.isExporting = false;
 
           if(response.status == 401){
             var modalInstance = $uibModal.open({

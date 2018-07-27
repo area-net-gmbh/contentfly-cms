@@ -871,6 +871,10 @@ ul.ui-select-choices{
     }
 }
 
+.btn-group .ball-pulse-sync > div, .btn-group  .ball-pulse > div{
+    margin:0 !important;
+}
+
 ul.dropdown{
     margin-top:0 !important;
     margin-left:0 !important;
