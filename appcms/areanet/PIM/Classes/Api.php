@@ -180,7 +180,7 @@ class Api
         return $object;
     }
 
-    public function doInsert($entityName, $data)
+    public function doInsert($entityName, $data, $lang = null)
     {
         $schema  = $this->app['schema'];
 
@@ -230,6 +230,12 @@ class Api
             $uuid = Uuid::uuid4();
             $object->setId($uuid);
             //Todo: ID BEI INTEGER-WERTEN
+
+            if(empty($lang)){
+                throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+            }
+
+            $object->setLang($lang);
         }
 
         try {

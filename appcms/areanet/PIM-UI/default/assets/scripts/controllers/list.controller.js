@@ -275,7 +275,8 @@
 
       var data = {
         entity: vm.entity,
-        where: filter
+        where: filter,
+        lang: vm.currentLang
       };
       EntityService.exportData(type, data).then(
         function successCallback(response) {
@@ -712,6 +713,7 @@
         resolve: {
           entity: function(){ return vm.entity;},
           object: function(){ return object; },
+          lang: function(){ return vm.currentLang},
           readonly: readonly != 1 ? false : true
         },
         backdrop: 'static',

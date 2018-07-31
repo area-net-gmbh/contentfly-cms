@@ -232,6 +232,7 @@ class ApiController extends BaseController
      *
      * @apiParam {String} entity Einzutragende Entity
      * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
+     * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "News",
@@ -262,12 +263,14 @@ class ApiController extends BaseController
     {
         $entityName          = ucfirst($request->get('entity'));
         $data                = $request->get('data');
+        $lang                = $request->get('lang');
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('data',    $data);
+        $event->setParam('lang',    $lang);
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.before.insert', $event);
 
@@ -275,7 +278,7 @@ class ApiController extends BaseController
 
         try {
             $api = new Api($this->app, $request);
-            $object = $api->doInsert($entityName, $data);
+            $object = $api->doInsert($entityName, $data, $lang);
         }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(\Exception $e){
@@ -287,6 +290,7 @@ class ApiController extends BaseController
         $event->setParam('request', $request);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('object',  $object);
+        $event->setParam('lang',    $lang);
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
