@@ -3,7 +3,7 @@
     <label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}}<pim-plugin key="TYPE_LABEL_APPEND" uiblocks="uiblocks"></pim-plugin></label>
     <div class="col-sm-10" ng-hide="config.select" ng-style="radioClass == 'radio-inline' ? {'column-count' : '4'} : ''">
         <div ng-repeat="option in radioObjects">
-            <label>
+            <label class="optional">
                 <input type="radio" id="{{option.id}}" name="group-{{config.group}}" ng-model="options.value" ng-value="option.id">
                 {{option.value}}
             </label>
