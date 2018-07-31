@@ -14,7 +14,7 @@ class OptionGroup extends Base
 
     /**
      * @ORM\Column(type="string", nullable=false, unique=true)
-     * @PIM\Config(label="name", showInList=20)
+     * @PIM\Config(label="Name", showInList=20)
      */
     protected $name;
 
