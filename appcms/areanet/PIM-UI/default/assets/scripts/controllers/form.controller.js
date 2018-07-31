@@ -5,7 +5,7 @@
         .module('app')
         .controller('FormCtrl', FormCtrl);
 
-    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, Upload, moment, EntityService, FileService, readonly) {
+    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, lang, Upload, moment, EntityService, FileService, readonly) {
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
@@ -172,7 +172,8 @@
 
                 var data = {
                     entity: entity,
-                    data: objectDataToSave
+                    data: objectDataToSave,
+                   lang: lang
                 };
 
                 EntityService.insert(data).then(
@@ -224,6 +225,7 @@
                 var data = {
                     entity: entity,
                     id: vm.object['id'],
+                    lang: lang,
                     data: objectDataToSave
                 };
 
@@ -306,6 +308,11 @@
             }else{
               vm.modaltitle1 = '';
               vm.modaltitle2 = vm.schema.settings.label + ' anlegen';
+
+              if(lang){
+                vm.object.lang = lang;
+              }
+
             }
 
             angular.forEach(vm.schema.properties, function (config, key) {
@@ -329,7 +336,8 @@
 
             var data = {
                 entity: entity,
-                id: object.id
+                id: object.id,
+                lang: lang
             };
 
             EntityService.single(data).then(

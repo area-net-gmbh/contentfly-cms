@@ -60,6 +60,7 @@ class ExportController extends BaseController
 
         $entityName         = $request->get('entity', 'Produkt');
         $where              = $request->get('where', null);
+        $lang               = $request->get('lang', null);
 
         if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
             throw new Exception("Export von $entityName verweigert.", 403);
@@ -69,6 +70,7 @@ class ExportController extends BaseController
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
+        $event->setParam('lang', $lang);
         $event->setParam('flatten', false);
         $event->setParam('order', null);
         $this->app['dispatcher']->dispatch('pim.export.xml.before', $event);
@@ -81,17 +83,22 @@ class ExportController extends BaseController
         $api                = new Api($this->app, $request);
         $schema             = $api->getSchema();
         $entitySchema       = $schema[ucfirst($entityName)];
-        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten);
+        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
 
         $xml = new \SimpleXMLElement('<items/>');
         $xml->addAttribute('entity', $entityName);
+
+        if($lang){
+            $xml->addAttribute('lang', $lang);
+        }
 
         if($data) {
             foreach ($data['objects'] as $object) {
                 $item = $xml->addChild('item');
                 $item->addAttribute('id', $object->id);
+               
                 foreach ($object as $key => $value) {
-                    if (in_array($key, array('views', 'isIntern', 'id', 'permissions'))) continue;
+                    if (in_array($key, array('views', 'isIntern', 'id', 'permissions', 'lang'))) continue;
 
 
                     switch ($entitySchema['properties'][$key]['type']) {
@@ -125,6 +132,7 @@ class ExportController extends BaseController
                                 $event->setParam('request', $request);
                                 $event->setParam('subitem2', $subitem2);
                                 $event->setParam('value', $value);
+                                $event->setParam('lang', $lang);
                                 $this->app['dispatcher']->dispatch('pim.export.xml.join.subitem', $event);
 
                             }
@@ -156,6 +164,7 @@ class ExportController extends BaseController
                                         $event->setParam('request', $request);
                                         $event->setParam('subitem2', $subitem2);
                                         $event->setParam('value', $value);
+                                        $event->setParam('lang', $lang);
                                         $this->app['dispatcher']->dispatch('pim.export.xml.multijoin.subitem', $event);
 
                                     }
@@ -185,6 +194,7 @@ class ExportController extends BaseController
                 $event->setParam('request', $request);
                 $event->setParam('item', $item);
                 $event->setParam('object', $object);
+                $event->setParam('lang', $lang);
                 $this->app['dispatcher']->dispatch('pim.export.xml.item', $event);
 
             }
@@ -201,6 +211,7 @@ class ExportController extends BaseController
     private function loadFlatData(Request $request){
         $entityName         = $request->get('entity', 'Produkt');
         $where              = $request->get('where', null);
+        $lang               = $request->get('lang', null);
 
         if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
             throw new Exception("Export von $entityName verweigert.", 403);
@@ -210,6 +221,7 @@ class ExportController extends BaseController
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
+        $event->setParam('lang', $lang);
         $event->setParam('flatten', false);
         $event->setParam('order', null);
         $this->app['dispatcher']->dispatch('pim.export.csv-excel.before', $event);
@@ -222,7 +234,7 @@ class ExportController extends BaseController
         $api                = new Api($this->app, $request);
         $schema             = $api->getSchema();
         $entitySchema       = $schema[ucfirst($entityName)];
-        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten);
+        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
         $csvHeaderInited    = false;
         $csvHeader          = array('id' => APPCMS_ID_TYPE);
         $csvRows            = array();
@@ -260,6 +272,7 @@ class ExportController extends BaseController
                                 $event->setParam('request', $request);
                                 $event->setParam('flattenedValue', $flattenedValue);
                                 $event->setParam('value', $value);
+                                $event->setParam('lang', $lang);
                                 $this->app['dispatcher']->dispatch('pim.export.csv-excel.join.subitem', $event);
 
                                 $csvRow[] = $event->getParam('flattenedValue');
@@ -287,6 +300,7 @@ class ExportController extends BaseController
                                     $event->setParam('request', $request);
                                     $event->setParam('flattenedValue', $flattenedValue);
                                     $event->setParam('subobject', $subobject);
+                                    $event->setParam('lang', $lang);
                                     $this->app['dispatcher']->dispatch('pim.export.csv-excel.multijoin.subitem', $event);
 
                                     $values[] = $event->getParam('flattenedValue');
@@ -318,6 +332,7 @@ class ExportController extends BaseController
                     $event->setParam('request', $request);
                     $event->setParam('csvRow', $csvRow);
                     $event->setParam('object', $object);
+                    $event->setParam('lang', $lang);
                     $this->app['dispatcher']->dispatch('pim.export.csv-excel.item', $event);
 
                 }
