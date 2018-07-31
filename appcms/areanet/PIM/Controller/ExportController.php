@@ -96,7 +96,7 @@ class ExportController extends BaseController
             foreach ($data['objects'] as $object) {
                 $item = $xml->addChild('item');
                 $item->addAttribute('id', $object->id);
-               
+
                 foreach ($object as $key => $value) {
                     if (in_array($key, array('views', 'isIntern', 'id', 'permissions', 'lang'))) continue;
 
