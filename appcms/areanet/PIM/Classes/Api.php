@@ -13,6 +13,7 @@ use Areanet\PIM\Classes\Config\Adapter;
 use Areanet\PIM\Classes\Exceptions\File\FileExistsException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseI18n;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\File;
@@ -25,6 +26,8 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\Table;
+use PHPMailer\PHPMailer\Exception;
+use Ramsey\Uuid\Uuid;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -223,6 +226,12 @@ class Api
             $object->setUser($this->app['auth.user']);
         }
 
+        if($object instanceof BaseI18n && empty($data['id'])){
+            $uuid = Uuid::uuid4();
+            $object->setId($uuid);
+            //Todo: ID BEI INTEGER-WERTEN
+        }
+
         try {
 
             $this->em->persist($object);
@@ -328,7 +337,7 @@ class Api
      * @param User $user
      * @return JsonResponse
      */
-    public function doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass = null)
+    public function doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass = null, $lang = null)
     {
         $schema  = $this->app['schema'];
 
@@ -341,7 +350,17 @@ class Api
             throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
-        $object = $this->em->getRepository($entityPath)->find($id);
+        $object = null;
+
+        if($schema[$entityName]['settings']['i18n']){
+            if(empty($lang)){
+                throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+            }
+            $object = $this->em->getRepository($entityPath)->find(array('id' => $id, 'lang' => $lang));
+        }else{
+            $object = $this->em->getRepository($entityPath)->find($id);
+        }
+
         if(!$object){
             throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException();
 
@@ -709,7 +728,8 @@ class Api
                 'enabled' => Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
             ),
             'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT,
-            'exportMethods' => Adapter::getConfig()->APP_EXPORT_METHODS
+            'exportMethods' => Adapter::getConfig()->APP_EXPORT_METHODS,
+            'languages' => Adapter::getConfig()->APP_LANGUAGES
         );
 
         $uiblocks = $this->app['uiManager']->getBlocks();
@@ -755,7 +775,7 @@ class Api
     }
 
 
-    public function getList($entityName, $where = null, $order = null, $groupBy = null, $properties = array(), $lastModified = null, $flatten = false, $currentPage = 0, $itemsPerPage = 20){
+    public function getList($entityName, $where = null, $order = null, $groupBy = null, $properties = array(), $lastModified = null, $flatten = false, $currentPage = 0, $itemsPerPage = 20, $lang = null){
         if(!empty($lastModified)) {
             try {
                 $lastModified = new \Datetime($lastModified);
@@ -807,6 +827,13 @@ class Api
 
         if($lastModified){
             $queryBuilder->andWhere($entityNameAlias.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
+        }
+
+        if($schema[$entityName]['settings']['i18n']){
+            if(empty($lang)){
+                throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+            }
+            $queryBuilder->andWhere($entityNameAlias.'.lang = :lang')->setParameter('lang', $lang);
         }
 
         if($where){
@@ -976,7 +1003,12 @@ class Api
 
         if(count($properties) > 0){
             $partialProperties = implode(',', $properties);
-            $queryBuilder->select('partial '.$entityNameAlias.'.{id,'.$partialProperties.'}');
+            $partialDefaultPrperties = 'id,';
+            if($schema[$entityName]['settings']['i18n']){
+                $partialDefaultPrperties .= 'lang,';
+            }
+
+            $queryBuilder->select('partial '.$entityNameAlias.'.{'.$partialDefaultPrperties.$partialProperties.'}');
                         $query  = $queryBuilder->getQuery();
         }else{
             $queryBuilder->select($entityNameAlias);
@@ -1077,6 +1109,16 @@ class Api
 
             $annotationReader = new AnnotationReader();
 
+            $i18n = false;
+            if($object instanceof BaseI18n){
+
+                if(!defined('APP_CMS_MAIN_LANG')){
+                    throw new \Exception('contentfly_i18n_undefined_languages');
+                }
+
+                $i18n = true;
+            }
+
             $settings = array(
                 'label' => $entity,
                 'readonly' => false,
@@ -1095,8 +1137,10 @@ class Api
                     'default'   => array('title' => Adapter::getConfig()->FRONTEND_TAB_GENERAL_NAME, 'onejoin' => false)
                 ),
                 'dbname' => null,
-                'viewMode' => 0
+                'viewMode' => 0,
+                'i18n' => $i18n
             );
+
 
 
             if($object instanceof BaseSortable){
@@ -1239,7 +1283,7 @@ class Api
         return $data;
     }
 
-    public function getSingle($entityName, $id = null, $where = null){
+    public function getSingle($entityName, $id = null, $where = null, $lang = null){
 
         if (substr($entityName, 0, 3) == 'PIM') {
             $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
@@ -1257,9 +1301,17 @@ class Api
         }
 
         $object = null;
+        $schema = $this->app['schema'];
 
         if($id){
-            $object = $this->em->getRepository($entityNameToLoad)->find($id);
+            if($schema[$entityName]['settings']['i18n']){
+                if(empty($lang)){
+                    throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+                }
+                $object = $this->em->getRepository($entityNameToLoad)->find(array('id' => $id, 'lang' => $lang));
+            }else{
+                $object = $this->em->getRepository($entityNameToLoad)->find($id);
+            }
         }elseif($where){
             $object = $this->em->getRepository($entityNameToLoad)->findOneBy($where);
 

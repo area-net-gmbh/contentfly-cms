@@ -5,9 +5,10 @@
         .module('app')
         .controller('ErrorCtrl', ErrorCtrl);
 
-    function ErrorCtrl($scope, $cookies, localStorageService, $routeParams, $http){
+    function ErrorCtrl($scope, $cookies, localStorageService, $routeParams, $rootScope, $http){
         var vm = this;
 
+        vm.msg = $rootScope.error;
 
     }
 

@@ -347,6 +347,7 @@ class ApiController extends BaseController
      * @apiParam {Integer} [itemsPerPage="Config::FRONTEND_ITEMS_PER_PAGE"] Anzahl Objekte pro Seite bei Pagination
      * @apiParam {Boolean} [flatten="false"] Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
      * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
+     * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
      * @apiParamExample {json} Request-Beispiel mit Where-Abfrage:
      *     {
      *      "entity": "News",
@@ -396,13 +397,14 @@ class ApiController extends BaseController
         $itemsPerPage           = $request->get('itemsPerPage', Config\Adapter::getConfig()->FRONTEND_ITEMS_PER_PAGE);
         $flatten                = $request->get('flatten', false);
         $lastModified           = $request->get('lastModified', null);
+        $lang                   = $request->get('lang', null);
 
         $properties             = $request->get('properties', array());
         $properties             = is_array($properties) ? $properties : array();
 
         $api        = new Api($this->app, $request);
 
-        if(!($data = $api->getList($entityName, $where, $order, $groupBy, $properties, $lastModified, $flatten, $currentPage, $itemsPerPage))){
+        if(!($data = $api->getList($entityName, $where, $order, $groupBy, $properties, $lastModified, $flatten, $currentPage, $itemsPerPage, $lang))){
             return new JsonResponse(array('message' => "Not found"), 404);
         }
 
@@ -489,6 +491,7 @@ class ApiController extends BaseController
      *
      * @apiParam {String} entity zu aktualisierende Entity
      * @apiParam {Integer} id Zu aktualisierende Objekt-ID
+     * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
      * @apiParam {String=null} pass Passwort des eingeloggten Benutzers. Muss übergeben werden, wenn die pass-Property für Entität PIM\User unter data gesetzt wird.
      * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
      * @apiParamExample {json} Request-Beispiel:
@@ -507,6 +510,7 @@ class ApiController extends BaseController
     {
         $entityName          = $request->get('entity');
         $id                  = $request->get('id');
+        $lang                = $request->get('lang');
         $data                = $request->get('data');
         $currentUserPass     = $request->get('pass');
         $disableModifiedTime = $request->get('disableModifiedTime');
@@ -515,6 +519,7 @@ class ApiController extends BaseController
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
+        $event->setParam('lang',    $lang);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('data',    $data);
         $event->setParam('app',     $app);
@@ -525,7 +530,7 @@ class ApiController extends BaseController
 
         try{
             $api = new Api($this->app, $request);
-            $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass);
+            $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass, $lang);
         }catch(EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(EntityNotFoundException $e){
@@ -540,6 +545,7 @@ class ApiController extends BaseController
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
+        $event->setParam('lang',    $lang);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('data',    $data);
         $event->setParam('app',     $app);
@@ -570,6 +576,7 @@ class ApiController extends BaseController
      *
      * @apiParam {String} entity zu aktualisierende oder einzufügende Entity
      * @apiParam {Integer} id Objekt-ID (wenn vorhanden, wird das Objekt aktualisiert, ansonten neu angelegt)
+     * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
      * @apiParam {Object} data Daten des Objekts, abhhängig von der Entity
      * @apiParamExample {json} Request-Beispiel:
      *     {
@@ -586,6 +593,7 @@ class ApiController extends BaseController
     {
         $entityName          = $request->get('entity');
         $id                  = $request->get('id');
+        $lang                = $request->get('lang');
         $data                = $request->get('data');
 
         $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
@@ -593,7 +601,15 @@ class ApiController extends BaseController
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
-        $object = $this->em->getRepository($entityPath)->find($id);
+        $schema = $this->app['schema'];
+        $object = null;
+
+        if($schema[$entityName]['settings']['i18n']) {
+            $object = $this->em->getRepository($entityPath)->find(array('id' => $id, 'lang' => $lang));
+        }else{
+            $object = $this->em->getRepository($entityPath)->find($id);
+        }
+
         if(!$object){
             $subRequest = Request::create('/api/insert', 'POST', $request->attributes->all(), $request->cookies->all(), $request->files->all(), $request->server->all(), $request->getContent());
 
@@ -662,6 +678,7 @@ class ApiController extends BaseController
      *
      * @apiParam {String} entity Auszulesende Entity
      * @apiParam {String/Integer} id = null ID des Objektes
+     * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
      * @apiParam {Object} where = null Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
      * @apiParamExample {json} Request-Beispiel über ID:
      *     {
@@ -693,10 +710,11 @@ class ApiController extends BaseController
 
         $entityName = $request->get('entity');
         $id         = $request->get('id');
+        $lang       = $request->get('lang');
         $where      = $request->get('where');
 
         $api  = new Api($this->app);
-        $data = $api->getSingle($entityName, $id, $where);
+        $data = $api->getSingle($entityName, $id, $where, $lang);
 
         return $this->renderResponse(array('data' => $data));
 
