@@ -60,8 +60,31 @@ if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
 }
 
 
-ExceptionHandler::register();
+
+
+
 ErrorHandler::register();
+
+$handler = Symfony\Component\Debug\ExceptionHandler::register($app['debug']);
+$handler->setHandler(function ($exception) use ($app) {
+
+    // Create an ExceptionEvent with all the informations needed.
+    $event = new Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent(
+        $app,
+        $app['request'],
+        Symfony\Component\HttpKernel\HttpKernelInterface::MASTER_REQUEST,
+        $exception
+    );
+
+    // Hey Silex ! We have something for you, can you handle it with your exception handler ?
+    $app['dispatcher']->dispatch(Symfony\Component\HttpKernel\KernelEvents::EXCEPTION, $event);
+
+    // And now, just display the response ;)
+    $response = $event->getResponse();
+    $response->sendHeaders();
+    $response->sendContent();
+});
+
 
 $app->error(function (\Exception $e, Request $request, $code) use($app) {
 

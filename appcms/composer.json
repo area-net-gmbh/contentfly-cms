@@ -6,7 +6,8 @@
         "knplabs/console-service-provider": "^2.1.0",
         "doctrine/dbal": "^2.6.3",
         "symfony/validator": "4.0.4",
-        "ellumilel/php-excel-writer": "^0.1.6"
+        "ellumilel/php-excel-writer": "^0.1.6",
+        "ramsey/uuid": "^3.8"
     },
     "autoload": {
         "psr-4": {

@@ -38,6 +38,13 @@
       return;
     }
 
+    vm.i18n         = vm.schema.settings.i18n;
+    vm.currentLang  = null;
+
+    if(vm.i18n){
+      vm.currentLang =   vm.frontend.languages ? vm.frontend.languages[0] : null;
+    }
+
     vm.sortProperty = vm.schema.settings.sortBy;
     vm.sortOrder    = vm.schema.settings.sortOrder;
     vm.sortableOptions = {
@@ -82,6 +89,7 @@
     //Functions
     vm.back                 = back;
     vm.closeFilter          = closeFilter;
+    vm.changeLang           = changeLang;
     vm.delete               = doDelete;
     vm.executeFilter        = executeFilter;
     vm.exportData           = exportData;
@@ -118,6 +126,11 @@
 
     function closeFilter(){
       vm.filterIsOpen = false;
+    }
+
+    function changeLang(lang){
+      vm.currentLang = lang;
+      loadData();
     }
 
     function doDelete(object){
@@ -380,7 +393,8 @@
         order: sortSettings,
         where: filter,
         properties: properties,
-        flatten:false
+        flatten:false,
+        lang: vm.currentLang
       };
       EntityService.list(data).then(
         function successCallback(response) {
@@ -405,6 +419,7 @@
         function errorCallback(response) {
           vm.objectsAvailable = false;
           vm.objectsNotAvailable = true;
+          vm.countLabel = '0 Datensätze';
 
           if(response.status == 401){
             var modalInstance = $uibModal.open({
@@ -422,6 +437,26 @@
                 $location.path('/logout');
               }
             );
+          }
+
+          if(response.status == 500) {
+            var modalInstance = $uibModal.open({
+              templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
+              controller: 'ModalCtrl as vm',
+              resolve: {
+                title: function () {
+                  return 'Serverfehler';
+                },
+                body: function () {
+                  return response.data.message;
+                },
+                hideCancelButton: function () {
+                  return false;
+                }
+              }
+            });
+
+
           }
 
           if(response.status == 403){

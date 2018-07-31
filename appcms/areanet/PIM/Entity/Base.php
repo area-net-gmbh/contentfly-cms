@@ -304,8 +304,6 @@ class Base extends Serializable
     {
         $this->groups = $groups;
     }
-    
-    
 
     
 
