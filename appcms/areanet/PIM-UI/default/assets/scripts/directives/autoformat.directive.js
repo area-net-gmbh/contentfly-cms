@@ -36,6 +36,7 @@
                             element.text(scope.object[property] ? 'Ja' : 'Nein');
                             break;
                         case 'join':
+                        case 'radio':
                             var fullEntity    = scope.schema.properties[property].accept.split('\\');
                             var entity        = fullEntity[(fullEntity.length - 1)];
                             if(fullEntity[0] == 'Areanet'){

@@ -7,9 +7,9 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_option")
- * @PIM\Config(label="Optionen", labelProperty="value", sortBy="value", sortOrder="ASC")
+ * @PIM\Config(label="Option", labelProperty="value", sortBy="sorting", sortOrder="ASC")
  */
-class Option extends Base
+class Option extends BaseSortable
 {
 
     /**
@@ -21,7 +21,7 @@ class Option extends Base
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\OptionGroup")
      * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
-     * @PIM\Config(label="Gruppe", showInList=15, isFilterable=true, readonly=true)
+     * @PIM\Config(label="Optionen Gruppe", showInList=15, isFilterable=true, readonly=true)
      */
     protected $group;
 
