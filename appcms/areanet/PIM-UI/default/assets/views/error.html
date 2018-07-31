@@ -2,7 +2,7 @@
 <div class="row header ">
     <div class="col-sm-6 col-sm-offset-1">
         <pim-plugin key="DASHBOARD_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <h3><span class="glyphicon glyphicon-exclamation-sign"></span> Zugriff nicht gestattet</h3>
+        <h3><span class="glyphicon glyphicon-exclamation-sign"></span> Leider ist ein Fehler aufgetreten...</h3>
         <pim-plugin key="DASHBOARD_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
 </div>
@@ -10,7 +10,8 @@
 <div class="row header-analytics">
     <pim-plugin key="DASHBOARD_BODY_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="col-sm-11 col-sm-offset-1">
-        <p>Der Zuriff auf die angeforderte Ressource wurde vom Server leider nicht gestattet!</p>
+        <p ng-if="vm.msg"><b>{{vm.msg}}</b></p>
+        <p ng-if="!vm.msg"><b>Der Zuriff auf die angeforderte Ressource wurde vom Server leider nicht gestattet!</b></p>
     </div>
     <pim-plugin key="DASHBOARD_BODY_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin>
 </div>

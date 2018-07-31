@@ -43,6 +43,10 @@ $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 define('APP_CMS_SHOW_ID_IN_LIST', Config\Adapter::getConfig()->FRONTEND_SHOW_ID_IN_LIST);
 define('APP_CMS_SHOW_OWNER_IN_LIST', Config\Adapter::getConfig()->FRONTEND_SHOW_OWNER_IN_LIST);
 
+if(Config\Adapter::getConfig()->APP_LANGUAGES){
+    define('APP_CMS_MAIN_LANG', Config\Adapter::getConfig()->APP_LANGUAGES[0]);
+}
+
 if($app['is_installed']) {
     if (Config\Adapter::getConfig()->DB_GUID_STRATEGY) {
         define('APPCMS_ID_TYPE', 'string');

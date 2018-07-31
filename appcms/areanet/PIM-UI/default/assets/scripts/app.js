@@ -48,7 +48,11 @@
 
             $http({
                 method: 'GET',
-                url: '/api/config'
+                url: '/api/config',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                data: ''
             }).then(function successCallback(response) {
                 if($rootScope.version != response.data.version){
                     $rootScope.newVersion = response.data.version;
@@ -57,6 +61,8 @@
                 }
             }, function errorCallback(response) {
                 $rootScope.newVersion = null;
+                $rootScope.error = response.data.message;
+                $location.path("/error");
             });
 
             if(next.secure){
@@ -72,7 +78,7 @@
                     $rootScope.schema = localStorageService.get('schema');
                     $rootScope.permissions = localStorageService.get('permissions');
                     $rootScope.uiblocks = localStorageService.get('uiblocks');
-                  
+                  console.log($rootScope.schema);
                     var entities = {};
                     for (var entity in $rootScope.schema) {
                         if(entity == '_hash') continue;
