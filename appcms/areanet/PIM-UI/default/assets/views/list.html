@@ -5,13 +5,13 @@
         <h3>{{::vm.schema.settings.label}} anzeigen<br><small>{{vm.countLabel}}</small></h3>
 
         <pim-plugin key="LIST_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
-        <div class="btn-group btn-sorting" uib-dropdown>
+        <div class="btn-group btn-sorting" uib-dropdown ng-if="vm.i18n">
             <button class="btn btn-default" id="dropdown-i18n" type="button" uib-dropdown-toggle>
-                {{vm.currentLang}}
+                <span class="lang-sm lang-lbl-full" lang="{{vm.currentLang}}"></span>
             </button>
             <ul uib-dropdown-menu aria-labelledby="dropdown-i18n" class="dropdown">
                 <pim-plugin key="LIST_HEADER_I18N_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li ng-repeat="lang in vm.frontend.languages"><a ng-click="vm.changeLang(lang)">{{lang}}</a></li>
+                <li ng-repeat="lang in vm.frontend.languages"><a ng-click="vm.changeLang(lang)"><span class="lang-sm lang-lbl-full" lang="{{lang}}"></span> </a></li>
                 <pim-plugin key="LIST_HEADER_I18N_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </div>
