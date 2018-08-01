@@ -266,21 +266,18 @@
       };
       EntityService.exportData(type, data).then(
         function successCallback(response) {
-          switch(type){
-            case 'csv':
-              //console.log(response.data);
-              var data = new Blob([response.data], { type: 'text/csv' });
-              FileSaver.saveAs(data, vm.entity.toLowerCase() + '.csv');
-              break;
-            case 'excel':
-              var data = new Blob([response.data], { type: 'application/vnd.ms-excel' });
-              FileSaver.saveAs(data, vm.entity.toLowerCase() +  '.xlsx');
-              break;
-            case 'xml':
-              var data = new Blob([response.data], { type: 'text/xml' });
-              FileSaver.saveAs(data, vm.entity.toLowerCase() + '.xml');
-              break;
+          var contentDisposition = response.headers('Content-Disposition');
+          var filename = 'export';
+          if(contentDisposition){
+            var fnIndex = contentDisposition.indexOf("filename=");
+            if(fnIndex >= 0){
+              filename = contentDisposition.substr(fnIndex + 9);
+            }
           }
+
+          var data = new Blob([response.data], { type: response.data.type });
+          FileSaver.saveAs(data, filename);
+
           vm.isExporting = false;
 
         },

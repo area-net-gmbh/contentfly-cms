@@ -205,7 +205,7 @@ class Config{
     /**
      * @var array Export-Methoden
      */
-    public $APP_EXPORT_METHODS = array('csv' => 'CSV', 'excel' => 'Excel', 'xml' => 'XML');
+    public $APP_EXPORT_METHODS = array('csv' => 'CSV', 'excel' => 'EXCEL', 'json' => 'JSON', 'xml' => 'XML');
 
     /**
      * @var string Export-Controller
