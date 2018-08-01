@@ -1078,8 +1078,9 @@ class Api
         $entityFolder = ROOT_DIR.'/../custom/Entity/';
 
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
-            if($fileInfo->isDot()) continue;
+            if($fileInfo->isDot() || $fileInfo->getExtension() != 'php') continue;
             if(substr($fileInfo->getBasename('.php'), 0, 1) == '.') continue;
+
             $entities[] = $fileInfo->getBasename('.php');
         }
         $entities[] = "PIM\\File";
