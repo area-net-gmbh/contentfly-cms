@@ -56,11 +56,64 @@ class ExportController extends BaseController
 
     }
 
+    public function jsonAction(Request $request)
+    {
+        $entityName         = $request->get('entity', 'Produkt');
+        $where              = $request->get('where', null);
+        $flatten            = $request->get('flatten', true);
+        $lang               = $request->get('lang', null);
+
+        if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
+            throw new Exception("Export von $entityName verweigert.", 403);
+        }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('where', $where);
+        $event->setParam('lang', $lang);
+        $event->setParam('flatten', $flatten);
+        $event->setParam('order', null);
+        $this->app['dispatcher']->dispatch('pim.export.json.before', $event);
+
+        $flatten    = $event->getParam('flatten');
+        $order      = $event->getParam('order');
+        $where      = $event->getParam('where');
+
+        $api                = new Api($this->app, $request);
+        $schema             = $api->getSchema();
+        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
+
+        $response = new Response();
+        $response->headers->set('Content-Type', 'text/json');
+        $response->headers->set('Content-Disposition', 'attachment; filename=export.json');
+
+        if(!$data){
+            $response->setContent(json_encode(array()));
+            return $response;
+        }
+
+        $event = new \Areanet\PIM\Classes\Event();
+        $event->setParam('entity',  $entityName);
+        $event->setParam('request', $request);
+        $event->setParam('where', $where);
+        $event->setParam('lang', $lang);
+        $event->setParam('flatten', $flatten);
+        $event->setParam('objects', $data['objects']);
+        $this->app['dispatcher']->dispatch('pim.export.json.after', $event);
+
+        $output = json_encode($event->getParam('objects'));
+        $response->setContent($output);
+        return $response;
+
+    }
+
     public function xmlAction(Request $request){
 
         $entityName         = $request->get('entity', 'Produkt');
         $where              = $request->get('where', null);
         $lang               = $request->get('lang', null);
+        $flatten            = $request->get('flatten', true);
 
         if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
             throw new Exception("Export von $entityName verweigert.", 403);
