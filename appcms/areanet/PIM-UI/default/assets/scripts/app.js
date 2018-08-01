@@ -78,7 +78,7 @@
                     $rootScope.schema = localStorageService.get('schema');
                     $rootScope.permissions = localStorageService.get('permissions');
                     $rootScope.uiblocks = localStorageService.get('uiblocks');
-                  console.log($rootScope.schema);
+
                     var entities = {};
                     for (var entity in $rootScope.schema) {
                         if(entity == '_hash') continue;
