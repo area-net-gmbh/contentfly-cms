@@ -50,6 +50,7 @@ class ExportController extends BaseController
         $response = new Response();
         $response->headers->set('Content-Type', 'application/vnd.ms-excel');
         $response->headers->set('Content-Disposition', 'attachment; filename=export.xlsx');
+        //$response->headers->set
         $output = $wExcel->writeToString();
         $response->setContent($output);
         return $response;
@@ -112,6 +113,7 @@ class ExportController extends BaseController
 
         $entityName         = $request->get('entity', 'Produkt');
         $where              = $request->get('where', null);
+        $flatten            = $request->get('flatten', true);
         $lang               = $request->get('lang', null);
         $flatten            = $request->get('flatten', true);
 
