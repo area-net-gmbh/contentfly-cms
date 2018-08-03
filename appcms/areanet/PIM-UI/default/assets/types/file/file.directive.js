@@ -29,6 +29,7 @@
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
+                scope.openFile      = openFile;
                 scope.removeFile    = removeFile;
                 scope.uploadFile    = uploadFile;
 
@@ -58,9 +59,18 @@
 
                     modalInstance.result.then(function (fileData) {
                         var accept = scope.config.accept.replace('*', '');
-                        var fileDataType = fileData.type.substr(0, accept.length);
+                        accept = accept.split(',');
+                        var fileDataType = fileData.type;
+                        var matches = false;
 
-                        if (accept != fileDataType) {
+                        for(var i = 0; i < accept.length; i++) {
+                            if(fileDataType.includes(accept[i])) {
+                                matches = true;
+                                break;
+                            }
+                        }
+
+                        if(!matches) {
                             var modalInstance = $uibModal.open({
                                 templateUrl: '/ui/default/views/partials/modal.html',
                                 controller: 'ModalCtrl as vm',
@@ -131,6 +141,10 @@
                         },
                         function () {}
                     );
+                }
+
+                function openFile() {
+                    window.open('/file/get/'+scope.value.id+'/'+scope.value.name, '_blank');
                 }
 
                 function init(){

@@ -45,6 +45,7 @@
         vm.sortBy               = sortBy;
         vm.uploadFile           = uploadFile;
         vm.uploadMultiFile      = uploadMultiFile;
+        vm.openFile             = openFile;
 
         //Startup
         init();
@@ -69,6 +70,10 @@
             }
 
             vm.filterBadge = badgeCount;
+        }
+
+        function openFile(id, name) {
+            window.open('/file/get/'+id+'/'+name, '_blank');
         }
 
         function doDelete(id, name){
