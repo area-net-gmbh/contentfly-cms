@@ -82,7 +82,9 @@
                             entity: function(){ return entity;},
                             title: function(){ return 'Neues Objekt anlegen'; },
                             object: function(){ return object; },
-                            readonly: false
+                            readonly: false,
+                            lang: function(){ return scope.object.lang;},
+                            translateFrom:  function(){ null;}
                         },
                         size: 'xl'
                     });
@@ -109,7 +111,9 @@
                         resolve: {
                             entity: function(){ return entity;},
                             object: function(){ return object; },
-                            readonly: false
+                            readonly: false,
+                            lang: function(){ return scope.object.lang;},
+                            translateFrom:  function(){ null;}
                         },
                         size: 'xl'
                     });

@@ -93,7 +93,10 @@
                         resolve: {
                             entity: function(){ return 'PIM\\File';},
                             title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
-                            object: function(){ return scope.value; }
+                            object: function(){ return scope.value; },
+                            lang: function(){ return null},
+                            translateFrom:  function(){ return null},
+                            readonly: false
                         },
                         size: 'xl'
                     });

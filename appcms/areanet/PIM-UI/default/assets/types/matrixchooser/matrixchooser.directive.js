@@ -10,7 +10,7 @@
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&', object: '='
             },
             templateUrl: function () {
                 return '/ui/default/types/matrixchooser/matrixchooser.html?v=' + APP_VERSION
@@ -57,7 +57,9 @@
                             entity: function(){ return id ? entityChooser2 : entityChooser1;},
                             title: function(){ return 'Neues Objekt anlegen'; },
                             object: function(){ return null; },
-                            readonly: false
+                            readonly: false,
+                            lang: function(){ return scope.object.lang;},
+                            translateFrom:  function(){ null;}
                         },
                         size: 'lg'
                     });
