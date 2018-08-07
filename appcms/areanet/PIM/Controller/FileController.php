@@ -82,7 +82,13 @@ class FileController extends BaseController
 
             $hash = md5_file($file->getRealPath());
 
-            list($width, $height) = getimagesize($file->getRealPath());
+            $width  = null;
+            $height = null;
+            try{
+                list($width, $height) = getimagesize($file->getRealPath());
+            }catch(\Exception $e){
+
+            }
 
             if($width){
                 $fileObject->setWidth($width);
@@ -115,7 +121,13 @@ class FileController extends BaseController
                 $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
             }
 
-            list($width, $height) = getimagesize($file->getRealPath());
+            $width  = null;
+            $height = null;
+            try{
+                list($width, $height) = getimagesize($file->getRealPath());
+            }catch(\Exception $e){
+
+            }
 
             $extension      = $file->getClientOriginalExtension();
             $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
@@ -420,7 +432,13 @@ class FileController extends BaseController
 
         $this->em->remove($fileSource);
 
-        list($width, $height) = getimagesize($pathDest.'/'.$fileInfo->getBasename());
+        $width  = null;
+        $height = null;
+        try{
+            list($width, $height) = getimagesize($pathDest.'/'.$fileInfo->getBasename());
+        }catch(\Exception $e){
+
+        }
 
         if($width){
             $fileDest->setWidth($width);
