@@ -95,31 +95,6 @@
                     });
                 }
 
-                function addVideo(){
-                    var modalInstance = $uibModal.open({
-                        templateUrl: '/ui/default/views/partials/video-add.html',
-                        controller: 'VideoAddCtrl as vm',
-                        resolve: {
-                            modaltitle: function () {
-                                return 'Neues Youtube-Video hinzufügen';
-                            },
-                            property: function () {
-                                return scope.key;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(
-                        function (fileData) {
-                            if (fileData) {
-                                scope.value = fileData;
-                                scope.onChangeCallback({key: scope.key, value: fileData['id']});
-                            }
-                        },
-                        function () {}
-                    );
-                }
-
                 function editFile(){
                     
                     var modalInstance = $uibModal.open({
