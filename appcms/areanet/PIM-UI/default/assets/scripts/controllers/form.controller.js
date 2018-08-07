@@ -5,7 +5,7 @@
         .module('app')
         .controller('FormCtrl', FormCtrl);
 
-    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, lang, Upload, moment, EntityService, FileService, readonly) {
+    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, lang, translateFrom, Upload, moment, EntityService, FileService, readonly) {
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
@@ -168,11 +168,11 @@
 
             vm.doSave = true;
 
-            if (!vm.object['id']) {
+            if (!vm.object['id'] || translateFrom) {
 
                 var data = {
-                    entity: entity,
-                    data: objectDataToSave,
+                   entity: entity,
+                   data: objectDataToSave,
                    lang: lang
                 };
 
@@ -180,7 +180,14 @@
                     function successCallback(response) {
                         vm.doSave       = false;
                         vm.object.id    = response.data.id;
-                        if(andClose) $uibModalInstance.close(response.data.data);
+                        if(andClose){
+                          if(translateFrom){
+                            $uibModalInstance.close();
+                          }else{
+                            $uibModalInstance.close(response.data.data);
+                          }
+
+                        }
                     },
                     function errorCallback(response) {
 
@@ -195,7 +202,12 @@
 
                             modalInstance.result.then(
                                 function () {
-                                    doSave(vm.object);
+                                    if(translateFrom){
+                                      doSave();
+                                    }else{
+                                      doSave(vm.object);
+                                    }
+
                                 },
                                 function () {
                                     $uibModalInstance.close();
@@ -305,6 +317,10 @@
                 }else{
                   vm.modaltitle2 = object.id;
                 }
+
+                if(translateFrom){
+                  vm.object.lang = lang;
+                }
             }else{
               vm.modaltitle1 = '';
               vm.modaltitle2 = vm.schema.settings.label + ' anlegen';
@@ -334,15 +350,25 @@
                 return;
             }
 
+            var frontend    = localStorageService.get('frontend');
+            var currentLang = frontend.languages ? frontend.languages[0] : null
+
             var data = {
                 entity: entity,
                 id: object.id,
-                lang: lang
+                lang: translateFrom ? translateFrom : lang,
+                compareToLang: translateFrom ? lang : currentLang,
+                loadJoinedLang: translateFrom ? lang : null
             };
 
             EntityService.single(data).then(
                 function(response){
                     vm.object = response.data.data;
+
+                      if(translateFrom){
+                        vm.object.lang = lang;
+                      }
+
                     vm.isLoading = false;
                 },
                 function(data){
@@ -371,10 +397,20 @@
                             controller: 'ModalCtrl as vm',
                             resolve: {
                                 title: function () {
-                                    return data.statusText;
+                                    return data.status == 550 ? 'Fehlende Übersetzungen' : data.statusText;
                                 },
                                 body: function () {
-                                    return data.data.message;
+                                    var text =  data.data.message;
+
+                                    if(data.data.message_value){
+                                      text += ' (' + data.data.message_value + ')';
+                                    }
+
+                                  if(data.data.message_entity){
+                                    text += ' (' + data.data.message_entity + ')';
+                                  }
+
+                                    return text;
                                 },
                                 hideCancelButton: function () {
                                     return false;
@@ -384,7 +420,12 @@
 
                         modalInstance.result.then(
                             function (doDelete) {
+                                if(data.status == 550){
+                                  $location.path('/list/' + data.data.message_entity).search({lang: lang, untranslatedLang: data.data.message_lang});
+                                }
+
                                 $uibModalInstance.close();
+
                             },
                             function () {
                                 $uibModalInstance.close();

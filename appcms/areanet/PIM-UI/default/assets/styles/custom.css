@@ -84,6 +84,14 @@ body {
     display:none;
 }
 
+.pointer{
+    cursor: pointer;
+}
+
+.pointer:hover{
+    text-decoration: underline;
+}
+
 
 
 div[pim-block-extend]{
@@ -336,6 +344,13 @@ p.error{
 
 label.optional{
     font-weight: normal;
+}
+
+.i18n_universal label::before {
+    font-family: 'Glyphicons Halflings';
+    content: "\e135";
+    margin-right:4px;
+    color:#666666;
 }
 
 .has-error .control-label.optional{

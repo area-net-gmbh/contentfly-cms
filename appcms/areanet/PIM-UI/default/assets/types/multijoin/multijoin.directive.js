@@ -10,7 +10,7 @@
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isValid: '=',  isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', object: "=", value: '=', isValid: '=',  isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
                 return '/ui/default/types/multijoin/multijoin.html?v=' + APP_VERSION
@@ -295,7 +295,8 @@
                         currentPage: scope.currentPage,
                         itemsPerPage: itemsPerPage,
                         where: where,
-                        properties: properties
+                        properties: properties,
+                        lang: scope.object.lang
                     };
                     EntityService.list(data).then(
                         function successCallback(response) {

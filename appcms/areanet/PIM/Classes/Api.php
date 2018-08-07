@@ -10,6 +10,8 @@ namespace Areanet\PIM\Classes;
 
 
 use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Exceptions\ContentflyI18NException;
 use Areanet\PIM\Classes\Exceptions\File\FileExistsException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Entity\Base;
@@ -22,10 +24,13 @@ use Areanet\PIM\Entity\User;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Mapping\MappedSuperclass;
 use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Expr\Join;
 use PHPMailer\PHPMailer\Exception;
 use Ramsey\Uuid\Uuid;
 use Silex\Application;
@@ -68,7 +73,7 @@ class Api
         $this->request          = $request;
     }
 
-    public function doDelete($entityName, $id){
+    public function doDelete($entityName, $id, $lang = null){
         $schema = $this->app['schema'];
 
         $entityPath = 'Custom\Entity\\'.$entityName;
@@ -76,13 +81,14 @@ class Api
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
-        if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
-        }
+        $object = $this->getSingle($entityName, $id, null, $lang, true);
 
-        $object = $this->em->getRepository($entityPath)->find($id);
         if(!$object){
             throw new \Exception("Das Objekt wurde nicht gefunden.", 404);
+        }
+
+        if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
@@ -104,6 +110,19 @@ class Api
                 throw new \Exception("Der Hauptadministrator kann nicht gelöscht werden.", 400);
             }
 
+        }
+
+        if($schema[ucfirst($entityName)]['settings']['i18n']){
+            $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
+
+            if($object->getLang() != $mainLang){
+                $query = $this->em->createQuery("SELECT COUNT(e) FROM $entityPath e WHERE e.id = :id");
+                $query->setParameter('id', $object->getId());
+
+                if($query->getSingleScalarResult() > 1){
+                    throw new ContentflyI18NException("contentfly_i18n_translations_exists", $entityName, $mainLang);
+                }
+            }
         }
 
         $parent = null;
@@ -149,6 +168,8 @@ class Api
         $this->em->persist($log);
         $this->em->flush();
 
+
+        //OneJoins löschen
         foreach($schema[ucfirst($entityName)]['properties'] as $property => $propertyConfig){
             if($propertyConfig['type'] == 'onejoin'){
                 $getterJoinedEntity = 'get'.ucfirst($property);
@@ -157,6 +178,19 @@ class Api
             }
         }
 
+        //Bei Hauptsprache, alle Subsprachen mitlöschen
+        if($schema[ucfirst($entityName)]['settings']['i18n']){
+            $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
+
+            if($object->getLang() == $mainLang){
+                $query = $this->em->createQuery("DELETE FROM $entityPath e WHERE e.id = :id AND NOT e.lang = :lang");
+                $query->setParameter('id', $object->getId());
+                $query->setParameter('lang', $mainLang);
+                $query->execute();
+            }
+        }
+
+        //Objekt löschen
         $this->em->remove($object);
         $this->em->flush();
 
@@ -217,7 +251,11 @@ class Api
                 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
             }
 
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user'], $data);
+            if($type == 'onejoin'){
+                unset($value['id']);
+            }
+
+            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user'], $data, $lang);
 
         }
 
@@ -226,10 +264,11 @@ class Api
             $object->setUser($this->app['auth.user']);
         }
 
-        if($object instanceof BaseI18n && empty($data['id'])){
-            $uuid = Uuid::uuid4();
-            $object->setId($uuid);
-            //Todo: ID BEI INTEGER-WERTEN
+        if($object instanceof BaseI18n){
+            if(empty($data['id'])){
+                $uuid = Uuid::uuid4();
+                $object->setId($uuid);
+            }
 
             if(empty($lang)){
                 throw new \Exception('contentfly_i18n_missing_lang_param', 500);
@@ -343,7 +382,7 @@ class Api
      * @param User $user
      * @return JsonResponse
      */
-    public function doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass = null, $lang = null)
+    public function doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass = null, $lang = null, $isUnviversalUpdate = false)
     {
         $schema  = $this->app['schema'];
 
@@ -352,24 +391,15 @@ class Api
             $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
         }
 
-        if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
-        }
-
-        $object = null;
-
-        if($schema[$entityName]['settings']['i18n']){
-            if(empty($lang)){
-                throw new \Exception('contentfly_i18n_missing_lang_param', 500);
-            }
-            $object = $this->em->getRepository($entityPath)->find(array('id' => $id, 'lang' => $lang));
-        }else{
-            $object = $this->em->getRepository($entityPath)->find($id);
-        }
+        $object = $this->getSingle($entityName, $id, null, $lang, true);
 
         if(!$object){
             throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException();
 
+        }
+
+        if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
@@ -391,6 +421,13 @@ class Api
             }
         }
 
+        $i18nObjects    = array();
+        $i18nProperties = array();
+        if($schema[ucfirst($entityName)]['settings']['i18n'] && !$isUnviversalUpdate){
+            $tableName   = $schema[ucfirst($entityName)]['settings']['dbname'];
+            $query       = $this->database->executeQuery("SELECT id, lang FROM $tableName WHERE id = ? AND NOT lang = ? ", array($object->getId(), $object->getLang()));
+            $i18nObjects = $query->fetchAll();
+        }
 
         foreach($data as $property => $value){
             if($property == 'modified' || $property == 'created') continue;
@@ -406,9 +443,10 @@ class Api
                 throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
             }
 
-
-
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user']);
+            if(!empty($schema[ucfirst($entityName)]['properties'][$property]['i18n_universal']) && count($i18nObjects)){
+                $i18nProperties[$property] = $value;
+            }
+            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user'], null, $lang);
 
         }
 
@@ -416,9 +454,11 @@ class Api
             if($propertyConfig['type'] == 'onejoin'){
                 $getterJoinedEntity = 'get'.ucfirst($property);
                 $joinedEntity       = $object->$getterJoinedEntity();
-                $joinedEntity->setUsers($object->getUsers(true));
-                $joinedEntity->setGroups($object->getGroups(true));
-                $joinedEntity->setUserCreated($object->getUserCreated());
+                if($joinedEntity){
+                    $joinedEntity->setUsers($object->getUsers(true));
+                    $joinedEntity->setGroups($object->getGroups(true));
+                    $joinedEntity->setUserCreated($object->getUserCreated());
+                };
             }
         }
 
@@ -430,7 +470,7 @@ class Api
                 $object->doDisableModifiedTime(true);
             }
 
-            $this->em->persist($object);
+            //$this->em->merge($object);
             $this->em->flush();
 
         }catch(UniqueConstraintViolationException $e){
@@ -441,27 +481,37 @@ class Api
 
                 throw new FileExistsException("Die Datei ist in diesem Ordner bereits vorhanden. Wollen Sie die bestehende Datei überschreiben?", $existingFile->getId());
             }else{
+
                 throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein gleicher Eintrag ist bereits vorhanden.");
             }
         }
+
         /**
          * Log update actions
          */
-        $log = new Log();
+        if(!$isUnviversalUpdate) {
+            $log = new Log();
 
-        $log->setModelId($object->getId());
-        $log->setModelName(ucfirst($entityName));
-        $log->setUserCreated($this->app['auth.user']);
-        $log->setMode(Log::UPDATED);
+            $log->setModelId($object->getId());
+            $log->setModelName(ucfirst($entityName));
+            $log->setUserCreated($this->app['auth.user']);
+            $log->setMode(Log::UPDATED);
 
-        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
-            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
-            $label = $object->$labelGetter();
-            $log->setModelLabel($label);
+            if ($schema[ucfirst($entityName)]['settings']['labelProperty']) {
+                $labelGetter = 'get' . ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+                $label = $object->$labelGetter();
+                $log->setModelLabel($label);
+            }
+
+            $this->em->persist($log);
+            $this->em->flush();
         }
 
-        $this->em->persist($log);
-        $this->em->flush();
+        if(count($i18nProperties) && count($i18nObjects)) {
+            return array('i18nObjects' => $i18nObjects, 'i18nProperties' => $i18nProperties);
+        }else{
+            return null;
+        }
     }
 
 
@@ -781,7 +831,7 @@ class Api
     }
 
 
-    public function getList($entityName, $where = null, $order = null, $groupBy = null, $properties = array(), $lastModified = null, $flatten = false, $currentPage = 0, $itemsPerPage = 20, $lang = null){
+    public function getList($entityName, $where = null, $order = null, $groupBy = null, $properties = array(), $lastModified = null, $flatten = false, $currentPage = 0, $itemsPerPage = 20, $lang = null, $untranslatedLang = null){
         if(!empty($lastModified)) {
             try {
                 $lastModified = new \Datetime($lastModified);
@@ -831,7 +881,9 @@ class Api
             }
         }
 
-        if($lastModified){
+
+
+        if($lastModified && !$untranslatedLang){
             $queryBuilder->andWhere($entityNameAlias.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
         }
 
@@ -839,13 +891,27 @@ class Api
             if(empty($lang)){
                 throw new \Exception('contentfly_i18n_missing_lang_param', 500);
             }
-            $queryBuilder->andWhere($entityNameAlias.'.lang = :lang')->setParameter('lang', $lang);
+
+            if($untranslatedLang){
+                $queryBuilder->andWhere($entityNameAlias.'.lang = :lang')->setParameter('lang', $untranslatedLang);
+                $queryBuilder->andWhere(
+                    $queryBuilder->expr()->notIn(
+                        $entityNameAlias.'.id',
+                        $this->em->createQueryBuilder()
+                            ->select($entityNameAlias.'sub.id')
+                            ->from($entityNameToLoad, $entityNameAlias.'sub')
+                            ->where($entityNameAlias."sub.lang = :sublang")
+                            ->getDQL()
+                    )
+                )->setParameter('sublang', $lang);
+            }else{
+                $queryBuilder->andWhere($entityNameAlias.'.lang = :lang')->setParameter('lang', $lang);
+            }
         }
 
-        if($where){
+        if($where && !$untranslatedLang){
             $placeholdCounter   = 0;
             $joinedCounter      = 0;
-
             foreach($where as $field => $value){
 
                 if(!isset($schema[$entityName]['properties'][$field])){
@@ -893,6 +959,8 @@ class Api
                                 $queryBuilder->setParameter($field, $value);
                                 $placeholdCounter++;
                             }
+
+
                             break;
                         case 'virtualjoin':
 
@@ -1007,7 +1075,8 @@ class Api
             $queryBuilder->groupBy($entityNameAlias.".".$groupBy);
         }
 
-        if(count($properties) > 0){
+
+        if(count($properties)){
             $partialProperties = implode(',', $properties);
             $partialDefaultPrperties = 'id,';
             if($schema[$entityName]['settings']['i18n']){
@@ -1015,12 +1084,34 @@ class Api
             }
 
             $queryBuilder->select('partial '.$entityNameAlias.'.{'.$partialDefaultPrperties.$partialProperties.'}');
-                        $query  = $queryBuilder->getQuery();
+
         }else{
             $queryBuilder->select($entityNameAlias);
-            $query = $queryBuilder->getQuery();
+
         }
 
+        if(!$flatten) {
+            foreach ($schema[$entityName]['properties'] as $field => $config) {
+
+                if (count($properties) && !in_array($field, $properties)) continue;
+
+
+                switch ($config['type']) {
+                    case 'join':
+
+                        $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                        if ($schema[$joinedEntity]['settings']['i18n']) {
+                            $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
+                            $queryBuilder->addSelect($field);
+                        }
+                        break;
+                    //todo: multijoin
+                }
+            }
+        }
+
+        $query   = $queryBuilder->getQuery();
+        //$query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $objects = $query->getResult();
 
         if(!$objects){
@@ -1104,7 +1195,7 @@ class Api
             if(substr($entity,0,3) == "PIM"){
                 $className = 'Areanet\PIM\Entity\\'.substr($entity, 4);
             }else{
-                $className = "\Custom\Entity\\$entity";
+                $className = "Custom\Entity\\$entity";
             }
 
             $object    = new $className();
@@ -1239,6 +1330,7 @@ class Api
 
                 foreach($this->app['typeManager']->getTypes() as $type){
                     if($type->doMatch($allPropertyAnnotations) && $type->getPriority() >= $lastMatchedPriority){
+                        $type->setEntitySettings($settings);
 
                         $propertySchema                 = $type->processSchema($prop->getName(), $defaultValues[$prop->getName()], $allPropertyAnnotations, $entityName);
                         $properties[$prop->getName()]   = $propertySchema;
@@ -1290,7 +1382,7 @@ class Api
         return $data;
     }
 
-    public function getSingle($entityName, $id = null, $where = null, $lang = null){
+    public function getSingle($entityName, $id = null, $where = null, $lang = null, $returnObject = false, $compareToLang = null, $loadJoinedLang = null){
 
         if (substr($entityName, 0, 3) == 'PIM') {
             $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
@@ -1298,6 +1390,9 @@ class Api
             $splitter = explode('\\', $entityName);
             $entityNameToLoad = $entityName;
             $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
+        }elseif(substr($entityName, 0, 14) == 'Custom\\Entity\\') {
+            $entityNameToLoad = $entityName;
+            $entityName = substr($entityName, 14);
         }else{
             $entityName = ucfirst($entityName);
             $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
@@ -1307,29 +1402,124 @@ class Api
             throw new AccessDeniedException("Zugriff auf $entityNameToLoad verweigert.");
         }
 
+        $entityNameAlias = 'a'.md5($entityName);
+
         $object = null;
         $schema = $this->app['schema'];
 
+        //$this->em->clear($entityNameToLoad);
+        $queryBuilder = $this->em->createQueryBuilder();
+        $queryBuilder
+            ->select($entityNameAlias)
+            ->from($entityNameToLoad, $entityNameAlias);
+
+
+        $query = null;
+
         if($id){
+            $queryBuilder
+                ->where("$entityNameAlias.id = :id")
+                ->setParameter('id', $id);
+
             if($schema[$entityName]['settings']['i18n']){
                 if(empty($lang)){
                     throw new \Exception('contentfly_i18n_missing_lang_param', 500);
                 }
-                $object = $this->em->getRepository($entityNameToLoad)->find(array('id' => $id, 'lang' => $lang));
-            }else{
-                $object = $this->em->getRepository($entityNameToLoad)->find($id);
+                $queryBuilder
+                    ->andWhere("$entityNameAlias.lang = :lang")
+                    ->setParameter('lang', $lang);
             }
         }elseif($where){
-            $object = $this->em->getRepository($entityNameToLoad)->findOneBy($where);
-
+            foreach($where as $field => $value){
+                $queryBuilder
+                    ->andWhere("$entityNameAlias.$field = :$field")
+                    ->setParameter($field, $lang);
+            }
         }else{
             throw new \Exception("Keine ID oder WHERE-Abfrage übergeben.");
         }
 
+        foreach ($schema[$entityName]['properties'] as $field => $config) {
+
+
+            switch ($config['type']) {
+                case 'onejoin':
+                    $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                    if ($schema[$joinedEntity]['settings']['i18n']) {
+                        $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
+                        $queryBuilder->addSelect($field);
+                    }
+                    break;
+                case 'join':
+                    $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                    if ($schema[$joinedEntity]['settings']['i18n']) {
+                        $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :loadJoinedLang");
+                        $queryBuilder->addSelect($field);
+
+                        if($loadJoinedLang){
+                            $queryBuilder->setParameter('loadJoinedLang', $loadJoinedLang);
+                        }else{
+                            $queryBuilder->setParameter('loadJoinedLang', $lang);
+                        }
+                    }
+                    break;
+                case 'multijoin':
+                    $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                    if ($schema[$joinedEntity]['settings']['i18n']) {
+                        $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :loadJoinedLang");
+                        $queryBuilder->addSelect($field);
+
+                        if($loadJoinedLang){
+                            $queryBuilder->setParameter('loadJoinedLang', $loadJoinedLang);
+                        }else{
+                            $queryBuilder->setParameter('loadJoinedLang', $lang);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        $object = $queryBuilder->getQuery()->getSingleResult();
 
         if (!$object) {
             return new JsonResponse(array('message' => "Object not found"), 404);
         }
+
+        $compareObject = null;
+        if($compareToLang && $compareToLang != $lang) {
+            try {
+                $compareObject = $this->getSingle($entityName, $id, $where, $compareToLang, true);
+            } catch (\Exception $e) {
+                $compareObject = null;
+            }
+
+            if ($compareObject) {
+                foreach ($schema[$entityName]['properties'] as $field => $config) {
+                    $getter = 'get' . ucfirst($field);
+                    switch ($config['type']) {
+                        case 'join':
+                            if ($compareObject->$getter() && !$object->$getter()) {
+                                $helper = new Helper();
+                                throw new ContentflyI18NException('contentfly_missing_translations', $helper->getShortEntityName($config['accept']), $compareToLang);
+                            }
+                            break;
+                        case 'multijoin':
+                            $a1 = $compareObject->$getter() ? $compareObject->$getter() : array();
+                            $a2 = $object->$getter() ? $object->$getter() : array();
+
+                            if (count($a1) != count($a2)) {
+                                $helper = new Helper();
+                                throw new ContentflyI18NException('contentfly_missing_translations', $helper->getShortEntityName($config['accept']), $compareToLang);
+                            }
+                            break;
+                    }
+                }
+            }
+
+
+        }
+
+
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()))){
             throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
@@ -1344,7 +1534,7 @@ class Api
             }
         }
 
-        return $object->toValueObject($this->app, $entityName, false);
+        return $returnObject ? $object : $object->toValueObject($this->app, $entityName, false);
     }
 
     protected function getTableName($entityName){
@@ -1354,6 +1544,52 @@ class Api
         }
 
         return isset($this->app['schema'][$entityName]['settings']['dbname']) ? $this->app['schema'][$entityName]['settings']['dbname'] : $entityName;
+    }
+
+    public function getTranslations($entityName, $lang){
+
+        if (substr($entityName, 0, 3) == 'PIM') {
+            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
+        }elseif(substr($entityName, 0, 7) == 'Areanet'){
+            $splitter = explode('\\', $entityName);
+            $entityNameToLoad = $entityName;
+            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
+        }else{
+            $entityName = ucfirst($entityName);
+            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
+        }
+
+        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        }
+
+        $schema = $this->app['schema'];
+
+        if(empty($schema[$entityName])){
+            throw new \Exception('contentfly_no_entity', 500);
+        }
+
+
+        if(!$schema[$entityName]['settings']['i18n']){
+            throw new \Exception('contentfly_i18n_base_entity', 500);
+        }
+
+        if(empty($lang)){
+            throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+        }
+
+        $dbName       = $schema[$entityName]['settings']['dbname'];
+        /** @var $queryBuilder QueryBuilder */
+        $queryBuilder = $this->database->createQueryBuilder();
+
+        $queryBuilder
+            ->select('lang', 'COUNT(*) AS records')
+            ->from($dbName)
+            ->where("id NOT IN (SELECT id FROM $dbName WHERE lang = :lang) ")
+            ->groupBy('lang')
+            ->setParameter('lang', $lang);
+
+        return $queryBuilder->execute()->fetchAll();
     }
 
     public function getTree($entityName, $parent, $properties = array()){

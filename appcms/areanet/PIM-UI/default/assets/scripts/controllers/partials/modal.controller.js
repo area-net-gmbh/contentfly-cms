@@ -9,6 +9,7 @@
         var vm = this;
 
         //Properties
+        vm.btnOKName        = 'OK';
         vm.title            = title;
         vm.body             = body;
         vm.hideCancelButton = hideCancelButton;

@@ -17,6 +17,7 @@
     <pim-plugin key="FORM_HEADER_APPEND" uiblocks="uiblocks"></pim-plugin>
 </div>
 <div class="modal-body">
+    <div ng-if="vm.object.lang" style="float:right;padding-top:14px;"><span class="lang-sm lang-lbl-full" lang="{{vm.object.lang}}"></span></div>
     <pim-plugin key="FORM_BODY_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="saving" ng-show="vm.doSave">
         <div class="loader-inner ball-pulse">
@@ -47,10 +48,16 @@
 
             <form name="vm.forms.form{{$index}}" class="form-horizontal" bind-validity="tabInvalid" >
                 <pim-plugin key="FORM_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <div  ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'has-error': vm.isSubmit && !config.readonly && !config.hide && vm.forms[formName][key] && !vm.forms[formName][key].$valid};" ng-hide="config.hide || vm.permissions[vm.entity].extended.fieldPermission[key] !== undefined && vm.permissions[vm.entity].extended.fieldPermission[key] == 0"   ng-repeat="(key, config) in ::vm.schema.properties">
+                <div class="form-group" ng-if="tabKey == 'settings'">
+                    <label for="entity" class="col-sm-2 control-label">Entität</label>
+                    <div class="col-sm-10">
+                        <input autocomplete="off" type="text" class="form-control " id="entity" name="entity" value="{{vm.entity}}" readonly>
+                    </div>
+                </div>
+                <div  ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'i18n_universal': config.i18n_universal,'has-error': vm.isSubmit && !config.readonly && !config.hide && vm.forms[formName][key] && !vm.forms[formName][key].$valid};" ng-hide="config.hide || vm.permissions[vm.entity].extended.fieldPermission[key] !== undefined && vm.permissions[vm.entity].extended.fieldPermission[key] == 0"   ng-repeat="(key, config) in ::vm.schema.properties">
                     <pim-form key="key" main-key="" readonly="{{vm.readonly ? 1 : 0}}" writable="{{vm.permissions[vm.entity].extended.fieldPermission[key] == 1 || vm.readonly ? 0 : vm.permissions[vm.entity].writable}}" config="config" object="vm.object" has-visible-field="hasVisibleField" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
                 </div>
-                <div ng-if="tab.onejoin == true" class="form-group ng-class: {'has-error': isSubmit && !config.readonly && !config.hide && vm.forms[formName][key] && !vm.forms[formName][key].$valid};" ng-hide="config.hide || vm.permissions[tabKey].extended.fieldPermission[key] !== undefined && vm.permissions[tabKey].extended.fieldPermission[key] == 0"   ng-repeat="(key, config) in ::vm.schemaOnejoin[tabKey].properties">
+                <div ng-if="tab.onejoin == true" class="form-group ng-class: {'i18n_univeral': config.i18n_univeral, 'has-error': isSubmit && !config.readonly && !config.hide && vm.forms[formName][key] && !vm.forms[formName][key].$valid};" ng-hide="config.hide || vm.permissions[tabKey].extended.fieldPermission[key] !== undefined && vm.permissions[tabKey].extended.fieldPermission[key] == 0"   ng-repeat="(key, config) in ::vm.schemaOnejoin[tabKey].properties">
                     <pim-form key="key" main-key="tab.onejoin_field" readonly="{{vm.readonly ? 1 : 0}}" writable="{{vm.permissions[tabKey].extended.fieldPermission[key] == 1 || vm.readonly  ? 0 : vm.permissions[tabKey].writable}}" config="config" object="vm.object[tab.onejoin_field]" is-valid="vm.forms[formName][key].$valid" is-submit="vm.isSubmit" on-change-callback="vm.changeValue(key, mainKey, value)"></pim-form>
                 </div>
                 <pim-plugin key="FORM_APPEND" uiblocks="uiblocks"></pim-plugin>
@@ -62,6 +69,7 @@
         <pim-plugin key="FORM_TAB_APPEND" uiblocks="uiblocks"></pim-plugin>
     </uib-tabset>
     <pim-plugin key="FORM_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
+
 </div>
 <div class="modal-footer">
     <pim-plugin key="FORM_FOOTER_PREPEND" uiblocks="uiblocks"></pim-plugin>

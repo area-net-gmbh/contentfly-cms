@@ -184,6 +184,7 @@ class ApiController extends BaseController
      *
      * @apiParam {String} entity Zu löschende Entity
      * @apiParam {Integer} id Zu löschende Objekt-ID
+     * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "News",
@@ -194,23 +195,26 @@ class ApiController extends BaseController
     {
         $entityName = ucfirst($request->get('entity'));
         $id         = $request->get('id');
+        $lang       = $request->get('lang', null);
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
+        $event->setParam('lang',    $lang);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('app',     $app);
 
         $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
 
         $api = new Api($this->app, $request);
-        $api->doDelete($entityName, $id);
+        $api->doDelete($entityName, $id, $lang);
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
+        $event->setParam('lang',    $lang);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
@@ -352,6 +356,7 @@ class ApiController extends BaseController
      * @apiParam {Boolean} [flatten="false"] Gibt bei Joins lediglich die IDs und nicht die kompletten Objekte zurück
      * @apiParam {String} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
      * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
+     * @apiParam {String} untranslatedLang = null Sprachcode bei dem noch nicht übersetzte Datensätze für lang gesetzt sind. Parameter lang muss gesetzt sein. (I18N)
      * @apiParamExample {json} Request-Beispiel mit Where-Abfrage:
      *     {
      *      "entity": "News",
@@ -368,6 +373,12 @@ class ApiController extends BaseController
      *     {
      *      "entity": "News",
      *      "lastModified": "2016-02-20 15:30:22"
+     *     }
+     * @apiParamExample {json} Request-Beispiel Zeige alle englischen Datensätze, die noch nicht ins Deutsche übersetzt sind
+     *     {
+     *      "entity": "News",
+     *      "lang": "de",
+     *      "untranslatedLang": "en"
      *     }
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
@@ -402,13 +413,14 @@ class ApiController extends BaseController
         $flatten                = $request->get('flatten', false);
         $lastModified           = $request->get('lastModified', null);
         $lang                   = $request->get('lang', null);
+        $untranslatedLang       = $request->get('untranslatedLang', null);
 
         $properties             = $request->get('properties', array());
         $properties             = is_array($properties) ? $properties : array();
 
         $api        = new Api($this->app, $request);
 
-        if(!($data = $api->getList($entityName, $where, $order, $groupBy, $properties, $lastModified, $flatten, $currentPage, $itemsPerPage, $lang))){
+        if(!($data = $api->getList($entityName, $where, $order, $groupBy, $properties, $lastModified, $flatten, $currentPage, $itemsPerPage, $lang, $untranslatedLang))){
             return new JsonResponse(array('message' => "Not found"), 404);
         }
 
@@ -534,7 +546,12 @@ class ApiController extends BaseController
 
         try{
             $api = new Api($this->app, $request);
-            $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass, $lang);
+            $updateUniversalLangProps = $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass, $lang);
+            if($updateUniversalLangProps){
+                foreach ($updateUniversalLangProps['i18nObjects'] as $i18nObject) {
+                    $api->doUpdate($entityName, $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, $currentUserPass, $i18nObject['lang'], true);
+                }
+            }
         }catch(EntityDuplicateException $e){
             return new JsonResponse(array('message' => $e->getMessage()), 500);
         }catch(EntityNotFoundException $e){
@@ -683,6 +700,8 @@ class ApiController extends BaseController
      * @apiParam {String} entity Auszulesende Entity
      * @apiParam {String/Integer} id = null ID des Objektes
      * @apiParam {String} lang = null Sprachcode bei sprachabhängigen Entitäten (I18N)
+     * @apiParam {String} compareToLang = null Lädt für eine Übersetzung vernküpfte Objekte aus 'compareToLang' und gibt eine Fehlermeldung aus, wenn Übersetzungen fehlen (I18N)
+     * @apiParam {String} compareToMainLang = null Lädt für eine Übersetzung vernküpfte Objekte aus der Hauptsprache und gibt eine Fehlermeldung aus, wenn Übersetzungen fehlen (I18N)
      * @apiParam {Object} where = null Bedingung, mehrere Felder werden mit AND verknüpft: <code>{'title': 'test', 'desc': 'foo',...}</code>
      * @apiParamExample {json} Request-Beispiel über ID:
      *     {
@@ -710,15 +729,17 @@ class ApiController extends BaseController
     public function singleAction(Request $request)
     {
 
-        $data       = array();
+        $data               = array();
 
-        $entityName = $request->get('entity');
-        $id         = $request->get('id');
-        $lang       = $request->get('lang');
-        $where      = $request->get('where');
+        $entityName         = $request->get('entity');
+        $id                 = $request->get('id');
+        $lang               = $request->get('lang');
+        $compareToLang      = $request->get('compareToLang');
+        $loadJoinedLang     = $request->get('loadJoinedLang');
+        $where              = $request->get('where');
 
         $api  = new Api($this->app);
-        $data = $api->getSingle($entityName, $id, $where, $lang);
+        $data = $api->getSingle($entityName, $id, $where, $lang, false, $compareToLang, $loadJoinedLang);
 
         return $this->renderResponse(array('data' => $data));
 
@@ -772,6 +793,46 @@ class ApiController extends BaseController
         $tree = $api->getTree($entityName, null, $properties);
 
         return $this->renderResponse(array('data' => $tree));
+    }
+
+    /**
+     * @apiVersion 1.5
+     * @api {post} /api/translations translations
+     * @apiName Übersetzungen
+     * @apiDescription Liefert die Anzahl der offenen Übersetzungen für eine Entität.
+     *
+     * @apiGroup Objekte
+     * @apiHeader {String} APPMS-TOKEN Access-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam {String} entity Auszulesende Entity
+     * @apiParam {String} lang Sprachcode (z.B. de, en,..), für den noch nicht übersetzte Datensätze analysiert werden sollen.
+     * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *      "entity": "Category",
+     *      "lang": "en"
+     *     }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "message": "translationsAction",
+     *       "data": [
+     *         {
+     *           "lang": "de",
+     *           "records": "4"
+     *         }, ...
+     *       ],
+     *   }
+     */
+    public function translationsAction(Request $request)
+    {
+        $entityName = $request->get('entity');
+        $lang       = $request->get('lang');
+
+        $api  = new Api($this->app);
+        $lang = $api->getTranslations($entityName, $lang);
+
+        return $this->renderResponse(array('data' => $lang));
     }
 
     /**

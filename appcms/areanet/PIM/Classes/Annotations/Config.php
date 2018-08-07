@@ -51,6 +51,11 @@ final class Config extends Annotation
     /**
      * @var boolean
      */
+    public $i18n_universal=false;
+
+    /**
+     * @var boolean
+     */
     public $readonly = false;
 
     /**

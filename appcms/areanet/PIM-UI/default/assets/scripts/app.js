@@ -46,24 +46,26 @@
 
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
 
-            $http({
+            if(next.originalPath != '/error' ) {
+              $http({
                 method: 'GET',
                 url: '/api/config',
                 headers: {
                   'Content-Type': 'application/json'
                 },
                 data: ''
-            }).then(function successCallback(response) {
-                if($rootScope.version != response.data.version){
-                    $rootScope.newVersion = response.data.version;
-                }else{
-                    $rootScope.newVersion = null;
+              }).then(function successCallback(response) {
+                if ($rootScope.version != response.data.version) {
+                  $rootScope.newVersion = response.data.version;
+                } else {
+                  $rootScope.newVersion = null;
                 }
-            }, function errorCallback(response) {
+              }, function errorCallback(response) {
                 $rootScope.newVersion = null;
                 $rootScope.error = response.data.message;
                 $location.path("/error");
-            });
+              });
+            }
 
             if(next.secure){
                 //localStorageService.set('localStorageKey','Add this!');

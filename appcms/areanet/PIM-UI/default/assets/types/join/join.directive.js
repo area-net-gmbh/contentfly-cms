@@ -10,7 +10,7 @@
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', object: "=", value: '=', isValid: '=', isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
                 return '/ui/default/types/join/join.html?v=' + APP_VERSION
@@ -128,6 +128,7 @@
                 
                 function init(){
 
+
                     if(scope.config.accept.substr(0, 18) == 'Areanet\\PIM\\Entity'){
                         entity = scope.config.accept.replace('Areanet\\PIM\\Entity', 'PIM');
                     }else{
@@ -141,67 +142,72 @@
                         return;
                     }
 
+                    if(scope.value){
 
-                    if(scope.value && !isObject(scope.value)){
-                        
-                        var data = {
-                            entity : entity,
+
+                        if(!isObject(scope.value)) {
+
+                          var data = {
+                            entity: entity,
                             id: scope.value
-                        }
+                          }
 
-                        EntityService.single(data).then(
-                            function(response){
-                                scope.value = response.data.data;
-                                scope.onChangeCallback({key: scope.key, value: scope.value.id});
+                          EntityService.single(data).then(
+                            function (response) {
+                              scope.value = response.data.data;
+                              scope.onChangeCallback({key: scope.key, value: scope.value.id});
                             },
-                            function(data){
+                            function (data) {
 
-                                if(data.status == 401){
-                                    var modalInstance = $uibModal.open({
-                                        templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
-                                        controller: 'ReloginCtrl as vm',
-                                        backdrop: 'static'
-                                    });
+                              if (data.status == 401) {
+                                var modalInstance = $uibModal.open({
+                                  templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,
+                                  controller: 'ReloginCtrl as vm',
+                                  backdrop: 'static'
+                                });
 
-                                    modalInstance.result.then(
-                                        function () {
-                                            init();
-                                        },
-                                        function () {
-                                            $uibModalInstance.close();
-                                            $location.path('/logout');
-                                        }
-                                    );
+                                modalInstance.result.then(
+                                  function () {
+                                    init();
+                                  },
+                                  function () {
+                                    $uibModalInstance.close();
+                                    $location.path('/logout');
+                                  }
+                                );
 
-                                }else {
+                              } else {
 
-                                    var modalInstance = $uibModal.open({
-                                        templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
-                                        controller: 'ModalCtrl as vm',
-                                        resolve: {
-                                            title: function () {
-                                                return data.statusText;
-                                            },
-                                            body: function () {
-                                                return data.data.message;
-                                            },
-                                            hideCancelButton: function () {
-                                                return false;
-                                            }
-                                        }
-                                    });
+                                var modalInstance = $uibModal.open({
+                                  templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
+                                  controller: 'ModalCtrl as vm',
+                                  resolve: {
+                                    title: function () {
+                                      return data.statusText;
+                                    },
+                                    body: function () {
+                                      return data.data.message;
+                                    },
+                                    hideCancelButton: function () {
+                                      return false;
+                                    }
+                                  }
+                                });
 
-                                    modalInstance.result.then(
-                                        function (doDelete) {
-                                            $uibModalInstance.close();
-                                        },
-                                        function () {
-                                            $uibModalInstance.close();
-                                        }
-                                    );
-                                }
+                                modalInstance.result.then(
+                                  function (doDelete) {
+                                    $uibModalInstance.close();
+                                  },
+                                  function () {
+                                    $uibModalInstance.close();
+                                  }
+                                );
+                              }
                             }
-                        );
+                          );
+                        }else{
+                          scope.onChangeCallback({key: scope.key, value: scope.value.id});
+                        }
                     }
 
 
@@ -262,7 +268,8 @@
                         currentPage: scope.currentPage,
                         itemsPerPage: itemsPerPage,
                         where: where,
-                        properties: properties
+                        properties: properties,
+                        lang: scope.object.lang
                     };
                     EntityService.list(data).then(
                         function successCallback(response) {

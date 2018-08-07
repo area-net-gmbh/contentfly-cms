@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
 use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Helper;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Entity\Base;
@@ -48,6 +49,9 @@ class MultijoinType extends Type
         $schema['dbtype']   = null;
         $schema['sortable'] = false;
 
+        if(!empty($this->entitySettings['i18n'])){
+            $schema['i18n_universal'] = true;
+        }
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'])) {
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'];
@@ -159,7 +163,7 @@ class MultijoinType extends Type
         return $data;
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)
     {
         $setter = 'set'.ucfirst($property);
         $getter = 'get'.ucfirst($property);
@@ -197,6 +201,9 @@ class MultijoinType extends Type
             return;
         }
 
+        $helper = new Helper();
+        $subEntitySchema    = $schema[$helper->getShortEntityName($entity)];
+
         $sorting = 0;
         foreach($value as $id){
 
@@ -205,10 +212,9 @@ class MultijoinType extends Type
 
                 $id = $id["id"];
             }
-            
-            $objectToJoin = $this->em->getRepository($entity)->find($id);
 
-            
+            $objectToJoin = $lang && $subEntitySchema['settings']['i18n'] ?  $this->em->getRepository($entity)->find(array('id' => $id, 'lang' => $lang)) :  $this->em->getRepository($entity)->find($id);
+
             if($mappedBy){
                 $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
                 $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];

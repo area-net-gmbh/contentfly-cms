@@ -1,9 +1,12 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
 use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Helper;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Entity\Base;
+use Custom\Entity\TestMeta;
 
 
 class OnejoinType extends Type
@@ -34,6 +37,15 @@ class OnejoinType extends Type
 
         $entityPath     = explode('\\', $propertyAnnotations->targetEntity);
         $one2Oneentity  = $entityPath[(count($entityPath) - 1)];
+
+        $helper = new Helper();
+
+
+        $i18nTest = new $propertyAnnotations->targetEntity();
+        if(is_a($i18nTest, 'Areanet\PIM\Entity\BaseI18n')){
+            throw new ContentflyException('contentfly_i18n_onejoin_not_supported', $helper->getShortEntityName($propertyAnnotations->targetEntity));
+       }
+
 
         $schema['dbtype']   = 'integer';
         $schema['accept']   = $one2Oneentity;
@@ -85,18 +97,19 @@ class OnejoinType extends Type
             : $subobject->toValueObject($this->app, $config['accept'], $flatten, array(), ($level + 1));
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)
     {
         $setter     = 'set'.ucfirst($property);
         $joinEntity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
 
         if(!empty($value['id'])){
-            $api->doUpdate($joinEntity, $value['id'], $value, false);
+            $api->doUpdate($joinEntity, $value['id'], $value, false, null, $lang);
         }else{
+
             $value['users']     = isset($data['users']) ? $data['users'] : array();
             $value['groups']    = isset($data['groups']) ? $data['groups'] : array();
 
-            $joinObject = $api->doInsert($joinEntity, $value);
+            $joinObject = $api->doInsert($joinEntity, $value, $lang);
             $object->$setter($joinObject);
         }
 

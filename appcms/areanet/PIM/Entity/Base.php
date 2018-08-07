@@ -11,6 +11,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 
 class Base extends Serializable
 {
+
     /**
      * @ORM\Column(type=APPCMS_ID_TYPE)
      * @ORM\Id

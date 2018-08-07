@@ -9,6 +9,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
  */
 class BaseI18n extends Base
 {
+
     /**
      * @ORM\Column(type=APPCMS_ID_TYPE)
      * @ORM\Id
@@ -20,9 +21,12 @@ class BaseI18n extends Base
     /**
      * @ORM\Column(type="string", length=2, options={"default" = APP_CMS_MAIN_LANG})
      * @ORM\Id
-     * @PIM\Config(label="Sprache")
+     * @ORM\GeneratedValue(strategy="NONE")
+     * @PIM\Config(label="Sprache", tab="settings", hide=true)
      */
     protected $lang = APP_CMS_MAIN_LANG;
+
+
 
     /**
      * @return mixed

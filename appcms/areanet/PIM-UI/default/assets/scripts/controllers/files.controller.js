@@ -149,6 +149,8 @@
                 resolve: {
                     entity: function(){ return vm.entity;},
                     object: function(){ return object; },
+                    lang: function(){ return null},
+                    translateFrom:  function(){ return null},
                     readonly: false
                 },
                 size: 'xl',
