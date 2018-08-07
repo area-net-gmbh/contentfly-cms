@@ -10,7 +10,7 @@
         return {
             restrict: 'E',
             scope: {
-                key: '=', config: '=', value: '=', isValid: '=',  isSubmit: '=', onChangeCallback: '&'
+                key: '=', config: '=', object: '=', value: '=', isValid: '=',  isSubmit: '=', onChangeCallback: '&'
             },
             templateUrl: function(){
                 return '/ui/default/types/virtualjoin/virtualjoin.html?v=' + APP_VERSION
@@ -33,6 +33,7 @@
                                 var data = {
                                     entity: scope.config.accept,
                                     id: scope.value[i].id,
+                                    lang: scope.object.lang
                                 };
 
                                 EntityService.single(data).then(
@@ -310,7 +311,9 @@
                         currentPage: scope.currentPage,
                         itemsPerPage: itemsPerPage,
                         where: where,
-                        properties: properties
+                        properties: properties,
+                        lang: scope.object.lang
+
                     };
                     EntityService.list(data).then(
                         function successCallback(response) {

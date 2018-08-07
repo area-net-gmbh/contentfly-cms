@@ -106,6 +106,10 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
             }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 404);
+            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyException){
+                return $app->json(array("message" => $e->getMessage(), "message_value" => $e->getValue(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
+            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyI18NException){
+                return $app->json(array("message" => $e->getMessage(), "message_entity" => $e->getEntity(), "message_lang" => $e->getLang(), "type" => get_class($e), 'debug' => $e->getTrace()),  $e->getCode() ? $e->getCode() : 500);
             }else{
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
             }
@@ -116,6 +120,10 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId),  $e->getCode() ? $e->getCode() : 500);
             }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $e->getCode() ? $e->getCode() : 404);
+            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyException){
+                return $app->json(array("message" => $e->getMessage(), "message_value" => $e->getValue(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
+            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyI18NException){
+                return $app->json(array("message" => $e->getMessage(), "message_entity" => $e->getEntity(), "message_lang" => $e->getLang(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
             }else{
                 return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
             }

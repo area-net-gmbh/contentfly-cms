@@ -15,6 +15,7 @@
             update: update,
             multiupdate: multiupdate,
             single: single,
+            translations: translations,
             tree: tree
         };
 
@@ -29,15 +30,15 @@
             });
         }
 
-          function exportData(type, data){
-            return $http({
-              method: 'POST',
-              url: '/export/' + type,
-              data: data,
-              responseType: 'blob'
-            });
-          }
-        
+        function exportData(type, data){
+          return $http({
+            method: 'POST',
+            url: '/export/' + type,
+            data: data,
+            responseType: 'blob'
+          });
+        }
+
         function list(data){
             return $http({
                 method: 'POST',
@@ -80,12 +81,23 @@
             });
         }
 
-        function tree(data){
+        function translations(entity, lang){
             return $http({
                 method: 'POST',
-                url: '/api/tree',
-                data: data
+                url: '/api/translations',
+                data: {
+                  entity: entity,
+                  lang: lang
+                }
             });
+        }
+
+        function tree(data){
+          return $http({
+            method: 'POST',
+            url: '/api/tree',
+            data: data
+          });
         }
         
         

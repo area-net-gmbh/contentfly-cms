@@ -158,7 +158,7 @@ class MultifileType extends Type
         return $data;
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)
     {
         $setter = 'set'.ucfirst($property);
         $getter = 'get'.ucfirst($property);

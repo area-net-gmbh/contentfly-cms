@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Classes\Types;
 use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Helper;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Type;
 use Areanet\PIM\Controller\ApiController;
@@ -85,12 +86,16 @@ class JoinType extends Type
                     : $subobject->toValueObject($this->app, $config['accept'], $flatten, array(), ($level + 1));
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)
     {
         $setter = 'set'.ucfirst($property);
 
-        $entity = $schema[ucfirst($entityName)]['properties'][$property]['accept'];
-        
+        $entitySchema       = $schema[ucfirst($entityName)];
+        $entity             = $entitySchema['properties'][$property]['accept'];
+
+        $helper = new Helper();
+
+        $subEntitySchema    = $schema[$helper->getShortEntityName($entity)];
 
         if(is_array($value)){
             if(empty($value["id"])) return;
@@ -99,7 +104,8 @@ class JoinType extends Type
         }
 
         if(!empty($value)){
-            $objectToJoin = $this->em->getRepository($entity)->find($value);
+
+            $objectToJoin = $lang && $subEntitySchema['settings']['i18n'] ?  $this->em->getRepository($entity)->find(array('id' => $value, 'lang' => $lang)) :  $this->em->getRepository($entity)->find($value);
         }else{
             $objectToJoin = null;
         }

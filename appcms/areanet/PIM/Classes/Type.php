@@ -19,6 +19,8 @@ abstract class Type
     /** @var Application $app */
     protected $app;
 
+    protected $entitySettings = array();
+
     public $insertCallback = null;
     public $updateCallback = null;
 
@@ -40,10 +42,14 @@ abstract class Type
         return $object->$getter();
     }
     
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)
     {
         $setter = 'set'.ucfirst($property);
         $object->$setter($value);
+    }
+
+    public function setEntitySettings($entitySettings){
+        $this->entitySettings = $entitySettings;
     }
 
     public function renderJSON()
@@ -90,6 +96,10 @@ abstract class Type
 
             //Areanet\\PIM\\Classes\\Annotations\\Config
             $annotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'];
+
+            if($annotations->i18n_universal && !empty($this->entitySettings['i18n'])){
+                $schema['i18n_universal'] = $annotations->i18n_universal;
+            }
 
             if($annotations->encoded){
                 $schema['encoded'] = $annotations->encoded;

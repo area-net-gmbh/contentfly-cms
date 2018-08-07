@@ -5,7 +5,7 @@
         .module('app')
         .controller('LoginCtrl', LoginCtrl);
 
-    function LoginCtrl($scope, $location, localStorageService, $cookies, $rootScope, $http){
+    function LoginCtrl($scope, $location, localStorageService, $cookies, $rootScope, $http, $uibModal){
         var vm = this;
 
         //Properties
@@ -34,12 +34,41 @@
         function init(){
             $http({
                 method: 'GET',
-                url: '/api/config'
+                url: '/api/config',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                data: ''
             }).then(function successCallback(response) {
                 vm.config = response.data;
                 vm.logoIsInitialisied = true;
                 $rootScope.uiblocks = response.data.uiblocks;
-            }, function errorCallback(response) {
+            }, function errorCallback(data) {
+              var modalInstance = $uibModal.open({
+                templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
+                controller: 'ModalCtrl as vm',
+                resolve: {
+                  title: function () {
+                    return data.statusText;
+                  },
+                  body: function () {
+                    var text =  data.data.message;
+
+                    if(data.data.message_value){
+                      text += ' (' + data.data.message_value + ')';
+                    }
+
+                    if(data.data.message_entity){
+                      text += ' (' + data.data.message_entity + ')';
+                    }
+
+                    return text;
+                  },
+                  hideCancelButton: function () {
+                    return false;
+                  }
+                }
+              });
             });
         }
 

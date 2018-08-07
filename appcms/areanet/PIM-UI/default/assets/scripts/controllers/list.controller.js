@@ -23,6 +23,8 @@
     vm.itemsPerPage  = 0;
     vm.totalItems    = 0;
     vm.currentPage   = 1;
+    vm.untranslatedRecords = [];
+    vm.untranslatedLang    = null;
 
     if(pimEntity){
       vm.entity = 'PIM\\' + $routeParams.entity;
@@ -43,6 +45,14 @@
 
     if(vm.i18n){
       vm.currentLang =   vm.frontend.languages ? vm.frontend.languages[0] : null;
+
+      if($routeParams.lang){
+        vm.currentLang = $routeParams.lang;
+      }
+
+      if($routeParams.untranslatedLang){
+        vm.untranslatedLang = $routeParams.untranslatedLang;
+      }
     }
 
     vm.sortProperty = vm.schema.settings.sortBy;
@@ -87,19 +97,20 @@
     vm.filterJoins      = {};
 
     //Functions
-    vm.back                 = back;
-    vm.closeFilter          = closeFilter;
-    vm.changeLang           = changeLang;
-    vm.delete               = doDelete;
-    vm.executeFilter        = executeFilter;
-    vm.exportData           = exportData;
-    vm.openForm             = openForm;
-    vm.paginationChanged    = paginationChanged;
-    vm.redirect             = redirect;
-    vm.refreshDatalistFilter= refreshDatalistFilter;
-    vm.resetFilter          = resetFilter;
-    vm.sortBy               = sortBy;
-    vm.toggleFilter         = toggleFilter;
+    vm.back                     = back;
+    vm.closeFilter              = closeFilter;
+    vm.changeLang               = changeLang;
+    vm.delete                   = doDelete;
+    vm.executeFilter            = executeFilter;
+    vm.exportData               = exportData;
+    vm.openForm                 = openForm;
+    vm.paginationChanged        = paginationChanged;
+    vm.redirect                 = redirect;
+    vm.refreshDatalistFilter    = refreshDatalistFilter;
+    vm.resetFilter              = resetFilter;
+    vm.showUntranslatedRecords  = showUntranslatedRecords;
+    vm.sortBy                   = sortBy;
+    vm.toggleFilter             = toggleFilter;
 
     //Startup
     init();
@@ -130,6 +141,12 @@
 
     function changeLang(lang){
       vm.currentLang = lang;
+      vm.untranslatedRecords = [];
+      vm.untranslatedLang    = null;
+
+      $location.search({'lang': lang});
+
+      loadUntranslatedRecords();
       loadData();
     }
 
@@ -166,12 +183,14 @@
 
             var data = {
               entity: vm.entity,
-              id: object.id
+              id: object.id,
+              lang: vm.currentLang
             };
 
             EntityService.delete(data).then(
               function successCallback(response) {
                 loadData();
+                loadUntranslatedRecords();
               },
               function errorCallback(response) {
                 if(response.status == 401){
@@ -201,6 +220,22 @@
                       hideCancelButton: true
                     }
                   });
+
+                  modalInstance.result.then(
+                    function () {
+                      if(response.status == 550){
+                        $location.path('/list/' + response.data.message_entity).search({'f_id' : object.id, 'lang' : response.data.message_lang, 'untranslatedLang' : null });
+                      }else{
+                        vm.objectsAvailable = true;
+                        vm.objectsNotAvailable = false;
+                      }
+
+                    },
+                    function () {
+                      vm.objectsAvailable = true;
+                      vm.objectsNotAvailable = false;
+                    }
+                  );
 
                 }
               }
@@ -344,6 +379,10 @@
         vm.filter[property] = $routeParams[key];
       }
 
+      if(vm.i18n){
+        loadUntranslatedRecords();
+      }
+
       calcFilterBadge();
     }
 
@@ -365,18 +404,20 @@
       }
 
       var filter = {};
-      for (var key in vm.filter) {
-        if(vm.filter[key]){
-          filter[key] = vm.filter[key];
-          if(vm.schema.settings.type == 'tree' && key == 'treeParent' && vm.filter[key] ){
-            vm.schema.settings.isSortable = true;
-          }
-          if(vm.schema.settings.sortRestrictTo && key == vm.schema.settings.sortRestrictTo && vm.filter[key] ){
-            vm.schema.settings.isSortable = true;
-          }
+      if(!vm.untranslatedLang) {
+        for (var key in vm.filter) {
+          if (vm.filter[key]) {
+            filter[key] = vm.filter[key];
+            if (vm.schema.settings.type == 'tree' && key == 'treeParent' && vm.filter[key]) {
+              vm.schema.settings.isSortable = true;
+            }
+            if (vm.schema.settings.sortRestrictTo && key == vm.schema.settings.sortRestrictTo && vm.filter[key]) {
+              vm.schema.settings.isSortable = true;
+            }
 
-          if(vm.schema.properties[key] && vm.schema.properties[key].type == 'boolean'){
-            filter[key] = vm.filter[key] == 'true' || vm.filter[key] == '1' ? true : false;
+            if (vm.schema.properties[key] && vm.schema.properties[key].type == 'boolean') {
+              filter[key] = vm.filter[key] == 'true' || vm.filter[key] == '1' ? true : false;
+            }
           }
         }
       }
@@ -392,10 +433,19 @@
         where: filter,
         properties: properties,
         flatten:false,
-        lang: vm.currentLang
+        lang: vm.currentLang,
+        untranslatedLang: vm.untranslatedLang
       };
+
+
       EntityService.list(data).then(
         function successCallback(response) {
+
+          if(vm.untranslatedLang && response.data.totalItems == 0){
+            vm.untranslatedLang = null;
+            loadData();
+            return;
+          }
 
           if(vm.itemsPerPage === 0) {
             vm.itemsPerPage = response.data.itemsPerPage;
@@ -415,9 +465,16 @@
           vm.objectsNotAvailable = false;
         },
         function errorCallback(response) {
+          
           vm.objectsAvailable = false;
           vm.objectsNotAvailable = true;
           vm.countLabel = '0 Datensätze';
+
+          if(response.status == 404 && vm.untranslatedLang){
+            vm.untranslatedLang = null;
+            $location.search({'lang': vm.currentLang});
+            loadData();
+          }
 
           if(response.status == 401){
             var modalInstance = $uibModal.open({
@@ -437,7 +494,7 @@
             );
           }
 
-          if(response.status == 500) {
+          if(response.status == 500 ) {
             var modalInstance = $uibModal.open({
               templateUrl: '/ui/default/views/partials/modal.html?v=' + APP_VERSION,
               controller: 'ModalCtrl as vm',
@@ -453,8 +510,6 @@
                 }
               }
             });
-
-
           }
 
           if(response.status == 403){
@@ -495,9 +550,13 @@
               properties.push(joinSchema.list[key2]);
             }
 
-            EntityService.tree(
-              {entity: entity, properties: properties}
-            ).then(
+            var filterData = {
+              entity: entity,
+              properties: properties,
+              lang: vm.currentLang
+            };
+
+            EntityService.tree(filterData).then(
               (function (entity, key) {
                 return function (response) {
                   generateTree(entity, key, response.data.data, 0)
@@ -517,7 +576,14 @@
               properties.push(joinSchema.list[key2]);
             }
 
-            EntityService.list({entity: entity, properties: properties, flatten: true}).then(
+            var filterData = {
+              entity: entity,
+              properties: properties,
+              flatten: true,
+              lang: vm.currentLang
+            };
+
+            EntityService.list(filterData).then(
               (function (entity, key, joinSchema) {
                 return function (response) {
                   vm.filterJoins[key] = response.data.data;
@@ -568,7 +634,7 @@
             );
           }else{
 
-            EntityService.list({entity: entity, flatten: true}).then(
+            EntityService.list({entity: entity, flatten: true, lang: vm.currentLang}).then(
               (function(entity, key) {
                 return function(response) {
                   var joinSchema = localStorageService.get('schema')[entity];
@@ -687,6 +753,17 @@
       }
     }
 
+    function loadUntranslatedRecords(){
+      EntityService.translations(vm.entity, vm.currentLang).then(
+        function successCallback(response) {
+          vm.untranslatedRecords = response.data.data;
+        },
+        function errorCallback(response) {
+
+        }
+      );
+    }
+
     function openForm(object, index, readonly){
 
       if(vm.schema.settings.readonly){
@@ -714,6 +791,7 @@
           entity: function(){ return vm.entity;},
           object: function(){ return object; },
           lang: function(){ return vm.currentLang},
+          translateFrom:  function(){ return vm.untranslatedLang},
           readonly: readonly != 1 ? false : true
         },
         backdrop: 'static',
@@ -723,8 +801,9 @@
 
       modalInstance.result.then(
         function (updatedObject) {
-          if(doInsert){
+          if(doInsert || !updatedObject){
             loadData();
+            loadUntranslatedRecords();
           }else{
             vm.objects[index] = updatedObject;
           }
@@ -840,6 +919,13 @@
       localStorageService.set('savedDatalistFilter', vm.datalistFilter);
       localStorageService.set('savedFilter', vm.filter);
 
+      loadData();
+    }
+
+    function showUntranslatedRecords(lang){
+      vm.untranslatedLang = lang;
+
+      $location.search('untranslatedLang', lang);
       loadData();
     }
 
