@@ -4,6 +4,7 @@ use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Processing;
+use Areanet\PIM\Classes\Messages;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Entity\File;
 use Areanet\PIM\Entity\Log;
@@ -259,7 +260,7 @@ class FileController extends BaseController
         $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
         if(!$fileObject){
-            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileObject not found");
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
 
         $sizeObject = null;
@@ -267,7 +268,7 @@ class FileController extends BaseController
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
 
             if(!$sizeObject){
-                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize not found");
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_filesize_not_found);
             }
         }
 
@@ -310,7 +311,7 @@ class FileController extends BaseController
 
             $processor = Processing::getInstance($fileObject->getType());
             if($processor instanceof Processing\Standard){
-                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("FileSize for FileObject not found");
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_filesize_not_found);
             }else{
 
                 $processor->execute($backend, $fileObject, $size, $variant);
@@ -323,7 +324,7 @@ class FileController extends BaseController
         $fileName   = $backend->getUri($fileObject, $sizeObject, $variant);
         if(!file_exists($fileName)){
 
-            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("File not found");
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
 
         $client_etag =
@@ -395,7 +396,7 @@ class FileController extends BaseController
         }
 
         if(!$sourceId || !$destId){
-            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- or Dest-Id missing.");
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_missing_params);
         }
         
 
@@ -403,11 +404,11 @@ class FileController extends BaseController
         $fileDest   = $this->em->getRepository('Areanet\PIM\Entity\File')->find($destId);
 
         if(!$fileSource || !$fileDest){
-            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- or Dest-File not found.");
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
 
         if($fileSource->getName() != $fileDest->getName()){
-            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException("Source- and Dest-Filename not matching.");
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_founds);
         }
 
         $backend    = Backend::getInstance();

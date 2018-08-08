@@ -383,10 +383,10 @@
       if(vm.i18n){
         var i18nPermissions = localStorageService.get('i18nPermissions');
 
-        if(i18nPermissions[vm.currentLang] && i18nPermissions[vm.currentLang] == 'readable'){
+        if(i18nPermissions && i18nPermissions[vm.currentLang] && i18nPermissions[vm.currentLang] == 'readable'){
           vm.schema.settings.readonly = true;
           vm.schema.settings.viewMode = 1;
-        }else if(i18nPermissions[vm.currentLang] && i18nPermissions[vm.currentLang] == 'translatable'){
+        }else if(i18nPermissions && i18nPermissions[vm.currentLang] && i18nPermissions[vm.currentLang] == 'translatable'){
           vm.permissions[vm.entity].deletable = false;
           vm.canInsert = false;
           loadUntranslatedRecords();

@@ -193,12 +193,14 @@ class ApiController extends BaseController
      */
     public function deleteAction(Request $request, Application $app)
     {
-        $entityName = ucfirst($request->get('entity'));
-        $id         = $request->get('id');
-        $lang       = $request->get('lang', null);
+
+        $helper              = new Helper();
+        $entityShortName     = $helper->getShortEntityName($request->get('entity'));
+        $id                  = $request->get('id');
+        $lang                = $request->get('lang', null);
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
         $event->setParam('lang',    $lang);
@@ -208,10 +210,10 @@ class ApiController extends BaseController
         $this->app['dispatcher']->dispatch('pim.entity.before.delete', $event);
 
         $api = new Api($this->app, $request);
-        $api->doDelete($entityName, $id, $lang);
+        $api->doDelete($entityShortName, $id, $lang);
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
         $event->setParam('lang',    $lang);
@@ -298,12 +300,15 @@ class ApiController extends BaseController
      */
     public function insertAction(Request $request, Application $app)
     {
-        $entityName          = ucfirst($request->get('entity'));
+
+        $helper              = new Helper();
+        $entityShortName     = $helper->getShortEntityName($request->get('entity'));
+
         $data                = $request->get('data');
         $lang                = $request->get('lang');
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('data',    $data);
@@ -313,17 +318,11 @@ class ApiController extends BaseController
 
         $data = $event->getParam('data');
 
-        try {
-            $api = new Api($this->app, $request);
-            $object = $api->doInsert($entityName, $data, $lang);
-        }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }catch(\Exception $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }
+        $api = new Api($this->app, $request);
+        $object = $api->doInsert($entityShortName, $data, $lang);
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('user',    $app['auth.user']);
         $event->setParam('object',  $object);
@@ -331,7 +330,7 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
-        return $this->renderResponse(array('id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
+        return $this->renderResponse(array('id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityShortName)));
     }
 
     /**
@@ -481,14 +480,8 @@ class ApiController extends BaseController
         $disableModifiedTime = $request->get('disableModifiedTime');
 
         foreach($objects as $object){
-            try{
-                $api = new Api($this->app, $request);
-                $api->doUpdate($object['entity'], $object['id'], $object['data'], $disableModifiedTime);
-            }catch(EntityDuplicateException $e){
-                continue;
-            }catch(\Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException $e){
-                continue;
-            }
+            $api = new Api($this->app, $request);
+            $api->doUpdate($object['entity'], $object['id'], $object['data'], $disableModifiedTime);
         }
 
         return $this->renderResponse(array());
@@ -544,22 +537,12 @@ class ApiController extends BaseController
 
         $data = $event->getParam('data');
 
-        try{
-            $api = new Api($this->app, $request);
-            $updateUniversalLangProps = $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass, $lang);
-            if($updateUniversalLangProps){
-                foreach ($updateUniversalLangProps['i18nObjects'] as $i18nObject) {
-                    $api->doUpdate($entityName, $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, $currentUserPass, $i18nObject['lang'], true);
-                }
+        $api = new Api($this->app, $request);
+        $updateUniversalLangProps = $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass, $lang);
+        if($updateUniversalLangProps){
+            foreach ($updateUniversalLangProps['i18nObjects'] as $i18nObject) {
+                $api->doUpdate($entityName, $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, $currentUserPass, $i18nObject['lang'], true);
             }
-        }catch(EntityDuplicateException $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 500);
-        }catch(EntityNotFoundException $e){
-            return new JsonResponse(array('message' => "Not found"), 404);
-        }catch(AccessDeniedHttpException $e){
-            return new JsonResponse(array('message' => $e->getMessage()), 403);
-        }catch(\Exception $e){
-            return new JsonResponse(array('message' => $e->getMessage()), $e->getCode() ? $e->getCode() : 500);
         }
 
         $event = new \Areanet\PIM\Classes\Event();
@@ -617,18 +600,17 @@ class ApiController extends BaseController
         $lang                = $request->get('lang');
         $data                = $request->get('data');
 
-        $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }
+
+        $helper             = new Helper();
+        $entityFullName     = $helper->getFullEntityName($entityName);
 
         $schema = $this->app['schema'];
         $object = null;
 
         if($schema[$entityName]['settings']['i18n']) {
-            $object = $this->em->getRepository($entityPath)->find(array('id' => $id, 'lang' => $lang));
+            $object = $this->em->getRepository($entityFullName)->find(array('id' => $id, 'lang' => $lang));
         }else{
-            $object = $this->em->getRepository($entityPath)->find($id);
+            $object = $this->em->getRepository($entityFullName)->find($id);
         }
 
         if(!$object){
