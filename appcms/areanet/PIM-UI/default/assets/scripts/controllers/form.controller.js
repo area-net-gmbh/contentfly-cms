@@ -346,7 +346,7 @@
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
 
-                if(vm.schema.settings.i18n && config.i18n_universal && i18nPermissions[lang] && i18nPermissions[lang] == 'translatable'){
+                if(vm.schema.settings.i18n && config.i18n_universal && i18nPermissions && i18nPermissions[lang] && i18nPermissions[lang] == 'translatable'){
                   if(!vm.permissions[vm.entity].extended){
                     vm.permissions[vm.entity].extended = {fieldPermission: {}};
                   }
