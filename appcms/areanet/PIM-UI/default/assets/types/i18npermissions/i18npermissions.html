@@ -1,0 +1,40 @@
+<pim-plugin key="TYPE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<div class="col-sm-6">
+    <table class="permission permission_extended" ng-if="langs.main">
+        <thead>
+            <tr>
+                <th class="col-sm-6">Hauptsprache</th>
+                <th class="col-sm-6">Berechtigung </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="(lang,permission) in langs.main">
+                <td><span class="lang-sm lang-lbl-full" lang="{{lang}}"></span></td>
+                <td class="permission-button  permission-{{permission}}" ng-click="changePermission(true, lang)">
+                    <span ng-show="permission == 2">Vollzugriff</span>
+                    <span ng-show="permission == 1">nur Übersetzen</span>
+                    <span ng-show="permission == 0">nur Lesen</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="permission permission_extended" ng-if="langs.other">
+        <thead>
+        <tr>
+            <th class="col-sm-6">Weitere Sprachen</th>
+            <th class="col-sm-6">Berechtigung </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="(lang,permission) in langs.other">
+            <td><span class="lang-sm lang-lbl-full" lang="{{lang}}"></span></td>
+            <td class="permission-button  permission-{{permission}}" ng-click="changePermission(false, lang)">
+                <span ng-show="permission == 2">Vollzugriff</span>
+                <span ng-show="permission == 1">nur Übersetzen</span>
+                <span ng-show="permission == 0">nur Lesen</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<pim-plugin key="TYPE_APPEND" uiblocks="uiblocks"></pim-plugin>
