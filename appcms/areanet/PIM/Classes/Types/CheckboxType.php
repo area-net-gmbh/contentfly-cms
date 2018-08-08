@@ -54,13 +54,13 @@ class CheckboxType extends Type
 
         $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Checkbox'];
 
-        $optionsGroupName = isset($propertyAnnotations->group) ? $propertyAnnotations->group : $key;
-        $optionsGroupObject = $this->em->getRepository('Areanet\\PIM\\Entity\\OptionGroup')->findBy(array('name' => $entityName.'/'.$optionsGroupName));
+        $optionsGroupName = isset($propertyAnnotations->group) ? $propertyAnnotations->group : $entityName.'/'.$key;
+        $optionsGroupObject = $this->em->getRepository('Areanet\\PIM\\Entity\\OptionGroup')->findBy(array('name' => $optionsGroupName));
 
         $newOptionsGroupObject = null;
         if(!$optionsGroupObject) {
             $newOptionsGroupObject = new OptionGroup();
-            $newOptionsGroupObject->setName($entityName.'/'.$optionsGroupName);
+            $newOptionsGroupObject->setName($optionsGroupName);
             $this->em->persist($newOptionsGroupObject);
             $this->em->flush();
         }
