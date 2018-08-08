@@ -23,4 +23,9 @@ final class Radio extends Annotation
      */
     public $select = false;
 
+    /**
+     * @var integer
+     */
+    public $columns = 4;
+
 }

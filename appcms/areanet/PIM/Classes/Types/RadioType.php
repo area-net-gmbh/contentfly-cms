@@ -65,7 +65,8 @@ class RadioType extends Type
 
         $schema['group']                = ($optionsGroupObject) ? $optionsGroupObject[0]->getId() : $newOptionsGroupObject->getId();
         $schema['horizontalAlignment']  = $propertyAnnotations->horizontalAlignment;
-        $schema['select']  = $propertyAnnotations->select;
+        $schema['select']               = $propertyAnnotations->select;
+        $schema['columns']              = $propertyAnnotations->columns;
 
         return $schema;
     }

@@ -60,9 +60,10 @@
 
                     scope.schema = localStorageService.get('schema')['PIM\\Option'];
                     if(scope.config.horizontalAlignment) {
-                        scope.checkboxClass = 'checkbox-inline';
+                      scope.checkboxClass = 'checkbox-inline';
+                      scope.checkboxColumnns = scope.config.columns ? scope.config.columns : 4;
                     } else {
-                        scope.checkboxClass = 'checkbox';
+                      scope.checkboxClass = 'checkbox';
                     }
 
                     loadData();
