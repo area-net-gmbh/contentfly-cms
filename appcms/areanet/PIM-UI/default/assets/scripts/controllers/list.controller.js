@@ -41,6 +41,7 @@
     }
 
     vm.i18n         = vm.schema.settings.i18n;
+    vm.canInsert    = true;
     vm.currentLang  = null;
 
     if(vm.i18n){
@@ -380,7 +381,20 @@
       }
 
       if(vm.i18n){
-        loadUntranslatedRecords();
+        var i18nPermissions = localStorageService.get('i18nPermissions');
+
+        if(i18nPermissions[vm.currentLang] && i18nPermissions[vm.currentLang] == 'readable'){
+          vm.schema.settings.readonly = true;
+          vm.schema.settings.viewMode = 1;
+        }else if(i18nPermissions[vm.currentLang] && i18nPermissions[vm.currentLang] == 'translatable'){
+          vm.permissions[vm.entity].deletable = false;
+          vm.canInsert = false;
+          loadUntranslatedRecords();
+        }else{
+          loadUntranslatedRecords();
+        }
+
+
       }
 
       calcFilterBadge();
@@ -766,9 +780,10 @@
 
     function openForm(object, index, readonly){
 
-      if(vm.schema.settings.readonly){
+      if(vm.schema.settings.readonly && vm.schema.settings.viewMode != 1){
         return;
       }
+
       var doInsert    = false;
       if(!object){
         doInsert = true;

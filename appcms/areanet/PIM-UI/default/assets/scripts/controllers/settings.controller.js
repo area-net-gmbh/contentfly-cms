@@ -236,6 +236,8 @@
                                 $location.path('/logout');
                             }
                         );
+                    }else{
+                      vm.buttonsDisabled  = false;
                     }
                 }
             )

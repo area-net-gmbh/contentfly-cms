@@ -79,6 +79,7 @@
                     $rootScope.frontend = localStorageService.get('frontend');
                     $rootScope.schema = localStorageService.get('schema');
                     $rootScope.permissions = localStorageService.get('permissions');
+                    $rootScope.i18nPermissions = localStorageService.get('i18nPermissions');
                     $rootScope.uiblocks = localStorageService.get('uiblocks');
 
                     var entities = {};

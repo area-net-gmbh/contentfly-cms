@@ -13,10 +13,13 @@
         localStorageService.remove('user');
         localStorageService.remove('version');
         localStorageService.remove('permissions');
+        localStorageService.remove('i18nPermissions');
         localStorageService.remove('savedFilter');
         localStorageService.remove('uiblocks');
         localStorageService.clearAll();
+
         $cookies.remove('APPCMS-TOKEN');
+
         $rootScope.userLoggedIn = false;
         $rootScope.permissions  = null;
         $location.path('/login');

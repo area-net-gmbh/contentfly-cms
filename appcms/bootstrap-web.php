@@ -59,10 +59,6 @@ if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
     }
 }
 
-
-
-
-
 ErrorHandler::register();
 
 $handler = Symfony\Component\Debug\ExceptionHandler::register($app['debug']);

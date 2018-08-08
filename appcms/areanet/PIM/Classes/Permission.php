@@ -59,7 +59,7 @@ class Permission
         return null;
     }
 
-    protected static function is($mode, User $user, $entityName)
+    protected static function is($mode, User $user, $entityName, $lang = null)
     {
         $entityName = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $entityName);
 
@@ -74,6 +74,7 @@ class Permission
                 return $permission->$method();
             }
         }
+
         return false;
     }
 }

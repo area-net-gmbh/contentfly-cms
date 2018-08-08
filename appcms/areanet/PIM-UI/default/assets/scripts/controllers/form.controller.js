@@ -310,6 +310,8 @@
                 vm.object = object;
             }
 
+
+
             if(object && object.id){
                 vm.modaltitle1 = vm.schema.settings.label + (vm.readonly ? ' ansehen    ' : ' bearbeiten');
                 if(vm.schema.settings.labelProperty && object[vm.schema.settings.labelProperty]){
@@ -331,6 +333,8 @@
 
             }
 
+            var i18nPermissions = localStorageService.get('i18nPermissions');
+
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
 
@@ -341,6 +345,16 @@
                     vm.schemaOnejoin[config.tab].properties.groups['hide']      = true;
                     vm.object[key] = vm.object[key] ? vm.object[key] : {};
                 }
+
+                if(vm.schema.settings.i18n && config.i18n_universal && i18nPermissions[lang] && i18nPermissions[lang] == 'translatable'){
+                  if(!vm.permissions[vm.entity].extended){
+                    vm.permissions[vm.entity].extended = {fieldPermission: {}};
+                  }
+
+                  vm.permissions[vm.entity].extended.fieldPermission[key] = 1;
+                }
+
+
             });
 
 

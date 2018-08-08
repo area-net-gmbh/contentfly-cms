@@ -164,7 +164,7 @@
     </div>
 
     <div class="col-sm-2 alignRight">
-        <button ng-hide="!vm.permissions[vm.entity].writable || vm.schema.settings.readonly" class="btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt anlegen</button>
+        <button ng-hide="!vm.canInsert || !vm.permissions[vm.entity].writable || vm.schema.settings.readonly" class="btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt anlegen</button>
     </div>
 </div>
 <pim-plugin key="LIST_CONTENT_PREPEND" uiblocks="uiblocks">

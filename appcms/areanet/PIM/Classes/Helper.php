@@ -51,23 +51,31 @@ class Helper
         return $phpFormat;
     }
 
-    public function getFullEntityName($entityShortName)
+    public function getFullEntityName($entityName)
     {
-        if (substr($entityShortName, 0, 3) == 'PIM') {
-            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityShortName, 4);
-        } else {
-            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityShortName);
+        $entityFullName = null;
+
+        if (substr($entityName, 0, 7) == 'Areanet' || substr($entityName, 0, 6) == 'Custom') {
+            $entityFullName = $entityName;
+        }elseif(substr($entityName, 0, 3) == 'PIM') {
+            $entityFullName = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
+        }else{
+            $entityFullName = 'Custom\Entity\\' . ucfirst($entityName);
         }
 
-        return $entityNameToLoad;
+        return $entityFullName;
     }
 
-    public function getShortEntityName($entityFullName)
+    public function getShortEntityName($entityName)
     {
-        if (substr($entityFullName, 0, 7) == 'Areanet') {
-            $entityShortName = 'PIM\\' . substr($entityFullName, 19);
-        } else {
-            $entityShortName = substr($entityFullName, 14);
+        $entityShortName = null;
+
+        if (substr($entityName, 0, 7) == 'Areanet') {
+            $entityShortName = 'PIM\\' . substr($entityName, 19);
+        }elseif(substr($entityName, 0, 6) == 'Custom') {
+            $entityShortName = substr($entityName, 14);
+        }else{
+            $entityShortName = ucfirst($entityName);
         }
 
         return $entityShortName;
