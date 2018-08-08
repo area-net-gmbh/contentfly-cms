@@ -25,6 +25,7 @@
                 //Functions
                 scope.addFile       = addFile;
                 scope.editFile      = editFile;
+                scope.openFile      = openFile;
                 scope.disableObject = disableObject;
                 scope.removeFile    = removeFile;
                 scope.uploadFile    = uploadFile;
@@ -61,6 +62,34 @@
 
                     modalInstance.result.then(
                         function (fileData) {
+                            var accept = scope.config.accept.replace('*', '');
+                            accept = accept.split(',');
+                            var fileDataType = fileData.type;
+                            var matches = false;
+
+                            for(var i = 0; i < accept.length; i++) {
+                                if(fileDataType.includes(accept[i])) {
+                                    matches = true;
+                                    break;
+                                }
+                            }
+
+                            if(!matches) {
+                                var modalInstance = $uibModal.open({
+                                    templateUrl: '/ui/default/views/partials/modal.html',
+                                    controller: 'ModalCtrl as vm',
+                                    resolve: {
+                                        title: function () {
+                                            return 'Fehler bei der Dateiauswahl';
+                                        },
+                                        body: function () {
+                                            return 'Dieser Dateityp kann an dieser Stelle nicht ausgewählt werden.';
+                                        },
+                                        hideCancelButton: true
+                                    }
+                                });
+                                return;
+                            }
 
                             if (fileData) {
 
@@ -155,6 +184,10 @@
                         }
                     );
 
+                }
+
+                function openFile(index) {
+                    window.open('/file/get/'+scope.value[index].id+'/'+scope.value[index].name, '_blank');
                 }
 
                 function init(){

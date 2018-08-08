@@ -7,9 +7,9 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_option")
- * @PIM\Config(label="Optionen", labelProperty="value", sortBy="value", sortOrder="ASC")
+ * @PIM\Config(label="Option", labelProperty="value", sortBy="sorting", sortOrder="ASC")
  */
-class Option extends Base
+class Option extends BaseSortable
 {
 
     /**

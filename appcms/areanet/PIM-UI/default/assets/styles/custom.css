@@ -440,9 +440,14 @@ label.optional{
     right:45px;
 }
 
+.image-edit button.btn4{
+    position: absolute;
+    right:86px;
+}
+
 .image-edit button.btn3{
     position: absolute;
-    right:85px;
+    right:127px;
 }
 
 
