@@ -53,7 +53,8 @@
 
                     scope.schema = localStorageService.get('schema')['PIM\\Option'];
                     if(scope.config.horizontalAlignment) {
-                        scope.radioClass = 'radio-inline';
+                        scope.radioClass    = 'radio-inline';
+                        scope.radioColumnns = scope.config.columns ? scope.config.columns : 4;
                     } else {
                         scope.radioClass = 'radio';
                     }

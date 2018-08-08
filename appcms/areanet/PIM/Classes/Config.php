@@ -154,6 +154,7 @@ class Config{
         '\\Areanet\\PIM\\Classes\\Types\\VirtualjoinType',
         '\\Areanet\\PIM\\Classes\\Types\\EntitySelectorType',
         '\\Areanet\\PIM\\Classes\\Types\\CheckboxType',
+        '\\Areanet\\PIM\\Classes\\Types\\RadioType',
         '\\Areanet\\PIM\\Classes\\Types\\I18nPermissionsType'
     );
 

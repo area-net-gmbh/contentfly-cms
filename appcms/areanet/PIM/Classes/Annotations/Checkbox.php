@@ -13,9 +13,14 @@ final class Checkbox extends Annotation
      */
     public $group = null;
 
-/**
-* @var boolean
-*/
+    /**
+    * @var boolean
+    */
     public $horizontalAlignment = false;
+
+    /**
+     * @var integer
+     */
+    public $columns = 4;
 
 }

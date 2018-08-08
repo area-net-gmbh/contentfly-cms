@@ -67,6 +67,8 @@ class CheckboxType extends Type
 
         $schema['group']                = ($optionsGroupObject) ? $optionsGroupObject[0]->getId() : $newOptionsGroupObject->getId();
         $schema['horizontalAlignment']  = $propertyAnnotations->horizontalAlignment;
+        $schema['columns']              = $propertyAnnotations->columns;
+
 
         return $schema;
     }
