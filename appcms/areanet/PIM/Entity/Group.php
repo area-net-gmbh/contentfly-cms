@@ -36,7 +36,7 @@ class Group extends Base
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(showInList=50, label="Sprachen", tab="i18n")
+     * @PIM\Config(label="Sprachen", tab="i18n")
      * @PIM\I18nPermissions()
      */
     protected $languages;
