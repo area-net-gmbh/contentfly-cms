@@ -13,7 +13,7 @@ class ContentflyException extends \Exception
 {
     protected $value = null;
 
-    public function __construct($message, $value, $code = 500) {
+    public function __construct($message, $value = null, $code = 500) {
         parent::__construct($message, $code);
 
         $this->value = $value;

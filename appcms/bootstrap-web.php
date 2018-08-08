@@ -97,34 +97,20 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
             }
         }
 
-        if(Config\Adapter::getConfig()->APP_DEBUG){
-            if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId, 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
-            }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 404);
-            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyException){
-                return $app->json(array("message" => $e->getMessage(), "message_value" => $e->getValue(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
-            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyI18NException){
-                return $app->json(array("message" => $e->getMessage(), "message_entity" => $e->getEntity(), "message_lang" => $e->getLang(), "type" => get_class($e), 'debug' => $e->getTrace()),  $e->getCode() ? $e->getCode() : 500);
-            }else{
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'debug' => $e->getTrace()), $e->getCode() ? $e->getCode() : 500);
-            }
-
+        $data= array();
+        if($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyException){
+            $data = array('message' => $e->getMessage(), 'type' => get_class($e), 'message_value' => $e->getValue(), 'status' => $e->getCode());
+        }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyI18NException){
+            $data = array('message' => $e->getMessage(), 'type' => get_class($e), 'message_entity' => $e->getEntity(), 'message_lang' => $e->getLang(), 'status' => $e->getCode());
         }else{
-
-            if($e instanceof \Areanet\PIM\Classes\Exceptions\File\FileExistsException){
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e), 'file_id' => $e->fileId),  $e->getCode() ? $e->getCode() : 500);
-            }elseif($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)), $e->getCode() ? $e->getCode() : 404);
-            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyException){
-                return $app->json(array("message" => $e->getMessage(), "message_value" => $e->getValue(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
-            }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyI18NException){
-                return $app->json(array("message" => $e->getMessage(), "message_entity" => $e->getEntity(), "message_lang" => $e->getLang(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
-            }else{
-                return $app->json(array("message" => $e->getMessage(), "type" => get_class($e)),  $e->getCode() ? $e->getCode() : 500);
-            }
-
+            $data = array("message" => $e->getMessage(), "type" => get_class($e), $e->getCode() ? $e->getCode() : 500);
         }
+
+        if(Config\Adapter::getConfig()->APP_DEBUG){
+            $data['debug'] = $e->getTrace();
+        }
+
+        return $app->json($data, $e->getCode() ? $e->getCode() : 500);
     }
 
 });

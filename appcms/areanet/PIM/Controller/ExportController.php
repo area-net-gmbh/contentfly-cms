@@ -3,6 +3,7 @@ namespace Areanet\PIM\Controller;
 
 use Areanet\PIM\Classes\Api;
 use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
 use Areanet\PIM\Classes\Helper;
 use Areanet\PIM\Classes\Permission;
 use Ellumilel\ExcelWriter;
@@ -59,17 +60,20 @@ class ExportController extends BaseController
 
     public function jsonAction(Request $request)
     {
-        $entityName         = $request->get('entity', 'Produkt');
-        $where              = $request->get('where', null);
-        $flatten            = $request->get('flatten', true);
-        $lang               = $request->get('lang', null);
+        $entityName         = $request->get('entity');
+        $where              = $request->get('where');
+        $flatten            = $request->get('flatten');
+        $lang               = $request->get('lang');
 
-        if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
-            throw new Exception("Export von $entityName verweigert.", 403);
+        $helper             = new Helper();
+        $entityShortName    = $helper->getShortEntityName($entityName);
+
+        if(!($permission = Permission::canExport($this->app['auth.user'], $entityShortName))){
+            throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
         $event->setParam('lang', $lang);
@@ -83,7 +87,7 @@ class ExportController extends BaseController
 
         $api                = new Api($this->app, $request);
         $schema             = $api->getSchema();
-        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
+        $data               = $api->getList($entityShortName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
 
         $response = new Response();
         $response->headers->set('Content-Type', 'text/json');
@@ -95,7 +99,7 @@ class ExportController extends BaseController
         }
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
         $event->setParam('lang', $lang);
@@ -111,18 +115,20 @@ class ExportController extends BaseController
 
     public function xmlAction(Request $request){
 
-        $entityName         = $request->get('entity', 'Produkt');
-        $where              = $request->get('where', null);
-        $flatten            = $request->get('flatten', true);
-        $lang               = $request->get('lang', null);
-        $flatten            = $request->get('flatten', true);
+        $entityName         = $request->get('entity');
+        $where              = $request->get('where');
+        $lang               = $request->get('lang');
+        $flatten            = $request->get('flatten');
 
-        if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
-            throw new Exception("Export von $entityName verweigert.", 403);
+        $helper             = new Helper();
+        $entityShortName    = $helper->getShortEntityName($entityName);
+
+        if(!($permission = Permission::canExport($this->app['auth.user'], $entityShortName))){
+            throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
         $event->setParam('lang', $lang);
@@ -137,11 +143,11 @@ class ExportController extends BaseController
         $helper             = new Helper();
         $api                = new Api($this->app, $request);
         $schema             = $api->getSchema();
-        $entitySchema       = $schema[ucfirst($entityName)];
-        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
+        $entitySchema       = $schema[$entityShortName];
+        $data               = $api->getList($entityShortName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
 
         $xml = new \SimpleXMLElement('<items/>');
-        $xml->addAttribute('entity', $entityName);
+        $xml->addAttribute('entity',$entityShortName);
 
         if($lang){
             $xml->addAttribute('lang', $lang);
@@ -170,8 +176,8 @@ class ExportController extends BaseController
                             if($entitySchema['properties'][$key]['type'] == 'file'){
                                 $subitem->addAttribute('entity', 'PIM\\File');
                             }else{
-                                $entityShortName = $helper->getShortEntityName($entitySchema['properties'][$key]['accept']);
-                                $subitem->addAttribute('entity', $entityShortName);
+                                $entitySubShortName = $helper->getShortEntityName($entitySchema['properties'][$key]['accept']);
+                                $subitem->addAttribute('entity', $entitySubShortName);
                             }
 
                             if ($value) {
@@ -200,8 +206,8 @@ class ExportController extends BaseController
                             if($entitySchema['properties'][$key]['type'] == 'multifile'){
                                 $subitem->addAttribute('entity', 'PIM\\File');
                             }else{
-                                $entityShortName = $helper->getShortEntityName($entitySchema['properties'][$key]['accept']);
-                                $subitem->addAttribute('entity', $entityShortName);
+                                $entitySubShortName = $helper->getShortEntityName($entitySchema['properties'][$key]['accept']);
+                                $subitem->addAttribute('entity', $entitySubShortName);
                             }
 
                             if ($value) {
@@ -215,7 +221,7 @@ class ExportController extends BaseController
                                         }
 
                                         $event = new \Areanet\PIM\Classes\Event();
-                                        $event->setParam('entity', $entityName);
+                                        $event->setParam('entity', $entityShortName);
                                         $event->setParam('request', $request);
                                         $event->setParam('subitem2', $subitem2);
                                         $event->setParam('value', $value);
@@ -237,6 +243,20 @@ class ExportController extends BaseController
                                 $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
                             }
                             break;
+                        case 'virtualjoin':
+                            $subitem = $item->addChild($key);
+                            $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
+                            if($value){
+                                foreach($value as $subobject){
+                                    $subitem2 =  $subitem->addChild('item');
+                                    if (is_array($subobject)) {
+                                        $subitem2->addAttribute('id', isset($subobject['id']) ? $subobject['id'] : '');
+                                    } else {
+                                        $subitem2->addAttribute('id', $subobject);
+                                    }
+                                }
+                            }
+                            break;
                         default:
                             $subitem = $item->addChild($key, htmlspecialchars($value));
                             $subitem->addAttribute('type', $entitySchema['properties'][$key]['type']);
@@ -245,7 +265,7 @@ class ExportController extends BaseController
                 }
 
                 $event = new \Areanet\PIM\Classes\Event();
-                $event->setParam('entity', $entityName);
+                $event->setParam('entity', $entityShortName);
                 $event->setParam('request', $request);
                 $event->setParam('item', $item);
                 $event->setParam('object', $object);
@@ -264,16 +284,20 @@ class ExportController extends BaseController
 
 
     private function loadFlatData(Request $request){
-        $entityName         = $request->get('entity', 'Produkt');
-        $where              = $request->get('where', null);
-        $lang               = $request->get('lang', null);
+        $entityName         = $request->get('entity');
+        $where              = $request->get('where');
+        $lang               = $request->get('lang');
 
-        if(!($permission = Permission::canExport($this->app['auth.user'], $entityName))){
-            throw new Exception("Export von $entityName verweigert.", 403);
+
+        $helper             = new Helper();
+        $entityShortName    = $helper->getShortEntityName($entityName);
+
+        if(!($permission = Permission::canExport($this->app['auth.user'], $entityShortName))){
+            throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
         $event = new \Areanet\PIM\Classes\Event();
-        $event->setParam('entity',  $entityName);
+        $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
         $event->setParam('lang', $lang);
@@ -288,8 +312,8 @@ class ExportController extends BaseController
         $helper             = new Helper();
         $api                = new Api($this->app, $request);
         $schema             = $api->getSchema();
-        $entitySchema       = $schema[ucfirst($entityName)];
-        $data               = $api->getList($entityName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
+        $entitySchema       = $schema[$entityShortName];
+        $data               = $api->getList($entityShortName, $where, $order, null, array(), null, $flatten, 0, 0, $lang);
         $csvHeaderInited    = false;
         $csvHeader          = array('id' => APPCMS_ID_TYPE);
         $csvRows            = array();
@@ -323,7 +347,7 @@ class ExportController extends BaseController
                                 }
 
                                 $event = new \Areanet\PIM\Classes\Event();
-                                $event->setParam('entity', $entityName);
+                                $event->setParam('entity', $entityShortName);
                                 $event->setParam('request', $request);
                                 $event->setParam('flattenedValue', $flattenedValue);
                                 $event->setParam('value', $value);
@@ -351,7 +375,7 @@ class ExportController extends BaseController
                                     }
 
                                     $event = new \Areanet\PIM\Classes\Event();
-                                    $event->setParam('entity', $entityName);
+                                    $event->setParam('entity', $entityShortName);
                                     $event->setParam('request', $request);
                                     $event->setParam('flattenedValue', $flattenedValue);
                                     $event->setParam('subobject', $subobject);
@@ -376,6 +400,10 @@ class ExportController extends BaseController
                             }
                             if (!$csvHeaderInited) $csvHeader[$key] = 'text';
                             break;
+                        case 'virtualjoin':
+                            $csvRow[] = $value;
+                            if (!$csvHeaderInited) $csvHeader[$key] = 'string';
+                            break;
                         default:
                             $csvRow[] = $value;
                             if (!$csvHeaderInited) $csvHeader[$key] = 'text';
@@ -383,7 +411,7 @@ class ExportController extends BaseController
                     }
 
                     $event = new \Areanet\PIM\Classes\Event();
-                    $event->setParam('entity', $entityName);
+                    $event->setParam('entity', $entityShortName);
                     $event->setParam('request', $request);
                     $event->setParam('csvRow', $csvRow);
                     $event->setParam('object', $object);

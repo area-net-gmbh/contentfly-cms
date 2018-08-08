@@ -3,6 +3,8 @@ namespace Areanet\PIM\Classes\Controller\Provider\Base;
 
 use Areanet\PIM\Classes\Config;
 use Areanet\PIM\Classes\Controller\Provider\BaseControllerProvider;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Messages;
 use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +26,7 @@ class ApiControllerProvider extends BaseControllerProvider
 
         $checkAuth = function (Request $request, Application $app) {
             if (!$this->checkToken($request, $app)) {
-                throw new AccessDeniedHttpException('Zugriff verweigert', null, 401);
+                throw new ContentflyException(Messages::contentfly_general_access_denied, null, Messages::contentfly_status_invalid_token);
             }
         };
 

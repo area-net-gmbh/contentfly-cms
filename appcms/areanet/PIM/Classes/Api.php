@@ -85,35 +85,35 @@ class Api
         $i18n   = $schema[$entityShortName]['settings']['i18n'];
 
         if(!$object){
-            throw new ContentflyException('contentfly_not_found', $entityShortName, 404);
+            throw new ContentflyException(Messages::contentfly_general_not_found, $entityShortName, Messages::contentfly_status_not_found);
         }
 
         //Berechtigungen prüfen
         if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityShortName))){
-            throw new ContentflyException('contentfly_access_denied', $entityShortName, 403);
+            throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
-            throw new ContentflyException("contentfly_access_denied", "$entityShortName::$id", 403);
+            throw new ContentflyException(Messages::contentfly_general_access_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new ContentflyException("contentfly_access_denied", "$entityShortName::$id", 403);
+                    throw new ContentflyException(Messages::contentfly_general_access_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
                 }
             }
         }
 
         if(!I18nPermission::isWritable($this->app, $entityShortName, $lang)){
-            throw new ContentflyI18NException('contentfly_i18n_permission_denied', $entityShortName, $lang);
+            throw new ContentflyI18NException(Messages::contentfly_i18n_permission_denied, $entityShortName, $lang);
         }
 
         if($entityShortName == 'PIM\\User'){
 
             if($object->getAlias() == 'admin'){
-                throw new \Exception("Der Hauptadministrator kann nicht gelöscht werden.", 400);
+                throw new ContentflyException(Messages::contentfly_general_admin_not_deletable);
             }
 
         }
@@ -127,7 +127,7 @@ class Api
                 $query->setParameter('id', $object->getId());
 
                 if($query->getSingleScalarResult() > 1){
-                    throw new ContentflyI18NException("contentfly_i18n_translations_exists", $entityShortName, $mainLang);
+                    throw new ContentflyI18NException(Messages::contentfly_i18n_translations_exists, $entityShortName, $mainLang);
                 }
             }
         }
@@ -231,29 +231,31 @@ class Api
         $entityShortName    = $helper->getShortEntityName($entityName);
 
         if(!Permission::isWritable($this->app['auth.user'], $entityShortName)){
-            throw new AccessDeniedHttpException("Zugriff auf $entityShortName verweigert.");
+            throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
         if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $lang)){
-            throw new ContentflyI18NException('contentfly_i18n_permission_denied', $entityShortName, $lang);
+            throw new ContentflyI18NException(Messages::contentfly_i18n_permission_denied, $entityShortName, $lang);
         }
 
         $object  = new $entityFullName();
 
         foreach($data as $property => $value){
             if(!isset($schema[$entityShortName]['properties'][$property])){
-                throw new \Exception("Unkown property $property for entity $entityShortName", 500);
+                throw new ContentflyException(Messages::contentfly_general_unknown_property, "$entityShortName::$property");
             }
 
             $type = $schema[$entityShortName]['properties'][$property]['type'];
             $typeObject = $this->app['typeManager']->getType($type);
             if(!$typeObject){
-                throw new \Exception("Unkown Type $typeObject for $property for entity $entityShortName", 500);
+                throw new ContentflyException(Messages::contentfly_general_unknown_type_object, "$entityShortName::$property::$typeObject");
             }
 
             if($schema[$entityShortName]['properties'][$property]['unique']){
                 $objectDuplicated = $this->em->getRepository($entityFullName)->findOneBy(array($property => $value));
-                if($objectDuplicated) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
+                if($objectDuplicated){
+                    throw new ContentflyException(Messages::contentfly_general_record_already_exists, "$property::$value");
+                }
             }
 
             if($property == 'id'){
@@ -282,7 +284,7 @@ class Api
             }
 
             if(empty($lang)){
-                throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+                throw new ContentflyException(Messages::contentfly_i18n_missing_lang_param, $entityShortName);
             }
 
             $object->setLang($lang);
@@ -363,7 +365,7 @@ class Api
             $this->em->flush();
         }catch(UniqueConstraintViolationException $e){
             if($entityShortName == 'PIM\User'){
-                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
+                throw new ContentflyException(Messages::contentfly_general_user_already_exists, $data['alias']);
             }
             $uniqueObjectLoaded = false;
 
@@ -372,14 +374,16 @@ class Api
                 if($propertySettings['unique']){
                     $object = $this->em->getRepository($entityFullName)->findOneBy(array($property => $data[$property]));
                     if(!$object){
-                        throw new \Exception("Unbekannter Fehler", 501);
+                        throw new ContentflyException(Messages::contentfly_general_unknown_perror, "$entityShortName::$property (100)");
                     }
                     $uniqueObjectLoaded = true;
                     break;
                 }
             }
 
-            if(!$uniqueObjectLoaded) throw new \Exception("Unbekannter Fehler", 500);
+            if(!$uniqueObjectLoaded){
+                throw new ContentflyException(Messages::contentfly_general_unknown_perror, "$entityShortName::$property (200)");
+            }
         }
 
         return $object;
@@ -403,34 +407,33 @@ class Api
         $object = $this->getSingle($entityShortName, $id, null, $lang, true);
 
         if(!$object){
-            throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException();
-
+            throw new ContentflyException(Messages::contentfly_general_not_found, $entityShortName, Messages::contentfly_status_not_found);
         }
 
         if(!($permission = Permission::isWritable($this->app['auth.user'], $entityShortName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityShortName verweigert.");
+            throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
-            throw new AccessDeniedHttpException("Zugriff auf $entityShortName::$id verweigert.");
+            throw new ContentflyException(Messages::contentfly_general_permission_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityShortName::$id verweigert.");
+                    throw new ContentflyException(Messages::contentfly_general_permission_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
                 }
             }
         }
 
         if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $lang)){
-            throw new ContentflyI18NException('contentfly_i18n_permission_denied', $entityShortName, $lang);
+            throw new ContentflyI18NException(Messages::contentfly_i18n_permission_denied, $entityShortName, $lang);
         }
 
         if($object instanceof User && isset($data['pass']) && !$this->app['auth.user']->getIsAdmin()){
             if(!$this->app['auth.user']->isPass($currentUserPass)){
-                throw new \Exception('Passwort des aktuellen Benutzers wurde nicht korrekt übergeben.', 501);
+                throw new ContentflyException(Messages::contentfly_general_invalid_password, $this->app['auth.user']->getAlias());
             }
         }
 
@@ -447,13 +450,13 @@ class Api
 
 
             if(!isset($schema[$entityShortName]['properties'][$property])){
-                throw new \Exception("Unkown property $property for entity $entityShortName", 500);
+                throw new ContentflyException(Messages::contentfly_general_unknown_property, "$entityShortName::$property");
             }
 
             $type = $schema[$entityShortName]['properties'][$property]['type'];
             $typeObject =  $this->app['typeManager']->getType($type);
             if(!$typeObject){
-                throw new \Exception("Unkown Type $typeObject for $property for entity $entityShortName", 500);
+                throw new ContentflyException(Messages::contentfly_general_unknown_type_object, "$entityShortName::$property::$typeObject");
             }
 
             if(!empty($schema[$entityShortName]['properties'][$property]['i18n_universal'])){
@@ -495,14 +498,12 @@ class Api
 
         }catch(UniqueConstraintViolationException $e){
             if($entityShortName == 'PIM\User'){
-                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
+                throw new ContentflyException(Messages::contentfly_general_user_already_exists, $data['alias'],Messages::contentfly_status_ressource_already_exists);
             }elseif($entityShortName == 'PIM\File') {
                 $existingFile = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId()));
-
-                throw new FileExistsException("Die Datei ist in diesem Ordner bereits vorhanden. Wollen Sie die bestehende Datei überschreiben?", $existingFile->getId());
+                throw new ContentflyException(Messages::contentfly_general_ressource_already_exists, $existingFile->getId(), Messages::contentfly_status_ressource_already_exists);
             }else{
-
-                throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein gleicher Eintrag ist bereits vorhanden.");
+                throw new ContentflyException(Messages::contentfly_general_ressource_already_exists, "$property::$value", Messages::contentfly_status_ressource_already_exists);
             }
         }
 
@@ -821,29 +822,22 @@ class Api
             }
         }
 
-        if (substr($entityName, 0, 3) == 'PIM') {
-            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        }elseif(substr($entityName, 0, 7) == 'Areanet'){
-            $splitter = explode('\\', $entityName);
-            $entityNameToLoad = $entityName;
-            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
-        }else{
-            $entityName = ucfirst($entityName);
-            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
+        $helper             = new Helper();
+        $entityFullName     = $helper->getFullEntityName($entityName);
+        $entityShortName    = $helper->getShortEntityName($entityName);
+
+        $entityNameAlias = 'a'.md5($entityShortName);
+
+        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))){
+            throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
-        $entityNameAlias = 'a'.md5($entityName);
-
-        if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad verweigert.");
-        }
-
-        $schema     = $this->app['schema'];
+        $schema  = $this->app['schema'];
 
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select("count(".$entityNameAlias.")")
-            ->from($entityNameToLoad, $entityNameAlias)
+            ->from($entityFullName, $entityNameAlias)
             ->andWhere("$entityNameAlias.isIntern = false");
 
 
@@ -863,14 +857,13 @@ class Api
         }
 
 
-
         if($lastModified && !$untranslatedLang){
             $queryBuilder->andWhere($entityNameAlias.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
         }
 
-        if($schema[$entityName]['settings']['i18n']){
+        if($schema[$entityShortName]['settings']['i18n']){
             if(empty($lang)){
-                throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+                throw new ContentflyException(Messages::contentfly_i18n_missing_lang_param, $entityShortName);
             }
 
             if($untranslatedLang){
@@ -880,7 +873,7 @@ class Api
                         $entityNameAlias.'.id',
                         $this->em->createQueryBuilder()
                             ->select($entityNameAlias.'sub.id')
-                            ->from($entityNameToLoad, $entityNameAlias.'sub')
+                            ->from($entityFullName, $entityNameAlias.'sub')
                             ->where($entityNameAlias."sub.lang = :sublang")
                             ->getDQL()
                     )
@@ -895,21 +888,21 @@ class Api
             $joinedCounter      = 0;
             foreach($where as $field => $value){
 
-                if(!isset($schema[$entityName]['properties'][$field])){
+                if(!isset($schema[$entityShortName]['properties'][$field])){
 
                     continue;
                 }
 
-                if($schema[$entityName]['properties'][$field]['type'] == 'multijoin' || $schema[$entityName]['properties'][$field]['type'] == 'checkbox'){
-                    if(isset($schema[$entityName]['properties'][$field]['mappedBy'])){
+                if($schema[$entityShortName]['properties'][$field]['type'] == 'multijoin' || $schema[$entityShortName]['properties'][$field]['type'] == 'checkbox'){
+                    if(isset($schema[$entityShortName]['properties'][$field]['mappedBy'])){
                         if($value == -1) {
-                            $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
+                            $mappedBy           = $schema[$entityShortName]['properties'][$field]['mappedBy'];
                             $queryBuilder->leftJoin("$entityNameAlias.$field", "joined$joinedCounter");
                             $queryBuilder->andWhere("joined$joinedCounter.$mappedBy IS NULL");
                         }else{
-                            $searchJoinedEntity = $schema[$entityName]['properties'][$field]['accept'];
+                            $searchJoinedEntity = $schema[$entityShortName]['properties'][$field]['accept'];
                             $searchJoinedObject = $this->em->getRepository($searchJoinedEntity)->find($value);
-                            $mappedBy           = $schema[$entityName]['properties'][$field]['mappedBy'];
+                            $mappedBy           = $schema[$entityShortName]['properties'][$field]['mappedBy'];
 
                             $queryBuilder->leftJoin("$entityNameAlias.$field", "joined$joinedCounter");
                             $queryBuilder->andWhere("joined$joinedCounter.$mappedBy = :$field");
@@ -931,7 +924,7 @@ class Api
                     }
 
                 }else{
-                    switch($schema[$entityName]['properties'][$field]['type']){
+                    switch($schema[$entityShortName]['properties'][$field]['type']){
                         case 'join':
                             if($value == -1){
                                 $queryBuilder->andWhere("$entityNameAlias.$field IS NULL");
@@ -992,7 +985,7 @@ class Api
                 $orX->add("$entityNameAlias.id = :FT_id");
                 $queryBuilder->setParameter("FT_id", $where['fulltext']);
 
-                foreach($schema[$entityName]['properties'] as $field => $fieldOptions){
+                foreach($schema[$entityShortName]['properties'] as $field => $fieldOptions){
 
                     if(in_array($fieldOptions['type'], $fulltextTypes)){
                         $orX->add("$entityNameAlias.$field LIKE :FT_$field");
@@ -1023,7 +1016,7 @@ class Api
 
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('request',        $this->request);
-        $event->setParam('entity',         $entityName);
+        $event->setParam('entity',         $entityShortName);
         $event->setParam('queryBuilder',   $queryBuilder);
         $event->setParam('app',            $this->app);
         $event->setParam('user',           $this->app['auth.user']);
@@ -1060,7 +1053,7 @@ class Api
         if(count($properties)){
             $partialProperties = implode(',', $properties);
             $partialDefaultPrperties = 'id,';
-            if($schema[$entityName]['settings']['i18n']){
+            if($schema[$entityShortName]['settings']['i18n']){
                 $partialDefaultPrperties .= 'lang,';
             }
 
@@ -1072,7 +1065,7 @@ class Api
         }
 
         if(!$flatten) {
-            foreach ($schema[$entityName]['properties'] as $field => $config) {
+            foreach ($schema[$entityShortName]['properties'] as $field => $config) {
 
                 if (count($properties) && !in_array($field, $properties)) continue;
 
@@ -1086,13 +1079,11 @@ class Api
                             $queryBuilder->addSelect($field);
                         }
                         break;
-                    //todo: multijoin
                 }
             }
         }
 
         $query   = $queryBuilder->getQuery();
-        //$query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $objects = $query->getResult();
 
         if(!$objects){
@@ -1102,7 +1093,7 @@ class Api
         $array = array();
         foreach($objects as $object){
 
-            $objectData = $object->toValueObject($this->app, $entityName,  $flatten, $properties);
+            $objectData = $object->toValueObject($this->app, $entityShortName,  $flatten, $properties);
 
             $array[] = $objectData;
 
@@ -1192,7 +1183,7 @@ class Api
             if($object instanceof BaseI18n){
 
                 if(!defined('APP_CMS_MAIN_LANG')){
-                    throw new \Exception('contentfly_i18n_undefined_languages');
+                    throw new ContentflyException('contentfly_i18n_undefined_languages');
                 }
 
                 $i18n = true;
@@ -1365,34 +1356,23 @@ class Api
 
     public function getSingle($entityName, $id = null, $where = null, $lang = null, $returnObject = false, $compareToLang = null, $loadJoinedLang = null){
 
-        if (substr($entityName, 0, 3) == 'PIM') {
-            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        }elseif(substr($entityName, 0, 7) == 'Areanet'){
-            $splitter = explode('\\', $entityName);
-            $entityNameToLoad = $entityName;
-            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
-        }elseif(substr($entityName, 0, 14) == 'Custom\\Entity\\') {
-            $entityNameToLoad = $entityName;
-            $entityName = substr($entityName, 14);
-        }else{
-            $entityName = ucfirst($entityName);
-            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
-        }
+        $helper             = new Helper();
+        $entityFullName     = $helper->getFullEntityName($entityName);
+        $entityShortName    = $helper->getShortEntityName($entityName);
 
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedException("Zugriff auf $entityNameToLoad verweigert.");
+            throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
-        $entityNameAlias = 'a'.md5($entityName);
+        $entityNameAlias = 'a'.md5($entityShortName);
 
         $object = null;
         $schema = $this->app['schema'];
 
-        //$this->em->clear($entityNameToLoad);
         $queryBuilder = $this->em->createQueryBuilder();
         $queryBuilder
             ->select($entityNameAlias)
-            ->from($entityNameToLoad, $entityNameAlias);
+            ->from($entityFullName, $entityNameAlias);
 
 
         $query = null;
@@ -1402,9 +1382,9 @@ class Api
                 ->where("$entityNameAlias.id = :id")
                 ->setParameter('id', $id);
 
-            if($schema[$entityName]['settings']['i18n']){
+            if($schema[$entityShortName]['settings']['i18n']){
                 if(empty($lang)){
-                    throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+                    throw new ContentflyException(Messages::contentfly_i18n_missing_lang_param, $entityShortName);
                 }
                 $queryBuilder
                     ->andWhere("$entityNameAlias.lang = :lang")
@@ -1417,22 +1397,22 @@ class Api
                     ->setParameter($field, $lang);
             }
         }else{
-            throw new \Exception("Keine ID oder WHERE-Abfrage übergeben.");
+            throw new ContentflyException(Messages::contentfly_general_missing_params, $entityShortName);
         }
 
-        foreach ($schema[$entityName]['properties'] as $field => $config) {
+        foreach ($schema[$entityShortName]['properties'] as $field => $config) {
 
 
             switch ($config['type']) {
                 case 'onejoin':
-                    $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                    $joinedEntity = $helper->getShortEntityName($config['accept']);
                     if ($schema[$joinedEntity]['settings']['i18n']) {
                         $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
                         $queryBuilder->addSelect($field);
                     }
                     break;
                 case 'join':
-                    $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                    $joinedEntity = $helper->getShortEntityName($config['accept']);
                     if ($schema[$joinedEntity]['settings']['i18n']) {
                         $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :loadJoinedLang");
                         $queryBuilder->addSelect($field);
@@ -1445,7 +1425,7 @@ class Api
                     }
                     break;
                 case 'multijoin':
-                    $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                    $joinedEntity = $helper->getShortEntityName($config['accept']);
                     if ($schema[$joinedEntity]['settings']['i18n']) {
                         $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :loadJoinedLang");
                         $queryBuilder->addSelect($field);
@@ -1463,25 +1443,26 @@ class Api
         $object = $queryBuilder->getQuery()->getSingleResult();
 
         if (!$object) {
-            return new JsonResponse(array('message' => "Object not found"), 404);
+            return new JsonResponse(array('message' => "Object not found"), Messages::contentfly_status_not_found);
+
         }
 
         $compareObject = null;
         if($compareToLang && $compareToLang != $lang) {
             try {
-                $compareObject = $this->getSingle($entityName, $id, $where, $compareToLang, true);
+                $compareObject = $this->getSingle($entityShortName, $id, $where, $compareToLang, true);
             } catch (\Exception $e) {
                 $compareObject = null;
             }
 
             if ($compareObject) {
-                foreach ($schema[$entityName]['properties'] as $field => $config) {
+                foreach ($schema[$entityShortName]['properties'] as $field => $config) {
                     $getter = 'get' . ucfirst($field);
                     switch ($config['type']) {
                         case 'join':
                             if ($compareObject->$getter() && !$object->$getter()) {
                                 $helper = new Helper();
-                                throw new ContentflyI18NException('contentfly_missing_translations', $helper->getShortEntityName($config['accept']), $compareToLang);
+                                throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
                             }
                             break;
                         case 'multijoin':
@@ -1490,7 +1471,7 @@ class Api
 
                             if (count($a1) != count($a2)) {
                                 $helper = new Helper();
-                                throw new ContentflyI18NException('contentfly_missing_translations', $helper->getShortEntityName($config['accept']), $compareToLang);
+                                throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
                             }
                             break;
                     }
@@ -1503,19 +1484,19 @@ class Api
 
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
+            throw new ContentflyException(Messages::contentfly_general_access_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityNameToLoad::$id verweigert.");
+                    throw new ContentflyException(Messages::contentfly_general_access_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
                 }
             }
         }
 
-        return $returnObject ? $object : $object->toValueObject($this->app, $entityName, false);
+        return $returnObject ? $object : $object->toValueObject($this->app, $entityShortName, false);
     }
 
     protected function getTableName($entityName){
@@ -1529,34 +1510,26 @@ class Api
 
     public function getTranslations($entityName, $lang){
 
-        if (substr($entityName, 0, 3) == 'PIM') {
-            $entityNameToLoad = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        }elseif(substr($entityName, 0, 7) == 'Areanet'){
-            $splitter = explode('\\', $entityName);
-            $entityNameToLoad = $entityName;
-            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
-        }else{
-            $entityName = ucfirst($entityName);
-            $entityNameToLoad = 'Custom\Entity\\' . ucfirst($entityName);
-        }
+        $helper             = new Helper();
+        $entityShortName    = $helper->getShortEntityName($entityName);
 
         if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+            throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
         $schema = $this->app['schema'];
 
         if(empty($schema[$entityName])){
-            throw new \Exception('contentfly_no_entity', 500);
+            throw new ContentflyException(Messages::contentfly_general_invalid_entity, $entityShortName);
         }
 
 
         if(!$schema[$entityName]['settings']['i18n']){
-            throw new \Exception('contentfly_i18n_base_entity', 500);
+            throw new ContentflyException(Messages::contentfly_general_invalid_base_entity, $entityShortName);
         }
 
         if(empty($lang)){
-            throw new \Exception('contentfly_i18n_missing_lang_param', 500);
+            throw new ContentflyException(Messages::contentfly_i18n_missing_lang_param, $entityShortName);
         }
 
         $dbName       = $schema[$entityName]['settings']['dbname'];
@@ -1575,19 +1548,12 @@ class Api
 
     public function getTree($entityName, $parent, $properties = array()){
 
-        if (substr($entityName, 0, 3) == 'PIM') {
-            $entity = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
-        }elseif(substr($entityName, 0, 7) == 'Areanet'){
-            $splitter = explode('\\', $entityName);
-            $entity = $entityName;
-            $entityName       = 'PIM\\'.$splitter[count($splitter) - 1];
-        }else{
-            $entityName = ucfirst($entityName);
-            $entity = 'Custom\Entity\\' . ucfirst($entityName);
-        }
+        $helper             = new Helper();
+        $entityFullName     = $helper->getFullEntityName($entityName);
+        $entityShortName    = $helper->getShortEntityName($entityName);
 
         $queryBuilder = $this->em->createQueryBuilder();
-        $queryBuilder->from($entity, $entityName)
+        $queryBuilder->from($entityFullName, $entityName)
             ->where("$entityName.isIntern = false")
             ->orderBy($entityName.'.sorting', 'ASC');
 
@@ -1611,8 +1577,8 @@ class Api
         $array   = array();
 
         foreach($objects as $object){
-            $data = $object->toValueObject($this->app, $entityName, true, $properties);
-            $data->treeChilds = $this->getTree($entityName, $object, $properties);
+            $data = $object->toValueObject($this->app, $entityShortName, true, $properties);
+            $data->treeChilds = $this->getTree($entityShortName, $object, $properties);
             $array[] = $data;
         }
 
@@ -1620,20 +1586,20 @@ class Api
     }
 
     public function getQuery(Array $params){
-        $queryBuilder = $this->database->createQueryBuilder();
 
-        $paramCount = 0;
-
-        $schema = $this->getSchema();
+        $helper         = new Helper();
+        $queryBuilder   = $this->database->createQueryBuilder();
+        $paramCount     = 0;
+        $schema         = $this->getSchema();
 
         if(!isset($params['select']) || !isset($params['from'])){
-            throw new \Exception("Mandatory keys 'from' or 'select' missing.");
+            throw new ContentflyException(Messages::contentfly_general_missing_params);
         }
 
         foreach($params as $method => $params){
 
             if($method == 'delete' || $method == 'insert'|| $method == 'update'){
-                throw new \Exception("'delete', 'insert' oder 'update not allowed in query.");
+                throw new ContentflyException(Messages::contentfly_general_invalid_params, $method);
             }
 
             $method = $method == 'where' ? 'andWhere' : $method;
@@ -1641,21 +1607,21 @@ class Api
             if(method_exists($queryBuilder, $method)){
                 if(is_array($params)){
                     if($this->isIndexedArray($params)){
-                        //array('select' => array('field1', 'field2'))
 
                         if(in_array($method, array('join', 'innerJoin', 'leftJoin', 'rightJoin'))){
 
                             if(count($params) != 4){
-                                throw new \Exception("Wrong Parameter-Count for '$method'");
+                                throw new ContentflyException(Messages::contentfly_general_invalid_params, $method);
                             }
 
-                            $entityName     = $params[1];
-                            $entityAlias    = $params[2];
+                            $entityName         = $params[1];
+                            $entityAlias        = $params[2];
+                            $entityShortName    = $helper->getShortEntityName($entityName);
 
-                            if(isset($schema[ucfirst($entityName)])) {
+                            if(isset($schema[$entityShortName])) {
 
                                 if (!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($entityName)))) {
-                                    throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+                                    throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                 }
 
                                 if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
@@ -1693,11 +1659,12 @@ class Api
                         if($method == 'from'){
                             //$queryKey     = entityName
                             //$queryParams  = entityAlias
+                            $entityShortName = $helper->getShortEntityName($queryKey);
 
-                            if(isset($schema[ucfirst($queryKey)])){
+                            if(isset($schema[$entityShortName])){
 
-                                if(!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($queryKey)))){
-                                    throw new AccessDeniedHttpException("Zugriff auf $queryKey verweigert.");
+                                if(!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))){
+                                    throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                 }
 
                                 if($permission == \Areanet\PIM\Entity\Permission::OWN){
@@ -1722,7 +1689,7 @@ class Api
                                 }
                             }
 
-                            $queryKey = $this->getTableName($queryKey);
+                            $queryKey = $this->getTableName($entityShortName);
                         }
 
                         if(is_array($queryParams)){
@@ -1746,9 +1713,10 @@ class Api
                 }else{
                     //array('from' => 'entity')
                     if($method == 'from'){
-                        if(isset($schema[ucfirst($params)])) {
-                            if (!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($params)))) {
-                                throw new AccessDeniedHttpException("Zugriff auf $params verweigert.");
+                        $entityShortName = $helper->getShortEntityName($params);
+                        if(isset($schema[$entityShortName])) {
+                            if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
+                                throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                             }
 
                             if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
@@ -1773,7 +1741,7 @@ class Api
                             }
                         }
 
-                        $params = $this->getTableName($params);
+                        $params = $this->getTableName($entityShortName);
                     }
 
 
