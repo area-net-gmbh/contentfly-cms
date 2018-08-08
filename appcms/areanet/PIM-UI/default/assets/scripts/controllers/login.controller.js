@@ -105,6 +105,7 @@
                 localStorageService.set('devmode', response.data.devmode);
                 localStorageService.set('frontend', response.data.frontend);
                 localStorageService.set('permissions', response.data.permissions);
+                localStorageService.set('i18nPermissions', response.data.i18nPermissions);
                 localStorageService.set('uiblocks', response.data.uiblocks);
                 $location.path(response.data.frontend.login_redirect);
             }, function errorCallback(response) {

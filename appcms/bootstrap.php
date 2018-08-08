@@ -149,6 +149,12 @@ if($app['is_installed']) {
     };
 
     foreach (Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType) {
+
+
+        if(!class_exists($systemType)){
+            die("contentfly_type_class_not_found: $systemType");
+        }
+
         $typeClass = new $systemType($app);
         $app['typeManager']->registerType($typeClass);
     }

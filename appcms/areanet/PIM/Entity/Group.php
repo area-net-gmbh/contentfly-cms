@@ -1,13 +1,15 @@
 <?php
 namespace Areanet\PIM\Entity;
 
+use Areanet\PIM\Classes\Helper;
+use Areanet\PIM\Classes\I18nPermission;
 use Doctrine\ORM\Mapping as ORM;
 use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_group")
- * @PIM\Config(label="Gruppe", labelProperty="name", tabs="{'permissions': 'Berechtigungen'}")
+ * @PIM\Config(label="Gruppe", labelProperty="name", tabs="{'permissions': 'Berechtigungen', 'i18n': 'Sprachen'}")
  */
 class Group extends Base
 {
@@ -31,6 +33,13 @@ class Group extends Base
      * @PIM\Permissions()
      */
     protected $permissions;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(showInList=50, label="Sprachen", tab="i18n")
+     * @PIM\I18nPermissions()
+     */
+    protected $languages;
 
     /**
      * @return mixed
@@ -79,9 +88,55 @@ class Group extends Base
     {
         $this->tokenTimeout = $tokenTimeout;
     }
-    
-      
 
+    /**
+     * @return mixed
+     */
+    public function getLanguages()
+    {
+        if(!$this->languages){
+            return null;
+        }
+        return is_string($this->languages) ? json_decode($this->languages, true) : $this->languages;
+    }
 
+    /**
+     * @param mixed $languages
+     */
+    public function setLanguages($languages)
+    {
+        if($languages){
+            $this->languages = !is_string($languages) ? json_encode($languages) : $languages;
+        }
+
+    }
+
+    public function langIsWritable($lang){
+        if(!($langPermissions = $this->getLanguages())){
+            return true;
+        }
+
+        if(empty($langPermissions[$lang])){
+            return true;
+        }
+
+        return false;
+    }
+
+    public function langIsTranslatable($lang){
+        if(!($langPermissions = $this->getLanguages())){
+            return true;
+        }
+
+        if(empty($langPermissions[$lang])){
+            return true;
+        }
+
+        return $langPermissions[$lang] == I18nPermission::IS_TRANSLATABALE;
+    }
+
+    public function langisOnlyReadable($lang){
+        return !$this->langIsTranslatable($lang) && !$this->langIsWritable($lang);
+    }
 
 }

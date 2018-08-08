@@ -76,35 +76,41 @@ class Api
     public function doDelete($entityName, $id, $lang = null){
         $schema = $this->app['schema'];
 
-        $entityPath = 'Custom\Entity\\'.$entityName;
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }
+        $helper             = new Helper();
+        $entityFullName     = $helper->getFullEntityName($entityName);
+        $entityShortName    = $helper->getShortEntityName($entityName);
 
-        $object = $this->getSingle($entityName, $id, null, $lang, true);
+        $object = $this->getSingle($entityShortName, $id, null, $lang, true);
+
+        $i18n   = $schema[$entityShortName]['settings']['i18n'];
 
         if(!$object){
-            throw new \Exception("Das Objekt wurde nicht gefunden.", 404);
+            throw new ContentflyException('contentfly_not_found', $entityShortName, 404);
         }
 
-        if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        //Berechtigungen prüfen
+        if(!($permission = Permission::isDeletable($this->app['auth.user'], $entityShortName))){
+            throw new ContentflyException('contentfly_access_denied', $entityShortName, 403);
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+            throw new ContentflyException("contentfly_access_denied", "$entityShortName::$id", 403);
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+                    throw new ContentflyException("contentfly_access_denied", "$entityShortName::$id", 403);
                 }
             }
         }
 
-        if($entityPath == 'Areanet\PIM\Entity\User'){
+        if(!I18nPermission::isWritable($this->app, $entityShortName, $lang)){
+            throw new ContentflyI18NException('contentfly_i18n_permission_denied', $entityShortName, $lang);
+        }
+
+        if($entityShortName == 'PIM\\User'){
 
             if($object->getAlias() == 'admin'){
                 throw new \Exception("Der Hauptadministrator kann nicht gelöscht werden.", 400);
@@ -112,31 +118,35 @@ class Api
 
         }
 
-        if($schema[ucfirst($entityName)]['settings']['i18n']){
+        //Prüfen, ob für Subsprachen bereits Übersetzungen bestehen
+        if($i18n){
             $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
 
             if($object->getLang() != $mainLang){
-                $query = $this->em->createQuery("SELECT COUNT(e) FROM $entityPath e WHERE e.id = :id");
+                $query = $this->em->createQuery("SELECT COUNT(e) FROM $entityFullName e WHERE e.id = :id");
                 $query->setParameter('id', $object->getId());
 
                 if($query->getSingleScalarResult() > 1){
-                    throw new ContentflyI18NException("contentfly_i18n_translations_exists", $entityName, $mainLang);
+                    throw new ContentflyI18NException("contentfly_i18n_translations_exists", $entityShortName, $mainLang);
                 }
             }
         }
 
+        //Baumstruktur aktualisieren
         $parent = null;
-        if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
-            $subObjects = $this->em->getRepository($entityPath)->findBy(array('treeParent' => $object->getId()));
+        if($schema[$entityShortName]['settings']['type'] == 'tree') {
+            $subObjects = $this->em->getRepository($entityFullName)->findBy(array('treeParent' => $object->getId()));
             if($subObjects){
                 foreach($subObjects as $subObject){
-                    $this->delete($entityName, $subObject->getId(), $this->app);
+                    $this->delete($entityShortName, $subObject->getId(), $this->app);
                 }
             }
             $parent = $object->getTreeParent();
         }
 
-        if($entityName == 'PIM\\File') {
+        //Dateien löschen
+        //todo: Löschen von Datein aus API auslagern
+        if($entityShortName == 'PIM\\File') {
             $backend    = Backend::getInstance();
 
             $path   = $backend->getPath($object);
@@ -147,20 +157,18 @@ class Api
             @rmdir($path);
         }
 
-        /**
-         * Log delete actions
-         */
+        //Protokollierung
         $schema = $this->app['schema'];
 
         $log = new Log();
 
         $log->setModelId($object->getId());
-        $log->setModelName(ucfirst($entityName));
+        $log->setModelName($entityShortName);
         $log->setUserCreated($this->app['auth.user']);
         $log->setMode(Log::DELETED);
 
-        if($schema[ucfirst($entityName)]['settings']['labelProperty']){
-            $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+        if($schema[$entityShortName]['settings']['labelProperty']){
+            $labelGetter = 'get'.ucfirst($schema[$entityShortName]['settings']['labelProperty']);
             $label = $object->$labelGetter();
             $log->setModelLabel($label);
         }
@@ -170,7 +178,7 @@ class Api
 
 
         //OneJoins löschen
-        foreach($schema[ucfirst($entityName)]['properties'] as $property => $propertyConfig){
+        foreach($schema[$entityShortName]['properties'] as $property => $propertyConfig){
             if($propertyConfig['type'] == 'onejoin'){
                 $getterJoinedEntity = 'get'.ucfirst($property);
                 $joinedEntity       = $object->$getterJoinedEntity();
@@ -179,11 +187,11 @@ class Api
         }
 
         //Bei Hauptsprache, alle Subsprachen mitlöschen
-        if($schema[ucfirst($entityName)]['settings']['i18n']){
+        if($i18n){
             $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
 
             if($object->getLang() == $mainLang){
-                $query = $this->em->createQuery("DELETE FROM $entityPath e WHERE e.id = :id AND NOT e.lang = :lang");
+                $query = $this->em->createQuery("DELETE FROM $entityFullName e WHERE e.id = :id AND NOT e.lang = :lang");
                 $query->setParameter('id', $object->getId());
                 $query->setParameter('lang', $mainLang);
                 $query->execute();
@@ -194,17 +202,17 @@ class Api
         $this->em->remove($object);
         $this->em->flush();
 
-        if($schema[ucfirst($entityName)]['settings']['isSortable']){
+        //Sortierung anpassen
+        if($schema[$entityShortName]['settings']['isSortable']){
             $oldPos = $object->getSorting();
-            if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
+            if($schema[$entityShortName]['settings']['type'] == 'tree') {
                 if(!$parent){
-                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
+                    $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
                 }else{
-                    $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
+                    $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
                 }
-
             }else{
-                $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0");
+                $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0");
             }
             $query->execute();
         }
@@ -218,30 +226,33 @@ class Api
     {
         $schema  = $this->app['schema'];
 
-        $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
+        $helper             = new Helper();
+        $entityFullName     = $helper->getFullEntityName($entityName);
+        $entityShortName    = $helper->getShortEntityName($entityName);
+
+        if(!Permission::isWritable($this->app['auth.user'], $entityShortName)){
+            throw new AccessDeniedHttpException("Zugriff auf $entityShortName verweigert.");
         }
 
-        if(!Permission::isWritable($this->app['auth.user'], $entityName)){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $lang)){
+            throw new ContentflyI18NException('contentfly_i18n_permission_denied', $entityShortName, $lang);
         }
 
-        $object  = new $entityPath();
+        $object  = new $entityFullName();
 
         foreach($data as $property => $value){
-            if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
-                throw new \Exception("Unkown property $property for entity $entityPath", 500);
+            if(!isset($schema[$entityShortName]['properties'][$property])){
+                throw new \Exception("Unkown property $property for entity $entityShortName", 500);
             }
 
-            $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
+            $type = $schema[$entityShortName]['properties'][$property]['type'];
             $typeObject = $this->app['typeManager']->getType($type);
             if(!$typeObject){
-                throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
+                throw new \Exception("Unkown Type $typeObject for $property for entity $entityShortName", 500);
             }
 
-            if($schema[ucfirst($entityName)]['properties'][$property]['unique']){
-                $objectDuplicated = $this->em->getRepository($entityPath)->findOneBy(array($property => $value));
+            if($schema[$entityShortName]['properties'][$property]['unique']){
+                $objectDuplicated = $this->em->getRepository($entityFullName)->findOneBy(array($property => $value));
                 if($objectDuplicated) throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Dieser Eintrag ist bereits vorhanden.");
             }
 
@@ -255,7 +266,7 @@ class Api
                 unset($value['id']);
             }
 
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user'], $data, $lang);
+            $typeObject->toDatabase($this, $object, $property, $value, $entityShortName, $schema, $this->app['auth.user'], $data, $lang);
 
         }
 
@@ -282,25 +293,25 @@ class Api
             $this->em->persist($object);
 
 
-            if($schema[ucfirst($entityName)]['settings']['isSortable']){
-                if($schema[ucfirst($entityName)]['settings']['type'] == 'tree') {
+            if($schema[$entityShortName]['settings']['isSortable']){
+                if($schema[$entityShortName]['settings']['type'] == 'tree') {
                     $parent = $object->getTreeParent();
                     if(!$parent){
-                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.treeParent IS NULL");
+                        $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.treeParent IS NULL");
                     }else {
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.treeParent = '".$parent->getId()."'");
+                        $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.treeParent = '".$parent->getId()."'");
                     }
-                }elseif($schema[ucfirst($entityName)]['settings']['sortRestrictTo']) {
-                    $restrictToProperty = $schema[ucfirst($entityName)]['settings']['sortRestrictTo'];
+                }elseif($schema[$entityShortName]['settings']['sortRestrictTo']) {
+                    $restrictToProperty = $schema[$entityShortName]['settings']['sortRestrictTo'];
                     $getter             = 'get'.ucfirst($restrictToProperty);
                     $restrictToObject   = $object->$getter();
                     if(!$restrictToObject){
-                        $query  = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty IS NULL");
+                        $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty IS NULL");
                     }else{
-                        $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty = '".$restrictToObject->getId()."'");
+                        $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty = '".$restrictToObject->getId()."'");
                     }
                 }else{
-                    $query = $this->em->createQuery("UPDATE $entityPath e SET e.sorting = e.sorting + 1");
+                    $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1");
                 }
 
                 $query->execute();
@@ -308,14 +319,14 @@ class Api
 
             $this->em->flush();
 
-            $isPush = $schema[$entityName]['settings']['isPush'];
+            $isPush = $schema[$entityShortName]['settings']['isPush'];
             if($isPush){
-                $pushTitle  = $schema[$entityName]['settings']['pushTitle'];
-                $pushText   = $schema[$entityName]['settings']['pushText'];
+                $pushTitle  = $schema[$entityShortName]['settings']['pushTitle'];
+                $pushText   = $schema[$entityShortName]['settings']['pushText'];
 
 
                 $event = new \Areanet\PIM\Classes\Event();
-                $event->setParam('entity',          $entityName);
+                $event->setParam('entity',          $entityShortName);
                 $event->setParam('data',            $data);
                 $event->setParam('user',            $this->app['auth.user']);
                 $event->setParam('additionalData',  array());
@@ -338,12 +349,12 @@ class Api
             $log = new Log();
 
             $log->setModelId($object->getId());
-            $log->setModelName($entityName);
+            $log->setModelName($entityShortName);
             $log->setUserCreated($this->app['auth.user']);
             $log->setMode(Log::INSERTED);
 
-            if($schema[ucfirst($entityName)]['settings']['labelProperty']){
-                $labelGetter = 'get'.ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+            if($schema[$entityShortName]['settings']['labelProperty']){
+                $labelGetter = 'get'.ucfirst($schema[$entityShortName]['settings']['labelProperty']);
                 $label = $object->$labelGetter();
                 $log->setModelLabel($label);
             }
@@ -351,15 +362,15 @@ class Api
             $this->em->persist($log);
             $this->em->flush();
         }catch(UniqueConstraintViolationException $e){
-            if($entityPath == 'Areanet\PIM\Entity\User'){
+            if($entityShortName == 'PIM\User'){
                 throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
             }
             $uniqueObjectLoaded = false;
 
-            foreach($schema[$entityName]['properties'] as $property => $propertySettings){
+            foreach($schema[$entityShortName]['properties'] as $property => $propertySettings){
 
                 if($propertySettings['unique']){
-                    $object = $this->em->getRepository($entityPath)->findOneBy(array($property => $data[$property]));
+                    $object = $this->em->getRepository($entityFullName)->findOneBy(array($property => $data[$property]));
                     if(!$object){
                         throw new \Exception("Unbekannter Fehler", 501);
                     }
@@ -386,33 +397,35 @@ class Api
     {
         $schema  = $this->app['schema'];
 
-        $entityPath = 'Custom\Entity\\'.ucfirst($entityName);
-        if(substr($entityName, 0, 3) == "PIM"){
-            $entityPath = 'Areanet\PIM\Entity\\'.substr($entityName, 4);
-        }
+        $helper             = new Helper();
+        $entityShortName    = $helper->getShortEntityName($entityName);
 
-        $object = $this->getSingle($entityName, $id, null, $lang, true);
+        $object = $this->getSingle($entityShortName, $id, null, $lang, true);
 
         if(!$object){
             throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException();
 
         }
 
-        if(!($permission = Permission::isWritable($this->app['auth.user'], $entityName))){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName verweigert.");
+        if(!($permission = Permission::isWritable($this->app['auth.user'], $entityShortName))){
+            throw new AccessDeniedHttpException("Zugriff auf $entityShortName verweigert.");
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
-            throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+            throw new AccessDeniedHttpException("Zugriff auf $entityShortName::$id verweigert.");
         }
 
         if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
-                    throw new AccessDeniedHttpException("Zugriff auf $entityName::$id verweigert.");
+                    throw new AccessDeniedHttpException("Zugriff auf $entityShortName::$id verweigert.");
                 }
             }
+        }
+
+        if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $lang)){
+            throw new ContentflyI18NException('contentfly_i18n_permission_denied', $entityShortName, $lang);
         }
 
         if($object instanceof User && isset($data['pass']) && !$this->app['auth.user']->getIsAdmin()){
@@ -423,8 +436,8 @@ class Api
 
         $i18nObjects    = array();
         $i18nProperties = array();
-        if($schema[ucfirst($entityName)]['settings']['i18n'] && !$isUnviversalUpdate){
-            $tableName   = $schema[ucfirst($entityName)]['settings']['dbname'];
+        if($schema[$entityShortName]['settings']['i18n'] && !$isUnviversalUpdate){
+            $tableName   = $schema[$entityShortName]['settings']['dbname'];
             $query       = $this->database->executeQuery("SELECT id, lang FROM $tableName WHERE id = ? AND NOT lang = ? ", array($object->getId(), $object->getLang()));
             $i18nObjects = $query->fetchAll();
         }
@@ -433,24 +446,31 @@ class Api
             if($property == 'modified' || $property == 'created') continue;
 
 
-            if(!isset($schema[ucfirst($entityName)]['properties'][$property])){
-                throw new \Exception("Unkown property $property for entity $entityPath", 500);
+            if(!isset($schema[$entityShortName]['properties'][$property])){
+                throw new \Exception("Unkown property $property for entity $entityShortName", 500);
             }
 
-            $type = $schema[ucfirst($entityName)]['properties'][$property]['type'];
+            $type = $schema[$entityShortName]['properties'][$property]['type'];
             $typeObject =  $this->app['typeManager']->getType($type);
             if(!$typeObject){
-                throw new \Exception("Unkown Type $typeObject for $property for entity $entityPath", 500);
+                throw new \Exception("Unkown Type $typeObject for $property for entity $entityShortName", 500);
             }
 
-            if(!empty($schema[ucfirst($entityName)]['properties'][$property]['i18n_universal']) && count($i18nObjects)){
-                $i18nProperties[$property] = $value;
+            if(!empty($schema[$entityShortName]['properties'][$property]['i18n_universal'])){
+                if(I18nPermission::isTranslatable($this->app, $entityShortName, $lang)){
+                    continue;
+                }
+
+                if(count($i18nObjects)){
+                    $i18nProperties[$property] = $value;
+                }
             }
-            $typeObject->toDatabase($this, $object, $property, $value, $entityName, $schema, $this->app['auth.user'], null, $lang);
+
+            $typeObject->toDatabase($this, $object, $property, $value, $entityShortName, $schema, $this->app['auth.user'], null, $lang);
 
         }
 
-        foreach($schema[ucfirst($entityName)]['properties'] as $property => $propertyConfig){
+        foreach($schema[$entityShortName]['properties'] as $property => $propertyConfig){
             if($propertyConfig['type'] == 'onejoin'){
                 $getterJoinedEntity = 'get'.ucfirst($property);
                 $joinedEntity       = $object->$getterJoinedEntity();
@@ -474,9 +494,9 @@ class Api
             $this->em->flush();
 
         }catch(UniqueConstraintViolationException $e){
-            if($entityPath == 'Areanet\PIM\Entity\User'){
+            if($entityShortName == 'PIM\User'){
                 throw new \Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException("Ein Benutzer mit diesem Benutzername ist bereits vorhanden.");
-            }elseif($entityPath == 'Areanet\PIM\Entity\File') {
+            }elseif($entityShortName == 'PIM\File') {
                 $existingFile = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId()));
 
                 throw new FileExistsException("Die Datei ist in diesem Ordner bereits vorhanden. Wollen Sie die bestehende Datei überschreiben?", $existingFile->getId());
@@ -493,12 +513,12 @@ class Api
             $log = new Log();
 
             $log->setModelId($object->getId());
-            $log->setModelName(ucfirst($entityName));
+            $log->setModelName(ucfirst($entityShortName));
             $log->setUserCreated($this->app['auth.user']);
             $log->setMode(Log::UPDATED);
 
-            if ($schema[ucfirst($entityName)]['settings']['labelProperty']) {
-                $labelGetter = 'get' . ucfirst($schema[ucfirst($entityName)]['settings']['labelProperty']);
+            if ($schema[$entityShortName]['settings']['labelProperty']) {
+                $labelGetter = 'get' . ucfirst($schema[$entityShortName]['settings']['labelProperty']);
                 $label = $object->$labelGetter();
                 $log->setModelLabel($label);
             }
@@ -827,7 +847,12 @@ class Api
             }
         }
 
-        return array('frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions);
+        $i18nPermissions = null;
+        if(($group = $this->app['auth.user']->getGroup())){
+            $i18nPermissions = $group->getLanguages();
+        }
+
+        return array('frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions, 'i18nPermissions' => $i18nPermissions);
     }
 
 

@@ -70,8 +70,6 @@
                 },
                 function errorCallback(response) {
 
-                    console.log(response.status);
-
                     if(response.status == 401){
                         var modalInstance = $uibModal.open({
                             templateUrl: '/ui/default/views/partials/relogin.html?v=' + APP_VERSION,

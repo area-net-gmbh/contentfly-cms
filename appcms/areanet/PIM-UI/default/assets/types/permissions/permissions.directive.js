@@ -112,7 +112,6 @@
                         scope[matrix][entityIndex]['extended'] = null;
                     }
 
-
                     scope.onChangeCallback({key: scope.key, value: scope.matrix.concat(scope.matrixCustom)});
 
                 }
