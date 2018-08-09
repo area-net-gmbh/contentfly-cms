@@ -1185,11 +1185,26 @@ class Api
         $entityFolder = ROOT_DIR.'/../custom/Entity/';
 
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
-            if($fileInfo->isDot() || $fileInfo->getExtension() != 'php') continue;
-            if(substr($fileInfo->getBasename('.php'), 0, 1) == '.') continue;
+
+            if($fileInfo->isDot()) continue;
+
+            if($fileInfo->isDir()){
+                foreach (new \DirectoryIterator($entityFolder.$fileInfo->getFilename()) as $subfileInfo) {
+                    if($subfileInfo->isDot() || $subfileInfo->getExtension() != 'php') continue;
+                    if(substr($subfileInfo->getBasename('.php'), 0, 1) == '.') continue;
+
+                    $entities[] = $fileInfo->getFilename().'\\'.$subfileInfo->getBasename('.php');
+                }
+                continue;
+            }
+
+            if($fileInfo->getExtension() != 'php' || substr($fileInfo->getBasename('.php'), 0, 1) == '.') continue;
 
             $entities[] = $fileInfo->getBasename('.php');
         }
+
+        $entities = array_merge($entities, $this->app['pluginManager']->getEntities());
+
         $entities[] = "PIM\\File";
         $entities[] = "PIM\\Folder";
         $entities[] = "PIM\\Tag";
@@ -1205,15 +1220,10 @@ class Api
         $entities[] = "PIM\\OptionGroup";
 
         $data     = array();
-
+        $helper   = new Helper();
         foreach($entities as $entity){
 
-            if(substr($entity,0,3) == "PIM"){
-                $className = 'Areanet\PIM\Entity\\'.substr($entity, 4);
-            }else{
-                $className = "Custom\Entity\\$entity";
-            }
-
+            $className = $helper->getFullEntityName($entity);
             $object    = new $className();
             $reflect   = new \ReflectionClass($object);
             $props     = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);

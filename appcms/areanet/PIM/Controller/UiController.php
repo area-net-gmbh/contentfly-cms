@@ -14,8 +14,15 @@ class UiController extends BaseController
 
         $jsFilesToInclude = array();
         foreach($uiRoutes as $uiRoute){
-            $controller   = strtolower(str_replace('Ctrl', '', $uiRoute['controllerName']));
-            $jsFilesToInclude[] = 'controllers/'.$controller.'.controller.js';
+            if(substr($uiRoute['controllerName'],0, 8) == '/plugins'){
+                $parts              = explode('/', $uiRoute['controllerName']);
+                $controllerName     = array_pop($parts);
+                $controller         = strtolower(str_replace('Ctrl', '', $controllerName));
+                $jsFilesToInclude[] = implode('/', $parts).'/'.$controller.'.controller.js';
+            }else{
+                $controller         = strtolower(str_replace('Ctrl', '', $uiRoute['controllerName']));
+                $jsFilesToInclude[] = '/custom/Frontend/ui/default/scripts/controllers/'.$controller.'.controller.js';
+            }
         }
 
         $jsFiles = $this->app['uiManager']->getJSFiles();
@@ -42,6 +49,7 @@ class UiController extends BaseController
             'angularModules'  => $this->app['uiManager']->getAngularModules(),
             'cssFiles' => $cssFilesToInclude,
             'customTypes' => $this->app['typeManager']->getCustomTypes(),
+            'pluginTypes' => $this->app['typeManager']->getPluginTypes(),
             'systemTypes' => $this->app['typeManager']->getSystemTypes(),
             'frontend' => array(
                 'title' => Config\Adapter::getConfig()->FRONTEND_TITLE,

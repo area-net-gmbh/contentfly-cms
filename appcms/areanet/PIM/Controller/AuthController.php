@@ -155,7 +155,7 @@ class AuthController extends BaseController
             return null;
         }
 
-        $loginProviderClass = "Custom\Classes\\$loginProviderClassName";
+        $loginProviderClass = substr($loginProviderClassName, 7) == 'Plugins' ? $loginProviderClassName : "Custom\Classes\\$loginProviderClassName";
 
         if(!class_exists($loginProviderClass)){
             return null;

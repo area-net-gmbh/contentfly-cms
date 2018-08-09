@@ -3,6 +3,7 @@ appcms/areanet/PIM-UI/default/assets/bower_components
 appcms/public/info.php
 appcms/public/custom/*
 appcms/public/ui/*
+appcms/public/plugins/*
 appcms/composer.lock
 appcms/vendor
 .idea/*
@@ -21,4 +22,5 @@ data/temp/*
 data/import/*
 profiler/*
 backup/*
+plugins/*
 doc

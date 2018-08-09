@@ -55,7 +55,7 @@ class Helper
     {
         $entityFullName = null;
 
-        if (substr($entityName, 0, 7) == 'Areanet' || substr($entityName, 0, 6) == 'Custom') {
+        if (substr($entityName, 0, 7) == 'Areanet' || substr($entityName, 0, 6) == 'Custom' || substr($entityName, 0, 7) == 'Plugins') {
             $entityFullName = $entityName;
         }elseif(substr($entityName, 0, 3) == 'PIM') {
             $entityFullName = 'Areanet\PIM\Entity\\' . substr($entityName, 4);

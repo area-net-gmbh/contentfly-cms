@@ -17,7 +17,7 @@
                     if(!$rootScope.uiblocks || element.attr('pim-plugin-rendered')) return;
                     if($rootScope.uiblocks[attrs.key]){
                         for(var i = 0; i < $rootScope.uiblocks[attrs.key].length; i++){
-                            var template = '/custom/Frontend/ui/default/views/' + $rootScope.uiblocks[attrs.key][i] + '?v=' + CUSTOM_VERSION
+                            var template = $rootScope.uiblocks[attrs.key][i] + '?v=' + CUSTOM_VERSION
 
                             $templateRequest(template).then(function(html){
                                 var template = angular.element(html);
@@ -56,7 +56,7 @@
                     if(!$rootScope.uiblocks || element.attr('pim-plugin-rendered')) return;
                     if($rootScope.uiblocks[attrs.key]){
                         for(var i = 0; i < $rootScope.uiblocks[attrs.key].length; i++){
-                            var template = '/custom/Frontend/ui/default/views/' + $rootScope.uiblocks[attrs.key][i] + '?v=' + CUSTOM_VERSION
+                            var template =  $rootScope.uiblocks[attrs.key][i] + '?v=' + CUSTOM_VERSION
 
                             $templateRequest(template).then(function(html){
                                 var template = angular.element(html);

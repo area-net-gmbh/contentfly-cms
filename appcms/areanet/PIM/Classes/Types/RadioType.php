@@ -110,7 +110,7 @@ class RadioType extends Type
             : $subobject->toValueObject($this->app, $config['accept'], $flatten, array(), ($level + 1));
     }
 
-    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null)
+    public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)
     {
         $setter = 'set'.ucfirst($property);
 
