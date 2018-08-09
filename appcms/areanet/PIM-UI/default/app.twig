@@ -17,7 +17,7 @@
     <link rel="stylesheet prefetch" href="/ui/default/styles/loaders.min.css?v={{ app_version }}">
     <link rel="stylesheet prefetch" href="/ui/default/styles/custom.css?v={{ app_version }}">
     {% for cssFile in cssFiles %}
-        <link rel="stylesheet prefetch" href="/custom/Frontend/ui/default/styles/{{ cssFile }}?v={{ custom_version }}">
+        <link rel="stylesheet prefetch" href="{{ cssFile }}?v={{ custom_version }}">
     {% endfor %}
 
     <script>
@@ -197,7 +197,7 @@
 {% endfor %}
 <!-- App Plugin-Types -->
 {% for pluginType in pluginTypes %}
-    <script src="/plugins/{{ pluginType.getPluginKey() }}/type/{{ customType.getAlias() }}/{{ customType.getAlias() }}.directive.js?v={{ custom_version }}"></script>
+    <script src="/plugins/{{ pluginType.getPluginKey() }}/types/{{ pluginType.getAlias() }}/{{ pluginType.getAlias() }}.directive.js?v={{ custom_version }}"></script>
 {% endfor %}
 
 <!-- App Directives -->

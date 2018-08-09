@@ -19,13 +19,13 @@ class PluginManager extends Manager
      * @param string $pluginName
      * @throws ContentflyException
      */
-    public function register($pluginName){
+    public function register($pluginName, $options = null){
         $fullClassName = "Plugins\\$pluginName\\${pluginName}Plugin";
         if(!class_exists($fullClassName)){
             throw new ContentflyException(Messages::contentfly_general_plugin_not_found, $fullClassName, Messages::contentfly_status_not_found);
         }
 
-        $plugin = new $fullClassName($this->app);
+        $plugin = new $fullClassName($this->app, $options);
         if(!($plugin instanceof Plugin)){
             throw new ContentflyException(Messages::contentfly_general_invalid_plugin_base, $fullClassName, Messages::contentfly_status_not_found);
         }
