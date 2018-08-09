@@ -31,6 +31,10 @@ class UIManager extends Manager
             $this->blocks[$key] = array();
         }
 
+        if(substr($templatePath, 0, 8) != '/plugins'){
+            $templatePath =  "/custom/Frontend/ui/default/views/$templatePath";
+        }
+
         $this->blocks[$key][] = $templatePath;
 
     }
@@ -66,6 +70,11 @@ class UIManager extends Manager
     }
 
     public function addAngularModule($moduleName, $path){
+
+        if(substr($path, 0, 8) != '/plugins'){
+            $path =  "/custom/Frontend/ui/default/scripts/$path";
+        }
+
         $this->angularModules[$moduleName] = $path;
     }
 
@@ -97,6 +106,11 @@ class UIManager extends Manager
      * @return
      */
     public function addCSSFile($path){
+
+        if(substr($path, 0, 8) != '/plugins'){
+            $path =  "/custom/Frontend/ui/default/scripts/$path";
+        }
+
         $this->cssFiles[] = $path;
     }
 

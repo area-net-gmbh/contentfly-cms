@@ -62,7 +62,7 @@
         <li ng-if="!frontend.customNavigation.enabled"><h3><span class="glyphicon glyphicon-th-large"></span>Inhalte</h3>
             <ul>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li ng-repeat="(entity, label) in entities"><a href="#/list/{{entity}}">{{label}}</a></li>
+                <li ng-repeat="(entity, label) in entities"><a href="#/list/{{entity | urlencode}}">{{label}}</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
@@ -150,7 +150,7 @@
 
 <!-- Dynamic Angular Modules -->
 {% for modulePath in angularModules %}
-    <script src="/custom/Frontend/ui/default/scripts/{{ modulePath }}?v={{ custom_version }}"></script>
+    <script src="{{ modulePath }}?v={{ custom_version }}"></script>
 {% endfor %}
 
 <!-- Global App Files -->
@@ -195,6 +195,10 @@
 {% for customType in customTypes %}
     <script src="/custom/Frontend/ui/default/types/{{ customType.getAlias() }}/{{ customType.getAlias() }}.directive.js?v={{ custom_version }}"></script>
 {% endfor %}
+<!-- App Plugin-Types -->
+{% for pluginType in pluginTypes %}
+    <script src="/plugins/{{ pluginType.getPluginKey() }}/type/{{ customType.getAlias() }}/{{ customType.getAlias() }}.directive.js?v={{ custom_version }}"></script>
+{% endfor %}
 
 <!-- App Directives -->
 <script src="/ui/default/scripts/directives/form.directive.js?v={{ app_version }}"></script>
@@ -222,7 +226,7 @@
 
 <!-- Dynamic Scripts -->
 {% for jsFile in jsFiles %}
-<script src="/custom/Frontend/ui/default/scripts/{{ jsFile }}?v={{ custom_version }}"></script>
+<script src="{{ jsFile }}?v={{ custom_version }}"></script>
 {% endfor %}
 </body>
 </html>

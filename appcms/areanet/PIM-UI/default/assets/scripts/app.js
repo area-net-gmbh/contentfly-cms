@@ -1,9 +1,17 @@
 (function() {
     'use strict';
 
-    angular
-        .module('app')
-        .run(run);
+    var app = angular.module('app');
+    app.filter('urlencode', function() {
+      return function(input) {
+        if(input) {
+          return window.encodeURIComponent(input);
+        }
+        return "";
+      }
+    });
+
+    app.run(run);
 
     function run($rootScope, $location, $cookies, localStorageService, $http, $uibModal){
 

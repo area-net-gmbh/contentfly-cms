@@ -5,6 +5,9 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', 1);
 
+
+
+
 require_once ROOT_DIR.'/version.php';
 require_once ROOT_DIR.'/vendor/autoload.php';
 if(file_exists(ROOT_DIR.'/../custom/vendor/autoload.php')){
@@ -28,7 +31,11 @@ use Symfony\Component\HttpFoundation\Response;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
-
+if(Config\Adapter::getConfig()->APP_DEBUG){
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL ^E_NOTICE);
+}
 
 $app = new Application();
 $app->register(new Silex\Provider\SessionServiceProvider());
@@ -109,7 +116,7 @@ if($app['is_installed']) {
                     'namespace' => 'Custom\Entity',
                     'path' => ROOT_DIR . '/../custom/Entity',
                     'use_simple_annotation_reader' => false
-                ),
+                )
             )
         ),
         'orm.auto_generate_proxies' => Config\Adapter::getConfig()->APP_AUTOGENERATE_PROXIES,
@@ -146,6 +153,11 @@ if($app['is_installed']) {
 
     $app['typeManager'] = function ($app) {
         return new \Areanet\PIM\Classes\Manager\TypeManager($app);
+    };
+
+    /** @var \Areanet\PIM\Classes\Manager\PluginManager */
+    $app['pluginManager'] = function ($app) {
+        return new \Areanet\PIM\Classes\Manager\PluginManager($app);
     };
 
     foreach (Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType) {

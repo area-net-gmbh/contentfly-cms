@@ -13,6 +13,7 @@ use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Classes\File\Backend\FileSystem;
 use Areanet\PIM\Classes\File\Processing;
 use Areanet\PIM\Classes\File\Processing\Standard;
+use Areanet\PIM\Classes\Helper;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Classes\Push;
 use Areanet\PIM\Entity\Base;
