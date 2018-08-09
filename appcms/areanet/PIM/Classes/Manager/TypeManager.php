@@ -37,7 +37,9 @@ class TypeManager extends Manager
     public function registerPluginType(Type\PluginType $type, Plugin $plugin){
 
         $type->setPluginKey($plugin->getKey());
-        \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/../plugins/'.$plugin->getKey().'/Annotations/'.$type->getAnnotationFile().'.php');
+        if($type->getAnnotationFile()) {
+            \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR . '/../plugins/' . $plugin->getKey() . '/Annotations/' . $type->getAnnotationFile() . '.php');
+        }
 
         $this->types[$type->getAlias()] = $type;
     }
@@ -51,7 +53,7 @@ class TypeManager extends Manager
 
         $data = array();
         foreach($this->types as $alias => $type){
-            if($mode == self::SYSTEM && $type instanceof Type\CustomType) continue;
+            if($mode == self::SYSTEM && ($type instanceof Type\CustomType || $type instanceof Type\PluginType)) continue;
             if($mode == self::CUSTOM && !($type instanceof Type\CustomType)) continue;
             if($mode == self::PLUGINS && !($type instanceof Type\PluginType)) continue;
             $data[$alias] = $type;

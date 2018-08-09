@@ -11,26 +11,30 @@ abstract class Plugin
 
     protected $key          = null;
     protected $namespace    = null;
-
+    protected $options      = null;
+    private $doUseORM       = false;
     /**
      * Manager constructor.
      *
      * @param Application $app
      */
-    public function __construct(Application $app)
+    public function __construct(Application $app, $options = null)
     {
         $classNameParts     = explode('\\', get_class($this));
         $this->key          = $classNameParts[1];
         $this->namespace    = $classNameParts[0].'\\'.$classNameParts[1];
-
+        $this->options      = $options;
         $this->app          = $app;
 
         $this->initComposer();
-        $this->initORM();
         $this->init();
     }
 
     final public function getEntities(){
+        if(!$this->doUseORM){
+           return array();
+        }
+
         $entities = array();
 
         $entityFolder = ROOT_DIR.'/../plugins/'.$this->key.'/Entity';
@@ -69,6 +73,9 @@ abstract class Plugin
 
     private function initORM(){
         $ormConfig  = $this->app['orm.em']->getConfiguration();
+        if(!is_dir(ROOT_DIR.'/../plugins/'.$this->key.'/Entity')){
+            mkdir(ROOT_DIR.'/../plugins/'.$this->key.'/Entity');
+        }
         $driver     = $ormConfig->newDefaultAnnotationDriver(array(ROOT_DIR.'/../plugins/'.$this->getKey().'/Entity'), false);
         $ormConfig->getMetadataDriverImpl()->addDriver($driver, $this->getNamespace().'\\Entity');
     }
@@ -79,5 +86,10 @@ abstract class Plugin
             mkdir(ROOT_DIR.'/../plugins/'.$this->key.'/Frontend');
         }
         $helper->createSymlink(ROOT_DIR.'/public/plugins/', $this->getKey(), '../../../plugins/'.$this->getKey().'/Frontend');
+    }
+
+    final protected function useORM(){
+        $this->doUseORM = true;
+        $this->initORM();
     }
 }
