@@ -20,7 +20,10 @@ class PluginManager extends Manager
      * @throws ContentflyException
      */
     public function register($pluginName, $options = null){
-        $fullClassName = "Plugins\\$pluginName\\${pluginName}Plugin";
+        $splittedPluginNames    = explode('_', $pluginName);
+        $className              = array_pop($splittedPluginNames);
+        $fullClassName          = "Plugins\\$pluginName\\${className}Plugin";
+       
         if(!class_exists($fullClassName)){
             throw new ContentflyException(Messages::contentfly_general_plugin_not_found, $fullClassName, Messages::contentfly_status_not_found);
         }
