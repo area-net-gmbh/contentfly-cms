@@ -1291,7 +1291,6 @@ class Api
 
                 $propertyAnnotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
 
-
                 $allPropertyAnnotations = array();
                 foreach($propertyAnnotations as $propertyAnnotation){
                     $allPropertyAnnotations[get_class($propertyAnnotation)] = $propertyAnnotation;
@@ -1329,6 +1328,8 @@ class Api
 
                     }
                 }
+
+
 
                 if(!empty($properties[$prop->getName()]) && !empty($customProperties[$prop->getName()])){
                     $properties[$prop->getName()] = array_merge($properties[$prop->getName()], $customProperties[$prop->getName()]);

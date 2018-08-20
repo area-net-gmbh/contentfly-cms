@@ -148,6 +148,11 @@
 <script src="/ui/default/bower_components/file-saver.js/FileSaver.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-file-saver/dist/angular-file-saver.js?v={{ app_version }}"></script>
 
+<!-- Dynamic Scripts -->
+{% for jsFile in jsFiles %}
+    <script src="{{ jsFile }}?v={{ custom_version }}"></script>
+{% endfor %}
+
 <!-- Dynamic Angular Modules -->
 {% for modulePath in angularModules %}
     <script src="{{ modulePath }}?v={{ custom_version }}"></script>
@@ -224,9 +229,6 @@
 <script src="/ui/default/scripts/controllers/settings.controller.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/controllers/error.controller.js?v={{ app_version }}"></script>
 
-<!-- Dynamic Scripts -->
-{% for jsFile in jsFiles %}
-<script src="{{ jsFile }}?v={{ custom_version }}"></script>
-{% endfor %}
+
 </body>
 </html>
