@@ -319,7 +319,7 @@ class Api
 
             $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
             if($lang != $mainLang && !empty($data['id'])){
-                $mainLangObject = $this->getSingle($entityShortName, $data['id'], null, $mainLang, true);
+                $mainLangObject = $this->getSingle($entityShortName, $data['id'], null, $mainLang, true, null, null, true);
                 if($mainLangObject){
                     foreach($schema[$entityShortName]['properties'] as $property => $propertyConfig){
                         if(!empty($propertyConfig['i18n_universal']) && $propertyConfig['type'] != 'multijoin' && $propertyConfig['type'] != 'multifile' && empty($data[$property])){
@@ -549,7 +549,6 @@ class Api
                 $object->doDisableModifiedTime(true);
             }
 
-            //$this->em->merge($object);
             $this->em->flush();
 
         }catch(UniqueConstraintViolationException $e){
@@ -1423,7 +1422,7 @@ class Api
         return $data;
     }
 
-    public function getSingle($entityName, $id = null, $where = null, $lang = null, $returnObject = false, $compareToLang = null, $loadJoinedLang = null){
+    public function getSingle($entityName, $id = null, $where = null, $lang = null, $returnObject = false, $compareToLang = null, $loadJoinedLang = null, $clearEM = false){
 
         $helper             = new Helper();
         $entityFullName     = $helper->getFullEntityName($entityName);
@@ -1439,7 +1438,7 @@ class Api
         $schema = $this->app['schema'];
 
         $queryBuilder = $this->em->createQueryBuilder();
-        $this->em->clear($entityFullName);
+        if($clearEM) $this->em->clear($entityFullName);
         $queryBuilder
             ->select($entityNameAlias)
             ->from($entityFullName, $entityNameAlias);
@@ -1522,16 +1521,18 @@ class Api
             if(!$loadJoinedLang) {
                 //Bestehenden übersetzten Datensatz bearbeiten
                 try {
-                    $compareObject = $this->getSingle($entityShortName, $id, $where, $compareToLang, true);
+                    $compareObject = $this->getSingle($entityShortName, $id, $where, $compareToLang, true, null, null, true);
                 } catch (\Exception $e) {
                     $compareObject = null;
                 }
 
                 if ($compareObject) {
+
                     foreach ($schema[$entityShortName]['properties'] as $field => $config) {
                         $getter = 'get' . ucfirst($field);
                         switch ($config['type']) {
                             case 'join':
+
                                 if ($object->$getter() && !$compareObject->$getter()) {
                                     $helper = new Helper();
                                     throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
@@ -1553,7 +1554,7 @@ class Api
                 //Datensatz neu übersetzen
 
                 try {
-                    $compareObject = $this->getSingle($entityShortName, $id, $where, $lang, true);
+                    $compareObject = $this->getSingle($entityShortName, $id, $where, $lang, true, null, null, true);
                 } catch (\Exception $e) {
                     $compareObject = null;
                 }
