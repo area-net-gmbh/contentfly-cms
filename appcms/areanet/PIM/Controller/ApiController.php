@@ -322,6 +322,7 @@ class ApiController extends BaseController
         $api = new Api($this->app, $request);
         $object = $api->doInsert($entityShortName, $data, $lang);
 
+
         $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);

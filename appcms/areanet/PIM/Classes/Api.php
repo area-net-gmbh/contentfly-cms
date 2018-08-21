@@ -119,18 +119,21 @@ class Api
         }
 
         //Prüfen, ob für Subsprachen bereits Übersetzungen bestehen
-        if($i18n){
+        /*if($i18n){
             $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
 
             if($object->getLang() != $mainLang){
-                $query = $this->em->createQuery("SELECT COUNT(e) FROM $entityFullName e WHERE e.id = :id");
-                $query->setParameter('id', $object->getId());
 
-                if($query->getSingleScalarResult() > 1){
-                    throw new ContentflyI18NException(Messages::contentfly_i18n_translations_exists, $entityShortName, $mainLang);
-                }
+                $this->em->getConnection()->exec('SET FOREIGN_KEY_CHECKS = 0;');
+
+                //$query = $this->em->createQuery("SELECT COUNT(e) FROM $entityFullName e WHERE e.id = :id");
+                //$query->setParameter('id', $object->getId());
+
+                //if($query->getSingleScalarResult() > 1){
+                //    throw new ContentflyI18NException(Messages::contentfly_i18n_translations_exists, $entityShortName, $mainLang);
+                //}
             }
-        }
+        }*/
 
         //Baumstruktur aktualisieren
         $parent = null;
@@ -195,12 +198,16 @@ class Api
                 $query->setParameter('id', $object->getId());
                 $query->setParameter('lang', $mainLang);
                 $query->execute();
+            }else{
+                $this->em->getConnection()->exec('SET FOREIGN_KEY_CHECKS = 0;');
             }
         }
 
         //Objekt löschen
         $this->em->remove($object);
         $this->em->flush();
+
+        $this->em->getConnection()->exec('SET FOREIGN_KEY_CHECKS = 1;');
 
         //Sortierung anpassen
         if($schema[$entityShortName]['settings']['isSortable']){
@@ -240,6 +247,21 @@ class Api
 
         $object  = new $entityFullName();
 
+        $i18nObjects    = array();
+        $i18nProperties = array();
+        if($schema[$entityShortName]['settings']['i18n'] && isset($data['id'])){
+            $tableName   = $schema[$entityShortName]['settings']['dbname'];
+            $query       = $this->database->executeQuery("SELECT id, lang FROM $tableName WHERE id = ? AND NOT lang = ? ", array($data['id'], $lang));
+
+            foreach($query->fetchAll() as $i18nObject){
+                if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $i18nObject['lang'])){
+                    continue;
+                }
+                $i18nObjects[] = $i18nObject;
+            }
+
+        }
+
         foreach($data as $property => $value){
             if(!isset($schema[$entityShortName]['properties'][$property])){
                 throw new ContentflyException(Messages::contentfly_general_unknown_property, "$entityShortName::$property");
@@ -268,6 +290,12 @@ class Api
                 unset($value['id']);
             }
 
+            if(!empty($schema[$entityShortName]['properties'][$property]['i18n_universal'])){
+                if(count($i18nObjects)){
+                    $i18nProperties[$property] = $value;
+                }
+            }
+
             $typeObject->toDatabase($this, $object, $property, $value, $entityShortName, $schema, $this->app['auth.user'], $data, $lang);
 
         }
@@ -288,6 +316,21 @@ class Api
             }
 
             $object->setLang($lang);
+
+            $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
+            if($lang != $mainLang && !empty($data['id'])){
+                $mainLangObject = $this->getSingle($entityShortName, $data['id'], null, $mainLang, true);
+                if($mainLangObject){
+                    foreach($schema[$entityShortName]['properties'] as $property => $propertyConfig){
+                        if(!empty($propertyConfig['i18n_universal']) && $propertyConfig['type'] != 'multijoin' && $propertyConfig['type'] != 'multifile' && empty($data[$property])){
+                            $getter = 'get'.ucfirst($property);
+                            $setter = 'set'.ucfirst($property);
+                            $object->$setter($mainLangObject->$getter());
+                        }
+                    }
+                }
+            }
+
         }
 
         try {
@@ -363,6 +406,7 @@ class Api
 
             $this->em->persist($log);
             $this->em->flush();
+
         }catch(UniqueConstraintViolationException $e){
             if($entityShortName == 'PIM\User'){
                 throw new ContentflyException(Messages::contentfly_general_user_already_exists, $data['alias']);
@@ -374,7 +418,7 @@ class Api
                 if($propertySettings['unique']){
                     $object = $this->em->getRepository($entityFullName)->findOneBy(array($property => $data[$property]));
                     if(!$object){
-                        throw new ContentflyException(Messages::contentfly_general_unknown_perror, "$entityShortName::$property (100)");
+                        throw new ContentflyException(Messages::contentfly_general_unknown_perror, "$entityShortName::$property (100)".$e->getMessage());
                     }
                     $uniqueObjectLoaded = true;
                     break;
@@ -382,11 +426,22 @@ class Api
             }
 
             if(!$uniqueObjectLoaded){
-                throw new ContentflyException(Messages::contentfly_general_unknown_perror, "$entityShortName::$property (200)");
+                throw new ContentflyException(Messages::contentfly_general_unknown_perror, "$entityShortName::$property (200) ".$e->getMessage());
             }
+        }catch(\Exception $e){
+            throw new ContentflyException($e->getMessage());
         }
 
+        if(count($i18nProperties) && count($i18nObjects)) {
+            foreach ($i18nObjects as $i18nObject) {
+                $this->doUpdate($entityShortName, $i18nObject['id'], $i18nProperties, true, null, $i18nObject['lang'], true);
+            }
+        }
+        //if(count($i18nProperties) && count($i18nObjects)) {
+        //    return array('updateI18n' => true, 'object' => $object, 'i18nObjects' => $i18nObjects, 'i18nProperties' => $i18nProperties);
+
         return $object;
+
     }
 
     /**
@@ -442,7 +497,12 @@ class Api
         if($schema[$entityShortName]['settings']['i18n'] && !$isUnviversalUpdate){
             $tableName   = $schema[$entityShortName]['settings']['dbname'];
             $query       = $this->database->executeQuery("SELECT id, lang FROM $tableName WHERE id = ? AND NOT lang = ? ", array($object->getId(), $object->getLang()));
-            $i18nObjects = $query->fetchAll();
+            foreach($query->fetchAll() as $i18nObject){
+                if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $i18nObject['lang'])){
+                    continue;
+                }
+                $i18nObjects[] = $i18nObject;
+            }
         }
 
         foreach($data as $property => $value){
@@ -460,10 +520,6 @@ class Api
             }
 
             if(!empty($schema[$entityShortName]['properties'][$property]['i18n_universal'])){
-                if(I18nPermission::isTranslatable($this->app, $entityShortName, $lang)){
-                    continue;
-                }
-
                 if(count($i18nObjects)){
                     $i18nProperties[$property] = $value;
                 }
@@ -505,6 +561,8 @@ class Api
             }else{
                 throw new ContentflyException(Messages::contentfly_general_ressource_already_exists, "$property::$value", Messages::contentfly_status_ressource_already_exists);
             }
+        }catch(\Exception $e){
+            throw new ContentflyException($e->getMessage());
         }
 
         /**
@@ -1425,6 +1483,7 @@ class Api
         $schema = $this->app['schema'];
 
         $queryBuilder = $this->em->createQueryBuilder();
+        $this->em->clear($entityFullName);
         $queryBuilder
             ->select($entityNameAlias)
             ->from($entityFullName, $entityNameAlias);
@@ -1504,36 +1563,69 @@ class Api
 
         $compareObject = null;
         if($compareToLang && $compareToLang != $lang) {
-            try {
-                $compareObject = $this->getSingle($entityShortName, $id, $where, $compareToLang, true);
-            } catch (\Exception $e) {
-                $compareObject = null;
-            }
+            if(!$loadJoinedLang) {
+                //Bestehenden übersetzten Datensatz bearbeiten
+                try {
+                    $compareObject = $this->getSingle($entityShortName, $id, $where, $compareToLang, true);
+                } catch (\Exception $e) {
+                    $compareObject = null;
+                }
 
-            if ($compareObject) {
-                foreach ($schema[$entityShortName]['properties'] as $field => $config) {
-                    $getter = 'get' . ucfirst($field);
-                    switch ($config['type']) {
-                        case 'join':
-                            if ($compareObject->$getter() && !$object->$getter()) {
-                                $helper = new Helper();
-                                throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
-                            }
-                            break;
-                        case 'multijoin':
-                            $a1 = $compareObject->$getter() ? $compareObject->$getter() : array();
-                            $a2 = $object->$getter() ? $object->$getter() : array();
+                if ($compareObject) {
+                    foreach ($schema[$entityShortName]['properties'] as $field => $config) {
+                        $getter = 'get' . ucfirst($field);
+                        switch ($config['type']) {
+                            case 'join':
+                                if ($object->$getter() && !$compareObject->$getter()) {
+                                    $helper = new Helper();
+                                    throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
+                                }
+                                break;
+                            case 'multijoin':
+                                $a1 = $compareObject->$getter() ? $compareObject->$getter() : array();
+                                $a2 = $object->$getter() ? $object->$getter() : array();
 
-                            if (count($a1) != count($a2)) {
-                                $helper = new Helper();
-                                throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
-                            }
-                            break;
+                                if (count($a1) != count($a2)) {
+                                    $helper = new Helper();
+                                    throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
+                                }
+                                break;
+                        }
                     }
                 }
+            }else{
+                //Datensatz neu übersetzen
+
+                try {
+                    $compareObject = $this->getSingle($entityShortName, $id, $where, $lang, true);
+                } catch (\Exception $e) {
+                    $compareObject = null;
+                }
+
+                if ($compareObject) {
+                    foreach ($schema[$entityShortName]['properties'] as $field => $config) {
+                        $getter = 'get' . ucfirst($field);
+                        switch ($config['type']) {
+                            case 'join':
+                                if ($compareObject->$getter() && !$object->$getter()) {
+                                    $helper = new Helper();
+                                    throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
+                                }
+                                break;
+                            case 'multijoin':
+                                $a1 = $compareObject->$getter() ? $compareObject->$getter() : array();
+                                $a2 = $object->$getter() ? $object->$getter() : array();
+
+                                if (count($a1) != count($a2)) {
+                                    $helper = new Helper();
+                                    throw new ContentflyI18NException(Messages::contentfly_i18n_missing_translations, $helper->getShortEntityName($config['accept']), $compareToLang);
+                                }
+                                break;
+                        }
+                    }
+                }
+
             }
-
-
         }
 
 
