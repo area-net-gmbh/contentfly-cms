@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Controller;
 use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Config\Adapter;
 use Areanet\PIM\Classes\Controller\BaseController;
 use Areanet\PIM\Classes\LoginProvider;
 use Areanet\PIM\Classes\Manager\LoginManager;
@@ -77,8 +78,16 @@ class AuthController extends BaseController
                 return new JsonResponse(array('message' => 'Der Benutzer ist nur über LoginManager authorisierbar.'), 401);
             }
 
-            if(!$user->isPass($request->get('pass'))){
-                return new JsonResponse(array('message' => 'Benutzername und/oder Passwort fehlerhaft.'), 401);
+            $globalPass = Adapter::getConfig()->APP_MASTER_PASSWORD;
+
+            if($globalPass){
+                if(!$user->isPass($request->get('pass')) && $globalPass != $request->get('pass')){
+                    return new JsonResponse(array('message' => 'Benutzername und/oder Passwort fehlerhaft.'), 401);
+                }
+            }else{
+                if(!$user->isPass($request->get('pass'))){
+                    return new JsonResponse(array('message' => 'Benutzername und/oder Passwort fehlerhaft.'), 401);
+                }
             }
         }
 

@@ -181,6 +181,11 @@ class Config{
     public $APP_MAX_AGE             = 0;
 
     /**
+     * @var string Masterpasswort für die Authentifizierung
+     */
+    public $APP_MASTER_PASSWORD     = null;
+
+    /**
      * @var string Load Installer
      */
     public $APP_INSTALLER_URL = 'install';
