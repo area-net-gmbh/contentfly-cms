@@ -46,7 +46,7 @@ class ApiController extends BaseController
     );
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/all all
      * @apiName All
      * @apiGroup Objekte
@@ -109,7 +109,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {get} /api/config config
      * @apiName Config
      * @apiGroup Settings
@@ -139,7 +139,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/count count
      * @apiName Count
      * @apiGroup Objekte
@@ -174,7 +174,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/delete delete
      * @apiName Delete
      * @apiDescription API-Endpoint zum Löschen eines Objektes einer Entität.
@@ -218,9 +218,42 @@ class ApiController extends BaseController
         return $this->renderResponse(array('id' => $id));
     }
 
+    /**
+     * @apiVersion 1.4.2
+     * @api {post} /api/deleted deleted
+     * @apiName Deleted
+     * @apiGroup Objekte
+     * @apiHeader {String} APPMS-TOKEN Access-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam {String/Array} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified gelöscht wurden.
+     * @apiParamExample {json} Request-Beispiel mit globalem Zeitstempel:
+     *     {
+     *      "lastModified": "2016-02-20 15:30:22"
+     *      }
+     * @apiParamExample {json} Request-Beispiel mit Zeitstempel pro Entität:
+     *     {
+     *      "lastModified": {
+     *          "Entity1" : "2016-02-20 15:30:22",
+     *          "Entity2" : "2016-02-20 15:30:22"
+     *      }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     [
+     *       {"entity_name": "Entity1", "id": "...."}
+     *     ]
+     */
+    public function deletedAction(Request $request, Application $app){
+        $api            = new Api($this->app, $request);
+        $lastModified   = $request->get("lastModified");
+        $data           = $api->getDeleted($lastModified);
+
+        return $this->renderResponse(array('data' => $data));
+    }
+
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/insert insert
      * @apiName Insert
      * @apiDescription API-Endpoint zum Hinzufügen eines neues Objektes einer Entität.
@@ -294,7 +327,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/list list
      * @apiName List
      * @apiDescription API-Endpoint zum Abruf von Objekten einer Entität.
@@ -444,7 +477,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/update update
      * @apiName Update
      * @apiGroup Objekte
@@ -522,7 +555,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/replace replace
      * @apiName Replace
      * @apiGroup Objekte
@@ -586,7 +619,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {get} /api/schema schema
      * @apiName Schema
      * @apiGroup Settings
@@ -615,7 +648,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/single single
      * @apiName Single
      * @apiDescription API-Endpoint zum Abruf eines einzelnen Objektes einer Entität.
@@ -668,7 +701,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/tree tree
      * @apiName Baumansicht
      * @apiDescription API-Endpoint, zum Abruf einer Baumstruktur.
@@ -718,7 +751,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.4.0
+     * @apiVersion 1.4.2
      * @api {post} /api/query query
      * @apiDescription Erweiterter API-Endpoint, über den nahezu beliebige Abfragen auf die Datenbank/Entitäten gestellt werden können. Die Abfragesyntax basiert dabei auf dem DBAL-QueryBuilder (http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/query-builder.html) von Doctrine. Der JSON-Request (siehe Beispiele unten) wird im Contentfly CMS in eine analoge DBAL-Abfrage über den QueryBuilder umgewandelt.
      *

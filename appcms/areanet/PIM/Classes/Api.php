@@ -655,6 +655,50 @@ class Api
         return $data;
     }
 
+    public function getDeleted($lastMofified){
+
+        $data = array();
+
+        $schema = $this->getSchema();
+
+        $entitiesToExclude = array(
+            'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\PushToken', 'PIM\\ThumbnailSetting',
+            'PIM\\Permission', 'PIM\\Nav', 'PIM\\NavItem', 'PIM\\Log', '_hash'
+        );
+
+        foreach($schema as $entityName => $entityConfig){
+
+            if(in_array($entityName, $entitiesToExclude)){
+                continue;
+            }
+
+            $query = "SELECT model_name, model_id FROM `pim_log` WHERE model_name = ?";
+
+            $params  = array($entityName);
+            $tsQuery = "";
+            if($lastMofified){
+                if(is_array($lastMofified)){
+                    if(isset($lastMofified[$entityName])){
+                        $tsQuery = " AND `created` > ?";
+                        $params[] = $lastMofified[$entityName];
+                    }
+                }else{
+                    $tsQuery = " AND `created` > ?";
+                    $params[] = $lastMofified;
+                }
+            }
+
+            $query .= $tsQuery;
+
+            if(($deletedObjects = $this->app['database']->fetchAll($query, $params))){
+                $data   = array_merge($data, $deletedObjects);
+            }
+
+        }
+
+        return $data;
+    }
+
     public function getExtendedSchema(){
         $frontend = array(
             'customLogo' => Adapter::getConfig()->FRONTEND_CUSTOM_LOGO,

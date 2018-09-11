@@ -42,9 +42,9 @@ class ApiControllerProvider extends BaseControllerProvider
         $controllers->post('/insert', "api.controller:insertAction")->before($checkAuth);
         $controllers->post('/query', "api.controller:queryAction")->before($checkAuth);
         $controllers->post('/count', "api.controller:countAction")->before($checkAuth);
+        $controllers->post('/deleted', "api.controller:deletedAction")->before($checkAuth);
         $controllers->get('/schema', "api.controller:schemaAction")->before($checkAuth);
         $controllers->get('/config', "api.controller:configAction");
-
 
         return $controllers;
     }
