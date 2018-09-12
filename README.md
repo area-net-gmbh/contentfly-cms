@@ -90,6 +90,10 @@ Mit dem CMS können serverseitig beliebige Inhalte gespeichert und verwaltet wer
 
 (5) URL/Host aufrufen und Standard-Login in das Contentfly CMS mit Benutzer _admin_ und Passwort _admin_
 
+### ZIP-Version für Release-Build erstellen
+
+`ant zip-release`
+
 ## Dokumentation
 
 - http://www.contentfly-cms.de/docs/cms/1.4.0

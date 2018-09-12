@@ -92,38 +92,14 @@ define('CUSTOM_VERSION', '0.0.0');
 
     
     <!-- GENERATE API-DOC FOR RELEASE VERSION -->
-    <target name="apidoc-release" description="API-Dokumentation wird erstellt..." >
+    <target name="apidoc" description="API-Dokumentation wird erstellt..." >
         <exec executable="apidoc" dir="./">
             <arg value="-i appcms/areanet/PIM/Controller/" />
         </exec>
-
-        <ftp action="mkdir"
-             server="${env.FTP_SERVER}"
-             userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}"
-             remotedir="${env.FTP_REMOTE_APIDOC}/${apiversion}"/>
-
-        <ftp server="${env.FTP_SERVER}"
-             remotedir="${env.FTP_REMOTE_APIDOC}/${apiversion}"
-             userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}"
-             passive="yes">
-            <fileset dir="doc"/>
-        </ftp>
     </target>
 
 
     <!-- DEPLOY RELEASE VERSION -->
-    <target name="deploy-release" depends="zip-release">
-        <ftp server="${env.FTP_SERVER}"
-             remotedir="${env.FTP_REMOTE}"
-             userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}"
-             passive="yes">
-            <fileset file="contentfly-${version}.zip"/>
-        </ftp>
-    </target>
-
     <target name="zip-release" depends="getversion">
         <exec executable="zip">
             <arg value="--symlinks"/>
@@ -150,54 +126,4 @@ define('CUSTOM_VERSION', '0.0.0');
         </loadfile>
     </target>
 
-    <!-- GET API-VERSION -->
-    <target name="getapiversion">
-        <loadfile srcfile="apidoc.json" property="apiversion">
-            <filterchain>
-                <linecontainsregexp>
-                    <regexp pattern="define"/>
-                </linecontainsregexp>
-
-                <replaceregex pattern="&quot;version&quot;: &quot;([0-9]).([0-9])&quot;" replace="\1.\2." />
-            </filterchain>
-        </loadfile>
-    </target>
-
-
-    <!-- DEPLOY DEVELOPMENT VERSION -->
-    <target name="deploy-dev" depends="zip-dev">
-        <ftp server="${env.FTP_SERVER}"
-             remotedir="${env.FTP_REMOTE}/dev"
-             userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}"
-             passive="yes">
-            <fileset file="contentfly-${devversion}.zip"/>
-        </ftp>
-    </target>
-
-    <target name="zip-dev" depends="getdevversion">
-        <exec executable="zip">
-            <arg value="--symlinks"/>
-            <arg value="-r"/>
-            <arg value="contentfly-${devversion}.zip"/>
-            <arg value="appcms"/>
-            <arg value="custom"/>
-            <arg value="data"/>
-            <arg value="licence.txt"/>
-            <arg value="README.md"/>
-        </exec>
-    </target>
-
-    <!-- GET VERSION -->
-    <target name="getdevversion">
-        <loadfile srcfile="appcms/version.php" property="devversion">
-            <filterchain>
-                <linecontainsregexp>
-                    <regexp pattern="define"/>
-                </linecontainsregexp>
-
-                <replaceregex pattern="define\(\'APP_VERSION\', \'([0-9]).([0-9]).([0-9])\'\);" replace="\1.\2" />
-            </filterchain>
-        </loadfile>
-    </target>
 </project>
