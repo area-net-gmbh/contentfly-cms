@@ -672,7 +672,7 @@ class Api
                 continue;
             }
 
-            $query = "SELECT model_name, model_id FROM `pim_log` WHERE model_name = ?";
+            $query = "SELECT model_name, model_id FROM `pim_log` WHERE model_name = ? AND mode = 'DEL'";
 
             $params  = array($entityName);
             $tsQuery = "";
