@@ -1,0 +1,90 @@
+{
+  "#TITLE": "BMECat",
+  "#TYPE": "xml",
+  "#CONFIG": {"version": "1.0", "encoding": "UTF-8", "dtdQN": "BMECAT", "dtdSID": "http://www.eclass.eu/static/eClassXML/2.0/bmecat/bmecat_2005_tnc.dtd"},
+  "#MAP":{
+    "BMECAT": {
+      ".version" : "2005",
+      ".xmlns": "http://www.bmecat.org/bmecat/2005",
+      "header": {
+        "catalog": {
+          "language": "deu",
+          "catalog_id": "1",
+          "catalog_version": "1.0"
+        },
+        "supplier": {
+          "supplier_name": "AREA-NET GmbH"
+        }
+      },
+      "t_new_catalog":{
+        "CATALOG_GROUP_SYSTEM": {
+          "catalog_structure": {
+            ".type": "root",
+            "group_id" : "1",
+            "group_name": "root",
+            "parent_id": "0"
+          },
+          "#ITERATE":{
+            "#ELEMENT": "catalog_structure",
+            "#ENTITY": "Kategorie",
+            "#ELEMENTS": {
+              "group_id": {"#PROPERTY" : "id"},
+              "group_name": {"#PROPERTY" : "name"},
+              "parent_id": {
+                "#TYPE": "ifempty",
+                "#PROPERTY": "treeParent",
+                "#THEN": "1"
+              },
+              "group_order": {"#PROPERTY" : "sorting"}
+            },
+            "#ATTRIBUTES": {
+              "type" : {
+                "#TYPE": "ifempty",
+                "#PROPERTY": "treeChilds",
+                "#THEN": "leaf",
+                "#ELSE": "node"
+              }
+            }
+          }
+        },
+        "#ITERATE:1": {
+          "#ELEMENT": "product",
+          "#ENTITY": "Produkt",
+          "#ELEMENTS": {
+            "supplier_pid": {"#PROPERTY": "id"},
+            "product_details": {
+              "description_short": {"#PROPERTY": "name"}
+            },
+            "product_order_details":{
+              "order_unit": "BX",
+              "content_unit": "C62",
+              "no_cu_per_ou": "6"
+            },
+            "product_price_details": {
+              "product_price": {
+                ".price_type": "net_list",
+                "price_amount" : "200"
+              }
+            }
+          },
+          "#ATTRIBUTES":{
+            "mode": "new"
+          }
+        },
+        "#ITERATE:2": {
+          "#ELEMENT": "product_to_cataloggroup_map",
+          "#ENTITY": "Produkt",
+          "#ELEMENTS":{
+            "prod_id": {"#PROPERTY": "id"},
+            "catalog_group_id": {
+              "#TYPE": "join",
+              "#ENTITY": "Kategorie",
+              "#TARGET": "kategorie",
+              "#PROPERTY":"id"
+            }
+          }
+        }
+      }
+    }
+  }
+}
