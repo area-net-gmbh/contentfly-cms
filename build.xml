@@ -89,29 +89,7 @@ define('CUSTOM_VERSION', '0.0.0');
         <symlink link="appcms/public/ui/default" resource="../../areanet/PIM-UI/default/assets"/>
         <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
     </target>
-
     
-    <!-- GENERATE API-DOC FOR RELEASE VERSION -->
-    <target name="apidoc-release" description="API-Dokumentation wird erstellt..." >
-        <exec executable="apidoc" dir="./">
-            <arg value="-i appcms/areanet/PIM/Controller/" />
-        </exec>
-
-        <ftp action="mkdir"
-             server="${env.FTP_SERVER}"
-             userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}"
-             remotedir="${env.FTP_REMOTE_APIDOC}/${version}"/>
-
-        <ftp server="${env.FTP_SERVER}"
-             remotedir="${env.FTP_REMOTE_APIDOC}/${version}"
-             userid="${env.FTP_USER}"
-             password="${env.FTP_PASS}"
-             passive="yes">
-            <fileset dir="doc"/>
-        </ftp>
-    </target>
-
 
     <!-- DEPLOY RELEASE VERSION -->
     <target name="deploy-release" depends="zip-release">

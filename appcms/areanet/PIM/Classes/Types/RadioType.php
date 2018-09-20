@@ -52,18 +52,17 @@ class RadioType extends Type
 
         $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Radio'];
 
-        $optionsGroupName = isset($propertyAnnotations->group) ? $propertyAnnotations->group : $entityName.'/'.$key;
-        $optionsGroupObject = $this->em->getRepository('Areanet\\PIM\\Entity\\OptionGroup')->findBy(array('name' => $optionsGroupName));
+        $optionsGroupName       = isset($propertyAnnotations->group) ? $propertyAnnotations->group : $entityName.'/'.$key;
+        $optionsGroupObject     = $this->em->getRepository('Areanet\\PIM\\Entity\\OptionGroup')->findOneBy(array('name' => $optionsGroupName));
 
-        $newOptionsGroupObject = null;
         if(!$optionsGroupObject) {
-            $newOptionsGroupObject = new OptionGroup();
-            $newOptionsGroupObject->setName($optionsGroupName);
-            $this->em->persist($newOptionsGroupObject);
+            $optionsGroupObject = new OptionGroup();
+            $optionsGroupObject->setName($optionsGroupName);
+            $this->em->persist($optionsGroupObject);
             $this->em->flush();
         }
 
-        $schema['group']                = ($optionsGroupObject) ? $optionsGroupObject[0]->getId() : $newOptionsGroupObject->getId();
+        $schema['group']                = $optionsGroupObject->getId();
         $schema['horizontalAlignment']  = $propertyAnnotations->horizontalAlignment;
         $schema['select']               = $propertyAnnotations->select;
         $schema['columns']              = $propertyAnnotations->columns;
