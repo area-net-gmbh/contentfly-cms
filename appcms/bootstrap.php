@@ -17,7 +17,6 @@ if(file_exists(ROOT_DIR.'/../custom/vendor/autoload.php')){
 require_once ROOT_DIR.'/../custom/config.php';
 require_once ROOT_DIR.'/../custom/version.php';
 
-
 define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'default');
 
 use Silex\Application;
