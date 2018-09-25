@@ -480,10 +480,18 @@ class ApiController extends BaseController
     {
         $objects             = $request->get('objects');
         $disableModifiedTime = $request->get('disableModifiedTime');
+        $lang                = $request->get('lang');
 
         foreach($objects as $object){
             $api = new Api($this->app, $request);
-            $api->doUpdate($object['entity'], $object['id'], $object['data'], $disableModifiedTime);
+            $updateUniversalLangProps = $api->doUpdate($object['entity'], $object['id'], $object['data'], $disableModifiedTime, null, $lang);
+
+            if($updateUniversalLangProps){
+                foreach ($updateUniversalLangProps['i18nObjects'] as $i18nObject) {
+
+                    $api->doUpdate($object['entity'], $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, $currentUserPass, $i18nObject['lang'], true);
+                }
+            }
         }
 
         return $this->renderResponse(array());
@@ -541,8 +549,10 @@ class ApiController extends BaseController
 
         $api = new Api($this->app, $request);
         $updateUniversalLangProps = $api->doUpdate($entityName, $id, $data, $disableModifiedTime, $currentUserPass, $lang);
+
         if($updateUniversalLangProps){
             foreach ($updateUniversalLangProps['i18nObjects'] as $i18nObject) {
+                die($i18nObject['id']."-".$i18nObject['lang']);
                 $api->doUpdate($entityName, $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, $currentUserPass, $i18nObject['lang'], true);
             }
         }

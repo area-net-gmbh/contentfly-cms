@@ -46,7 +46,6 @@
 
     if(vm.i18n){
       vm.currentLang =   vm.frontend.languages ? vm.frontend.languages[0] : null;
-
       if($routeParams.lang){
         vm.currentLang = $routeParams.lang;
       }
@@ -61,10 +60,13 @@
     vm.sortableOptions = {
       stop: function(e,ui){
         var resortObjectData = [];
-        var sortOffset = vm.sortOrder == 'ASC'
+        var sortOffset = vm.sortOrder == 'ASC';
+        var objects = vm.objects;
         for(var i = 0; i < vm.objects.length; i++){
           var newSortPosition = vm.sortOrder == 'ASC' ? i : vm.objects.length - 1 - i;
+
           vm.objects[i].sorting = newSortPosition;
+
           resortObjectData.push({
             entity: vm.entity,
             id: vm.objects[i].id,
@@ -72,11 +74,13 @@
               sorting: newSortPosition
             }
           });
+
         }
 
         var data = {
-          objects: resortObjectData
-        }
+          objects: resortObjectData,
+          lang: vm.currentLang
+        };
 
         EntityService.multiupdate(data).then(
           function successCallback(response) {
@@ -626,8 +630,7 @@
           }
 
           var field = key;
-          console.log(entity);
-          console.log();
+
           if(!vm.permissions[entity].readable){
             continue;
           }

@@ -10,7 +10,6 @@
             restrict: 'AEC',
             scope: { object: '=', schema: '=', long: '=' },
             link: function(scope, element, attrs){
-                
 
 
                 scope.$watch('object', function() {
@@ -99,7 +98,7 @@
                         default:
                             break;
                     }
-                });
+                }, true);
 
                 function strip_tags(input, allowed){
                     if (!(typeof input === 'string' || input instanceof String)){

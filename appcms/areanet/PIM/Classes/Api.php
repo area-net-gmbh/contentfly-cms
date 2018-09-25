@@ -16,6 +16,7 @@ use Areanet\PIM\Classes\Exceptions\File\FileExistsException;
 use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseI18n;
+use Areanet\PIM\Entity\BaseI18nSortable;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\File;
@@ -861,7 +862,9 @@ class Api
             'customNavigation' => array(
                 'enabled' => Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
             ),
-            'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT
+            'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT,
+            'exportMethods' => Adapter::getConfig()->APP_EXPORT_METHODS,
+            'languages' => Adapter::getConfig()->APP_LANGUAGES
         );
 
         $uiblocks = $this->app['uiManager']->getBlocks();
@@ -922,7 +925,12 @@ class Api
             }
         }
 
-        return array('frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions);
+        $i18nPermissions = null;
+        if(($group = $this->app['auth.user']->getGroup())){
+            $i18nPermissions = $group->getLanguages();
+        }
+
+        return array('frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions, 'i18nPermissions' => $i18nPermissions);
     }
 
 
@@ -1336,7 +1344,7 @@ class Api
 
 
 
-            if($object instanceof BaseSortable){
+            if($object instanceof BaseSortable || $object instanceof BaseI18nSortable){
                 $settings['sortBy']     = 'sorting';
                 $settings['sortOrder']  = 'ASC';
                 $settings['isSortable'] = true;
