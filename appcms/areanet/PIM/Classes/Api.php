@@ -716,8 +716,12 @@ class Api
         $schema         = $this->app['schema'];
         $permissions    = $this->getPermissions();
 
-        if(Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION){
+        $permission     = Permission::isReadable($this->app['auth.user'], 'PIM\\NavItem');
+
+        if(Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION && $permission){
             $frontend['customNavigation']['items'] = array();
+
+
 
             $queryBuilder = $this->em->createQueryBuilder();
             $queryBuilder
@@ -727,6 +731,21 @@ class Api
                 ->where('navItem.nav IS NOT NULL')
                 ->orderBy('nav.sorting')
                 ->orderBy('navItem.sorting');
+
+            if($permission == \Areanet\PIM\Entity\Permission::OWN){
+                $queryBuilder->andWhere("navItem.userCreated = :userCreated OR FIND_IN_SET(:userCreated, navItem.users) > 0");
+                $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                $group = $this->app['auth.user']->getGroup();
+                if(!$group){
+                    $queryBuilder->andWhere("navItem.userCreated = :userCreated");
+                    $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+                }else{
+                    $queryBuilder->andWhere("navItem.userCreated = :userCreated OR FIND_IN_SET(:userGroup, navItem.groups) > 0");
+                    $queryBuilder->setParameter('userGroup', $group);
+                    $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+                }
+            }
 
             $items = $queryBuilder->getQuery()->getResult();
             foreach($items as $item){
