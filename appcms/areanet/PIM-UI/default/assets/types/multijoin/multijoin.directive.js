@@ -230,6 +230,7 @@
                         if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
                             entityForm = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
                         }else{
+                            //@todo: Umschreiben oder Helper-Methde entwickeln -> siehe PHP
                             var fullEntity = null;
                             fullEntity = scope.config.acceptFrom.split('\\');
                             entityForm = fullEntity[(fullEntity.length - 1)];

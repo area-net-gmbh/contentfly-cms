@@ -541,10 +541,10 @@
           if (vm.schema.properties[key].accept.substr(0, 7) == 'Areanet') {
             entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
           } else {
-            entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+            entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
           }
 
-          if (!vm.permissions[entity].readable) {
+          if (!vm.permissions['Shop\\Kategorie'].readable) {
             continue;
           }
 
@@ -622,11 +622,12 @@
           if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
             entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
           }else{
-            entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+            entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
           }
 
           var field = key;
-
+          console.log(entity);
+          console.log();
           if(!vm.permissions[entity].readable){
             continue;
           }
@@ -705,7 +706,7 @@
           if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
             entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
           }else{
-            entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+            entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
           }
 
           if(!vm.permissions[entity].readable){
@@ -852,7 +853,7 @@
       if (vm.schema.properties[key].accept.substr(0, 7) == 'Areanet') {
         entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
       } else {
-        entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
+        entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
       }
 
       if (!vm.permissions[entity].readable) {

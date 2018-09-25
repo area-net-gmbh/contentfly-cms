@@ -861,9 +861,7 @@ class Api
             'customNavigation' => array(
                 'enabled' => Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION
             ),
-            'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT,
-            'exportMethods' => Adapter::getConfig()->APP_EXPORT_METHODS,
-            'languages' => Adapter::getConfig()->APP_LANGUAGES
+            'login_redirect' => Adapter::getConfig()->FRONTEND_LOGIN_REDIRECT
         );
 
         $uiblocks = $this->app['uiManager']->getBlocks();
@@ -871,8 +869,12 @@ class Api
         $schema         = $this->app['schema'];
         $permissions    = $this->getPermissions();
 
-        if(Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION){
+        $permission     = Permission::isReadable($this->app['auth.user'], 'PIM\\NavItem');
+
+        if(Adapter::getConfig()->FRONTEND_CUSTOM_NAVIGATION && $permission){
             $frontend['customNavigation']['items'] = array();
+
+
 
             $queryBuilder = $this->em->createQueryBuilder();
             $queryBuilder
@@ -882,6 +884,21 @@ class Api
                 ->where('navItem.nav IS NOT NULL')
                 ->orderBy('nav.sorting')
                 ->orderBy('navItem.sorting');
+
+            if($permission == \Areanet\PIM\Entity\Permission::OWN){
+                $queryBuilder->andWhere("navItem.userCreated = :userCreated OR FIND_IN_SET(:userCreated, navItem.users) > 0");
+                $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                $group = $this->app['auth.user']->getGroup();
+                if(!$group){
+                    $queryBuilder->andWhere("navItem.userCreated = :userCreated");
+                    $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+                }else{
+                    $queryBuilder->andWhere("navItem.userCreated = :userCreated OR FIND_IN_SET(:userGroup, navItem.groups) > 0");
+                    $queryBuilder->setParameter('userGroup', $group);
+                    $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
+                }
+            }
 
             $items = $queryBuilder->getQuery()->getResult();
             foreach($items as $item){
@@ -905,12 +922,7 @@ class Api
             }
         }
 
-        $i18nPermissions = null;
-        if(($group = $this->app['auth.user']->getGroup())){
-            $i18nPermissions = $group->getLanguages();
-        }
-
-        return array('frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions, 'i18nPermissions' => $i18nPermissions);
+        return array('frontend' => $frontend, 'uiblocks' => $uiblocks, 'devmode' => Adapter::getConfig()->APP_DEBUG, 'version' => APP_VERSION.'/'.CUSTOM_VERSION, 'data' => $schema, 'permissions' => $permissions);
     }
 
 
