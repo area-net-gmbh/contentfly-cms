@@ -170,7 +170,9 @@ class ApiController extends BaseController
         $lastModified   = $request->get("lastModified");
         $data           = $api->getCount($lastModified);
 
-        return $this->renderResponse(array('data' => $data));
+        $currentDate    = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'data' => $data));
     }
 
     /**
@@ -215,7 +217,9 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
 
-        return $this->renderResponse(array('id' => $id));
+        $currentDate = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $id));
     }
 
     /**
@@ -247,8 +251,8 @@ class ApiController extends BaseController
         $api            = new Api($this->app, $request);
         $lastModified   = $request->get("lastModified");
         $data           = $api->getDeleted($lastModified);
-
-        return $this->renderResponse(array('data' => $data));
+        $currentDate    = new \Datetime();
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'data' => $data));
     }
 
 
@@ -323,7 +327,9 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
-        return $this->renderResponse(array('id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
+        $currentDate    = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityName)));
     }
 
     /**
@@ -405,6 +411,7 @@ class ApiController extends BaseController
         if(!($data = $api->getList($entityName, $where, $order, $groupBy, $properties, $lastModified, $flatten, $currentPage, $itemsPerPage))){
             return new JsonResponse(array('message' => "Not found"), 404);
         }
+
 
         if($doCount){
             return $this->renderResponse(array('data' => count($data['objects'])));
@@ -544,7 +551,9 @@ class ApiController extends BaseController
         $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
         $this->app['dispatcher']->dispatch('pim.entity.after.update', $event);
 
-        return $this->renderResponse(array('id' => $id));
+        $currentDate = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $id));
 
     }
 
@@ -693,10 +702,11 @@ class ApiController extends BaseController
         $id         = $request->get('id');
         $where      = $request->get('where');
 
-        $api  = new Api($this->app);
-        $data = $api->getSingle($entityName, $id, $where);
+        $api            = new Api($this->app);
+        $data           = $api->getSingle($entityName, $id, $where);
+        $currentDate    = new \Datetime();
 
-        return $this->renderResponse(array('data' => $data));
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'data' => $data));
 
     }
 
@@ -744,10 +754,11 @@ class ApiController extends BaseController
         $entityName   = $request->get('entity');
         $properties   = $request->get('properties');
 
-        $api  = new Api($this->app);
-        $tree = $api->getTree($entityName, null, $properties);
+        $api            = new Api($this->app);
+        $tree           = $api->getTree($entityName, null, $properties);
+        $currentDate    = new \Datetime();
 
-        return $this->renderResponse(array('data' => $tree));
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'),'data' => $tree));
     }
 
     /**
