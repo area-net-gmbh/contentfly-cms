@@ -171,7 +171,9 @@ class ApiController extends BaseController
         $lastModified   = $request->get("lastModified");
         $data           = $api->getCount($lastModified);
 
-        return $this->renderResponse(array('data' => $data));
+        $currentDate    = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'data' => $data));
     }
 
     /**
@@ -222,7 +224,9 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.delete', $event);
 
-        return $this->renderResponse(array('id' => $id));
+        $currentDate = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $id));
     }
 
     /**
@@ -254,8 +258,8 @@ class ApiController extends BaseController
         $api            = new Api($this->app, $request);
         $lastModified   = $request->get("lastModified");
         $data           = $api->getDeleted($lastModified);
-
-        return $this->renderResponse(array('data' => $data));
+        $currentDate    = new \Datetime();
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'data' => $data));
     }
 
 
@@ -332,7 +336,9 @@ class ApiController extends BaseController
         $event->setParam('app',     $app);
         $this->app['dispatcher']->dispatch('pim.entity.after.insert', $event);
 
-        return $this->renderResponse(array('id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityShortName)));
+        $currentDate    = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityShortName)));
     }
 
     /**
@@ -568,7 +574,9 @@ class ApiController extends BaseController
         $this->app['dispatcher']->dispatch('pim.entity.after.udpdate', $event);
         $this->app['dispatcher']->dispatch('pim.entity.after.update', $event);
 
-        return $this->renderResponse(array('id' => $id));
+        $currentDate = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $id));
 
     }
 
@@ -734,8 +742,9 @@ class ApiController extends BaseController
 
         $api  = new Api($this->app);
         $data = $api->getSingle($entityName, $id, $where, $lang, false, $compareToLang, $loadJoinedLang);
+        $currentDate    = new \Datetime();
 
-        return $this->renderResponse(array('data' => $data));
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'data' => $data));
 
     }
 
@@ -783,10 +792,11 @@ class ApiController extends BaseController
         $entityName   = $request->get('entity');
         $properties   = $request->get('properties');
 
-        $api  = new Api($this->app);
-        $tree = $api->getTree($entityName, null, $properties);
+        $api            = new Api($this->app);
+        $tree           = $api->getTree($entityName, null, $properties);
+        $currentDate    = new \Datetime();
 
-        return $this->renderResponse(array('data' => $tree));
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'),'data' => $tree));
     }
 
     /**
