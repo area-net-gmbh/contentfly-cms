@@ -181,7 +181,7 @@
                     <td ng-repeat="property in vm.schema.list"><pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin><pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat><pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin></td>
                     <td>
                         <div class="pull-right">
-                            <span ng-show="vm.hideButtons || vm.schema.settings.isSortable && vm.sortProperty == 'sorting'" class="btn btn-default btn-xs glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>
+                            <span ng-show="!vm.hideButtons || vm.schema.settings.isSortable && vm.sortProperty == 'sorting'" class="btn btn-default btn-xs glyphicon glyphicon-move sortable-handle" aria-hidden="true"></span>
                             <pim-plugin key="LIST_TABLE_BODY_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
                             <button type="button" ng-hide="vm.hideButtons || vm.schema.settings.isPush || vm.schema.settings.readonly || vm.schema.settings.viewMode == 1" ng-click="vm.delete(object)" ng-show="vm.permissions[vm.entity].deletable" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
                             <button type="button" ng-show="!vm.hideButtons && vm.schema.settings.viewMode == 1" ng-click="vm.openForm(object, 1)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-eye-open"  aria-hidden="true"></span></button>
