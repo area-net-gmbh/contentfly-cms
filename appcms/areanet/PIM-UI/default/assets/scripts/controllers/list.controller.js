@@ -5,7 +5,7 @@
     .module('app')
     .controller('ListCtrl', ListCtrl);
 
-  function ListCtrl($scope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location, FileSaver, Blob){
+  function ListCtrl($scope, $rootScope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location, FileSaver, Blob){
 
     var vm              = this;
     var oldPageNumber   = 1;
@@ -32,8 +32,11 @@
       vm.entity = $routeParams.entity;
     }
 
-    vm.canExport  = vm.permissions[vm.entity].export && vm.frontend.exportMethods && Object.keys(vm.frontend.exportMethods).length;
-    vm.schema     = localStorageService.get('schema')[vm.entity];
+    $rootScope.currentNav = vm.entity;
+
+    vm.hideButtons =  $routeParams.hideButtons ? true : false;
+    vm.canExport   = vm.permissions[vm.entity].export && vm.frontend.exportMethods && Object.keys(vm.frontend.exportMethods).length;
+    vm.schema      = localStorageService.get('schema')[vm.entity];
 
     if(!vm.schema){
       $location.path('/');
@@ -483,7 +486,7 @@
           vm.objectsNotAvailable = false;
         },
         function errorCallback(response) {
-          
+
           vm.objectsAvailable = false;
           vm.objectsNotAvailable = true;
           vm.countLabel = '0 Datensätze';

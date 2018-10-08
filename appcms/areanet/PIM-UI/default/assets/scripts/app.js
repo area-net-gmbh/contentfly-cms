@@ -52,6 +52,12 @@
           );
         };
 
+        $rootScope.toggleNavigation = function(groupName){
+          $rootScope.navigationOpened[groupName] = $rootScope.navigationOpened[groupName] ? false : true;
+
+          localStorageService.set('navigationOpened', $rootScope.navigationOpened);
+        };
+
         $rootScope.$on( "$routeChangeStart", function(event, next, current) {
 
             if(next.originalPath != '/error' ) {
@@ -90,14 +96,27 @@
                     $rootScope.i18nPermissions = localStorageService.get('i18nPermissions');
                     $rootScope.uiblocks = localStorageService.get('uiblocks');
 
-                    var entities = {};
+                    $rootScope.navigationOpened = localStorageService.get('navigationOpened');
+                    $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {};
+
+                    var navigation = {'General': {}};
                     for (var entity in $rootScope.schema) {
-                        if(entity == '_hash') continue;
-                        if(entity.substr(0, 4) == 'PIM\\' || $rootScope.schema[entity]["settings"]["hide"] || !$rootScope.permissions[entity]["readable"]) continue;
-                        entities[entity] = $rootScope.schema[entity]["settings"]["label"];
+                        if(entity == '_hash' || $rootScope.schema[entity]["settings"]["hide"] || !$rootScope.permissions[entity]["readable"]) continue;
+
+                        var entityParts = entity.split('\\');
+
+                        if(entityParts.length == 1){
+                          navigation['General'][entity] = $rootScope.schema[entity]["settings"]["label"];
+                        }else if(entityParts.length == 4){
+                          if(!navigation[entityParts[1]]) navigation[entityParts[1]] = {};
+                          navigation[entityParts[1]][entity] = $rootScope.schema[entity]["settings"]["label"];
+                        }else if(entityParts[0] != 'PIM'){
+                          if(!navigation[entityParts[0]]) navigation[entityParts[0]] = {};
+                          navigation[entityParts[0]][entity] = $rootScope.schema[entity]["settings"]["label"];
+                        }
                     }
 
-                    $rootScope.entities = entities;
+                    $rootScope.navigation = navigation;
 
                 }
             }else{

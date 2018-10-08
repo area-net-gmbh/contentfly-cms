@@ -18,6 +18,8 @@
         vm.tokens               = [];
         vm.users                = [];
 
+        $rootScope.currentNav = 'Admin\\Settings';
+
         //Functions
         vm.addToken             = addToken;
         vm.checkTokenSubmittable= checkTokenSubmittable;

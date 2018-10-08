@@ -142,6 +142,11 @@ body.emotionalBackground{
 #pim-nav ul{
     list-style:none;
     padding:0;
+
+}
+
+#pim-nav > ul{
+    margin-top: 64px;
 }
 
 #pim-nav ul li{
@@ -151,12 +156,14 @@ body.emotionalBackground{
 
 #pim-nav ul li h3 {
     padding-left:5px;
-    padding-bottom:5px;
+    padding-bottom:8px;
     margin:0;
-    margin-top:40px;
+    margin-top: 10px;
     color:#FFFFFF;
-    font-weight: 400;
+    font-weight: bold;
     font-size: 14px;
+    border-bottom: 1px solid #1D2A48;
+    cursor: pointer;
 }
 
 #pim-nav ul li h3 span {
@@ -164,16 +171,38 @@ body.emotionalBackground{
     margin-right:5px;
 }
 
+#pim-nav ul li h3 span.cf-caret {
+    opacity: 0.45;
+    float:right;
+    margin-right:5px;
+}
+
+#pim-nav ul li h3:hover span {
+    opacity: 1;
+}
+
+
+
+
 #pim-nav ul li a{
     color:#FFFFFF;
     padding-left:24px;
     font-size:14px;
     font-weight: 300;
+    display:block;
+    outline: 0;
 }
 
-#pim-nav ul li a:focus{
+#pim-nav ul li a:hover{
+    background-color:#283551;
+    text-decoration: none;
+}
+
+#pim-nav ul li a:focus,
+#pim-nav ul li a.active{
     font-weight: bold ;
     text-decoration: none;
+    background-color:#283551;
 }
 
 

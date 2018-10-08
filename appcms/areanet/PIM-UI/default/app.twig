@@ -59,46 +59,79 @@
     <pim-plugin key="INDEX_NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <ul>
         <pim-plugin key="INDEX_NAVIGATION_ENTITIES_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <li ng-if="!frontend.customNavigation.enabled"><h3><span class="glyphicon glyphicon-th-large"></span>Inhalte</h3>
-            <ul>
+        <li ng-if="!frontend.customNavigation.enabled"  ng-repeat="(groupName, entities) in navigation">
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="glyphicon glyphicon-th-large"></span>
+                {{groupName}}
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul ng-hide="!navigationOpened[groupName]">
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li ng-repeat="(entity, label) in entities"><a href="#/list/{{entity | urlencode}}">{{label}}</a></li>
+                <li  ng-repeat="(entity, label) in entities">
+                    <a ng-class="{active: currentNav == entity}" href="#/list/{{entity | urlencode}}">{{label}}</a>
+                </li>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
-        <li ng-if="frontend.customNavigation.enabled" ng-repeat="nav in ::frontend.customNavigation.items"><h3><span class="{{nav.icon}}"></span>{{nav.title}}</h3>
-            <ul>
-                <li ng-repeat="navItem in ::nav.items"><a href="{{navItem.uri}}">{{navItem.title}}</a></li>
+        <li ng-if="frontend.customNavigation.enabled" ng-repeat="nav in ::frontend.customNavigation.items">
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="{{nav.icon}}"></span>
+                {{nav.title}}
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+                </h3>
+            <ul ng-hide="!navigationOpened[groupName]">
+                <li ng-repeat="navItem in ::nav.items">
+                    <a ng-class="{active: currentNav == navItem.uri}" href="{{navItem.uri}}">{{navItem.title}}</a>
+                </li>
             </ul>
         </li>
         <pim-plugin key="INDEX_NAVIGATION_MEDIA_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <li ng-show="permissions['PIM\\File'].readable || permissions['PIM\\Folder'].readable || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND">
-            <h3><span class="glyphicon glyphicon-picture"></span>Medienverwaltung</h3>
-            <ul>
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="glyphicon glyphicon-picture"></span>
+                Medienverwaltung
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul  ng-hide="!navigationOpened[groupName]">
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li ng-show="permissions['PIM\\File'].readable"><a href="#/files">Dateien</a></li>
-                <li ng-show="permissions['PIM\\Folder'].readable"><a href="#/list/PIM/Folder">Ordner</a></li>
+                <li ng-show="permissions['PIM\\File'].readable"><a ng-class="{active: currentNav == 'PIM\\File'}" href="#/files">Dateien</a></li>
+                <li ng-show="permissions['PIM\\Folder'].readable"><a ng-class="{active: currentNav == 'PIM\\Folder'}" href="#/list/PIM/Folder">Ordner</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
         <pim-plugin key="INDEX_NAVIGATION_MEDIA_APPEND" uiblocks="uiblocks"></pim-plugin>
-        <li ng-if="frontend.customNavigation.enabled && user.isAdmin"><h3><span class="glyphicon glyphicon-th-list"></span>Navigation</h3>
-            <ul>
-                <li><a href="#/list/PIM/Nav">Bereiche</a></li>
-                <li><a href="#/list/PIM/NavItem">Einträge</a></li>
+        <li ng-if="frontend.customNavigation.enabled && user.isAdmin">
+            <h3 ng-click="toggleNavigation('customNavigation')">
+                <span class="glyphicon glyphicon-th-list"></span>
+                Navigation
+                <span ng-hide="navigationOpened['customNavigation']" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened['customNavigation']" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul  ng-hide="!navigationOpened['customNavigation']">
+                <li><a ng-class="{active: currentNav == 'PIM\\Nav'}" href="#/list/PIM/Nav">Bereiche</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\NavItem'}" href="#/list/PIM/NavItem">Einträge</a></li>
             </ul>
         </li>
         <pim-plugin key="INDEX_NAVIGATION_ADMIN_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <li ng-if="user.isAdmin"><h3><span class="glyphicon glyphicon-cog"></span>Administration</h3>
-            <ul>
+        <li ng-if="user.isAdmin">
+            <h3 ng-click="toggleNavigation('admin')">
+                <span class="glyphicon glyphicon-cog"></span>
+                Administration
+                <span ng-hide="navigationOpened['admin']" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened['admin']" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul  ng-hide="!navigationOpened['admin']">
                 <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li><a href="#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
-                <li><a href="#/list/PIM/Option">Optionen</a></li>
-                <li><a href="#/list/PIM/Log">Protokollierung</a></li>
-                <li><a href="#/list/PIM/Tag">Tags</a></li>
-                <li><a href="#/list/PIM/User">Benutzer</a></li>
-                <li><a href="#/list/PIM/Group">Gruppen</a></li>
-                <li><a href="#/settings">Einstellungen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\ThumbnailSetting'}" href="#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Option'}" href="#/list/PIM/Option">Optionen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Log'}" href="#/list/PIM/Log">Protokollierung</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Tag'}" href="#/list/PIM/Tag">Tags</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\User'}" href="#/list/PIM/User">Benutzer</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Group'}" href="#/list/PIM/Group">Gruppen</a></li>
+                <li><a ng-class="{active: currentNav == 'Admin\\Settings'}" href="#/settings">Einstellungen</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
