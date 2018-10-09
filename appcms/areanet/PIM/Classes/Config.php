@@ -314,12 +314,6 @@ class Config{
      */
     public $IMAGEMAGICK_EXECUTABLE = 'convert';
 
-    public $PUSH_GOOGLE_KEY = null;
-    public $PUSH_APPLE_HOST = null;
-    public $PUSH_APPLE_CERT = null;
-    public $PUSH_APPLE_PASS = null;
-    public $PUSH_APPLE_SANDBOX = false;
-
     public $SECURITY_CIPHER_METHOD = 'AES-128-ECB';
     public $SECURITY_CIPHER_KEY    = null;
 

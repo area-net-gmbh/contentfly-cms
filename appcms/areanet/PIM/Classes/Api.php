@@ -357,29 +357,6 @@ class Api
 
             $this->em->flush();
 
-            $isPush = $schema[$entityShortName]['settings']['isPush'];
-            if($isPush){
-                $pushTitle  = $schema[$entityShortName]['settings']['pushTitle'];
-                $pushText   = $schema[$entityShortName]['settings']['pushText'];
-
-
-                $event = new \Areanet\PIM\Classes\Event();
-                $event->setParam('entity',          $entityShortName);
-                $event->setParam('data',            $data);
-                $event->setParam('user',            $this->app['auth.user']);
-                $event->setParam('additionalData',  array());
-                $event->setParam('pushTitle',       $pushTitle);
-                $event->setParam('pushText',        $pushText);
-                $event->setParam('app',             $this->app);
-                $this->app['dispatcher']->dispatch('pim.push.before.send', $event);
-
-                $additionalData = $event->getParam('additionalData');
-                $pushTitle      = $event->getParam('pushTitle');
-                $pushText       = $event->getParam('pushText');
-
-                $push = new Push($this->em, $object);
-                $push->send($pushTitle, $pushText, $additionalData);
-            }
 
             /**
              * Log insert actions
@@ -712,7 +689,7 @@ class Api
         $schema = $this->getSchema();
 
         $entitiesToExclude = array(
-            'PIM\\File', 'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\PushToken', 'PIM\\ThumbnailSetting',
+            'PIM\\File', 'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\ThumbnailSetting',
             'PIM\\Permission', 'PIM\\Nav', 'PIM\\NavItem', 'PIM\\Log', '_hash'
         );
 
@@ -808,7 +785,7 @@ class Api
         $schema = $this->getSchema();
 
         $entitiesToExclude = array(
-            'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\PushToken', 'PIM\\ThumbnailSetting',
+            'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\ThumbnailSetting',
             'PIM\\Permission', 'PIM\\Nav', 'PIM\\NavItem', 'PIM\\Log', '_hash'
         );
 
@@ -1280,7 +1257,6 @@ class Api
         $entities[] = "PIM\\User";
         $entities[] = "PIM\\Group";
         $entities[] = "PIM\\Log";
-        $entities[] = "PIM\\PushToken";
         $entities[] = "PIM\\ThumbnailSetting";
         $entities[] = "PIM\\Permission";
         $entities[] = "PIM\\Nav";
@@ -1315,11 +1291,7 @@ class Api
             $settings = array(
                 'label' => $entity,
                 'readonly' => false,
-                'isPush' => false,
                 'hide' => false,
-                'pushTitle' => '',
-                'pushText' => '',
-                'pushObject' => '',
                 'sortBy' => 'created',
                 'sortRestrictTo' => null,
                 'sortOrder' => 'DESC',
@@ -1365,10 +1337,6 @@ class Api
                     $settings['label']          = $classAnnotation->label ? $classAnnotation->label : $entity;
                     $settings['labelProperty']  = $classAnnotation->labelProperty ? $classAnnotation->labelProperty : $settings['labelProperty'];
                     $settings['readonly']       = $classAnnotation->readonly ? $classAnnotation->readonly : false;
-                    $settings['isPush']         = ($classAnnotation->pushText && $classAnnotation->pushTitle);
-                    $settings['pushTitle']      = $classAnnotation->pushTitle ? $classAnnotation->pushTitle : null;
-                    $settings['pushText']       = $classAnnotation->pushText ? $classAnnotation->pushText : null;
-                    $settings['pushObject']     = $classAnnotation->pushObject ? $classAnnotation->pushObject : null;
                     $settings['sortBy']         = $classAnnotation->sortBy ? $classAnnotation->sortBy : $settings['sortBy'];
                     $settings['sortOrder']      = $classAnnotation->sortOrder ? $classAnnotation->sortOrder : $settings['sortOrder'];
                     $settings['hide']           = $classAnnotation->hide ? $classAnnotation->hide : $settings['hide'];

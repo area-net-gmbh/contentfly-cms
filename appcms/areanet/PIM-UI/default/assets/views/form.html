@@ -10,7 +10,7 @@
     <div class="col-sm-6" style="text-align:right;">
         <pim-plugin key="FORM_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
-        <button class="btn btn-primary" type="button" ng-hide="vm.isPush || vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
         <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
         <pim-plugin key="FORM_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
@@ -74,12 +74,12 @@
 <div class="modal-footer">
     <pim-plugin key="FORM_FOOTER_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="col-sm-2">
-        <button class="btn btn-danger" type="button" ng-hide="vm.isPush || vm.readonly || vm.schema.settings.viewMode != 1 || !vm.object.id" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.delete(vm.object)">Löschen</button>
+        <button class="btn btn-danger" type="button" ng-hide="vm.readonly || vm.schema.settings.viewMode != 1 || !vm.object.id" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.delete(vm.object)">Löschen</button>
     </div>
     <div class="col-sm-10">
         <pim-plugin key="FORM_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
-        <button class="btn btn-primary" type="button" ng-hide="vm.isPush || vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+        <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
         <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
         <pim-plugin key="FORM_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>

@@ -72,21 +72,6 @@ final class Config extends Annotation
      * @var string
      */
     public $type = '';
-    
-    /**
-     * @var string
-     */
-    public $pushText = null;
-
-    /**
-     * @var string
-     */
-    public $pushTitle = null;
-
-    /**
-     * @var string
-     */
-    public $pushObject = null;
 
     /**
      * @var string

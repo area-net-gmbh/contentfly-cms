@@ -21,7 +21,6 @@
         vm.object           = {};
         vm.isLoading        = true;
         vm.isSubmit         = false;
-        vm.isPush           = vm.schema['settings']['isPush'];
         vm.readonly         = readonly;
         vm.fileUploads      = {};
         vm.forms            = {};
@@ -451,54 +450,7 @@
         }
 
         function save(andClose) {
-            if (vm.schema['settings']['isPush']) {
-
-                for (var formName in vm.forms) {
-                    if (!vm.forms[formName].$valid) {
-                        return;
-                    }
-                }
-
-                vm.isSubmit = true;
-
-                var data = {
-                    entity: 'PIM\\PushToken',
-                    count: true
-                };
-
-
-                EntityService.list(data).then(
-                    function successCallback(response) {
-                        if (vm.object[vm.schema['settings']['pushObject']]) {
-                            var res = vm.object[vm.schema['settings']['pushObject']].split("_");
-
-                            var data = {
-                                entity: res[0],
-                                id: res[1]
-                            };
-
-                            EntityService.single(data).then(
-                                function successCallback(response2) {
-                                    var jsonData = response2.data.data;
-                                    confirmPush(response.data.data, vm.object[vm.schema['settings']['pushTitle']], vm.object[$scope.schema['settings']['pushText']], "Link auf " + res[0] + ": " + jsonData["title"]);
-                                },
-                                function errorCallback(response) {
-                                    confirmPush(response.data.data, vm.object[vm.schema['settings']['pushTitle']], vm.object[vm.schema['settings']['pushText']], "Link: --");
-                                }
-                            );
-                        } else {
-                            confirmPush(response.data.data, vm.object[vm.schema['settings']['pushTitle']], vm.object[vm.schema['settings']['pushText']], "Link: --");
-                        }
-                    },
-                    function errorCallback(response) {
-
-                    }
-                );
-
-
-            } else {
-                doSave(andClose);
-            }
+            doSave(andClose);
 
         }
 
