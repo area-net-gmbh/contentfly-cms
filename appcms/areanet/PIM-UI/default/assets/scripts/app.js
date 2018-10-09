@@ -52,6 +52,21 @@
           );
         };
 
+        $rootScope.getShortEntityName = function(entityName){
+          var entityShortName = '';
+
+          if(entityName.substr(0, 7) == 'Areanet'){
+            entityShortName = 'PIM\\' +  entityName.substr(19);
+          }else if(entityName.substr(0, 6) == 'Custom'){
+            entityShortName = entityName.substr(14);
+          }else{
+            entityShortName = entityName;
+          }
+
+          return entityShortName;
+        };
+
+
         $rootScope.toggleNavigation = function(groupName){
           $rootScope.navigationOpened[groupName] = $rootScope.navigationOpened[groupName] ? false : true;
 

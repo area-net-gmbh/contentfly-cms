@@ -5,7 +5,7 @@
         .module('app')
         .directive('pimAutoformat', pimAutoformat);
 
-    function pimAutoformat($filter, localStorageService){
+    function pimAutoformat($filter, localStorageService, $rootScope){
         return {
             restrict: 'AEC',
             scope: { object: '=', schema: '=', long: '=' },
@@ -36,11 +36,7 @@
                             break;
                         case 'join':
                         case 'radio':
-                            var fullEntity    = scope.schema.properties[property].accept.split('\\');
-                            var entity        = fullEntity[(fullEntity.length - 1)];
-                            if(fullEntity[0] == 'Areanet'){
-                              entity = 'PIM\\' + entity;
-                            }
+                            var entity  = $rootScope.getShortEntityName(scope.schema.properties[property].accept);
 
                             var joinSchema    = localStorageService.get('schema')[entity];
 

@@ -6,7 +6,7 @@
         .directive('pimJoinbidirectional', pimJoinBidirectional);
 
 
-    function pimJoinBidirectional($uibModal, $timeout, $location, EntityService, localStorageService){
+    function pimJoinBidirectional($uibModal, $timeout, $location, EntityService, localStorageService, $rootScope){
         return {
             restrict: 'E',
             scope: {
@@ -128,15 +128,7 @@
                 }
 
                 function init(){
-                    if(scope.config.targetEntity.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entity = scope.config.targetEntity.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntity = null;
-                        fullEntity = scope.config.targetEntity.split('\\');
-                        entity = fullEntity[(fullEntity.length - 1)];
-                    }
-
-
+                    entity = $rootScope.getShortEntityName(scope.config.targetEntity);
 
                     var permissions = localStorageService.get('permissions');
                     if(!permissions){

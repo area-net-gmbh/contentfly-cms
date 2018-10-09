@@ -6,7 +6,7 @@
         .directive('pimVirtualjoin', pimVirtualjoin);
 
 
-    function pimVirtualjoin($uibModal, $timeout, EntityService, localStorageService){
+    function pimVirtualjoin($uibModal, $timeout, EntityService, localStorageService, $rootScope){
         return {
             restrict: 'E',
             scope: {
@@ -164,14 +164,7 @@
 
                     object.isActive = !object.isActive;
 
-                    var entityAcceptFrom = null;
-                    if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entityAcceptFrom = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntity = null;
-                        fullEntity = scope.config.acceptFrom.split('\\');
-                        entityAcceptFrom = fullEntity[(fullEntity.length - 1)];
-                    }
+                    var entityAcceptFrom = $rootScope.getShortEntityName(scope.config.acceptFrom);
 
                     var data = {
                         entity: entityAcceptFrom,
@@ -226,16 +219,7 @@
                 }
 
                 function init(){
-
-                    if(scope.config.accept.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entity = scope.config.accept.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntity = null;
-                        fullEntity = scope.config.accept.split('\\');
-                        entity = fullEntity[(fullEntity.length - 1)];
-                    }
-
-
+                    entity = $rootScope.getShortEntityName(scope.config.accept);
 
                     var permissions = localStorageService.get('permissions');
                     if(!permissions){
@@ -243,14 +227,8 @@
                     }
 
                     if(scope.config.acceptFrom){
-                        var entityForm = null;
-                        if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                            entityForm = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
-                        }else{
-                            var fullEntity = null;
-                            fullEntity = scope.config.acceptFrom.split('\\');
-                            entityForm = fullEntity[(fullEntity.length - 1)];
-                        }
+                        var entityForm = $rootScope.getShortEntityName(scope.config.acceptFrom);
+
                         scope.hide = !permissions[entity].readable || !permissions[entityForm].readable;
 
                         scope.deletable         = permissions[entityForm].deletable;

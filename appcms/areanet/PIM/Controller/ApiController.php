@@ -790,10 +790,11 @@ class ApiController extends BaseController
     public function treeAction(Request $request)
     {
         $entityName   = $request->get('entity');
+        $lang         = $request->get('lang');
         $properties   = $request->get('properties');
 
         $api            = new Api($this->app);
-        $tree           = $api->getTree($entityName, null, $properties);
+        $tree           = $api->getTree($entityName, null, $properties, $lang);
         $currentDate    = new \Datetime();
 
         return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'),'data' => $tree));

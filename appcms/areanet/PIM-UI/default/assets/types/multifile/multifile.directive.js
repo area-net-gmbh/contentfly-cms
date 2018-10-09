@@ -6,7 +6,7 @@
         .directive('pimMultifile', pimMultifile);
 
 
-    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService) {
+    function pimMultifile($uibModal, Upload, $timeout, EntityService, localStorageService, $rootScope) {
         return {
             restrict: 'E',
             scope: {
@@ -158,14 +158,7 @@
 
                     object.isActive = !object.isActive;
 
-                    var entityAcceptFrom = null;
-                    if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entityAcceptFrom = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntity = null;
-                        fullEntity = scope.config.acceptFrom.split('\\');
-                        entityAcceptFrom = fullEntity[(fullEntity.length - 1)];
-                    }
+                    var entityAcceptFrom = $rootScope.getShortEntityName(scope.config.acceptFrom);
 
                     var data = {
                         entity: entityAcceptFrom,
@@ -201,15 +194,7 @@
                     scope.uploadable    = permissions['PIM\\File'].writable;
                     scope.readonly        = parseInt(attrs.readonly) > 0;
                     if(scope.config.acceptFrom){
-                        var entityForm = null;
-                        if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                            entityForm = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
-                        }else{
-                            var fullEntity = null;
-                            fullEntity = scope.config.acceptFrom.split('\\');
-                            entityForm = fullEntity[(fullEntity.length - 1)];
-                        }
-
+                        var entityForm = $rootScope.getShortEntityName(scope.config.acceptFrom);
 
                         scope.deletable         = permissions[entityForm].deletable;
                         scope.writable_object   = permissions['PIM\\File'].writable && !scope.readonly;

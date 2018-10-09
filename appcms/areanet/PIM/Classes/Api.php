@@ -17,6 +17,7 @@ use Areanet\PIM\Classes\File\Backend;
 use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\BaseI18n;
 use Areanet\PIM\Entity\BaseI18nSortable;
+use Areanet\PIM\Entity\BaseI18nTree;
 use Areanet\PIM\Entity\BaseSortable;
 use Areanet\PIM\Entity\BaseTree;
 use Areanet\PIM\Entity\File;
@@ -190,25 +191,16 @@ class Api
             }
         }
 
-        //Bei Hauptsprache, alle Subsprachen mitlöschen
         if($i18n){
-            $mainLang = is_array(Adapter::getConfig()->APP_LANGUAGES) ? Adapter::getConfig()->APP_LANGUAGES[0] : null;
-
-            if($object->getLang() == $mainLang){
-                $query = $this->em->createQuery("DELETE FROM $entityFullName e WHERE e.id = :id AND NOT e.lang = :lang");
-                $query->setParameter('id', $object->getId());
-                $query->setParameter('lang', $mainLang);
-                $query->execute();
-            }else{
-                $this->em->getConnection()->exec('SET FOREIGN_KEY_CHECKS = 0;');
-            }
+            $query = $this->em->createQuery("DELETE FROM $entityFullName e WHERE e.id = :id AND NOT e.lang = :lang");
+            $query->setParameter('id', $object->getId());
+            $query->setParameter('lang', $object->getLang());
+            $query->execute();
         }
 
         //Objekt löschen
         $this->em->remove($object);
         $this->em->flush();
-
-        $this->em->getConnection()->exec('SET FOREIGN_KEY_CHECKS = 1;');
 
         //Sortierung anpassen
         if($schema[$entityShortName]['settings']['isSortable']){
@@ -1350,7 +1342,7 @@ class Api
                 $settings['isSortable'] = true;
             }
 
-            if($object instanceof BaseTree){
+            if($object instanceof BaseTree || $object instanceof BaseI18nTree){
                 $settings['type']  = 'tree';
             }
 
@@ -1714,30 +1706,53 @@ class Api
         return $queryBuilder->execute()->fetchAll();
     }
 
-    public function getTree($entityName, $parent, $properties = array()){
+    public function getTree($entityName, $parent, $properties = array(), $lang = null){
 
         $helper             = new Helper();
+        $schema             = $this->app['schema'];
+
         $entityFullName     = $helper->getFullEntityName($entityName);
         $entityShortName    = $helper->getShortEntityName($entityName);
+        $entityNameAlias    = 'entity'.md5($entityName);
+        $entityParentAlias  = 'entityparent'.md5($entityName);
+
+        $i18n               = $schema[$entityShortName]['settings']['i18n'];
 
         $queryBuilder = $this->em->createQueryBuilder();
-        $queryBuilder->from($entityFullName, $entityName)
-            ->where("$entityName.isIntern = false")
-            ->orderBy($entityName.'.sorting', 'ASC');
+        $queryBuilder->from($entityFullName, $entityNameAlias)
+            ->where("$entityNameAlias.isIntern = false")
+            ->orderBy($entityNameAlias.'.sorting', 'ASC');
+
+        if($i18n){
+            $queryBuilder->andWhere("$entityNameAlias.lang = :lang");
+            $queryBuilder->setParameter('lang', $lang);
+        }
 
         if($parent){
-            $queryBuilder->andWhere("$entityName.treeParent = :treeParent");
-            $queryBuilder->setParameter('treeParent', $parent);
+            if($i18n){
+                $queryBuilder->join("$entityNameAlias.treeParent", $entityParentAlias);
+                $queryBuilder->andWhere("$entityParentAlias.id = :treeParentId AND $entityParentAlias.lang=:lang");
+                $queryBuilder->setParameter('treeParentId', $parent->getId());
+            }else{
+                $queryBuilder->andWhere("$entityNameAlias.treeParent = :treeParent");
+                $queryBuilder->setParameter('treeParent', $parent);
+            }
+
         }else{
-            $queryBuilder->andWhere("$entityName.treeParent IS NULL");
+            $queryBuilder->andWhere("$entityNameAlias.treeParent IS NULL");
         }
 
-        if(count($properties) > 0){
+        if(count($properties) && false){
+            $properties[] = 'id';
+            if($i18n){
+                $properties[] = 'lang';
+            }
             $partialProperties = implode(',', $properties);
-            $queryBuilder->select('partial '.$entityName.'.{id,'.$partialProperties.'}');
+            $queryBuilder->select('partial '.$entityNameAlias.'.{'.$partialProperties.'}');
         }else{
-            $queryBuilder->select($entityName);
+            $queryBuilder->select($entityNameAlias);
         }
+
 
         $query   = $queryBuilder->getQuery();
         $objects = $query->getResult();
@@ -1746,7 +1761,7 @@ class Api
 
         foreach($objects as $object){
             $data = $object->toValueObject($this->app, $entityShortName, true, $properties);
-            $data->treeChilds = $this->getTree($entityShortName, $object, $properties);
+            $data->treeChilds = $this->getTree($entityShortName, $object, $properties, $lang);
             $array[] = $data;
         }
 

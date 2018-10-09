@@ -6,7 +6,7 @@
         .directive('pimMatrixchooser', pimMatrixchooser);
 
 
-    function pimMatrixchooser($uibModal, $timeout, EntityService, localStorageService) {
+    function pimMatrixchooser($uibModal, $timeout, EntityService, localStorageService, $rootScope) {
         return {
             restrict: 'E',
             scope: {
@@ -138,33 +138,16 @@
                 }
 
                 function init(){
+                    entityData = $rootScope.getShortEntityName(scope.config.acceptFrom);
 
-                    if(scope.config.acceptFrom.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entityData = scope.config.acceptFrom.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntity = null;
-                        fullEntity = scope.config.acceptFrom.split('\\');
-                        entityData = fullEntity[(fullEntity.length - 1)];
-                    }
                     scope.schemaData = localStorageService.get('schema')[entityData];
 
-                    if(scope.config.target1Entity.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entityChooser1 = scope.config.target1Entity.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntityChooser1 = scope.config.target1Entity.split('\\');
-                        entityChooser1 = fullEntityChooser1[(fullEntityChooser1.length - 1)];
-                    }
 
+                    entityChooser1 = $rootScope.getShortEntityName(scope.config.target1Entity);
                     scope.schemaChooser1 = localStorageService.get('schema')[entityChooser1];
                     scope.propertyCountChooser1  = Object.keys(scope.schemaChooser1.list).length;
 
-                    if(scope.config.target2Entity.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entityChooser2 = scope.config.target2Entity.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntityChooser2 = scope.config.target2Entity.split('\\');
-                        entityChooser2 = fullEntityChooser2[(fullEntityChooser2.length - 1)];
-                    }
-
+                    entityChooser2 = $rootScope.getShortEntityName(scope.config.target2Entity);
                     scope.schemaChooser2 = localStorageService.get('schema')[entityChooser2];
                     scope.propertyCountChooser2  = Object.keys(scope.schemaChooser2.list).length;
                 }

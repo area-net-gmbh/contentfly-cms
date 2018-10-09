@@ -6,7 +6,7 @@
         .directive('pimJoin', pimJoin);
 
 
-    function pimJoin($uibModal, $timeout, EntityService, localStorageService){
+    function pimJoin($uibModal, $timeout, EntityService, localStorageService, $rootScope){
         return {
             restrict: 'E',
             scope: {
@@ -132,14 +132,7 @@
                 
                 function init(){
 
-
-                    if(scope.config.accept.substr(0, 18) == 'Areanet\\PIM\\Entity'){
-                        entity = scope.config.accept.replace('Areanet\\PIM\\Entity', 'PIM');
-                    }else{
-                        var fullEntity = null;
-                        fullEntity = scope.config.accept.split('\\');
-                        entity = fullEntity[(fullEntity.length - 1)];
-                    }
+                    entity = $rootScope.getShortEntityName(scope.config.accept);
 
                     var permissions = localStorageService.get('permissions');
                     if(!permissions){
@@ -213,7 +206,6 @@
                           scope.onChangeCallback({key: scope.key, value: scope.value.id});
                         }
                     }
-
 
                     scope.hide              = !permissions[entity].readable;
                     scope.readonly          = parseInt(attrs.readonly) > 0;
