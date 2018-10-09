@@ -1041,7 +1041,9 @@ class Api
                                 $value = boolval($value);
                             }
 
-                            $queryBuilder->andWhere("$entityNameAlias.$field = :$field");
+                            $isNull = !$value ? "OR $entityNameAlias.$field IS NULL" : '';
+
+                            $queryBuilder->andWhere("$entityNameAlias.$field = :$field $isNull");
                             $queryBuilder->setParameter($field, $value);
                             $placeholdCounter++;
 
