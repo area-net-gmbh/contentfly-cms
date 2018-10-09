@@ -55,7 +55,7 @@ class Helper
     {
         $entityFullName = null;
 
-        if (substr($entityName, 0, 7) == 'Areanet' || substr($entityName, 0, 6) == 'Custom' || substr($entityName, 0, 7) == 'Plugins') {
+        if (substr($entityName, 0, 8) == 'Areanet\\' || substr($entityName, 0, 7) == 'Custom\\' || substr($entityName, 0, 8) == 'Plugins\\') {
             $entityFullName = $entityName;
         }elseif(substr($entityName, 0, 3) == 'PIM') {
             $entityFullName = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
@@ -70,9 +70,9 @@ class Helper
     {
         $entityShortName = null;
 
-        if (substr($entityName, 0, 7) == 'Areanet') {
+        if (substr($entityName, 0, 8) == 'Areanet\\') {
             $entityShortName = 'PIM\\' . substr($entityName, 19);
-        }elseif(substr($entityName, 0, 6) == 'Custom') {
+        }elseif(substr($entityName, 0, 7) == 'Custom\\') {
             $entityShortName = substr($entityName, 14);
         }else{
             $entityShortName = ucfirst($entityName);
