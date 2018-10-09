@@ -19,6 +19,8 @@ require_once ROOT_DIR.'/../custom/version.php';
 
 define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'default');
 
+use Doctrine\ORM\Events;
+use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 use Silex\Application;
 use \Areanet\PIM\Classes\Config;
 use Knp\Provider\ConsoleServiceProvider;
@@ -250,10 +252,15 @@ $app['database'] = function ($app){
     return  \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 };
 
+$evm = $app['orm.em']->getEventManager();
+$evm->addEventListener(Events::loadClassMetadata, new \Areanet\PIM\Classes\Events\LoadMetadata());
+
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 
 $app['auth']->init();
 require_once ROOT_DIR.'/../custom/app.php';
 
 $app['routeManager']->bindRoutes();
+
+
 

@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Entity;
 
+use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Areanet\PIM\Classes\Annotations as PIM;
 
