@@ -1745,6 +1745,13 @@ class Api
         $paramCount     = 0;
         $schema         = $this->getSchema();
 
+        if(!$this->app['auth.user']->getIsAdmin()){
+            $group = $this->app['auth.user']->getGroup();
+            if(!$group || $group->getApiQueryEnabled() != 'enabled'){
+                throw new ContentflyException(Messages::contentfly_general_access_denied);
+            }
+        }
+
         if(!isset($params['select']) || !isset($params['from'])){
             throw new ContentflyException(Messages::contentfly_general_missing_params);
         }

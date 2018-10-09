@@ -28,6 +28,14 @@ class Group extends Base
     protected $tokenTimeout = 30;
 
     /**
+     * @ORM\Column(type="string", options="{'default' : 'disabled'}")
+     * @PIM\Config(showInList=60, label="Zugriff auf api/query", tab="permissions")
+     * @PIM\Select(options="disabled=nicht erlaubt, enabled=erlaubt")
+     */
+    protected $apiQueryEnabled = 'disabled';
+
+
+    /**
      * @ORM\OneToMany(targetEntity="Areanet\PIM\Entity\Permission", mappedBy="group", cascade={"remove"})
      * @PIM\Config(tab="permissions", label="Berechtigungen")
      * @PIM\Permissions()
@@ -55,6 +63,22 @@ class Group extends Base
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiQueryEnabled()
+    {
+        return $this->apiQueryEnabled;
+    }
+
+    /**
+     * @param mixed $apiQueryEnabled
+     */
+    public function setApiQueryEnabled($apiQueryEnabled)
+    {
+        $this->apiQueryEnabled = $apiQueryEnabled;
     }
 
     /**
