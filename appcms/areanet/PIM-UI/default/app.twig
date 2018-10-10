@@ -68,8 +68,8 @@
             </h3>
             <ul ng-hide="!navigationOpened[groupName]">
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li  ng-repeat="(entity, label) in entities">
-                    <a ng-class="{active: currentNav == entity}" href="#/list/{{entity | urlencode}}">{{label}}</a>
+                <li  ng-repeat="item in entities">
+                    <a ng-class="{active: currentNav == entity}" href="#/list/{{item.entity | urlencode}}">{{item.label}}</a>
                 </li>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>

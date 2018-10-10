@@ -1305,7 +1305,8 @@ class Api
                 ),
                 'dbname' => null,
                 'viewMode' => 0,
-                'i18n' => $i18n
+                'i18n' => $i18n,
+                'sort' => 1000
             );
 
 
@@ -1344,7 +1345,7 @@ class Api
                     $settings['hide']           = $classAnnotation->hide ? $classAnnotation->hide : $settings['hide'];
                     $settings['sortRestrictTo'] = $classAnnotation->sortRestrictTo ? $classAnnotation->sortRestrictTo : $settings['sortRestrictTo'];
                     $settings['viewMode']       = $classAnnotation->viewMode ? intval($classAnnotation->viewMode) : $settings['viewMode'];
-
+                    $settings['sort']           = $classAnnotation->sort ? intval($classAnnotation->sort) : $settings['sort'];
                     if($classAnnotation->tabs){
                         $tabs = json_decode(str_replace("'", '"', $classAnnotation->tabs));
                         foreach($tabs as $key=>$value){

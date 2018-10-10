@@ -174,7 +174,7 @@ body.emotionalBackground{
 #pim-nav ul li h3 span.cf-caret {
     opacity: 0.45;
     float:right;
-    margin-right:5px;
+    margin-right:12px;
 }
 
 #pim-nav ul li h3:hover span {
@@ -596,7 +596,7 @@ li.grid:hover .image-edit{
 }
 
 .btn-filter .dropdown-menu{
-    width:480px;
+    width:640px;
 }
 
 .btn-filter label{
@@ -807,6 +807,10 @@ li.grid:hover .image-edit{
     text-align:right;
 }
 
+.btnInsert{
+    margin-right:14px;
+}
+
 .disabled{
     opacity:0.75;
 }
@@ -912,12 +916,34 @@ ul.ui-select-choices{
     width:90%;
 }
 
+@media (max-width: 1200px) {
+    #pim-nav{
+        left:-166px;
+    }
+
+    #pim-nav:hover{
+        transition:0.5s;
+        left:0;
+    }
+
+    #pim-nav:hover + #pim-content{
+        transition:0.5s;
+        left:200px;
+    }
+
+    #pim-content{
+        left:34px;
+    }
+}
+
 @media (min-width: 960px) {
 
     .modal-xl{
         width:80%;
         max-width:1200px;
     }
+
+
 }
 
 .btn-group .ball-pulse-sync > div, .btn-group  .ball-pulse > div{

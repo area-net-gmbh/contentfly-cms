@@ -105,6 +105,11 @@ final class Config extends Annotation
     public $filter = null;
 
     /**
+     * @var integer
+     */
+    public $sort = 1000;
+
+    /**
      * @var string
      */
     public $tabs = null;

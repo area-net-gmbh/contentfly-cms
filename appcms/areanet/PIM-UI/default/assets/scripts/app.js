@@ -114,21 +114,41 @@
                     $rootScope.navigationOpened = localStorageService.get('navigationOpened');
                     $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {};
 
-                    var navigation = {'General': {}};
+                    var navigation = {'Inhalt': []};
                     for (var entity in $rootScope.schema) {
                         if(entity == '_hash' || $rootScope.schema[entity]["settings"]["hide"] || !$rootScope.permissions[entity]["readable"]) continue;
 
                         var entityParts = entity.split('\\');
 
                         if(entityParts.length == 1){
-                          navigation['General'][entity] = $rootScope.schema[entity]["settings"]["label"];
+                          navigation['Inhalt'].push({
+                            entity: entity,
+                            label: $rootScope.schema[entity]["settings"]["label"],
+                            sort: $rootScope.schema[entity]["settings"]["sort"]
+                          });
                         }else if(entityParts.length == 4){
-                          if(!navigation[entityParts[1]]) navigation[entityParts[1]] = {};
-                          navigation[entityParts[1]][entity] = $rootScope.schema[entity]["settings"]["label"];
+                          if(!navigation[entityParts[1]]) navigation[entityParts[1]] = [];
+
+                          navigation[entityParts[1]].push({
+                            entity: entity,
+                            label: $rootScope.schema[entity]["settings"]["label"],
+                            sort: $rootScope.schema[entity]["settings"]["sort"]
+                          });
                         }else if(entityParts[0] != 'PIM'){
-                          if(!navigation[entityParts[0]]) navigation[entityParts[0]] = {};
-                          navigation[entityParts[0]][entity] = $rootScope.schema[entity]["settings"]["label"];
+                          if(!navigation[entityParts[0]]) navigation[entityParts[0]] = [];
+
+                          navigation[entityParts[0]].push({
+                            entity: entity,
+                            label: $rootScope.schema[entity]["settings"]["label"],
+                            sort: $rootScope.schema[entity]["settings"]["sort"]
+                          });
                         }
+                    }
+
+                    for(var groupName in navigation){
+                      navigation[groupName].sort(function(a, b){
+                        return a.sort > b.sort;
+                      });
                     }
 
                     $rootScope.navigation = navigation;

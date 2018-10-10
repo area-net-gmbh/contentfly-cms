@@ -2,7 +2,7 @@
 <div class="row header">
     <div class="col-lg-9 col-lg-offset-0 col-xl-8 col-xl-offset-1">
         <pim-plugin key="LIST_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <h3>{{::vm.schema.settings.label}} anzeigen<br><small>{{vm.countLabel}}</small></h3>
+        <h3>{{::vm.schema.settings.label}} anzeigen<br><small>{{vm.countLabel}}&nbsp;</small></h3>
 
         <pim-plugin key="LIST_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
         <div class="btn-group btn-sorting" uib-dropdown ng-if="vm.i18n">
@@ -163,8 +163,8 @@
         <pim-plugin key="LIST_HEADER_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
 
-    <div class="col-sm-2 alignRight">
-        <button ng-hide="!vm.canInsert || !vm.permissions[vm.entity].writable || vm.schema.settings.readonly" class="btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt anlegen</button>
+    <div class="col-xl-2 alignRight">
+        <button ng-hide="!vm.canInsert || !vm.permissions[vm.entity].writable || vm.schema.settings.readonly" class="btnInsert btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt anlegen</button>
     </div>
 </div>
 <pim-plugin key="LIST_CONTENT_PREPEND" uiblocks="uiblocks">
