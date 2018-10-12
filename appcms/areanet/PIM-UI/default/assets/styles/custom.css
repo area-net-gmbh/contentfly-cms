@@ -70,6 +70,10 @@
     text-align: right;
 }
 
+.alignLeft{
+    text-align: left !important;
+}
+
 .alignCenter{
     text-align: center;
 }
