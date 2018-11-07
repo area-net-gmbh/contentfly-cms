@@ -14,7 +14,7 @@ use Areanet\PIM\Classes\Annotations as PIM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="pim_folder")
- * @PIM\Config(label="Ordner")
+ * @PIM\Config(label="Ordner", labelProperty="title")
  */
 
 class Folder extends BaseTree

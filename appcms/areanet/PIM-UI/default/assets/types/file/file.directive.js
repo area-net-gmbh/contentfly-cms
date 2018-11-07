@@ -106,6 +106,7 @@
                             object: function(){ return scope.value; },
                             lang: function(){ return null},
                             translateFrom:  function(){ return null},
+                            doCopy: false,
                             readonly: false
                         },
                         size: 'xl'

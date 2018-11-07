@@ -87,6 +87,23 @@
                 </li>
             </ul>
         </li>
+        <li class="group" ng-if="navigationPlugins">Plugins</li>
+        <li ng-repeat="(groupName, entities) in navigationPlugins">
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="glyphicon glyphicon-th-large"></span>
+                {{groupName}}
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul ng-hide="!navigationOpened[groupName]">
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li  ng-repeat="item in entities">
+                    <a ng-class="{active: currentNav == item.entity}" href="#/list/{{item.entity | urlencode}}">{{item.label}}</a>
+                </li>
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </li>
+        <li class="group">System</li>
         <pim-plugin key="INDEX_NAVIGATION_MEDIA_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <li ng-show="permissions['PIM\\File'].readable || permissions['PIM\\Folder'].readable || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND">
             <h3 ng-click="toggleNavigation(groupName)">
@@ -104,6 +121,7 @@
         </li>
         <pim-plugin key="INDEX_NAVIGATION_MEDIA_APPEND" uiblocks="uiblocks"></pim-plugin>
         <li ng-if="frontend.customNavigation.enabled && user.isAdmin">
+
             <h3 ng-click="toggleNavigation('customNavigation')">
                 <span class="glyphicon glyphicon-th-list"></span>
                 Navigation

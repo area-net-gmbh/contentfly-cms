@@ -25,7 +25,8 @@
                     switch(type) {
                         case 'datetime':
                             //var value = $filter('date')(scope.object[property], 'dd.MM.yyyy');
-                            if(!scope.object[property]){
+                            if(!scope.object[property] || !scope.object[property]['ISO8601']){
+                               element.text('');
                                 return;
                             }
                             var momentJS = moment(scope.object[property].ISO8601);

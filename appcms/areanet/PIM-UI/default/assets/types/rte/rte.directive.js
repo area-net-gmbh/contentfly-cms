@@ -17,6 +17,8 @@
             },
             link: function(scope, element, attrs){
                 scope.disabled = !parseInt(attrs.writable) || scope.config.readonly;
+
+
                 if(scope.disabled){
                     element.find('[contenteditable]').removeAttr('contenteditable');
                 }

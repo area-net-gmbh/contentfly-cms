@@ -128,7 +128,8 @@
                             title: function(){ return 'Objekt ' + id + ' bearbeiten'; },
                             object: function(){ return scope.config.mappedBy ? scope.value[index][scope.config.mappedBy] : scope.value[index]; },
                             readonly: false,
-                            lang: function(){ return scope.object.lang},
+                            lang: function(){ return scope.object ? scope.object.lang : null},
+                            doCopy: false,
                             translateFrom:  function(){ null}
                         },
                         size: 'xl'

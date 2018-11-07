@@ -5,7 +5,7 @@
         .module('app')
         .controller('FilesCtrl', FilesCtrl);
 
-    function FilesCtrl($scope, $cookies, localStorageService, $uibModalInstance, $routeParams, $timeout, $http, $uibModal, pimEntity, Upload, angularGridInstance, modaltitle, property, EntityService){
+    function FilesCtrl($scope, $rootScope, $cookies, localStorageService, $uibModalInstance, $routeParams, $timeout, $http, $uibModal, pimEntity, Upload, angularGridInstance, modaltitle, property, EntityService){
         var vm = this;
 
         var oldPageNumber = 1;
@@ -150,6 +150,7 @@
                     entity: function(){ return vm.entity;},
                     object: function(){ return object; },
                     lang: function(){ return null},
+                    doCopy: false,
                     translateFrom:  function(){ return null},
                     readonly: false
                 },
@@ -181,22 +182,28 @@
             loadData();
         }
 
-        function generateTree(entity, field, data, depth){
+          function generateTree(entity, field, data, depth){
             var joinSchema = localStorageService.get('schema')[entity];
 
             vm.filterJoins[field] = vm.filterJoins[field] ? vm.filterJoins[field] : [];
 
             for(var i = 0; i < data.length; i++){
-                var filler = '--'.repeat(depth);
-                filler = filler ? filler + ' ' : filler
+              var filler = '--'.repeat(depth);
+              filler = filler ? filler + ' ' : filler;
+
+              if(joinSchema.settings.labelProperty){
+                data[i]['pim_filterTitle'] = filler + data[i][joinSchema.settings.labelProperty];
+              }else{
                 data[i]['pim_filterTitle'] = filler + data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
-                vm.filterJoins[field].push(data[i]);
-                if(data[i]['treeChilds']){
-                    var subDepth = depth + 1;
-                    generateTree(entity, field, data[i]['treeChilds'], subDepth);
-                }
+              }
+              vm.filterJoins[field].push(data[i]);
+              if(data[i]['treeChilds']){
+                var subDepth = depth + 1;
+                generateTree(entity, field, data[i]['treeChilds'], subDepth);
+              }
             }
-        }
+
+          }
 
         function init(){
             var savedFilter = localStorageService.get('savedFilter');
@@ -288,12 +295,7 @@
             for (var key in vm.schema.properties) {
 
                 if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
-                    var entity = null;
-                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
-                        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
-                    }else{
-                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
-                    }
+                    var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
                     if(!localStorageService.get('permissions')[entity].readable){
                         continue;
@@ -304,7 +306,7 @@
                         EntityService.tree({entity: entity}).then(
                             (function(entity, key) {
                                 return function(response) {
-                                    generateTree(entity, key, response.data.data, 0)
+                                    generateTree(entity, key, response.data.data, 0);
                                 }
                             })(entity, key),
                             function errorCallback(response) {
@@ -339,12 +341,7 @@
                     }
 
                 }else if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
-                    var entity = null;
-                    if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
-                        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
-                    }else{
-                        entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '').replace('\\', '');
-                    }
+                  var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
                     var field = key;
 

@@ -5,7 +5,7 @@
         .module('app')
         .controller('FormCtrl', FormCtrl);
 
-    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, lang, translateFrom, Upload, moment, EntityService, FileService, readonly) {
+    function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, doCopy, lang, translateFrom, Upload, moment, EntityService, FileService, readonly) {
         var vm               = this;
         var schemaComplete   = localStorageService.get('schema');
         var objectDataToSave = {};
@@ -13,6 +13,7 @@
         var refreshOnCancel  = false;
 
         //Properties
+        vm.doCopy           = doCopy;
         vm.doSave           = false;
         vm.entity           = entity;
         vm.schemaOnejoin    = {};
@@ -324,10 +325,15 @@
                 }
             }else{
               vm.modaltitle1 = '';
-              vm.modaltitle2 = vm.schema.settings.label + ' anlegen';
+              vm.modaltitle2 = vm.schema.settings.label + (vm.doCopy ? ' kopieren' : ' anlegen');
 
-              if(lang){
+              if(lang) {
                 vm.object.lang = lang;
+              }
+
+
+              if(vm.doCopy && vm.schema.settings.labelProperty && object[vm.schema.settings.labelProperty]){
+                object[vm.schema.settings.labelProperty] = object[vm.schema.settings.labelProperty] + ' (Kopie)';
               }
 
             }

@@ -60,6 +60,7 @@
                             object: function(){ return null; },
                             readonly: false,
                             lang: function(){ return scope.object.lang},
+                            doCopy: false,
                             translateFrom:  function(){ null}
                         },
                         size: 'xl'
@@ -110,6 +111,7 @@
                             object: function(){ return scope.value; },
                             readonly: false,
                             lang: function(){ return scope.object.lang},
+                            doCopy: false,
                             translateFrom:  function(){ null}
                         },
                         size: 'xl'

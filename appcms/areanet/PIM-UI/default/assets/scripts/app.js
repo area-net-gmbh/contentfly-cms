@@ -11,6 +11,12 @@
       }
     });
 
+    app.filter('nl2br', function(){
+      return function(text) {
+        return text ? text.replace(/\n/g, '<br>') : '';
+      };
+    });
+
     app.run(run);
 
     function run($rootScope, $location, $cookies, localStorageService, $http, $uibModal){
@@ -114,22 +120,26 @@
                     $rootScope.navigationOpened = localStorageService.get('navigationOpened');
                     $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {};
 
-                    var navigation = {'Inhalt': []};
+                    var navigation        = {'Inhalt': []};
+                    var navigationPlugins = null;
+
                     for (var entity in $rootScope.schema) {
                         if(entity == '_hash' || $rootScope.schema[entity]["settings"]["hide"] || !$rootScope.permissions[entity]["readable"]) continue;
 
                         var entityParts = entity.split('\\');
 
                         if(entityParts.length == 1){
+
                           navigation['Inhalt'].push({
                             entity: entity,
                             label: $rootScope.schema[entity]["settings"]["label"],
                             sort: $rootScope.schema[entity]["settings"]["sort"]
                           });
                         }else if(entityParts.length == 4){
-                          if(!navigation[entityParts[1]]) navigation[entityParts[1]] = [];
+                          navigationPlugins = navigationPlugins ? navigationPlugins : {};
+                          if(!navigationPlugins[entityParts[1]]) navigationPlugins[entityParts[1]] = [];
 
-                          navigation[entityParts[1]].push({
+                          navigationPlugins[entityParts[1]].push({
                             entity: entity,
                             label: $rootScope.schema[entity]["settings"]["label"],
                             sort: $rootScope.schema[entity]["settings"]["sort"]
@@ -151,8 +161,8 @@
                       });
                     }
 
-                    $rootScope.navigation = navigation;
-
+                    $rootScope.navigationPlugins  = navigationPlugins;
+                    $rootScope.navigation         = navigation;
                 }
             }else{
                 $rootScope.frontend = localStorageService.get('frontend');

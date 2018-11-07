@@ -304,6 +304,25 @@ body.emotionalBackground{
 
 }
 
+a.dropdown{
+    cursor:pointer !important;
+}
+
+a.text-danger{
+    color:#a94442 !important;
+}
+
+p.show{
+    margin-top:5px;
+    padding:3px;
+    border:1px solid #CCCCCC;
+}
+
+p.show, p.show *{
+    color:#666666;
+}
+
+
 .dropdown-menu{
     background-color:rgba(255, 255, 255, 0.9) !important;
 }
@@ -483,11 +502,19 @@ label.optional{
     right:127px;
 }
 
+.group{
+    color:#FFFFFF !important;
+    padding-left:26px;
+    padding-top:30px;
+    opacity: 0.3;
+    font-size:14px;
+}
+
 
 .version{
     color:#CCCCCC;
-    padding-left:20px;
-    padding-top:20px;
+    padding-left:26px;
+    padding-top:30px;
 }
 
 #pim-header .version{

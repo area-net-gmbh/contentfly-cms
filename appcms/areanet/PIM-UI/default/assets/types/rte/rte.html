@@ -2,7 +2,8 @@
 <label for="{{key}}" class="col-sm-2 control-label ng-class: {optional: config.nullable}">{{config.label}}<pim-plugin key="TYPE_LABEL_APPEND" uiblocks="uiblocks"></pim-plugin></label>
 <div class="col-sm-10">
     <pim-plugin key="TYPE_FIELD_PREPEND" uiblocks="uiblocks"></pim-plugin>
-    <text-angular name="{{key}}" ng-required="!config.nullable && !config.readonly && !config.hide" ta-unsafe-sanitizer="false" ta-toolbar="{{config.rteToolbar}}" ta-disabled=disabled ng-model="value">
+    <p class="show" ng-show="config.readonly"  ng-bind-html="value | nl2br"></p>
+    <text-angular name="{{key}}" ng-hide="config.readonly" ng-required="!config.nullable && !config.readonly && !config.hide" ta-unsafe-sanitizer="false" ta-toolbar="{{config.rteToolbar}}" ta-disabled=disabled ng-model="value">
 
     </text-angular>
     <pim-plugin key="TYPE_FIELD_APPEND" uiblocks="uiblocks"></pim-plugin>

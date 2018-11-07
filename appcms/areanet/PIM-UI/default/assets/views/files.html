@@ -40,7 +40,7 @@
                         <option value="">alle</option>
                         <option value="-1">ohne Zuordnung</option>
                         <option disabled>──────────</option>
-                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.title}}</option>
+                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">{{option.pim_filterTitle}}</option>
                     </select>
 
                     <label ng-show="vm.filterJoins[key]" ng-switch-when="multijoin">{{vm.schema.properties[key].label}}</label>

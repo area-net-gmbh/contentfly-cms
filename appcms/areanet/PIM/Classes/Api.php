@@ -273,10 +273,11 @@ class Api
                 }
             }
 
-            if($property == 'id'){
+            if($property == 'id' && !empty($value['id'])){
                 $metadata = $this->em->getClassMetaData(get_class($object));
                 $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
                 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
+
             }
 
             if($type == 'onejoin'){

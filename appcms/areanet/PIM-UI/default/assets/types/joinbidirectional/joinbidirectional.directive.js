@@ -84,6 +84,7 @@
                             object: function(){ return object; },
                             readonly: false,
                             lang: function(){ return scope.object.lang;},
+                            doCopy: false,
                             translateFrom:  function(){ null;}
                         },
                         size: 'xl'
@@ -113,6 +114,7 @@
                             object: function(){ return object; },
                             readonly: false,
                             lang: function(){ return scope.object.lang;},
+                            doCopy: false,
                             translateFrom:  function(){ null;}
                         },
                         size: 'xl'

@@ -420,6 +420,7 @@
         properties.push(vm.schema.list[key]);
       }
 
+
       if(vm.schema.settings.type == 'tree' || vm.schema.settings.sortRestrictTo){
         vm.schema.settings.isSortable = false;
       }
@@ -446,6 +447,7 @@
       if(vm.schema.settings.isSortable){
         properties.push('sorting');
       }
+
 
       var data = {
         entity: vm.entity,
@@ -544,14 +546,9 @@
       for (var key in vm.schema.properties) {
         if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable ){
 
-          var entity = null;
-          if (vm.schema.properties[key].accept.substr(0, 7) == 'Areanet') {
-            entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
-          } else {
-            entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-          }
+          var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
-          if (!vm.permissions['Shop\\Kategorie'].readable) {
+          if (!vm.permissions[entity].readable) {
             continue;
           }
 
@@ -580,7 +577,7 @@
             EntityService.tree(filterData).then(
               (function (entity, key) {
                 return function (response) {
-                  generateTree(entity, key, response.data.data, 0)
+                  generateTree(entity, key, response.data.data, 0);
                 }
               })(entity, key),
               function errorCallback(response) {
@@ -625,12 +622,7 @@
           }
 
         }else if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
-          var entity = null;
-          if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
-            entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
-          }else{
-            entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-          }
+          var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
           var field = key;
 
@@ -708,12 +700,7 @@
 
         }else if(vm.schema.properties[key].type == 'virtualjoin' && vm.schema.properties[key].isFilterable){
 
-          var entity = null;
-          if(vm.schema.properties[key].accept.substr(0,7) == 'Areanet'){
-            entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
-          }else{
-            entity =  vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-          }
+          var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
           if(!vm.permissions[entity].readable){
             continue;
@@ -785,25 +772,34 @@
       );
     }
 
-    function openForm(object, index, readonly){
+    function openForm(object, index, readonly, copy){
 
       if(vm.schema.settings.readonly && vm.schema.settings.viewMode != 1){
         return;
       }
 
-      var doInsert    = false;
+      var doInsert     = false;
+      var objectToForm = null;
       if(!object){
         doInsert = true;
-        object = {};
+        objectToForm = {};
 
         for (var key in vm.schema.properties) {
           if(!vm.schema.properties[key].type == 'join' && !vm.filter[key]){
             continue;
           }
 
-          object[key] = vm.filter[key]
+          objectToForm[key] = vm.filter[key]
         }
 
+      }else{
+
+        if(copy){
+          objectToForm = JSON.parse(JSON.stringify(object));
+          objectToForm.id = null;
+        }else{
+          objectToForm  = object;
+        }
       }
 
       var modalInstance = $uibModal.open({
@@ -811,9 +807,10 @@
         controller: 'FormCtrl as vm',
         resolve: {
           entity: function(){ return vm.entity;},
-          object: function(){ return object; },
+          object: function(){ return objectToForm; },
           lang: function(){ return vm.currentLang},
           translateFrom:  function(){ return vm.untranslatedLang},
+          doCopy: copy,
           readonly: readonly != 1 ? false : true
         },
         backdrop: 'static',
@@ -823,7 +820,7 @@
 
       modalInstance.result.then(
         function (updatedObject) {
-          if(doInsert || !updatedObject){
+          if(doInsert || copy || !updatedObject){
             loadData();
             loadUntranslatedRecords();
           }else{
@@ -855,12 +852,7 @@
 
     function refreshDatalistFilter(key, sWord){
 
-      var entity = null;
-      if (vm.schema.properties[key].accept.substr(0, 7) == 'Areanet') {
-        entity = vm.schema.properties[key].accept.replace('Areanet\\PIM\\Entity\\', 'PIM\\');
-      } else {
-        entity = vm.schema.properties[key].accept.replace('Custom\\Entity\\', '');
-      }
+      var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
       if (!vm.permissions[entity].readable) {
         return;

@@ -53,6 +53,8 @@ define('APP_CMS_SHOW_OWNER_IN_LIST', Config\Adapter::getConfig()->FRONTEND_SHOW_
 
 if(Config\Adapter::getConfig()->APP_LANGUAGES){
     define('APP_CMS_MAIN_LANG', Config\Adapter::getConfig()->APP_LANGUAGES[0]);
+}else{
+    define('APP_CMS_MAIN_LANG', null);
 }
 
 if($app['is_installed']) {

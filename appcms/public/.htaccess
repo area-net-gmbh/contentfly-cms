@@ -7,6 +7,7 @@
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
+
 <IfModule mod_deflate.c>
      AddOutputFilterByType DEFLATE text/css
      AddOutputFilterByType DEFLATE text/javascript
