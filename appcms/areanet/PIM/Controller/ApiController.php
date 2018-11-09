@@ -494,7 +494,7 @@ class ApiController extends BaseController
             if($updateUniversalLangProps){
                 foreach ($updateUniversalLangProps['i18nObjects'] as $i18nObject) {
 
-                    $api->doUpdate($object['entity'], $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, $currentUserPass, $i18nObject['lang'], true);
+                    $api->doUpdate($object['entity'], $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, null, $i18nObject['lang'], true);
                 }
             }
         }
@@ -557,7 +557,6 @@ class ApiController extends BaseController
 
         if($updateUniversalLangProps){
             foreach ($updateUniversalLangProps['i18nObjects'] as $i18nObject) {
-                die($i18nObject['id']."-".$i18nObject['lang']);
                 $api->doUpdate($entityName, $i18nObject['id'], $updateUniversalLangProps['i18nProperties'], $disableModifiedTime, $currentUserPass, $i18nObject['lang'], true);
             }
         }

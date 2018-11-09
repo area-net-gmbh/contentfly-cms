@@ -31,6 +31,11 @@ abstract class Serializable implements \JsonSerializable{
 
         if($level > 0){
             $propertiesToLoad = $app['schema'][$entityName]['list'];
+
+            if(!array_search('id', $propertiesToLoad)){
+                $propertiesToLoad[0] = 'id';
+            }
+
         }
 
         foreach ($this as $property => $value) {
