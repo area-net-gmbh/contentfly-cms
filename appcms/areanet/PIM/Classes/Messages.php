@@ -23,6 +23,7 @@ class Messages
     const contentfly_general_ressource_already_exists   = 'contentfly_general_ressource_already_exists';
     const contentfly_general_user_already_exists        = 'contentfly_general_user_already_exists';
     const contentfly_general_unknown_perror             = 'contentfly_general_unknown_perror';
+    const contentfly_general_unknown_entity             = 'contentfly_general_unknown_entity';
     const contentfly_general_unknown_property           = 'contentfly_general_unknown_property';
     const contentfly_general_unknown_plugin             = 'contentfly_general_unknown_plugin';
     const contentfly_general_unknown_type_object        = 'contentfly_general_unknown_type_object';

@@ -51,7 +51,7 @@
                 <div class="form-group" ng-if="tabKey == 'settings'">
                     <label for="entity" class="col-sm-2 control-label">Entität</label>
                     <div class="col-sm-10">
-                        <input autocomplete="off" type="text" class="form-control " id="entity" name="entity" value="{{vm.entity}}" readonly>
+                        <p class="show">{{vm.entity}}</p>
                     </div>
                 </div>
                 <div  ng-if="config.tab == tabKey && tab.onejoin == false" class="form-group ng-class: {'i18n_universal': config.i18n_universal,'has-error': vm.isSubmit && !config.readonly && !config.hide && vm.forms[formName][key] && !vm.forms[formName][key].$valid};" ng-hide="config.hide || vm.permissions[vm.entity].extended.fieldPermission[key] !== undefined && vm.permissions[vm.entity].extended.fieldPermission[key] == 0"   ng-repeat="(key, config) in ::vm.schema.properties">
