@@ -44,6 +44,13 @@ abstract class Plugin
         $this->init();
     }
 
+    /**
+     * @param string $name Name des UI-Blocks
+     * @param string $path Pfad zur HTML, relativ zum Frontend-Ordner des Plugins
+     */
+    final protected function addBlock($name, $path){
+        $this->app['uiManager']->addBlock($name, $this->getFrontendPath().$this->normalizePath($path));
+    }
 
     /**
      * @param string $name Name des Angular Modules
@@ -66,6 +73,17 @@ abstract class Plugin
     final protected function addCSSFile($path){
         $this->app['uiManager']->addCSSFile($this->getFrontendPath().$this->normalizePath($path));
     }
+
+    /**
+     * @param string $route Name der Route, relativ zu 'Puginname/
+     * @param string $templateName Pfad zur HTML, relativ zum Frontend-Ordner des Plugins
+     * @param string $controllerName Name des Controllers (JS-Datei muss per  addJSFile eingebunden werden)
+     * @param boolean $secure nur durch authentifizierten Benutzer über APPCMS-TOKEN aufrufbar
+     */
+    final protected function addRoute($route, $templateName, $controllerName, $secure = true){
+        $this->app['uiManager']->addBlock($route, $this->getFrontendPath().$this->normalizePath($templateName), $controllerName, $secure);
+    }
+
 
     /**
      * @return string[]

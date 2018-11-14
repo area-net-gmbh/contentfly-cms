@@ -963,7 +963,6 @@ class Api
             }
         }
 
-
         if($lastModified && !$untranslatedLang){
             $queryBuilder->andWhere($entityNameAlias.'.modified >= :lastModified')->setParameter('lastModified', $lastModified);
         }
@@ -1173,15 +1172,14 @@ class Api
 
         }
 
-        if(!$flatten) {
+        if(!$flatten || true) {
+
             foreach ($schema[$entityShortName]['properties'] as $field => $config) {
 
                 if (count($properties) && !in_array($field, $properties)) continue;
 
-
                 switch ($config['type']) {
                     case 'join':
-
                         $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
                         if ($schema[$joinedEntity]['settings']['i18n']) {
                             $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
@@ -1193,6 +1191,11 @@ class Api
         }
 
         $query   = $queryBuilder->getQuery();
+
+        if(count($properties)){
+           $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
+        }
+
         $objects = $query->getResult();
 
         if(!$objects){

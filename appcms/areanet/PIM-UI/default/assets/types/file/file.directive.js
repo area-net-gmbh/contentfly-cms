@@ -164,7 +164,8 @@
                                 }, 1000);
                             },
                             function (response) {
-                                if (response.status > 0) scope.errorMsg = response.status + ': ' + response.data;
+                                file = null;
+                                if (response.status > 0) scope.errorMsg = 'Fehler: ' + response.status + ': ' + response.data.message;
                             },
                             function (evt) {
                                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));

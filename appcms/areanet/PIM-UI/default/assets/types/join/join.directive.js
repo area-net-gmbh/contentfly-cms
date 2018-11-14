@@ -292,7 +292,7 @@
                 }
 
                 function removeObject(){
-                    scope.value = {};
+                    scope.value = null;
                     scope.onChangeCallback({key: scope.key, value: ''});
                 }
 
