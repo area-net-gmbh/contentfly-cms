@@ -1,6 +1,7 @@
 <?php
 namespace Areanet\PIM\Classes\File\Processing;
 
+use Areanet\PIM\Classes\Config\Adapter;
 use Areanet\PIM\Classes\File\ProcessingInterface;
 use Areanet\PIM\Classes\File\BackendInterface;
 use Areanet\PIM\Entity\File;
@@ -17,12 +18,16 @@ class Image implements ProcessingInterface
         'image/gif' => 'gif',
         'image/png' => 'png'
     );
-    protected $qualityMapping = array(
-        'image/jpeg' => 90,
-        'image/jpg' => 90,
-        'image/gif' => null,
-        'image/png' => 0
-    );
+    protected $qualityMapping = null;
+
+    function __construct(){
+        $this->qualityMapping = array(
+            'image/jpeg'    => Adapter::getConfig()->FILE_IMAGE_QUALITY_JPEG,
+            'image/jpg'     => Adapter::getConfig()->FILE_IMAGE_QUALITY_JPEG,
+            'image/gif'     => null,
+            'image/png'     => Adapter::getConfig()->FILE_IMAGE_QUALITY_PNG
+        );
+    }
 
     public function registerImageSize(ThumbnailSetting $thumbnailSetting)
     {

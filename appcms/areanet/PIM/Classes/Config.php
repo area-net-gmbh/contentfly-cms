@@ -303,6 +303,16 @@ class Config{
     public $FILE_HASH_MUST_UNIQUE = false;
 
     /**
+     * @var integer Qualität, 0..100 / 100 = keine Komprimierung
+     */
+    public $FILE_IMAGE_QUALITY_JPEG = 90;
+
+    /**
+     * @var integer Qualität, 0..9 / 0 = keine Komprimierung
+     */
+    public $FILE_IMAGE_QUALITY_PNG = 0;
+
+    /**
      * @var boolean Lifetime for HTTP-File-Cache = 7 Tage
      */
     public $FILE_CACHE_LIFETIME = 604800;

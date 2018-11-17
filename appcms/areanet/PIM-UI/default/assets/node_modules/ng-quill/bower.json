@@ -1,0 +1,31 @@
+{
+  "name": "ngQuill",
+  "version": "3.8.0",
+  "main": ["src/ng-quill.js"],
+  "description": "AngularJS directive for the QuillJS rich text editor",
+  "authors": [
+    "Bengt Weiße <bengtler@gmail.com>"
+  ],
+  "ignore": [
+    "bower_components",
+    "node_modules",
+    "spec",
+    "demo.html",
+    "package.json",
+    "Gruntfile.js"
+  ],
+  "dependencies": {
+    "quill": "^1.1.5",
+    "angular": "^1.5.8"
+  },
+  "keywords": [
+    "quill",
+    "rich text",
+    "angularjs",
+    "angular",
+    "directive",
+    "editor",
+    "wysiwyg"
+  ],
+  "license": "MIT"
+}

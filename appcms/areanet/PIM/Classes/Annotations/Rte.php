@@ -11,5 +11,5 @@ final class Rte extends Annotation
     /**
      * @var string
      */
-    public $toolbar = "[['h1','h2','h3', 'h4', 'p','pre', 'quote', 'undo','redo','clear', 'html'],['bold','italics', 'ul', 'ol', 'indent', 'outdent', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'insertLink']]";
+    public $toolbar = "formatselect | bold italic strikethrough subscript superscript | alignleft aligncenter alignright | bullist numlist outdent indent | link unlink anchor | undo redo | code";
 }

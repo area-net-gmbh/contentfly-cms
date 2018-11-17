@@ -6,7 +6,7 @@
         .directive('pimTextarea', pimTextarea);
 
 
-    function pimTextarea(localStorageService){
+    function pimTextarea(localStorageService, $sce){
         return {
             restrict: 'E',
             scope: {
@@ -21,12 +21,12 @@
                 if(scope.value === undefined && scope.config.default != null){
                     scope.value = (scope.config.default);
                 }
-                
+
                 scope.$watch('value',function(data){
                     if(!scope.writable){
                         return;
                     }
-                    
+
                     scope.onChangeCallback({key: scope.key, value: scope.value});
                 },true)
             }

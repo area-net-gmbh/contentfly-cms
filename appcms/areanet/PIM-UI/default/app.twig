@@ -186,9 +186,6 @@
 <script src="/ui/default/bower_components/angular-local-storage/dist/angular-local-storage.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/ng-file-upload/ng-file-upload-all.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/bower_components/textAngular/dist/textAngular-rangy.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/bower_components/textAngular/dist/textAngular-sanitize.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/bower_components/textAngular/dist/textAngular.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/moment/min/moment.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-moment/angular-moment.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angulargrid/angulargrid.min.js?v={{ app_version }}"></script>
@@ -198,7 +195,9 @@
 <script src="/ui/default/bower_components/Blob.js/Blob.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/file-saver.js/FileSaver.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-file-saver/dist/angular-file-saver.js?v={{ app_version }}"></script>
-
+<script src="/ui/default/bower_components/tinymce/tinymce.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-ui-tinymce/dist/tinymce.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-sanitize/angular-sanitize.js?v={{ app_version }}"></script>
 <!-- Dynamic Scripts -->
 {% for jsFile in jsFiles %}
     <script src="{{ jsFile }}?v={{ custom_version }}"></script>
@@ -216,17 +215,17 @@
         'ngCookies',
         'ngFileUpload',
         'ngRoute',
-
         /* 3rd-party modules */
         'angularGrid',
         'angularMoment',
         'angularUtils.directives.dirPagination',
         'LocalStorageModule',
-        'textAngular',
+        'ui.tinymce',
         'ui.bootstrap',
         'ui.sortable',
         'ui.select',
-        'ngFileSaver'
+        'ngFileSaver',
+        'ngSanitize'
     ];
 
     {% for moduleName in angularModules|keys %}

@@ -1,3 +1,5 @@
+
+
 (function() {
     'use strict';
 
@@ -6,7 +8,7 @@
         .directive('pimRte', pimRte);
 
 
-    function pimRte(localStorageService){
+    function pimRte(localStorageService, $sce){
         return {
             restrict: 'E',
             scope: {
@@ -18,31 +20,59 @@
             link: function(scope, element, attrs){
                 scope.disabled = !parseInt(attrs.writable) || scope.config.readonly;
 
+                //scope.trustedValue = $sce.trustAsHtml(scope.value);
 
-                if(scope.disabled){
-                    element.find('[contenteditable]').removeAttr('contenteditable');
+                if(!scope.disabled){
+                  scope.tinymceOptions = {
+                    setup:function(ed) {
+                      ed.on('change', function(e) {
+                        scope.onChangeCallback({key: scope.key, value: ed.getContent()});
+                      });
+                    },
+                    skin: 'lightgray',
+                    theme : 'modern',
+                    statusbar: false,
+                    menubar: false,
+                    language: 'de',
+                    paste_as_text: true,
+                    autoresize_bottom_margin: 20,
+                    plugins: "lists, link,anchor, code,autoresize,stickytoolbar2, paste",
+                    toolbar1: scope.config.rteToolbar
+                  };
+
                 }
+
 
                 if(scope.value === undefined && scope.config.default != null){
-                    scope.value     = (scope.config.default);
+                    scope.value = (scope.config.default);
                 }
 
-                scope.$watch('value',function(data){
-                    scope.disabled  = !parseInt(attrs.writable) || scope.config.readonly;
-                    if(scope.disabled){
-                        element.find('[contenteditable]').removeAttr('contenteditable');
-                    }
-
-                    
-                    if(scope.disabled){
-                        return;
-                    }
-
-                    scope.onChangeCallback({key: scope.key, value: scope.value});
-                   
-                },true)
             }
         }
     }
+
+
+  tinymce.PluginManager.add('stickytoolbar2', function(editor, url) {
+    editor.on('init', function() {
+      setSticky();
+    });
+
+
+    function setSticky() {
+      var container = editor.editorContainer;
+      var toolbars = $(container).find('.mce-toolbar-grp');
+
+      toolbars.css({
+        top: 0,
+        bottom: 'auto',
+        position: 'sticky'
+      });
+
+
+    }
+
+  });
+
+
 
 })();

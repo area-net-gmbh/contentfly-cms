@@ -1,0 +1,115 @@
+<html>
+    <head>
+        <title>Quill Test</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta charset="utf-8">
+
+        <!-- Style -->
+        <link rel="stylesheet" href="//cdn.quilljs.com/1.2.0/quill.snow.css">
+        <link rel="stylesheet" href="//cdn.quilljs.com/1.2.0/quill.bubble.css">
+
+        <style>
+            ng-quill-editor.ng-invalid .ql-container {
+                border: 1px dashed red;
+            }
+        </style>
+
+        <!-- Scripts -->
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+        <script>
+          require.config({
+            baseUrl: '.',
+            paths: {
+              'quill': '//cdn.quilljs.com/1.2.0/quill.min',
+              'ng-quill': 'src/ng-quill',
+              'angular': '//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min'
+            },
+            shim: {
+              'ng-quill': {
+                deps: ['angular', 'quill']
+              }
+            }
+          })
+        </script>
+
+        <script>
+          // require ng-quill it requests its dependencies first
+          require(['ng-quill'], function () {
+            // declare a module and load quillModule
+            var myAppModule = angular.module('quillTest', ['ngQuill'])
+
+            myAppModule.config(['ngQuillConfigProvider', function (ngQuillConfigProvider) {
+              ngQuillConfigProvider.set({ placeholder: 'custom placeholder' })
+            }])
+
+            myAppModule.controller('AppCtrl', [
+              '$scope',
+              '$timeout',
+              function ($scope, $timeout) {
+                $scope.title = 'Quill works'
+                $scope.readOnly = false
+                $timeout(function () {
+                  $scope.title += ' awsome!!!'
+                }, 2000)
+                $scope.editorCreated = function (editor) {
+                  console.log(editor)
+                }
+                $scope.contentChanged = function (editor, html, text, delta, oldDelta, source) {
+                  console.log('editor: ', editor, 'html: ', html, 'text:', text, 'delta: ', delta, 'oldDelta:', oldDelta, 'source:', source)
+                }
+                $scope.selectionChanged = function (editor, range, oldRange, source) {
+                  console.log('editor: ', editor, 'range: ', range, 'oldRange:', oldRange, 'source:', source)
+                }
+              }
+            ])
+
+            // Do not forget to bootstrap your app manually!!!
+            angular.bootstrap(document, ['quillTest'])
+          })
+        </script>
+    </head>
+
+    <body ng-controller="AppCtrl">
+        <h3>Default editor + Callbacks/Outputs in JS console</h3>
+        <pre><code>{{title}}</code></pre>
+        <ng-quill-editor ng-model="title" placeholder="override default placeholder" on-editor-created="editorCreated(editor)" on-content-changed="contentChanged(editor, html, text)" on-selection-changed="selectionChanged(editor, range, oldRange, source)"></ng-quill-editor>
+
+        <h3>Bubble editor</h3>
+        <ng-quill-editor theme="bubble" ng-model="title"></ng-quill-editor>
+
+        <h3>Editor without toolbar + required and ngModule</h3>
+        <button ng-click="readOnly = !readOnly;">toggle readOnly</button>
+        readonly: {{readOnly}}
+        <form name="form">
+            <ng-quill-editor ng-model="title" read-only="readOnly" required="true" max-length="5" min-length="2" modules="{toolbar: false}"></ng-quill-editor>
+            form invalid?: {{form.$invalid}}
+        </form>
+
+        <h3>ng-quill - custom toolbar</h3>
+        <ng-quill-editor
+            ng-model="title"
+        >
+            <ng-quill-toolbar>
+                <div id="ng-quill-toolbar">
+                    <span class="ql-formats">
+                        <button class="ql-bold" ng-attr-title="{{'Bold'}}"></button>
+                    </span>
+                    <span class="ql-formats">
+                        <select class="ql-align" ng-attr-title="{{'Aligment'}}">
+                            <option selected></option>
+                            <option value="center"></option>
+                            <option value="right"></option>
+                            <option value="justify"></option>
+                        </select>
+                        <select class="ql-align">
+                            <option selected></option>
+                            <option value="center"></option>
+                            <option value="right"></option>
+                            <option value="justify"></option>
+                        </select>
+                    </span>
+                </div>
+            </ng-quill-toolbar>
+        </ng-quill-editor>
+    </body>
+</html>

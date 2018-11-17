@@ -18,13 +18,7 @@ class ImageMagick implements ProcessingInterface
         'image/gif' => 'gif',
         'image/png' => 'png'
     );
-    protected $qualityMapping = array(
-        'image/jpeg' => 90,
-        'image/jpg' => 90,
-        'image/gif' => null,
-        'image/png' => 0
-    );
-    //Config\Adapter::getConfig()
+
     public function registerImageSize(ThumbnailSetting $thumbnailSetting)
     {
         $this->thumbnailSettings[$thumbnailSetting->getAlias()] = $thumbnailSetting;
@@ -89,8 +83,16 @@ class ImageMagick implements ProcessingInterface
                     $convertSetting = '-geometry "' . $thumbnailSetting->getPercent() . '%"';
                 }
 
+                $quality = '-quality '.Adapter::getConfig()->FILE_IMAGE_QUALITY_JPEG;
 
-                exec($imExecutable . ' +profile "*" -verbose ' . $convertSetting . ' -quality 90 -sharpen 1x2 -colorspace sRGB ' . $backgroundSetting . ' "' . $imgName . '" "' . $imgThumbName . '"');
+                if($this->mimeMapping[$fileObject->getType()] == 'png'){
+                    $quality = '-quality '.Adapter::getConfig()->FILE_IMAGE_QUALITY_PNG;
+                }elseif($this->mimeMapping[$fileObject->getType()] == 'gif'){
+                    $quality = '';
+                }
+
+
+                exec($imExecutable . ' +profile "*" -verbose ' . $convertSetting . $quality . ' -sharpen 1x2 -colorspace sRGB ' . $backgroundSetting . ' "' . $imgName . '" "' . $imgThumbName . '"');
             }
 
 
