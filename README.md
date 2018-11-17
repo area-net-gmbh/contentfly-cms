@@ -8,24 +8,18 @@
 
 - **Server**: https://github.com/area-net-gmbh/contentfly-cms
 - **Ionic SDK**: https://github.com/area-net-gmbh/contentfly-ionic
-- Download + Dokumentation: http://www.contentfly-cms.de
+- **Download + Dokumentation**: http://www.contentfly-cms.de
 
 ## Einführung
 
-Mit der Contentfly Plattform können mobile Apps für iOS und Android unter dem Einsatz von nativen und webbasierten Technologien inklusive Synchronisations-Anbindung an einen Server entwickelt werden. 
+Mit der Contentfly Plattform können Geschäftsprozesse digitalisiert und mobile Apps für iOS und Android unter dem Einsatz von webbasierten Technologien (Ionic Framework) inklusive Synchronisations-Anbindung an einen Server entwickelt werden.
 
-Der Server basiert dabei auf PHP und MySQL und kann auf nahezu jedem Standard-Hosting-Provider eingesetzt werden. Die SDKs für iOS und Android unterstützen Entwickler bei der Datenhaltung, Synchronisation und Darstellung von Inhalten. Zudem enhalten die SDKs eine Template-Engine, mit der Oberflächen einfach und plattformübergreifen in HTML erstellt werden können.
-
-Es ist dem Entwickler völlig freigestellt, ob Apps komplett nativ oder in Kombination mit webbasierten Bereichen umgesetzt werden.
-
-Die Contentfly Plattform ist kein Baukasten-System, mit dem sich Apps ohne Vorkenntnisse zusammenklicken lassen - sondern bietet ein technisches Rahmenwerk, mit sich mobile Apps effizient, kosten-nutzenoptimiert, aber dennoch frei von Zwängen anderer (hybrider) Frameworks wie Titanium Mobile oder PhoneCap.
+Der Server basiert dabei auf PHP und MySQL und kann auf nahezu jedem Standard-Hosting-Provider eingesetzt werden. Das Ionic SDK unterstützen Entwickler bei der Datenhaltung und Synchronisation (Offline-Apps) mit dem Contentfly CMS.
 
 Für die Entwicklung von Apps mit dem Contentfly Framework sind folgende Kenntnisse erforderlich:
 
-- **Server**: PHP und optimalerweise Doctrine und MySQL
+- **Server**: PHP und optimalerweise Doctrine ORM und MySQL
 - **Ionic**: Typescript/Javascript und Kenntnisse im Ionic Framework
-- **iOS**: Swift oder Objective-C und gegebenenfalls HTML5
-- **Android**: Java und gegebenenfalls HTML5
 
 # Das Contentfly CMS
 
