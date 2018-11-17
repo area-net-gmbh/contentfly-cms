@@ -7,13 +7,7 @@
 ## Die Contentfly Plattform
 
 - **Server**: https://github.com/area-net-gmbh/contentfly-cms
-- **Ionic SDK**: _coming soon_
-- **iOS SDK**: _coming soon_
-- **Android SDK**: _coming soon_
-
-## Tools und mehr
-
-- Vagrant-Umgebung für Server: https://github.com/area-net-gmbh/contentfly-vagrant
+- **Ionic SDK**: https://github.com/area-net-gmbh/contentfly-ionic
 - Download + Dokumentation: http://www.contentfly-cms.de
 
 ## Einführung
@@ -96,7 +90,7 @@ Mit dem CMS können serverseitig beliebige Inhalte gespeichert und verwaltet wer
 
 ## Dokumentation
 
-- http://www.contentfly-cms.de/docs/cms/1.4.0
+- http://www.contentfly-cms.de/docs/cms
 
 # Lizenz
 
@@ -114,7 +108,7 @@ AREA-NET GmbH
 - Telefax: 0 71 62 / 94 11 18
 - http://www.area-net.de
 - http://www.app-agentur-bw.de
-- http://www.Contentfly-cms.de
+- http://www.contentfly-cms.de
 
 
 **Geschäftsführer**
