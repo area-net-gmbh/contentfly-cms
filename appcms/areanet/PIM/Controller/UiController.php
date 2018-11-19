@@ -13,23 +13,12 @@ class UiController extends BaseController
         $uiRoutes = $this->app['uiManager']->getRoutes();
 
         $jsFilesToInclude = array();
-        foreach($uiRoutes as $uiRoute){
-            if(substr($uiRoute['controllerName'],0, 8) == '/plugins'){
-                $parts              = explode('/', $uiRoute['controllerName']);
-                $controllerName     = array_pop($parts);
-                $controller         = strtolower(str_replace('Ctrl', '', $controllerName));
-                $jsFilesToInclude[] = implode('/', $parts).'/'.$controller.'.controller.js';
-            }else{
-                $controller         = strtolower(str_replace('Ctrl', '', $uiRoute['controllerName']));
-                $jsFilesToInclude[] = '/custom/Frontend/ui/default/scripts/controllers/'.$controller.'.controller.js';
-            }
-        }
-
         $jsFiles = $this->app['uiManager']->getJSFiles();
+
         foreach($jsFiles as $jsFile){
             $jsFilesToInclude[] = $jsFile;
         }
-
+        
         $dynInlineScript  = 'var APP_VERSION = \''.APP_VERSION.'\';';
         $dynInlineScript .= 'var CUSTOM_VERSION = \''.CUSTOM_VERSION.'\';';
         $dynInlineScript .= "var uiRoutes = ".json_encode($uiRoutes);

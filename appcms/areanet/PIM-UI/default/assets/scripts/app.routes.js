@@ -56,8 +56,11 @@
             .otherwise({ redirectTo: '/' });
 
         for (var route in uiRoutes){
+
+            var templatePath = uiRoutes[route]['templateName'].substr(0, 8) == '/plugins' ? uiRoutes[route]['templateName'] : '/custom/Frontend/ui/default/views/' + uiRoutes[route]['templateName'];
+
             $routeProvider.when(route, {
-                templateUrl: '/custom/Frontend/ui/default/views/' + uiRoutes[route]['templateName'] + '?v=' + CUSTOM_VERSION,
+                templateUrl: templatePath + '?v=' + CUSTOM_VERSION,
                 controller: uiRoutes[route]['controllerName'] + ' as vm',
                 secure: uiRoutes[route]['secure']
             })

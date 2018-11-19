@@ -90,6 +90,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
     }
 
     protected function checkToken(Request $request, Application $app){
+
         $tokenString = $request->headers->get(self::TOKEN_HEADER_KEY, null);
         if(empty($tokenString)){
             $tokenString = $request->headers->get(self::TOKEN_HEADER_KEY_ALT, $request->get(self::TOKEN_REQUEST_KEY));

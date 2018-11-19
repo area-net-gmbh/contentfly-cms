@@ -198,10 +198,7 @@
 <script src="/ui/default/bower_components/tinymce/tinymce.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-ui-tinymce/dist/tinymce.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-sanitize/angular-sanitize.js?v={{ app_version }}"></script>
-<!-- Dynamic Scripts -->
-{% for jsFile in jsFiles %}
-    <script src="{{ jsFile }}?v={{ custom_version }}"></script>
-{% endfor %}
+
 
 <!-- Dynamic Angular Modules -->
 {% for modulePath in angularModules %}
@@ -236,6 +233,11 @@
 <script src="/ui/default/scripts/app.routes.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/app.js?v={{ app_version }}"></script>
 <script src="/ui/default/scripts/app.config.js?v={{ app_version }}"></script>
+
+<!-- Dynamic Scripts -->
+{% for jsFile in jsFiles %}
+    <script src="{{ jsFile }}?v={{ custom_version }}"></script>
+{% endfor %}
 
 <!-- App Services -->
 <script src="/ui/default/scripts/services/entity.service.js?v={{ app_version }}"></script>

@@ -81,7 +81,7 @@ abstract class Plugin
      * @param boolean $secure nur durch authentifizierten Benutzer über APPCMS-TOKEN aufrufbar
      */
     final protected function addRoute($route, $templateName, $controllerName, $secure = true){
-        $this->app['uiManager']->addBlock($route, $this->getFrontendPath().$this->normalizePath($templateName), $controllerName, $secure);
+        $this->app['uiManager']->addRoute($route, $this->getFrontendPath().$this->normalizePath($templateName), $controllerName, $secure);
     }
 
 
