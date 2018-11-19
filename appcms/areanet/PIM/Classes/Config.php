@@ -277,7 +277,7 @@ class Config{
     /**
      * @var integer URL/Path for login in the backend
      */
-    public $FRONTEND_ITEMS_PER_PAGE = 20;
+    public $FRONTEND_ITEMS_PER_PAGE = 40;
 
 
     /**
