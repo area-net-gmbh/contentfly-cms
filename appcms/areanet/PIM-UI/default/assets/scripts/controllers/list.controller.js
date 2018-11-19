@@ -164,9 +164,11 @@
         return;
       }
 
-      var modaltitle = 'Wollen Sie den <b title="' + object.id + '">Eintrag ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id)  + '</b> wirklich löschen?';
+      var langVariants = vm.i18n ? ' mit allen Sprachvarianten ' : '';
+
+      var modaltitle = 'Wollen Sie den \'<b title="' + object.id + '">Eintrag ' + (object.id.length > 5 ? object.id.substr(0, 5) + '...' : object.id) + '\''  + langVariants + '</b> wirklich löschen?';
       if(vm.schema.settings.labelProperty){
-        modaltitle = 'Wollen Sie <b>' + vm.schema.settings.label + ' ' + object[vm.schema.settings.labelProperty] + '</b> wirklich löschen?';
+        modaltitle = 'Wollen Sie <b>\'' + object[vm.schema.settings.labelProperty] + '\'' + langVariants + '</b> wirklich löschen?';
       }
 
       var modalInstance = $uibModal.open({
@@ -796,7 +798,6 @@
 
         if(copy){
           objectToForm = JSON.parse(JSON.stringify(object));
-          objectToForm.id = null;
         }else{
           objectToForm  = object;
         }
