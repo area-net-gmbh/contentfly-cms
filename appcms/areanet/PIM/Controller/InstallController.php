@@ -24,6 +24,7 @@ class InstallController extends BaseController
         }
 
         return $this->app['twig']->render('install.twig', array(
+            'app_version'  => APP_VERSION,
             'errors' => null
         ));
     }

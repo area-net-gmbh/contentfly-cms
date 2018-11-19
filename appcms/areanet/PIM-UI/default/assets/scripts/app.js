@@ -118,7 +118,7 @@
                     $rootScope.uiblocks = localStorageService.get('uiblocks');
 
                     $rootScope.navigationOpened = localStorageService.get('navigationOpened');
-                    $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {};
+                    $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {'Inhalt' : true};
 
                     var navigation        = {'Inhalt': []};
                     var navigationPlugins = null;

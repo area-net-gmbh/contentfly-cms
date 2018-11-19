@@ -34,12 +34,8 @@ class OnejoinType extends Type
         $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations, $entityName);
         $propertyAnnotations    = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToOne'];
 
-
-        $entityPath     = explode('\\', $propertyAnnotations->targetEntity);
-        $one2Oneentity  = $entityPath[(count($entityPath) - 1)];
-
         $helper = new Helper();
-
+        $one2Oneentity = $helper->getShortEntityName($propertyAnnotations->targetEntity);
 
         $i18nTest = new $propertyAnnotations->targetEntity();
         if(is_a($i18nTest, 'Areanet\PIM\Entity\BaseI18n')){
@@ -94,7 +90,7 @@ class OnejoinType extends Type
 
         return $flatten
             ? array("id" => $subobject->getId())
-            : $subobject->toValueObject($this->app, $config['accept'], $flatten, array(), ($level + 1));
+            : $subobject->toValueObject($this->app, $config['accept'], $flatten, array(), ($level + 1), true);
     }
 
     public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)

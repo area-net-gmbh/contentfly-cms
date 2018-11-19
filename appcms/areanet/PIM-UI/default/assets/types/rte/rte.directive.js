@@ -31,12 +31,13 @@
                     },
                     skin: 'lightgray',
                     theme : 'modern',
-                    statusbar: false,
+                    statusbar: true,
                     menubar: false,
                     language: 'de',
                     paste_as_text: true,
                     autoresize_bottom_margin: 20,
                     plugins: "lists, link,anchor, code,autoresize,stickytoolbar2, paste",
+                    block_formats: 'Absatz=p;Überschrift 1=h1;Überschrift 2=h2;Überschrift 3=h3;Überschrift 4=h4;Überschrift 5=h5;Überschrift 6=h6;Zitat=blockquote;Code=pre',
                     toolbar1: scope.config.rteToolbar
                   };
 

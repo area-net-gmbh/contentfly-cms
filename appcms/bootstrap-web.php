@@ -91,6 +91,7 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
 
         if(!$accept->has('application/json') && !$accept->has('multipart/form-data')){
             if(Config\Adapter::getConfig()->APP_DEBUG){
+
                 return new \Symfony\Component\HttpFoundation\Response('<h1>'.$e->getMessage().'</h1><pre>'.$e->getTraceAsString().'</pre>', 500);
             }else {
                 return $app->redirect('/');

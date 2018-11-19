@@ -12,7 +12,7 @@ abstract class Serializable implements \JsonSerializable{
         return $this->toValueObject();
     }
 
-    public function toValueObject(Application $app = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
+    public function toValueObject(Application $app = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0, $forceLoadAll = false)
     {
 
         $result = new \stdClass();
@@ -29,7 +29,7 @@ abstract class Serializable implements \JsonSerializable{
             $schema = $app['schema'];
         }
 
-        if($level > 0){
+        if($level > 0 && !$forceLoadAll){
             $propertiesToLoad = $app['schema'][$entityName]['list'];
 
             if(!array_search('id', $propertiesToLoad)){
@@ -46,7 +46,6 @@ abstract class Serializable implements \JsonSerializable{
             }
 
             if(!$app || !isset($schema[$entityName]['properties'][$property])){
-
                 continue;
             }
             $config = $schema[$entityName]['properties'][$property];

@@ -342,7 +342,6 @@
 
             angular.forEach(vm.schema.properties, function (config, key) {
                 if (config.type == 'onejoin') {
-
                     vm.schemaOnejoin[config.tab] = schemaComplete[config.tab];
                     vm.schemaOnejoin[config.tab].properties.id['hide']  = true;
                     vm.schemaOnejoin[config.tab].properties.userCreated['hide'] = true;

@@ -2,35 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>:: APP-CMS Installation :::</title>
+    <title>:: Contentfly CMS - Let your content fly :::</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        body{
+            background-image: url('/ui/default/img/bg_login.jpg');
+        }
+
+        .box{
+            background-color: rgba(255,255,255,0.8);
+        }
+
+        .page-header{
+            text-align: center;
+        }
+
+        .first{
+            margin-top:80px;
+        }
+
+        #btn_submit{
+            margin-bottom:30px;
+        }
+
+        .full{
+            width:100%;
+        }
+    </style>
 </head>
 <body>
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
+    <div class="row first">
+        <div class="col-md-4 col-md-offset-4 box">
             <div class="page-header">
-                <h1>APP-CMS <small>Installation</small></h1>
+                <img src="/ui/default/img/logo.png">
+                <h2><small>Version: {{ app_version }}</small></h2>
             </div>
         </div>
     </div>
     {% if installed|default(false)  %}
-        <div class="col-md-6 col-md-offset-3">
+        <div class="row">
+        <div class="col-md-4 col-md-offset-4 box">
             <div class="alert alert-success" role="alert">
+                <h3>Die Installation war erfolgreich</h3>
                 <p>
-                    <b>Die Installation war erfolgreich</b><br><br>
-                    Die Installation des APP-CMS war erfolgreich. Sie können sich mit Benutzername <i>admin</i>
-                    und Passwort <i>admin</i> in das APP-CMS UI einloggen. Vergessen Sie nicht im Anschluss das
+                    Die Installation des Contentfly CMS war erfolgreich. Sie können sich nun in das Contentfly CMS einloggen. Vergessen Sie nicht im Anschluss das
                     Administratoren-Kennwort auf eine sichere Variante umzustellen.<br><br>
                 </p>
-                <ul><li><a href="/?no_cache={{ installed }}">Jetzt in das APP-CMS UI einloggen</a></li></ul>
+                <ul>
+                    <li>Benutzer: <i>admin</i></li>
+                    <li>Passwort: <i>admin</i></li>
+                </ul>
+                <p>
+                    <br><br>
+                    <a class="btn btn-primary full" href="/?no_cache={{ installed|default(true) }}">Jetzt in das Contently CMS einloggen</a>
+                </p>
             </div>
+        </div>
         </div>
     {% else %}
     <form method="post">
         <input type="hidden" id="start" name="start" value="1">
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
+        <div class="row last">
+            <div class="col-md-4 col-md-offset-4 box">
                 {% if errors  %}
                 <div class="alert alert-danger" role="alert">
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
@@ -72,7 +106,7 @@
                             <b>AUTO-INCREMENT</b></label>
                     </div>
                 </div>
-                <button type="submit" name="btn_submit" class="btn btn-primary">APP-CMS jetzt installieren</button>
+                <button type="submit" id="btn_submit" name="btn_submit" class="btn btn-primary full">Contentfly CMS jetzt installieren</button>
             </div>
 
         </div>

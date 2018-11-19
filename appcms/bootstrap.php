@@ -254,8 +254,10 @@ $app['database'] = function ($app){
     return  \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 };
 
-$evm = $app['orm.em']->getEventManager();
-$evm->addEventListener(Events::loadClassMetadata, new \Areanet\PIM\Classes\Events\LoadMetadata());
+if($app['is_installed']) {
+    $evm = $app['orm.em']->getEventManager();
+    $evm->addEventListener(Events::loadClassMetadata, new \Areanet\PIM\Classes\Events\LoadMetadata());
+}
 
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 

@@ -1159,7 +1159,25 @@ class Api
 
 
         if(count($properties)){
-            $partialProperties = implode(',', $properties);
+
+            $validProperties = array();
+            foreach($properties as $name){
+
+                if(!isset($schema[$entityShortName]['properties'][$name])){
+                    continue;
+                }
+
+                $config = $schema[$entityShortName]['properties'][$name];
+
+                if(in_array($config['type'], array('multijoin', 'multifile', 'checkbox'))){
+                    continue;
+                }
+
+                $validProperties[] = $name;
+
+            }
+
+            $partialProperties = implode(',', $validProperties);
             $partialDefaultPrperties = 'id,';
             if($schema[$entityShortName]['settings']['i18n']){
                 $partialDefaultPrperties .= 'lang,';

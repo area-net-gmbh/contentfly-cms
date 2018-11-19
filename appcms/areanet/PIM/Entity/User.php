@@ -214,7 +214,7 @@ class User extends Base
 
 
 
-    public function toValueObject(Application $app = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0)
+    public function toValueObject(Application $app = null, $entityName = null, $flatten = false, $propertiesToLoad = array(), $level = 0, $forceLoadAll = false)
     {
 
         $data = parent::toValueObject($app, $entityName, $flatten, $propertiesToLoad , $level);
