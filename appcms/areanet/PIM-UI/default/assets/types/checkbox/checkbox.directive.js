@@ -34,6 +34,7 @@
                 });
 
                 //Properties
+                scope.disabled          = !parseInt(attrs.writable) || scope.config.readonly;
                 scope.hide              = false;
                 scope.readonly          = false;
                 scope.schema            = null;

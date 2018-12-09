@@ -118,9 +118,9 @@
                     $rootScope.uiblocks = localStorageService.get('uiblocks');
 
                     $rootScope.navigationOpened = localStorageService.get('navigationOpened');
-                    $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {'Inhalt' : true};
 
-                    var navigation        = {'Inhalt': []};
+
+                    var navigation        = {};
                     var navigationPlugins = null;
 
                     for (var entity in $rootScope.schema) {
@@ -129,6 +129,11 @@
                         var entityParts = entity.split('\\');
 
                         if(entityParts.length == 1){
+
+                          if(navigation == null || navigation['Inhalt'] == null){
+                            navigation = {'Inhalt': []};
+                            $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {'Inhalt' : true};
+                          }
 
                           navigation['Inhalt'].push({
                             entity: entity,

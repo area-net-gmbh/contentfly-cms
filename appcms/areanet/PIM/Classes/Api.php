@@ -1157,10 +1157,11 @@ class Api
             $queryBuilder->groupBy($entityNameAlias.".".$groupBy);
         }
 
+        $validProperties = array();
 
         if(count($properties)){
 
-            $validProperties = array();
+
             foreach($properties as $name){
 
                 if(!isset($schema[$entityShortName]['properties'][$name])){
@@ -1190,7 +1191,7 @@ class Api
 
         }
 
-        if(!$flatten || true) {
+        if(!$flatten ) {
 
             foreach ($schema[$entityShortName]['properties'] as $field => $config) {
 
@@ -1198,8 +1199,9 @@ class Api
 
                 switch ($config['type']) {
                     case 'join':
-                        $joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
-                        if ($schema[$joinedEntity]['settings']['i18n']) {
+                        //$joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+                        $joinedShortEntity = $helper->getShortEntityName($config['accept']);
+                        if ($schema[$joinedShortEntity]['settings']['i18n']) {
                             $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
                             $queryBuilder->addSelect($field);
                         }
@@ -1210,8 +1212,9 @@ class Api
 
         $query   = $queryBuilder->getQuery();
 
+
         if(count($properties)){
-           $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
+           //$query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         }
 
         $objects = $query->getResult();
@@ -1223,7 +1226,7 @@ class Api
         $array = array();
         foreach($objects as $object){
 
-            $objectData = $object->toValueObject($this->app, $entityShortName,  $flatten, $properties);
+            $objectData = $object->toValueObject($this->app, $entityShortName,  $flatten, $validProperties);
 
             $array[] = $objectData;
 
