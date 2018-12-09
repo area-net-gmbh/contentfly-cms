@@ -799,7 +799,7 @@ class ApiController extends BaseController
     }
 
     /**
-     * @apiVersion 1.5
+     * @apiVersion 1.5.0
      * @api {post} /api/translations translations
      * @apiName Übersetzungen
      * @apiDescription Liefert die Anzahl der offenen Übersetzungen für eine Entität.
