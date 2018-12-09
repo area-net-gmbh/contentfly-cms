@@ -160,6 +160,8 @@
                         }
                     }
 
+                    $rootScope.navigationOpened = $rootScope.navigationOpened ? $rootScope.navigationOpened : {'Inhalt' : false};
+
                     for(var groupName in navigation){
                       navigation[groupName].sort(function(a, b){
                         return a.sort > b.sort;

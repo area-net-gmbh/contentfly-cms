@@ -11,6 +11,7 @@ namespace Areanet\PIM\Controller;
 
 use Areanet\PIM\Classes\Config\Adapter;
 use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\Helper;
 use Silex\Provider\DoctrineServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,9 +20,14 @@ class InstallController extends BaseController
 {
 
     public function indexAction(){
+
         if(Adapter::getConfig()->DB_HOST != '$SET_DB_HOST'){
             return $this->app->redirect(Adapter::getConfig()->FRONTEND_URL);
         }
+
+        /** @var Helper $helper */
+        $helper = $this->app['helper'];
+        $helper->createSymlinks();
 
         return $this->app['twig']->render('install.twig', array(
             'app_version'  => APP_VERSION,
@@ -51,6 +57,7 @@ class InstallController extends BaseController
         }
 
         return $this->app['twig']->render('install.twig', array(
+            'app_version'  => APP_VERSION,
             'errors' => array(),
             'installed' => time()
         ));

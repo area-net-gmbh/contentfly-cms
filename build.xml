@@ -4,7 +4,7 @@
     <property environment="env"/>
 
     <!-- BUILD -->
-    <target name="main" depends="file-checks,directories,files,composer,bower,symlink" unless="appIsBuilded"/>
+    <target name="main" depends="file-checks,directories,files,composer,bower" unless="appIsBuilded"/>
 
     <target name="file-checks">
         <available file="custom/app.php"  property="appIsBuilded"/>
@@ -84,12 +84,6 @@ define('CUSTOM_VERSION', '0.0.0');
             <arg value="--production" />
         </exec>
     </target>
-
-    <target name="symlink" description="Symlink in Webserver-Public...">
-        <symlink link="appcms/public/ui/default" resource="../../areanet/PIM-UI/default/assets"/>
-        <symlink link="appcms/public/custom/Frontend" resource="../../../custom/Frontend"/>
-    </target>
-
 
 
     <!-- GENERATE API-DOC FOR RELEASE VERSION -->
