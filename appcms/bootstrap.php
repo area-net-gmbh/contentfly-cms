@@ -182,7 +182,8 @@ if(!is_dir(ROOT_DIR.'/../custom/Views/')){
 }
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' =>   array(ROOT_DIR.'/../custom/Views/', ROOT_DIR.'/areanet/PIM-UI/default/')
+    'twig.path'     =>   array(ROOT_DIR.'/../custom/Views/', ROOT_DIR.'/areanet/PIM-UI/default/'),
+    'twig.options'  => array('strict_variables' => false)
 ));
 
 if($app['is_installed']) {
