@@ -40,7 +40,9 @@ if(Config\Adapter::getConfig()->APP_DEBUG){
 
 $app = new Application();
 $app['session'] = function () {
-    return new Symfony\Component\HttpFoundation\Session\Session();
+    $session = new Symfony\Component\HttpFoundation\Session\Session();
+    $session->set('contentfly_version', APP_VERSION);
+    return $session;
 };
 
 
