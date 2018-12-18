@@ -39,7 +39,11 @@ if(Config\Adapter::getConfig()->APP_DEBUG){
 }
 
 $app = new Application();
-$app->register(new Silex\Provider\SessionServiceProvider());
+$app['session'] = function () {
+    return new Symfony\Component\HttpFoundation\Session\Session();
+};
+
+
 $app['is_installed'] = (Config\Adapter::getConfig()->DB_HOST != '$SET_DB_HOST');
 $app['auth.user'] = null;
 
