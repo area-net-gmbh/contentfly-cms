@@ -5,7 +5,6 @@ use Areanet\PIM\Controller;
 use \Areanet\PIM\Classes\Config;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\Debug\ErrorHandler;
-use Symfony\Component\Debug\ExceptionHandler;
 use Symfony\Component\HttpFoundation\Request;
 
 $app['ui.controller'] = function() use ($app) {
@@ -32,6 +31,7 @@ if(Config\Adapter::getConfig()->APP_FORCE_SSL){
         exit();
     }
 
+    ini_set('session.cookie_secure', 1);
     header("Strict-Transport-Security:max-age=63072000");
 }
 

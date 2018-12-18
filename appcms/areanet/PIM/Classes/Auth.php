@@ -25,7 +25,6 @@ class Auth{
     {
         $this->app = $app;
 
-
     }
 
     public function init(){

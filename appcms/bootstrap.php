@@ -3,10 +3,6 @@ define('ROOT_DIR', __DIR__);
 
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 1);
-
-
-
 
 require_once ROOT_DIR.'/version.php';
 require_once ROOT_DIR.'/vendor/autoload.php';
@@ -41,7 +37,6 @@ if(Config\Adapter::getConfig()->APP_DEBUG){
 $app = new Application();
 $app['session'] = function () {
     $session = new Symfony\Component\HttpFoundation\Session\Session();
-    $session->set('contentfly_version', APP_VERSION);
     return $session;
 };
 
@@ -272,6 +267,8 @@ $app['auth']->init();
 require_once ROOT_DIR.'/../custom/app.php';
 
 $app['routeManager']->bindRoutes();
+
+
 
 
 
