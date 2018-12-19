@@ -35,10 +35,7 @@ if(Config\Adapter::getConfig()->APP_DEBUG){
 }
 
 $app = new Application();
-$app['session'] = function () {
-    $session = new Symfony\Component\HttpFoundation\Session\Session();
-    return $session;
-};
+$app->register(new Silex\Provider\SessionServiceProvider());
 
 
 $app['is_installed'] = (Config\Adapter::getConfig()->DB_HOST != '$SET_DB_HOST');
