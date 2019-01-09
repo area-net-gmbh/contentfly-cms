@@ -1,7 +1,7 @@
 ![Contentfly CMS](https://www.contentfly-cms.de/file/get/7d937604-23e2-11e8-b76e-00ac10d52400)
 
 # Contentfly
-- **Lizenz**: Duale Lizenz AGPL v3 / Properitär
+- **Lizenz**: Duale Lizenz MIT/ Properitär
 - **Webseite**: http://www.contentfly-cms.de
 
 ## Die Contentfly Plattform
@@ -88,7 +88,7 @@ Mit dem CMS können serverseitig beliebige Inhalte gespeichert und verwaltet wer
 
 # Lizenz
 
-Die Contentfly Plattform ist unter eine dualen Lizenz (AGPL v3 und properitär) verfügbar. Die genauen Lizenzbedingungen sind in der Datei _licence.txt_ zu finden.
+Die Contentfly Plattform ist unter eine dualen Lizenz (MIT und properitär) verfügbar. Die genauen Lizenzbedingungen sind in der Datei _LICENCE_ zu finden.
 
 # Die Contentfly Plattform ist ein Produkt der AREA-NET GmbH
 
