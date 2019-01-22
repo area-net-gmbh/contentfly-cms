@@ -1,6 +1,8 @@
 <?php
 namespace Areanet\PIM\Entity;
 
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Messages;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Areanet\PIM\Classes\Annotations as PIM;
@@ -56,7 +58,7 @@ class Base extends Serializable
      * @PIM\Config(showInList = APP_CMS_SHOW_OWNER_IN_LIST, label="Besitzer", tab="settings")
      */
     protected $userCreated;
-    
+
     /**
      * @ORM\Column(type="boolean", options={"default" : 0})
      * @PIM\Config(hide=true)
@@ -82,11 +84,38 @@ class Base extends Serializable
      */
     protected $disableModifiedTime = false;
 
-    
+
     public function __construct()
     {
         $this->created   = new \DateTime();
         $this->modified  = new \DateTime();
+    }
+
+    public function __call($name, $arguments)
+    {
+        if(strlen($name) <= 3){
+            throw new ContentflyException(Messages::contentfly_general_invalid_gettersetter, $name);
+        }
+
+        $method   = substr($name, 0, 3);
+        $property = lcfirst(substr($name, 3));
+
+        if(!property_exists($this, $property)){
+            throw new ContentflyException(Messages::contentfly_general_property_not_exists, get_class($this).'::'.get_class($this));
+        }
+
+        switch($method){
+            case 'set':
+                $this->$property = $arguments[0];
+                break;
+            case 'get':
+                return $this->$property;
+                break;
+            default:
+                throw new ContentflyException(Messages::contentfly_general_invalid_gettersetter, $name);
+        }
+
+
     }
 
 
@@ -176,7 +205,7 @@ class Base extends Serializable
         $this->userCreated = $userCreated;
     }
 
-    
+
     /**
      * @return mixed
      */
@@ -254,7 +283,7 @@ class Base extends Serializable
     public function hasUserId($id)
     {
         $ids = explode(',', $this->users);
-        
+
         return in_array($id, $ids);
     }
 
@@ -307,7 +336,7 @@ class Base extends Serializable
         $this->groups = $groups;
     }
 
-    
+
 
     /**
      * @ORM\PrePersist()

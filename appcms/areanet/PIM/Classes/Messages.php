@@ -16,10 +16,12 @@ class Messages
     const contentfly_general_invalid_password           = 'contentfly_general_invalid_password';
     const contentfly_general_invalid_params             = 'contentfly_general_invalid_params';
     const contentfly_general_invalid_plugin_base        = 'contentfly_general_invalid_plugin_base';
+    const contentfly_general_invalid_gettersetter       = 'contentfly_general_invalid_gettersetter';
     const contentfly_general_missing_params             = 'contentfly_general_missing_params';
     const contentfly_general_not_found                  = 'contentfly_general_not_found';
     const contentfly_general_permission_denied          = 'contentfly_general_permission_denied';
     const contentfly_general_plugin_not_found           = 'contentfly_general_plugin_not_found';
+    const contentfly_general_property_not_exists        = 'contentfly_general_property_not_exists';
     const contentfly_general_ressource_already_exists   = 'contentfly_general_ressource_already_exists';
     const contentfly_general_user_already_exists        = 'contentfly_general_user_already_exists';
     const contentfly_general_unknown_perror             = 'contentfly_general_unknown_perror';
