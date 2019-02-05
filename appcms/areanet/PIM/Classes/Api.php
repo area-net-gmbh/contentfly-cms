@@ -1214,7 +1214,7 @@ class Api
 
 
         if(count($properties)){
-           //$query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
+            //$query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         }
 
         $objects = $query->getResult();
@@ -1675,10 +1675,10 @@ class Api
         return $returnObject ? $object : $object->toValueObject($this->app, $entityShortName, false);
     }
 
-    protected function getTableName($entityName){
+    protected function getTableName($entityName, $tablename){
 
         if(empty($this->app['schema'][$entityName])){
-            return $entityName;
+            return $tablename;
         }
 
         return isset($this->app['schema'][$entityName]['settings']['dbname']) ? $this->app['schema'][$entityName]['settings']['dbname'] : $entityName;
@@ -1828,38 +1828,35 @@ class Api
                             $entityAlias        = $params[2];
                             $entityShortName    = $helper->getShortEntityName($entityName);
 
-                            if(!isset($schema[$entityShortName])){
-                                throw new ContentflyException(Messages::contentfly_general_unknown_entity, $entityShortName, Messages::contentfly_status_not_found);
-                            }
+                            if(isset($schema[$entityShortName])) {
 
+                                if (!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($entityName)))) {
+                                    throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
+                                }
 
-                            if (!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($entityName)))) {
-                                throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
-                            }
-
-                            if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
-                                $queryBuilder->andWhere("$entityAlias.userCreated = ? OR FIND_IN_SET(?, $entityAlias.users) > 0");
-                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
-                                $paramCount++;
-                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
-                                $paramCount++;
-                            } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
-                                $group = $this->app['auth.user']->getGroup();
-                                if (!$group) {
-                                    $queryBuilder->andWhere("$entityAlias.usercreated_id = ?");
+                                if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
+                                    $queryBuilder->andWhere("$entityAlias.userCreated = ? OR FIND_IN_SET(?, $entityAlias.users) > 0");
                                     $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                     $paramCount++;
-                                } else {
-                                    $queryBuilder->andWhere("$entityAlias.usercreated_id = ? OR FIND_IN_SET(?, $entityAlias.groups) > 0");
                                     $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                     $paramCount++;
-                                    $queryBuilder->setParameter($paramCount, $group->getId());
-                                    $paramCount++;
+                                } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
+                                    $group = $this->app['auth.user']->getGroup();
+                                    if (!$group) {
+                                        $queryBuilder->andWhere("$entityAlias.usercreated_id = ?");
+                                        $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                        $paramCount++;
+                                    } else {
+                                        $queryBuilder->andWhere("$entityAlias.usercreated_id = ? OR FIND_IN_SET(?, $entityAlias.groups) > 0");
+                                        $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                        $paramCount++;
+                                        $queryBuilder->setParameter($paramCount, $group->getId());
+                                        $paramCount++;
+                                    }
                                 }
                             }
 
-
-                            $params[1] = $this->getTableName($entityName);
+                            $params[1] = $this->getTableName($entityName, $params[1]);
                         }
 
                         call_user_func_array(array($queryBuilder, $method), $params);
@@ -1874,36 +1871,36 @@ class Api
                             //$queryParams  = entityAlias
                             $entityShortName = $helper->getShortEntityName($queryKey);
 
-                            if(!isset($schema[$entityShortName])){
-                                throw new ContentflyException(Messages::contentfly_general_unknown_entity, $entityShortName, Messages::contentfly_status_not_found);
-                            }
+                            if(isset($schema[$entityShortName])) {
 
-                            if(!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))){
-                                throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
-                            }
+                                if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
+                                    throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
+                                }
 
-                            if($permission == \Areanet\PIM\Entity\Permission::OWN){
-                                $queryBuilder->andWhere("$queryParams.userCreated_id = ? OR FIND_IN_SET(?, $queryParams.users) > 0");
-                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
-                                $paramCount++;
-                                $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
-                                $paramCount++;
-                            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
-                                $group = $this->app['auth.user']->getGroup();
-                                if(!$group){
-                                    $queryBuilder->andWhere("$queryParams.usercreated_id = ?");
+                                if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
+                                    $queryBuilder->andWhere("$queryParams.userCreated_id = ? OR FIND_IN_SET(?, $queryParams.users) > 0");
                                     $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                     $paramCount++;
-                                }else{
-                                    $queryBuilder->andWhere("$queryParams.usercreated_id = ? OR FIND_IN_SET(?, $queryParams.groups) > 0");
                                     $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                     $paramCount++;
-                                    $queryBuilder->setParameter($paramCount, $group->getId());
-                                    $paramCount++;
+                                } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
+                                    $group = $this->app['auth.user']->getGroup();
+                                    if (!$group) {
+                                        $queryBuilder->andWhere("$queryParams.usercreated_id = ?");
+                                        $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                        $paramCount++;
+                                    } else {
+                                        $queryBuilder->andWhere("$queryParams.usercreated_id = ? OR FIND_IN_SET(?, $queryParams.groups) > 0");
+                                        $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                        $paramCount++;
+                                        $queryBuilder->setParameter($paramCount, $group->getId());
+                                        $paramCount++;
+                                    }
                                 }
                             }
 
-                            $queryKey = $this->getTableName($entityShortName);
+                            $queryKey = $this->getTableName($entityShortName, $queryKey);
+
                         }
 
                         if(is_array($queryParams)){
@@ -1920,6 +1917,7 @@ class Api
                             $paramCount++;
                         }else{
                             //array('where' => array('tableName' => 'tableAlias')
+
                             $queryBuilder->$method($queryKey, $queryParams);
                         }
 
@@ -1929,38 +1927,35 @@ class Api
                     if($method == 'from'){
                         $entityShortName = $helper->getShortEntityName($params);
 
-                        if(!isset($schema[$entityShortName])){
-                            throw new ContentflyException(Messages::contentfly_general_unknown_entity, $entityShortName, Messages::contentfly_status_not_found);
-                        }
+                        if(isset($schema[$entityShortName])) {
 
+                            if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
+                                throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
+                            }
 
-                        if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
-                            throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
-                        }
-
-                        if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
-                            $queryBuilder->andWhere("userCreated_id = ? OR FIND_IN_SET(?, users) > 0");
-                            $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
-                            $paramCount++;
-                            $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
-                            $paramCount++;
-                        } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
-                            $group = $this->app['auth.user']->getGroup();
-                            if (!$group) {
-                                $queryBuilder->andWhere("userCreated_id = ?");
+                            if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
+                                $queryBuilder->andWhere("userCreated_id = ? OR FIND_IN_SET(?, users) > 0");
                                 $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                 $paramCount++;
-                            } else {
-                                $queryBuilder->andWhere("usercreated_id = ? OR FIND_IN_SET(?, groups) > 0");
                                 $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                 $paramCount++;
-                                $queryBuilder->setParameter($paramCount, $group->getId());
-                                $paramCount++;
+                            } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
+                                $group = $this->app['auth.user']->getGroup();
+                                if (!$group) {
+                                    $queryBuilder->andWhere("userCreated_id = ?");
+                                    $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                    $paramCount++;
+                                } else {
+                                    $queryBuilder->andWhere("usercreated_id = ? OR FIND_IN_SET(?, groups) > 0");
+                                    $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
+                                    $paramCount++;
+                                    $queryBuilder->setParameter($paramCount, $group->getId());
+                                    $paramCount++;
+                                }
                             }
                         }
 
-
-                        $params = $this->getTableName($entityShortName);
+                        $params = $this->getTableName($entityShortName, $params);
                     }
 
 
@@ -1979,7 +1974,5 @@ class Api
         for (reset($arr); is_int(key($arr)); next($arr));
         return is_null(key($arr));
     }
-
-
-
+    
 }
