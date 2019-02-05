@@ -38,10 +38,12 @@ class JoinType extends Type
 
         $schema['accept']   = $annotations->targetEntity;
         $schema['multiple'] = false;
+        $schema['dbfield']  = lcfirst($key).'_id';
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinColumn'])){
             $annotationsColumn = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinColumn'];
             $schema['nullable'] = isset($annotationsColumn->nullable) ? $annotationsColumn->nullable : true;
+            $schema['dbfield']  = isset($annotationsColumn->name) ? $annotationsColumn->name : $schema['dbfield'];
         }
 
         return $schema;

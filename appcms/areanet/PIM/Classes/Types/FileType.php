@@ -36,6 +36,7 @@ class FileType extends Type
         $schema['multipe']  = false;
         $schema['accept']   = '*';
         $schema['dbtype']   = 'integer';
+        $schema['dbfield']  = lcfirst($key).'_id';
 
         if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'])){
             $annotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Config'];
@@ -43,6 +44,11 @@ class FileType extends Type
             if($annotations->accept){
                 $schema['accept'] = $annotations->accept;
             }
+        }
+
+        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinColumn'])){
+            $annotationsColumn = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinColumn'];
+            $schema['dbfield']  = isset($annotationsColumn->name) ? $annotationsColumn->name : $schema['dbfield'];
         }
 
         return $schema;

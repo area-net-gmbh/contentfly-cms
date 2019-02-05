@@ -1974,5 +1974,5 @@ class Api
         for (reset($arr); is_int(key($arr)); next($arr));
         return is_null(key($arr));
     }
-    
+
 }
