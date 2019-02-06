@@ -90,6 +90,10 @@ class UIManager extends Manager
      * @param String $path Javascript file path, relative to /custom/ui/scripts/
      */
     public function addJSFile($path){
+        if(substr($path, 0, 8) != '/plugins'){
+            $path =  "/custom/Frontend/ui/default/scripts/$path";
+        }
+
         $this->jsFiles[] = $path;
     }
 
@@ -108,7 +112,7 @@ class UIManager extends Manager
     public function addCSSFile($path){
 
         if(substr($path, 0, 8) != '/plugins'){
-            $path =  "/custom/Frontend/ui/default/scripts/$path";
+            $path =  "/custom/Frontend/ui/default/styles/$path";
         }
 
         $this->cssFiles[] = $path;
@@ -122,5 +126,5 @@ class UIManager extends Manager
         return $this->cssFiles;
     }
 
-    
+
 }
