@@ -106,8 +106,12 @@ class JoinType extends Type
         }
 
         if(!empty($value)){
+            if($lang && $subEntitySchema['settings']['i18n']){
+               $objectToJoin = $this->em->getReference($entity, array('id' => $value, 'lang' => $lang));
+            }else{
+               $objectToJoin = $this->em->getReference($entity, $value);
+            }
 
-            $objectToJoin = $lang && $subEntitySchema['settings']['i18n'] ?  $this->em->getRepository($entity)->find(array('id' => $value, 'lang' => $lang)) :  $this->em->getRepository($entity)->find($value);
         }else{
             $objectToJoin = null;
         }
