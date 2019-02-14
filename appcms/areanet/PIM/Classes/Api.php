@@ -1131,8 +1131,8 @@ class Api
 
         $this->app['dispatcher']->dispatch('pim.entity.before.list', $event);
 
-        $query       = $queryBuilder->getQuery();
-        $totalObjects = $query->getSingleScalarResult();
+        $query          = $queryBuilder->getQuery();
+        $totalObjects   = $query->getSingleScalarResult();
 
         if($currentPage*$itemsPerPage > $totalObjects){
             $currentPage = ceil($totalObjects/$itemsPerPage);
@@ -1157,14 +1157,13 @@ class Api
             $queryBuilder->groupBy($entityNameAlias.".".$groupBy);
         }
 
-        $validProperties = array();
-
+        $validProperties            = array();
+        $partialExcludedProperties  = array();
         if(count($properties)){
-
 
             foreach($properties as $name){
 
-                if(!isset($schema[$entityShortName]['properties'][$name])){
+                if(!isset($schema[$entityShortName]['properties'][$name]) || in_array($name, array('id', 'lang'))){
                     continue;
                 }
 
@@ -1174,47 +1173,62 @@ class Api
                     continue;
                 }
 
+                if(in_array($config['type'], array('join', 'file'))){
+                    $partialExcludedProperties[] = $name;
+                    continue;
+                }
+
                 $validProperties[] = $name;
-
             }
 
-            $partialProperties = implode(',', $validProperties);
-            $partialDefaultPrperties = 'id,';
+            $validProperties[] = 'id';
             if($schema[$entityShortName]['settings']['i18n']){
-                $partialDefaultPrperties .= 'lang,';
+                $validProperties[] = 'lang';
             }
 
-            $queryBuilder->select('partial '.$entityNameAlias.'.{'.$partialDefaultPrperties.$partialProperties.'}');
+            $queryBuilder->select('partial '.$entityNameAlias.'.{'.implode(',', $validProperties).'}');
 
+            $validProperties = array_merge($validProperties, $partialExcludedProperties);
         }else{
             $queryBuilder->select($entityNameAlias);
 
         }
 
-        if(!$flatten ) {
+        $joinIsTree = false;
 
-            foreach ($schema[$entityShortName]['properties'] as $field => $config) {
+        foreach ($schema[$entityShortName]['properties'] as $field => $config) {
+            if (count($properties) && !in_array($field, $properties)) continue;
 
-                if (count($properties) && !in_array($field, $properties)) continue;
+            if($config['type'] == 'join'){
+                $joinedShortEntity = $helper->getShortEntityName($config['accept']);
 
-                switch ($config['type']) {
-                    case 'join':
-                        //$joinedEntity = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
-                        $joinedShortEntity = $helper->getShortEntityName($config['accept']);
-                        if ($schema[$joinedShortEntity]['settings']['i18n']) {
-                            $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
-                            $queryBuilder->addSelect($field);
-                        }
-                        break;
+                if ($schema[$joinedShortEntity]['settings']['i18n']) {
+                    $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
+                    if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
+                        $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'] ? ','.$schema[$joinedShortEntity]['settings']['labelProperty'] : '';
+                        $queryBuilder->addSelect('partial '.$field.'.{id, lang'.$labelProperty.'}');
+                    }else{
+                        $queryBuilder->addSelect( $field);
+                    }
+                }else{
+                    $queryBuilder->leftJoin("$entityNameAlias.$field", $field);
+                    if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
+                        $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'] ? ','.$schema[$joinedShortEntity]['settings']['labelProperty'] : '';
+                        $queryBuilder->addSelect('partial '.$field.'.{id'.$labelProperty.'}');
+                    }else{
+                        $queryBuilder->addSelect($field);
+                    }
                 }
+
+                $joinIsTree = $joinIsTree || $schema[$joinedShortEntity]['settings']['type'] == 'tree';
             }
         }
 
         $query   = $queryBuilder->getQuery();
 
 
-        if(count($properties)){
-            //$query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
+        if(count($properties) && !$joinIsTree){
+            $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         }
 
         $objects = $query->getResult();
@@ -1555,13 +1569,32 @@ class Api
                 case 'join':
                     $joinedEntity = $helper->getShortEntityName($config['accept']);
                     if ($schema[$joinedEntity]['settings']['i18n']) {
-                        $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :loadJoinedLang");
-                        $queryBuilder->addSelect($field);
+                        $queryBuilder->leftJoin("$entityNameAlias.$field", $entityNameAlias.$field, Join::WITH, $entityNameAlias.$field.".lang = :loadJoinedLang");
+                        $queryBuilder->addSelect($entityNameAlias.$field);
 
                         if($loadJoinedLang){
                             $queryBuilder->setParameter('loadJoinedLang', $loadJoinedLang);
                         }else{
                             $queryBuilder->setParameter('loadJoinedLang', $lang);
+                        }
+
+                        foreach($schema[$joinedEntity]['properties'] as $subfield => $subconfig){
+                            switch ($subconfig['type']) {
+                                case 'join':
+                                    $joinedSubEntity = $helper->getShortEntityName($subconfig['accept']);
+                                    if ($schema[$joinedSubEntity]['settings']['i18n']) {
+
+                                        $queryBuilder->leftJoin($entityNameAlias.$field.'.'.$subfield, $entityNameAlias.$field.$subfield, Join::WITH, $entityNameAlias.$field.$subfield.".lang = :loadJoinedLang");
+                                        $queryBuilder->addSelect($entityNameAlias.$field.$subfield);
+
+                                        if($loadJoinedLang){
+                                            $queryBuilder->setParameter('loadJoinedLang', $loadJoinedLang);
+                                        }else{
+                                            $queryBuilder->setParameter('loadJoinedLang', $lang);
+                                        }
+                                    }
+                                    break;
+                            }
                         }
                     }
                     break;
@@ -1580,7 +1613,7 @@ class Api
                     break;
             }
         }
-
+        //die($queryBuilder->getQuery()->getDQL());
         $object = $queryBuilder->getQuery()->getSingleResult();
 
         if (!$object) {
