@@ -180,8 +180,8 @@
 
                 }
 
-                function openFile(index) {
-                    window.open('/file/get/'+scope.value[index].id+'/'+scope.value[index].name, '_blank');
+                function openFile(index, id, name) {
+                    window.open('/file/get/'+id+'/'+name, '_blank');
                 }
 
                 function init(){
