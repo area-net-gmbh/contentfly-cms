@@ -25,14 +25,14 @@ class Base extends Serializable
 
     /**
      * @var \DateTime
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true, options={"default": "CURRENT_TIMESTAMP"})
      * @PIM\Config(hide=true, label="erstellt am")
      */
     protected $created;
 
     /**
      * @var \DateTime
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true, options={"default": "CURRENT_TIMESTAMP"})
      * @PIM\Config(hide=true, label="geändert am")
      */
     protected $modified;
