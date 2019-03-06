@@ -1764,6 +1764,7 @@ class Api
         $entityShortName    = $helper->getShortEntityName($entityName);
         $entityNameAlias    = 'entity'.md5($entityName);
         $entityParentAlias  = 'entityparent'.md5($entityName);
+        $properties         = is_array($properties) ? $properties : array();
 
         if(!isset($schema[$entityShortName])){
             throw new ContentflyException(Messages::contentfly_general_unknown_entity, $entityShortName, Messages::contentfly_status_not_found);
@@ -1795,11 +1796,12 @@ class Api
             $queryBuilder->andWhere("$entityNameAlias.treeParent IS NULL");
         }
 
-        if(count($properties) && false){
+        if(count($properties)){
             $properties[] = 'id';
             if($i18n){
                 $properties[] = 'lang';
             }
+
             $partialProperties = implode(',', $properties);
             $queryBuilder->select('partial '.$entityNameAlias.'.{'.$partialProperties.'}');
         }else{
