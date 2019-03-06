@@ -150,7 +150,7 @@ class MultifileType extends Type
                 if($flatten){
                     $data[] = array('id' => $objectToLoad->getId());
                 } else{
-                    $data[] = $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+                    $data[] = $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), true);
                 }
             }
         }

@@ -27,7 +27,7 @@
     </div>
     <pim-plugin key="TYPE_FIELD_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <div class="col-sm-10 col-sm-offset-2" ui-sortable="sortableOptions" ng-model="value" ng-init="mappedBy = config.mappedBy">
-        <div class="image-form-container" ng-repeat="(index, subobject) in value"  ui-sortable="sortableOptions" ng-init="type = mappedBy ? subobject[mappedBy].type : subobject.type">
+        <div class="image-form-container" ng-repeat="(index, subobject) in value" ng-init="type = mappedBy ? subobject[mappedBy].type : subobject.type">
             <ng-switch on="type">
                 <div ng-switch-when="image/jpeg" class="image-edit image-form"  ng-class="{disabled:config.sortable && !subobject.isActive, squareImage: formImageSquarePreview}" style="background-image:url('/file/get/{{mappedBy ? subobject[mappedBy].id : subobject.id}}/pim_small/{{mappedBy ? subobject[mappedBy].name : subobject.name}}');">
                     <pim-plugin key="TYPE_FILE_PREVIEW_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>

@@ -99,7 +99,7 @@ class MultijoinType extends Type
         $subEntity  = null;
 
         if(isset($config['accept'])){
-            $config['accept']       = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['accept']);
+            $config['accept']       = $this->app['helper']->getShortEntityName($config['accept']);
             $subEntity              = $config['accept'];
 
             if (!($permission = Permission::isReadable($this->app['auth.user'], $config['accept']))) {
@@ -107,7 +107,7 @@ class MultijoinType extends Type
             }
 
             if (isset($config['acceptFrom'])) {
-                $config['acceptFrom']   = str_replace(array('Custom\\Entity\\', 'Areanet\\PIM\\Entity\\'), array('', 'PIM\\'), $config['acceptFrom']);
+                $config['acceptFrom']   = $this->app['helper']->getShortEntityName($config['acceptFrom']);
                 $subEntity              = $config['acceptFrom'];
 
                 if(!($permission = Permission::isReadable($this->app['auth.user'], $config['acceptFrom']))){
@@ -154,7 +154,7 @@ class MultijoinType extends Type
                 if($flatten){
                     $data[] = array('id' => $objectToLoad->getId());
                 } else{
-                    $data[] = $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), $propertiesToLoad);
+                    $data[] = $objectToLoad->toValueObject($this->app, $subEntity, $flatten, $propertiesToLoad, ($level + 1), true);
                 }
 
             }
@@ -162,6 +162,8 @@ class MultijoinType extends Type
 
         return $data;
     }
+
+
 
     public function toDatabase(Api $api, Base $object, $property, $value, $entityName, $schema, $user, $data = null, $lang = null)
     {
@@ -201,6 +203,8 @@ class MultijoinType extends Type
             return;
         }
 
+
+
         $helper = new Helper();
         $subEntitySchema    = $schema[$helper->getShortEntityName($entity)];
 
@@ -216,6 +220,22 @@ class MultijoinType extends Type
             $objectToJoin = $lang && $subEntitySchema['settings']['i18n'] ?  $this->em->getRepository($entity)->find(array('id' => $id, 'lang' => $lang)) :  $this->em->getRepository($entity)->find($id);
 
             if($mappedBy){
+                $acceptFrom = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
+                $mappedFrom = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];
+
+                if(!Permission::isWritable($user, $acceptFrom)){
+                    throw new AccessDeniedHttpException("Zugriff auf $acceptFrom verweigert.");
+                }
+
+                $object->$setter(new ArrayCollection());
+
+                $qb = $this->em->createQueryBuilder();
+                $qb->delete($acceptFrom, 'e');
+                $qb->where('e.'.$mappedFrom.' = ?1');
+
+                $qb->setParameter(1, $object->getId());
+                $qb->getQuery()->execute();
+
                 $isSortable     = $schema[ucfirst($entityName)]['properties'][$property]['sortable'];
                 $acceptFrom     = $schema[ucfirst($entityName)]['properties'][$property]['acceptFrom'];
                 $mappedFrom     = $schema[ucfirst($entityName)]['properties'][$property]['mappedFrom'];

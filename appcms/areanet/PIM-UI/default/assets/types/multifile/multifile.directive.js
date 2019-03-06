@@ -32,6 +32,7 @@
 
                 scope.sortableOptions = {
                     stop: function(e,ui){
+                        //console.log("STOPM SORT");
                         triggerUpdate();
                     },
                     disabled:!scope.config.sortable
