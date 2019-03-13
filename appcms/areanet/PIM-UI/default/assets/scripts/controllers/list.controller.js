@@ -546,7 +546,7 @@
 
     function loadFilters(){
       for (var key in vm.schema.properties) {
-        if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable ){
+        if((vm.schema.properties[key].type == 'join' || vm.schema.properties[key].type == 'virtualjoin')  && vm.schema.properties[key].isFilterable ){
 
           var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 

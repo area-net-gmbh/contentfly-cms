@@ -141,33 +141,31 @@ abstract class Type
                 $schema['readonly'] = $annotations->readonly;
             }
 
+        }
 
-            //\Doctrine\ORM\Mapping\Column
-            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'])){
-                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'];
+        //\Doctrine\ORM\Mapping\Column
+        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'])){
+            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'];
 
-                if($annotations->length){
-                    $schema['length'] = $annotations->length;
-                }
-
-                if($annotations->unique){
-                    $schema['unique'] = $annotations->unique;
-                }
-
-                if($annotations->type){
-                    $schema['dbtype'] = $annotations->type;
-                }
-
-                $schema['nullable'] = $annotations->nullable ? $annotations->nullable : false;
+            if($annotations->length){
+                $schema['length'] = $annotations->length;
             }
 
-
-            //\Doctrine\ORM\Mapping\Id
-            if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\Id'])){
-                $schema['readonly'] = true;
+            if($annotations->unique){
+                $schema['unique'] = $annotations->unique;
             }
 
+            if($annotations->type){
+                $schema['dbtype'] = $annotations->type;
+            }
 
+            $schema['nullable'] = $annotations->nullable ? $annotations->nullable : false;
+        }
+
+
+        //\Doctrine\ORM\Mapping\Id
+        if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\Id'])){
+            $schema['readonly'] = true;
         }
 
         return $schema;
