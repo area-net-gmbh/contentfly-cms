@@ -1203,20 +1203,20 @@ class Api
                 $joinedShortEntity = $helper->getShortEntityName($config['accept']);
 
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
-                    $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :lang");
+                    $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "$field.lang = :lang");
                     if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
                         $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'] ? ','.$schema[$joinedShortEntity]['settings']['labelProperty'] : '';
-                        $queryBuilder->addSelect('partial '.$field.'.{id, lang'.$labelProperty.'}');
+                        $queryBuilder->addSelect('partial '.'a_'.$field.'.{id, lang'.$labelProperty.'}');
                     }else{
-                        $queryBuilder->addSelect( $field);
+                        $queryBuilder->addSelect( 'a_'.$field);
                     }
                 }else{
-                    $queryBuilder->leftJoin("$entityNameAlias.$field", $field);
+                    $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field);
                     if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
                         $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'] ? ','.$schema[$joinedShortEntity]['settings']['labelProperty'] : '';
-                        $queryBuilder->addSelect('partial '.$field.'.{id'.$labelProperty.'}');
+                        $queryBuilder->addSelect('partial '.'a_'.$field.'.{id'.$labelProperty.'}');
                     }else{
-                        $queryBuilder->addSelect($field);
+                        $queryBuilder->addSelect('a_'.$field);
                     }
                 }
 
