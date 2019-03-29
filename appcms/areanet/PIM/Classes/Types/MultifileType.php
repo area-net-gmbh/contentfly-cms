@@ -193,7 +193,10 @@ class MultifileType extends Type
                 }
 
                 $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-
+                if(!$objectToJoin){
+                    continue;
+                }
+                
                 $mappedEntity = new $acceptFrom();
 
                 $mappedSetter = 'set'.ucfirst($mappedFrom);
@@ -229,7 +232,7 @@ class MultifileType extends Type
                 $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
                 if(!$objectToJoin){
-                    throw new FileNotFoundException();
+                    continue;
                 }
 
                 $collection->add($objectToJoin);
