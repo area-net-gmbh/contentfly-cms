@@ -126,8 +126,10 @@ if($app['is_installed']) {
         )
     ));
 
+    $config = $app['orm.em']->getConfiguration();
+    $config->setQuoteStrategy(new \Areanet\PIM\Classes\ORM\Mapping\ContentflyQuoteStrategy());
+
     if (!Config\Adapter::getConfig()->APP_DEBUG && !defined('APPCMS_CONSOLE')) {
-        $config = $app['orm.em']->getConfiguration();
         switch (Config\Adapter::getConfig()->APP_CACHE_DRIVER) {
             case 'apc':
                 $config->setQueryCacheImpl(new \Doctrine\Common\Cache\ApcCache('query'));

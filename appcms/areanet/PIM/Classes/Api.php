@@ -1203,7 +1203,7 @@ class Api
                 $joinedShortEntity = $helper->getShortEntityName($config['accept']);
 
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
-                    $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "$field.lang = :lang");
+                    $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "a_$field.lang = :lang");
                     if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
                         $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'] ? ','.$schema[$joinedShortEntity]['settings']['labelProperty'] : '';
                         $queryBuilder->addSelect('partial '.'a_'.$field.'.{id, lang'.$labelProperty.'}');

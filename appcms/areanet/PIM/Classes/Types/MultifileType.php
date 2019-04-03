@@ -196,7 +196,7 @@ class MultifileType extends Type
                 if(!$objectToJoin){
                     continue;
                 }
-                
+
                 $mappedEntity = new $acceptFrom();
 
                 $mappedSetter = 'set'.ucfirst($mappedFrom);
