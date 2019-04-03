@@ -45,18 +45,16 @@
 
     vm.i18n         = vm.schema.settings.i18n;
     vm.canInsert    = true;
-    vm.currentLang  = null;
 
-    if(vm.i18n){
-      vm.currentLang =   vm.frontend.languages ? vm.frontend.languages[0] : null;
-      if($routeParams.lang){
-        vm.currentLang = $routeParams.lang;
-      }
-
-      if($routeParams.untranslatedLang){
-        vm.untranslatedLang = $routeParams.untranslatedLang;
-      }
+    vm.currentLang =   vm.frontend.languages ? vm.frontend.languages[0] : null;
+    if($routeParams.lang){
+      vm.currentLang = $routeParams.lang;
     }
+
+    if($routeParams.untranslatedLang){
+      vm.untranslatedLang = $routeParams.untranslatedLang;
+    }
+
 
     vm.sortProperty = vm.schema.settings.sortBy;
     vm.sortOrder    = vm.schema.settings.sortOrder;
@@ -587,21 +585,35 @@
             );
           } else {
 
+            var orderMode  = 'DESC';
+            var orderField = 'created';
+
+            if(joinSchema.settings.sortBy){
+              orderField = joinSchema.settings.sortBy;
+              orderMode  = joinSchema.settings.sortOrder ? joinSchema.settings.sortOrder : orderMode;
+            }
 
             var properties = ['id'];
             if (joinSchema.settings.isSortable) {
               properties.push('sorting');
+              orderField  = 'sorting';
+              orderMode   = 'ASC';
             }
             for (var key2 in joinSchema.list) {
               properties.push(joinSchema.list[key2]);
             }
 
+            var order = {};
+            order[orderField] = orderMode;
+
             var filterData = {
               entity: entity,
               properties: properties,
               flatten: true,
-              lang: vm.currentLang
+              lang: vm.currentLang,
+              order: order
             };
+
 
             EntityService.list(filterData).then(
               (function (entity, key, joinSchema) {
