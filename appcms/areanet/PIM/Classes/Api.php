@@ -702,31 +702,52 @@ class Api
         $schema = $this->getSchema();
 
         $entitiesToExclude = array(
-            'PIM\\File', 'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\ThumbnailSetting',
+            'PIM\\File', 'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\PushToken', 'PIM\\ThumbnailSetting',
             'PIM\\Permission', 'PIM\\Nav', 'PIM\\NavItem', 'PIM\\Log', '_hash'
         );
-
+        $details = array();
         foreach($schema as $entityName => $entityConfig){
 
             if(in_array($entityName, $entitiesToExclude)){
                 continue;
             }
 
+            if(!($permission = Permission::isReadable($this->app['auth.user'], $entityName))){
+                continue;
+            }
+
+
             $tableName = $entityConfig['settings']['dbname'];
 
             $query = "SELECT COUNT(*) AS `records` FROM `$tableName`";
 
             $params  = array();
-            $tsQuery = "";
+            $tsQuery = " WHERE 1=1";
             if($lastMofified){
                 if(is_array($lastMofified)){
                     if(isset($lastMofified[$entityName])){
-                        $tsQuery = " WHERE `modified` > ?";
+                        $tsQuery .= " AND `modified` > ?";
                         $params = array($lastMofified[$entityName]);
                     }
                 }else{
-                    $tsQuery = " WHERE `modified` > ?";
+                    $tsQuery .= " AND `modified` > ?";
                     $params = array($lastMofified);
+                }
+            }
+
+            if($permission == \Areanet\PIM\Entity\Permission::OWN){
+                $tsQuery .= " AND (userCreated_id = ? OR FIND_IN_SET(?, users) > 0)";
+                $params[] = $this->app['auth.user']->getId();
+                $params[] = $this->app['auth.user']->getId();
+            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
+                $group = $this->app['auth.user']->getGroup();
+                if(!$group){
+                    $tsQuery .= " AND userCreated_id = ?";
+                    $params[] = $this->app['auth.user']->getId();
+                }else{
+                    $tsQuery .= " AND (userCreated_id = ? OR FIND_IN_SET(?, groups) > 0)";
+                    $params[] = $this->app['auth.user']->getId();
+                    $params[] = $group->getId();
                 }
             }
 
@@ -734,7 +755,7 @@ class Api
 
             $entityCount        = $this->app['database']->fetchColumn($query, $params, 0);
             $data['dataCount'] += $entityCount;
-
+            $details[$entityName] = $entityCount;
             foreach($entityConfig['properties'] as $field => $fieldOptions){
                 if($fieldOptions['type'] == 'multifile'){
                     $joinTableName = $fieldOptions['foreign'] ? $fieldOptions['foreign'] :  $tableName + "_" + $field;
@@ -787,7 +808,7 @@ class Api
         $files              = $this->app['database']->fetchAssoc($query, $params);
         $data['filesCount'] = intval($files['records']);
         $data['filesSize']  = $files['size'] ? $files['size'] : 0;
-
+        $data['details']    = $details;
         return $data;
     }
 
