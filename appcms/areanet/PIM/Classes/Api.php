@@ -721,6 +721,11 @@ class Api
 
             $query = "SELECT COUNT(*) AS `records` FROM `$tableName`";
 
+            if($entityConfig['type'] == 'tree'){
+                $treeTableName = $entityConfig['i18n'] ? 'pim_i18n_tree' : 'pim_tree';
+                $query .= " INNER JOIN `$treeTableName` ON `$tableName`.id = `$treeTableName`.id";
+            }
+
             $params  = array();
             $tsQuery = " WHERE 1=1";
             if($lastMofified){
