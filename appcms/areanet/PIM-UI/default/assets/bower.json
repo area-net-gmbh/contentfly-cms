@@ -32,7 +32,8 @@
     "rangy": "~1.3.0",
     "bootstrap-languages": "bootstrap-language#*",
     "angular-ui-tinymce": "^0.0.19",
-    "angular-sanitize": "^1.7.5"
+    "angular-sanitize": "1.4.8",
+    "angular-ui-router": "^1.0.22"
   },
   "resolutions": {
     "jquery-ui": "1.11.4",

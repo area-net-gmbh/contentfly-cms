@@ -5,8 +5,8 @@
         .module('app')
         .controller('FilesCtrl', FilesCtrl);
 
-    function FilesCtrl($scope, $rootScope, $cookies, localStorageService, $uibModalInstance, $routeParams, $timeout, $http, $uibModal, pimEntity, Upload, angularGridInstance, modaltitle, property, EntityService){
-        var vm = this;
+    function FilesCtrl($scope, $rootScope, $cookies, localStorageService, $uibModalInstance, $stateParams, $timeout, $http, $uibModal, pimEntity, Upload, angularGridInstance, modaltitle, property, EntityService, $extend){
+      var vm  = $extend ? $extend : this;
 
         var oldPageNumber = 1;
         var schema = localStorageService.get('schema');

@@ -5,8 +5,8 @@
         .module('app')
         .controller('LoginCtrl', LoginCtrl);
 
-    function LoginCtrl($scope, $location, localStorageService, $cookies, $rootScope, $http, $uibModal){
-        var vm = this;
+    function LoginCtrl($scope, $location, localStorageService, $cookies, $rootScope, $http, $uibModal, $extend){
+      var vm  = $extend ? $extend : this;
 
         //Properties
         vm.config               = null;
@@ -20,6 +20,7 @@
 
         //Startup
         init();
+
 
         //////////////////////////////
 

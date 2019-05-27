@@ -5,8 +5,9 @@
     .module('app')
     .controller('FormCtrl', FormCtrl);
 
-  function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, doCopy, lang, translateFrom, Upload, moment, EntityService, FileService, readonly) {
-    var vm = this;
+  function FormCtrl($scope, $cookies, $uibModalInstance, $location, localStorageService, $timeout, $uibModal, $http, entity, object, doCopy, lang, translateFrom, Upload, moment, EntityService, FileService, readonly, $extend) {
+    var vm  = $extend ? $extend : this;
+
     var schemaComplete = localStorageService.get('schema');
     var objectDataToSave = {};
     var backupForObject = null;

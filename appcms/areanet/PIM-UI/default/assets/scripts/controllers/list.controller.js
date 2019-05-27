@@ -5,11 +5,10 @@
     .module('app')
     .controller('ListCtrl', ListCtrl);
 
-  function ListCtrl($scope, $rootScope, $cookies, localStorageService, $routeParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location, FileSaver, Blob){
+  function ListCtrl($scope, $rootScope, $cookies, localStorageService, $stateParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location, FileSaver, Blob, $extend){
 
-    var vm              = this;
+    var vm              = $extend ? $extend : this;
     var oldPageNumber   = 1;
-
 
     //Properties
     vm.countLabel          = '';
@@ -27,14 +26,14 @@
     vm.untranslatedLang    = null;
 
     if(pimEntity){
-      vm.entity = 'PIM\\' + $routeParams.entity;
+      vm.entity = 'PIM\\' + $stateParams.entity;
     }else{
-      vm.entity = $routeParams.entity;
+      vm.entity = $stateParams.entity;
     }
 
     $rootScope.currentNav = vm.entity;
 
-    vm.hideButtons =  $routeParams.hideButtons ? true : false;
+    vm.hideButtons =  $stateParams.hideButtons ? true : false;
     vm.canExport   = vm.permissions[vm.entity].export && vm.frontend.exportMethods && Object.keys(vm.frontend.exportMethods).length;
     vm.schema      = localStorageService.get('schema')[vm.entity];
 
@@ -47,12 +46,12 @@
     vm.canInsert    = true;
 
     vm.currentLang =   vm.frontend.languages ? vm.frontend.languages[0] : null;
-    if($routeParams.lang){
-      vm.currentLang = $routeParams.lang;
+    if($stateParams.lang){
+      vm.currentLang = $stateParams.lang;
     }
 
-    if($routeParams.untranslatedLang){
-      vm.untranslatedLang = $routeParams.untranslatedLang;
+    if($stateParams.untranslatedLang){
+      vm.untranslatedLang = $stateParams.untranslatedLang;
     }
 
 
@@ -368,6 +367,7 @@
     }
 
     function init(){
+
       var savedFilter = localStorageService.get('savedFilter');
       if(savedFilter && savedFilter[vm.entity]){
         vm.filter = savedFilter[vm.entity];
@@ -378,13 +378,13 @@
         vm.datalistFilter = savedDatalistFilter[vm.entity];
       }
 
-      for (var key in $routeParams) {
+      for (var key in $stateParams) {
         if (key.substr(0, 2) != 'f_') {
           continue;
         }
         var property = key.substr(2);
 
-        vm.filter[property] = $routeParams[key];
+        vm.filter[property] = $stateParams[key];
       }
 
       if(vm.i18n){
@@ -408,6 +408,7 @@
     }
 
     function loadData(){
+
       vm.objectsAvailable = false;
       vm.objectsNotAvailable = false;
 
@@ -486,9 +487,9 @@
 
           vm.objectsAvailable = true;
           vm.objectsNotAvailable = false;
+
         },
         function errorCallback(response) {
-
           vm.objectsAvailable = false;
           vm.objectsNotAvailable = true;
           vm.countLabel = '0 Datensätze';

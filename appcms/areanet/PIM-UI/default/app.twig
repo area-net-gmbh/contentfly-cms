@@ -161,7 +161,7 @@
 
 <div id="pim-content" class="container-fluid ng-class:{ 'pim-content-login': !userLoggedIn };">
     <pim-plugin key="INDEX_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
-    <div ng-view></div>
+    <div ui-view></div>
     <pim-plugin key="INDEX_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin
 </div>
 
@@ -179,8 +179,8 @@
 <!-- Angular Files -->
 <script src="/ui/default/bower_components/jquery/dist/jquery.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/jquery-ui/jquery-ui.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/bower_components/angular/angular.min.js?v={{ app_version }}"></script>
-<script src="/ui/default/bower_components/angular-route/angular-route.min.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular/angular.js?v={{ app_version }}"></script>
+<script src="/ui/default/bower_components/angular-ui-router/release/angular-ui-router.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-cookies/angular-cookies.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-local-storage/dist/angular-local-storage.min.js?v={{ app_version }}"></script>
 <script src="/ui/default/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js?v={{ app_version }}"></script>
@@ -210,7 +210,7 @@
         /* Angular modules */
         'ngCookies',
         'ngFileUpload',
-        'ngRoute',
+        'ui.router',
         /* 3rd-party modules */
         'angularGrid',
         'angularMoment',

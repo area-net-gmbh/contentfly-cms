@@ -84,6 +84,20 @@ abstract class Plugin
         $this->app['uiManager']->addRoute($route, $this->getFrontendPath().$this->normalizePath($templateName), $controllerName, $secure);
     }
 
+    /**
+     * @param $routeName Name der Route aus app.routes.js
+     * @param null $controller
+     * @param null $template
+     * @param array $stateParams
+     */
+    public function extendRoute($routeName, $controller = null, $template = null, $stateParams = array()){
+        if(empty($controller) && empty($template)) return;
+
+        $template = $template ? $this->getFrontendPath().$this->normalizePath($template) : null;
+
+        $this->app['uiManager']->extendRoute($routeName, $controller, $template, $stateParams);
+    }
+
 
     /**
      * @return string[]

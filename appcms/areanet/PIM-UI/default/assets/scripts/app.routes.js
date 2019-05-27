@@ -1,69 +1,211 @@
 (function() {
-    'use strict';
+  'use strict';
 
-    angular
-        .module('app')
-        .config(routeConfiguration);
+  angular
+    .module('app')
+    .config(stateProvider);
 
-    function routeConfiguration($routeProvider){
-        $routeProvider
-            .when('/', {
-                templateUrl: '/ui/default/views/dashboard.html?v=' + APP_VERSION,
-                controller: 'DashboardCtrl as vm',
-                secure: true
-            })
-            .when('/error', {
-                templateUrl: '/ui/default/views/error.html?v=' + APP_VERSION,
-                controller: 'ErrorCtrl as vm',
-                secure: true
-            })
-            .when('/login', {
-                templateUrl: '/ui/default/views/login.html?v=' + APP_VERSION,
-                controller: 'LoginCtrl as vm'
-            })
-            .when('/logout', {
-                templateUrl: '/ui/default/views/login.html?v=' + APP_VERSION,
-                controller: 'LogoutCtrl as vm'
-            })
-            .when('/list/:entity', {
-                templateUrl: '/ui/default/views/list.html?v=' + APP_VERSION,
-                controller: 'ListCtrl as vm',
-                resolve: { pimEntity: function(){return null;} },
-                secure: true
-            })
-            .when('/list/PIM/:entity', {
-                templateUrl: '/ui/default/views/list.html?v=' + APP_VERSION,
-                controller: 'ListCtrl as vm',
-                resolve: { pimEntity: function(){return true;} },
-                secure: true
-            })
-            .when('/settings', {
-                templateUrl: '/ui/default/views/settings.html?v=' + APP_VERSION,
-                controller: 'SettingsCtrl as vm',
-                secure: true
-            })
-            .when('/files', {
-                templateUrl: '/ui/default/views/files.html?v=' + APP_VERSION,
-                controller: 'FilesCtrl as vm',
-                resolve: {
-                    pimEntity: function(){return true;},
-                    modaltitle: function(){return null;},
-                    property: function(){return null;},
-                    '$uibModalInstance': function(){return null;}
-                },
-                secure: true
-            })
-            .otherwise({ redirectTo: '/' });
+  function stateProvider($stateProvider, $urlRouterProvider) {
 
-        for (var route in uiRoutes){
-
-            var templatePath = uiRoutes[route]['templateName'].substr(0, 8) == '/plugins' ? uiRoutes[route]['templateName'] : '/custom/Frontend/ui/default/views/' + uiRoutes[route]['templateName'];
-
-            $routeProvider.when(route, {
-                templateUrl: templatePath + '?v=' + CUSTOM_VERSION,
-                controller: uiRoutes[route]['controllerName'] + ' as vm',
-                secure: uiRoutes[route]['secure']
-            })
+    $stateProvider.state({
+      url: '/',
+      name: 'default',
+      templateUrl: function ($stateParams){
+        return '/ui/default/views/dashboard.html?v=' + APP_VERSION;
+      },
+      controllerProvider: function ($stateParams) {
+        if(extendedRoutes['default']){
+          return extendedRoutes['default'][0]['controller'];
+        }else{
+          return 'DashboardCtrl';
         }
+      },
+      resolve: { '$extend': function(){return null;} },
+      controllerAs: 'vm',
+      secure: true
+    });
+
+    $stateProvider.state({
+      url: '/error',
+      name: 'error',
+      templateUrl: function ($stateParams){
+        if(extendedRoutes['error']){
+          return extendedRoutes['error'][0]['template'];
+        }else{
+          return '/ui/default/views/error.html?v=' + APP_VERSION;
+        }
+      },
+      controllerProvider: function ($stateParams) {
+
+        if(extendedRoutes['error']){
+          return extendedRoutes['error'][0]['controller'];
+        }else{
+          return 'ErrorCtrl';
+        }
+      },
+      resolve: { '$extend': function(){return null;} },
+      secure: true
+    });
+
+    $stateProvider.state({
+      url: '/login',
+      name: 'login',
+      templateUrl: function ($stateParams){
+        if(extendedRoutes['login']){
+          return extendedRoutes['login'][0]['template'];
+        }else{
+          return '/ui/default/views/login.html?v=' + APP_VERSION;
+        }
+      },
+      controllerProvider: function ($stateParams) {
+
+        if(extendedRoutes['login']){
+          return extendedRoutes['login'][0]['controller'];
+        }else{
+          return 'LoginCtrl';
+        }
+      },
+      resolve: { '$extend': function(){return null;} },
+      controllerAs: 'vm'
+    });
+
+    $stateProvider.state({
+      url: '/logout',
+      name: 'logout',
+      templateUrl: function ($stateParams){
+        if(extendedRoutes['logout']){
+          return extendedRoutes['logout'][0]['template'];
+        }else{
+          return '/ui/default/views/login.html?v=' + APP_VERSION;
+        }
+      },
+      controllerProvider: function ($stateParams) {
+
+        if(extendedRoutes['logout']){
+          return extendedRoutes['logout'][0]['controller'];
+        }else{
+          return 'LogoutCtrl';
+        }
+      },
+      resolve: { '$extend': function(){return null;} },
+      controllerAs: 'vm'
+    });
+
+    $stateProvider.state({
+      url: '/list/:entity',
+      name: 'list',
+      templateUrl: function ($stateParams){
+        if(extendedRoutes['list'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
+          return extendedRoutes['list'][0]['template'];
+        }else{
+          return '/ui/default/views/list.html?v=' + APP_VERSION;
+        }
+
+      },
+      controllerProvider: function ($stateParams) {
+        if(extendedRoutes['list'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
+         return extendedRoutes['list'][0]['controller'];
+        }else{
+          return 'ListCtrl';
+        }
+
+      },
+      controllerAs: 'vm',
+      resolve: { pimEntity: function(){return null;}, '$extend': function(){return null;} },
+      secure: true
+    });
+
+    $stateProvider.state({
+      url: '/list/PIM/:entity',
+      name: 'list-pim',
+      templateUrl: function ($stateParams){
+        if(extendedRoutes['list-pim'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
+          return extendedRoutes['list-pim'][0]['template'];
+        }else{
+          return '/ui/default/views/list.html?v=' + APP_VERSION;
+        }
+      },
+      controllerProvider: function ($stateParams) {
+
+        if(extendedRoutes['list'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
+          return extendedRoutes['list-pim'][0]['controller'];
+        }else{
+          return 'ListCtrl';
+        }
+      },
+      controllerAs: 'vm',
+      resolve: { pimEntity: function(){return true;}, '$extend': function(){return null;} },
+      secure: true
+    });
+
+    $stateProvider.state({
+      url: '/settings',
+      name: 'settings',
+      templateUrl: function ($stateParams){
+        if(extendedRoutes['settings']){
+          return extendedRoutes['settings'][0]['template'];
+        }else{
+          return '/ui/default/views/settings.html?v=' + APP_VERSION;
+        }
+      },
+      controllerProvider: function ($stateParams) {
+        if(extendedRoutes['settings']){
+          return extendedRoutes['settings'][0]['controller'];
+        }else{
+          return 'SettingsCtrl';
+        }
+      },
+      controllerAs: 'vm',
+      resolve: { '$extend': function(){return null;} },
+      secure: true
+    });
+
+    $stateProvider.state({
+      url: '/files',
+      name: 'files',
+      templateUrl: function ($stateParams){
+        if(extendedRoutes['files']){
+          return extendedRoutes['files'][0]['template'];
+        }else{
+          return '/ui/default/views/files.html?v=' + APP_VERSION;
+        }
+      },
+      controllerProvider: function ($stateParams) {
+        if(extendedRoutes['files']){
+          return extendedRoutes['files'][0]['controller'];
+        }else{
+          return 'FilesCtrl';
+        }
+      },
+      controllerAs: 'vm',
+        resolve: {
+          pimEntity: function(){return true;},
+          modaltitle: function(){return null;},
+          property: function(){return null;},
+          '$uibModalInstance': function(){return null;},
+          '$extend': function(){return null;}
+        },
+      secure: true
+    });
+
+    $urlRouterProvider.otherwise("/");
+
+    for (var route in uiRoutes){
+
+      var templatePath = uiRoutes[route]['templateName'].substr(0, 8) == '/plugins' ? uiRoutes[route]['templateName'] : '/custom/Frontend/ui/default/views/' + uiRoutes[route]['templateName'];
+
+      $stateProvider.state({
+        url: route,
+        name: 'custom-' + route,
+        templateUrl: templatePath + '?v=' + CUSTOM_VERSION,
+        controllerProvider: function ($stateParams) {
+          return uiRoutes[route]['controllerName'];
+        },
+        controllerAs: 'vm',
+        secure: uiRoutes[route]['secure']
+      });
     }
+
+  }
+
 })();

@@ -5,8 +5,8 @@
         .module('app')
         .controller('SettingsCtrl', SettingsCtrl);
 
-    function SettingsCtrl($scope, $cookies, $location, localStorageService, $routeParams, $http, $rootScope, $uibModal, TokenService, EntityService){
-        var vm = this;
+    function SettingsCtrl($scope, $cookies, $location, localStorageService, $stateParams, $http, $rootScope, $uibModal, TokenService, EntityService, $extend){
+        var vm  = $extend ? $extend : this;
 
         //Properties
         vm.message              =  '';

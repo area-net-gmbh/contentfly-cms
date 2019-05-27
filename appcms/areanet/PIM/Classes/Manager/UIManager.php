@@ -16,6 +16,7 @@ class UIManager extends Manager
 {
 
     protected $blocks         = array();
+    protected $extensions     = array();
     protected $routes         = array();
     protected $jsFiles        = array();
     protected $angularModules = array();
@@ -37,6 +38,38 @@ class UIManager extends Manager
 
         $this->blocks[$key][] = $templatePath;
 
+    }
+
+
+    /**
+     * @param $routeName Name der Route aus app.routes.js
+     * @param null $controller
+     * @param null $template
+     * @param array $stateParams
+     */
+    public function extendRoute($routeName, $controller = null, $template = null, $stateParams = array()){
+        if(empty($controller) && empty($template)) return;
+
+        if($template){
+            if(substr($template, 0, 8) != '/plugins'){
+                $template =  "/custom/Frontend/ui/default/views/$template";
+            }
+        }
+
+        $this->extensions[$routeName] = isset($this->extensions[$routeName]) ? $this->extensions[$routeName] : array();
+        $this->extensions[$routeName][] = array(
+            'controller'    => $controller,
+            'template'      => $template,
+            'stateParams'   => $stateParams
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtendedRoutes()
+    {
+        return $this->extensions;
     }
 
     /**

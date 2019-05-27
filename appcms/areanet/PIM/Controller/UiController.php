@@ -10,7 +10,9 @@ class UiController extends BaseController
 
     public function showAction()
     {
-        $uiRoutes = $this->app['uiManager']->getRoutes();
+        $uiRoutes        = $this->app['uiManager']->getRoutes();
+        $extendedRoutes  = $this->app['uiManager']->getExtendedRoutes();
+
 
         $jsFilesToInclude = array();
         $jsFiles = $this->app['uiManager']->getJSFiles();
@@ -21,7 +23,8 @@ class UiController extends BaseController
         
         $dynInlineScript  = 'var APP_VERSION = \''.APP_VERSION.'\';';
         $dynInlineScript .= 'var CUSTOM_VERSION = \''.CUSTOM_VERSION.'\';';
-        $dynInlineScript .= "var uiRoutes = ".json_encode($uiRoutes);
+        $dynInlineScript .= "var uiRoutes = ".json_encode($uiRoutes).";";
+        $dynInlineScript .= "var extendedRoutes = ".json_encode($extendedRoutes).";";
 
         $cssFilesToInclude = array();
         $cssFiles = $this->app['uiManager']->getCSSFiles();

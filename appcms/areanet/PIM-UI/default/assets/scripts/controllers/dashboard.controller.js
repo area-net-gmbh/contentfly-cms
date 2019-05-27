@@ -5,9 +5,8 @@
         .module('app')
         .controller('DashboardCtrl', DashboardCtrl);
 
-    function DashboardCtrl($scope, $cookies, localStorageService, $routeParams, $http){
-        var vm = this;
- 
+    function DashboardCtrl($scope, $cookies, localStorageService, $stateParams, $http, $extend){
+      var vm  = $extend ? $extend : this;
     }
 
 })();
