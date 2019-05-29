@@ -816,16 +816,25 @@
         }
       }
 
+      var templateUrl = '/ui/default/views/form.html?v=' + APP_VERSION;
+      var controller  = 'FormCtrl as vm';
+
+      if(extendedRoutes['form'] && (!extendedRoutes['form'][0]['stateParams'] || extendedRoutes['form'][0]['stateParams'] && extendedRoutes['form'][0]['stateParams']['entity'] == $stateParams.entity)){
+        templateUrl =  extendedRoutes['form'][0]['template'];
+        controller  = extendedRoutes['form'][0]['controller'] + ' as vm';
+      }
+
       var modalInstance = $uibModal.open({
-        templateUrl: '/ui/default/views/form.html?v=' + APP_VERSION,
-        controller: 'FormCtrl as vm',
+        templateUrl: templateUrl,
+        controller: controller,
         resolve: {
           entity: function(){ return vm.entity;},
           object: function(){ return objectToForm; },
           lang: function(){ return vm.currentLang},
           translateFrom:  function(){ return vm.untranslatedLang},
           doCopy: copy,
-          readonly: readonly != 1 ? false : true
+          readonly: readonly != 1 ? false : true,
+          '$extend': function(){ return null;}
         },
         backdrop: 'static',
         size: 'xl'

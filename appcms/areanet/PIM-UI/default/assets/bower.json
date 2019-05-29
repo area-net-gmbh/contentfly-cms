@@ -33,7 +33,8 @@
     "bootstrap-languages": "bootstrap-language#*",
     "angular-ui-tinymce": "^0.0.19",
     "angular-sanitize": "1.4.8",
-    "angular-ui-router": "^1.0.22"
+    "angular-ui-router": "^1.0.22",
+    "angular-blocks": "^0.1.10"
   },
   "resolutions": {
     "jquery-ui": "1.11.4",
