@@ -1,0 +1,201 @@
+ <div class="col-xl-10">
+        <pim-plugin key="LIST_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <h3>{{::vm.schema.settings.label}} anzeigen<br>
+            <small>{{vm.countLabel}}&nbsp;</small>
+        </h3>
+
+        <pim-plugin key="LIST_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <div class="btn-group btn-sorting" uib-dropdown ng-if="vm.i18n">
+            <button class="btn btn-default" id="dropdown-i18n" type="button" uib-dropdown-toggle>
+                <span class="lang-sm lang-lbl-full" lang="{{vm.currentLang}}"></span>
+            </button>
+            <ul uib-dropdown-menu aria-labelledby="dropdown-i18n" class="dropdown">
+                <pim-plugin key="LIST_HEADER_I18N_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li ng-repeat="lang in vm.frontend.languages"><a ng-click="vm.changeLang(lang)"><span
+                        class="lang-sm lang-lbl-full" lang="{{lang}}"></span> </a></li>
+                <pim-plugin key="LIST_HEADER_I18N_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </div>
+        <pim-plugin key="LIST_HEADER_I18N_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <div class="btn-group btn-sorting" uib-dropdown>
+            <button class="btn btn-default" id="dropdown-sorting" type="button" uib-dropdown-toggle>
+                {{vm.schema.properties[vm.sortProperty].label}}
+            </button>
+            <button type="button" class="btn btn-default" ng-click="vm.sortBy(vm.sortProperty)">
+                <span ng-show="vm.sortOrder === 'ASC'" class="glyphicon glyphicon-arrow-up"></span>
+                <span ng-show="vm.sortOrder === 'DESC'" class="glyphicon glyphicon-arrow-down"></span>
+            </button>
+            <ul uib-dropdown-menu aria-labelledby="dropdown-sorting" class="dropdown">
+                <pim-plugin key="LIST_HEADER_SORTING_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li><a ng-click="vm.sortBy('id')">ID</a></li>
+                <li ng-show="vm.schema.settings.isSortable"><a ng-click="vm.sortBy('sorting')">Position</a></li>
+                <li ng-repeat="property in vm.schema.list"><a ng-click="vm.sortBy(property)">{{vm.schema.properties[property].label}}</a>
+                </li>
+                <li><a ng-click="vm.sortBy('created')">erstellt am</a></li>
+                <li><a ng-click="vm.sortBy('modified')">geändert am</a></li>
+                <li><a ng-click="vm.sortBy('user')">geändert von</a></li>
+                <pim-plugin key="LIST_HEADER_SORTING_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </div>
+        <pim-plugin key="LIST_HEADER_SORTING_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <div class="btn-filter" uib-dropdown auto-close="outsideClick" is-open="vm.filterIsOpen"
+             on-toggle="vm.toggleFilter(open)">
+            <button class="btn btn-default" id="dropdown-filter" type="button" uib-dropdown-toggle>
+                Filter <span ng-show="vm.filterBadge" class="badge">{{vm.filterBadge}}</span> <span
+                    ng-hide="filterBadge" class="glyphicon glyphicon-filter"></span>
+            </button>
+            <div uib-dropdown-menu aria-labelledby="dropdown-filter" class="form-inline">
+                <pim-plugin key="LIST_HEADER_FILTER_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <div class="form-group" ng-hide="config.hide || !config.isFilterable"
+                     ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type">
+
+                    <label ng-switch-when="boolean">{{vm.schema.properties[key].label}}</label>
+                    <select class="form-control" ng-switch-when="boolean" ng-model="vm.filter[key]"
+                            ng-change="vm.executeFilter()">
+                        <option value="">alle</option>
+                        <option value="true">ja</option>
+                        <option value="false">nein</option>
+                    </select>
+
+                    <div ng-if="vm.filterJoins[key] || vm.schema.properties[key].isDatalist" ng-switch-when="join">
+                        <label>{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-if="!vm.schema.properties[key].isDatalist"
+                                ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                            <option value="">alle anzeigen</option>
+                            <option value="-1">ohne Zuordnung</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">
+                                {{option.pim_filterTitle}}
+                            </option>
+                        </select>
+
+                        <ui-select ng-model="vm.datalistFilter[key]" ng-if="vm.schema.properties[key].isDatalist"
+                                   on-select="vm.executeFilter()">
+                            <ui-select-match placeholder="Bitte auswählen...">
+                                <span ng-bind="$select.selected.pim_filterTitle"></span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                    repeat="option in vm.filterJoins[key]"
+                                    refresh="vm.refreshDatalistFilter(key, $select.search)"
+                                    refresh-delay="0"
+                                    group-by="'group'">
+                                <span ng-bind="option.pim_filterTitle"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+                    <div ng-if="vm.filterJoins[key] || vm.schema.properties[key].isDatalist" ng-switch-when="multijoin">
+                        <label>{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-if="!vm.schema.properties[key].isDatalist"
+                                ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                            <option value="">alle anzeigen</option>
+                            <option value="-1">ohne Zuordnung</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">
+                                {{option.pim_filterTitle}}
+                            </option>
+                        </select>
+
+                        <ui-select ng-model="vm.datalistFilter[key]" ng-if="vm.schema.properties[key].isDatalist"
+                                   on-select="vm.executeFilter()">
+                            <ui-select-match placeholder="Bitte auswählen...">
+                                <span ng-bind="$select.selected.pim_filterTitle"></span>
+                            </ui-select-match>
+                            <ui-select-choices
+                                    repeat="option in vm.filterJoins[key]"
+                                    refresh="vm.refreshDatalistFilter(key, $select.search)"
+                                    refresh-delay="0"
+                                    group-by="'group'">
+                                <span ng-bind="option.pim_filterTitle"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+
+
+                    <div ng-if="vm.filterJoins[key]" ng-switch-when="checkbox">
+                        <label>{{vm.schema.properties[key].label}}</label>
+                        <select class="form-control" ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                            <option value="">alle anzeigen</option>
+                            <option value="-1">ohne Zuordnung</option>
+                            <option disabled>──────────</option>
+                            <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">
+                                {{option.pim_filterTitle}}
+                            </option>
+                        </select>
+                    </div>
+
+                    <label ng-if="vm.filterJoins[key]"
+                           ng-switch-when="virtualjoin">{{vm.schema.properties[key].label}}</label>
+                    <select class="form-control" ng-if="vm.filterJoins[key]" ng-switch-when="virtualjoin"
+                            ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                        <option value="">alle anzeigen</option>
+                        <option value="-1">ohne Zuordnung</option>
+                        <option disabled>──────────</option>
+                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.id}}">
+                            {{option.pim_filterTitle}}
+                        </option>
+                    </select>
+
+                    <label ng-if="vm.filterJoins[key]"
+                           ng-switch-when="string">{{vm.schema.properties[key].label}}</label>
+                    <select class="form-control" ng-if="vm.filterJoins[key]" ng-switch-when="string"
+                            ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
+                        <option value="">alle anzeigen</option>
+                        <option disabled>──────────</option>
+                        <option ng-repeat="option in vm.filterJoins[key]" value="{{option.pim_filterTitle}}">
+                            {{option.pim_filterTitle}}
+                        </option>
+                    </select>
+
+                    <label ng-switch-when="select">{{vm.schema.properties[key].label}}</label>
+                    <select class="form-control" ng-switch-when="select" ng-model="vm.filter[key]"
+                            ng-change="vm.executeFilter()">
+                        <option value="">alle</option>
+                        <option ng-repeat="option in config.options" value="{{option.id}}">{{option.name}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" class="form-control" ng-model="vm.filter.id" ng-enter="vm.closeFilter()"
+                           ng-change="vm.executeFilter()" ng-model-options="{debounce:500}">
+                </div>
+                <div class="form-group">
+                    <label>Volltext</label>
+                    <input type="text" id="fulltext" class="form-control" ng-model="vm.filter.fulltext"
+                           ng-enter="vm.closeFilter()" ng-change="vm.executeFilter()" ng-model-options="{debounce:500}">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-default" ng-click="vm.resetFilter()">Filter zurücksetzen</button>
+                </div>
+                <pim-plugin key="LIST_HEADER_FILTER_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </div>
+        </div>
+
+        <pim-plugin key="LIST_HEADER_FILTER_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <div class="btn-group btn-sorting" uib-dropdown ng-show="vm.canExport">
+            <button class="btn btn-default" id="dropdown-export" type="button" uib-dropdown-toggle
+                    ng-disabled="!vm.objectsAvailable || vm.isExporting">
+                <span class="glyphicon glyphicon-download-alt" aria-hidden="true" ng-hide="vm.isExporting"></span>
+                <div class="loader-inner loader-small ball-pulse" ng-show="vm.isExporting">
+                    <div></div>
+                </div>
+            </button>
+            <ul uib-dropdown-menu aria-labelledby="dropdown-export" class="dropdown">
+                <pim-plugin key="LIST_HEADER_EXPORT_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li ng-repeat="(action, label) in vm.frontend.exportMethods"><a ng-click="vm.exportData(action)">{{label}}</a>
+                </li>
+                <pim-plugin key="LIST_HEADER_EXPORT_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </div>
+        <pim-plugin key="LIST_HEADER_EXPORT_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <dir-pagination-controls ng-show="vm.objectsAvailable && !vm.schema.settings.isSortable"
+                                 on-page-change="vm.paginationChanged(newPageNumber)"></dir-pagination-controls>
+        <pim-plugin key="LIST_HEADER_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
+    </div>
+ <div class="col-xl-2 alignRight">
+        <button ng-hide="!vm.canInsert || !vm.permissions[vm.entity].writable || vm.schema.settings.readonly"
+                class="btnInsert btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus"
+                                                                                        aria-hidden="true"></span>
+            Objekt anlegen
+        </button>
+    </div>

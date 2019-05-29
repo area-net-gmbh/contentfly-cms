@@ -1,0 +1,16 @@
+<pim-plugin key="FORM_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<div class="col-sm-6">
+    <pim-plugin key="FORM_HEADER_TITLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <small>{{vm.modaltitle1}}</small>
+    <h3 class="modal-title">{{vm.modaltitle2}}</h3>
+    <small ng-show="vm.object.created">Erstellt {{vm.object.created.LOCAL}} | Geändert {{vm.object.modified.LOCAL_TIME}} Uhr<span ng-show="vm.object.id"> | ID: {{vm.object.id}}</span></small></p>
+    <pim-plugin key="FORM_HEADER_TITLE_APPEND" uiblocks="uiblocks"></pim-plugin>
+</div>
+<div class="col-sm-6" style="text-align:right;">
+    <pim-plugin key="FORM_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
+    <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+    <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
+    <pim-plugin key="FORM_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
+</div>
+<pim-plugin key="FORM_HEADER_APPEND" uiblocks="uiblocks"></pim-plugin>

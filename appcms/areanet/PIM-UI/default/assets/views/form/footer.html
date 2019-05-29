@@ -1,0 +1,9 @@
+<pim-plugin key="FORM_FOOTER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<div class="col-sm-12">
+    <pim-plugin key="FORM_BUTTONS_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <button class="btn btn-default" type="button" ng-disabled="vm.doSave" ng-click="vm.cancel()">Abbrechen</button>
+    <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(false)">Speichern</button>
+    <button class="btn btn-primary" type="button" ng-hide="vm.readonly" ng-disabled="vm.doSave || vm.isLoading" ng-click="vm.save(true)">Speichern und Schließen</button>
+    <pim-plugin key="FORM_BUTTONS_APPEND" uiblocks="uiblocks"></pim-plugin>
+</div>
+<pim-plugin key="FORM_FOOTER_APPEND" uiblocks="uiblocks"></pim-plugin>
