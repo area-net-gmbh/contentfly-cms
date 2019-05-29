@@ -4,12 +4,6 @@ namespace Areanet\PIM\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Areanet\PIM\Classes\Annotations as PIM;
 
-/**
- * Created by PhpStorm.
- * User: ms
- * Date: 27.01.16
- * Time: 12:04
- */
 
 /**
  * @ORM\Entity

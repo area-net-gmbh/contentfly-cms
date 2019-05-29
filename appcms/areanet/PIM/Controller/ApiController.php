@@ -337,7 +337,7 @@ class ApiController extends BaseController
 
         $currentDate    = new \Datetime();
 
-        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityShortName)));
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'), 'id' => $object->getId(), "data" => $object->toValueObject($this->app, $entityShortName, true)));
     }
 
     /**
