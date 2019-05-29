@@ -177,9 +177,14 @@ class Api
         $log->setMode(Log::DELETED);
 
         if($schema[$entityShortName]['settings']['labelProperty']){
-            $labelGetter = 'get'.ucfirst($schema[$entityShortName]['settings']['labelProperty']);
-            $label = $object->$labelGetter();
-            $log->setModelLabel($label);
+            try {
+                $labelGetter = 'get' . ucfirst($schema[$entityShortName]['settings']['labelProperty']);
+                $label = $object->$labelGetter();
+                $log->setModelLabel($label);
+            }catch(\Exception $e){
+
+            }
+
         }
 
         $this->em->persist($log);
@@ -378,9 +383,14 @@ class Api
             $log->setMode(Log::INSERTED);
 
             if($schema[$entityShortName]['settings']['labelProperty']){
-                $labelGetter = 'get'.ucfirst($schema[$entityShortName]['settings']['labelProperty']);
-                $label = $object->$labelGetter();
-                $log->setModelLabel($label);
+                try {
+                    $labelGetter = 'get'.ucfirst($schema[$entityShortName]['settings']['labelProperty']);
+                    $label = $object->$labelGetter();
+                    $log->setModelLabel($label);
+                }catch(\Exception $e){
+
+                }
+
             }
 
             $this->em->persist($log);
@@ -559,9 +569,14 @@ class Api
             $log->setMode(Log::UPDATED);
 
             if ($schema[$entityShortName]['settings']['labelProperty']) {
-                $labelGetter = 'get' . ucfirst($schema[$entityShortName]['settings']['labelProperty']);
-                $label = $object->$labelGetter();
-                $log->setModelLabel($label);
+                try {
+                    $labelGetter = 'get' . ucfirst($schema[$entityShortName]['settings']['labelProperty']);
+                    $label = $object->$labelGetter();
+                    $log->setModelLabel($label);
+                }catch(\Exception $e){
+
+                }
+
             }
 
             $this->em->persist($log);
@@ -1231,16 +1246,18 @@ class Api
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
                     $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "a_$field.lang = :lang");
                     if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
-                        $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'] ? ','.$schema[$joinedShortEntity]['settings']['labelProperty'] : '';
-                        $queryBuilder->addSelect('partial '.'a_'.$field.'.{id, lang'.$labelProperty.'}');
+                        $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'];
+                        $labelPropertyField = $labelProperty && $schema[$joinedShortEntity]['properties'][$labelProperty]  ? ','.$labelProperty : '';
+                        $queryBuilder->addSelect('partial '.'a_'.$field.'.{id, lang'.$labelPropertyField.'}');
                     }else{
                         $queryBuilder->addSelect( 'a_'.$field);
                     }
                 }else{
                     $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field);
                     if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
-                        $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'] ? ','.$schema[$joinedShortEntity]['settings']['labelProperty'] : '';
-                        $queryBuilder->addSelect('partial '.'a_'.$field.'.{id'.$labelProperty.'}');
+                        $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'];
+                        $labelPropertyField = $labelProperty && $schema[$joinedShortEntity]['properties'][$labelProperty]  ? ','.$labelProperty : '';
+                        $queryBuilder->addSelect('partial '.'a_'.$field.'.{id'.$labelPropertyField.'}');
                     }else{
                         $queryBuilder->addSelect('a_'.$field);
                     }
