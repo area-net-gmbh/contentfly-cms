@@ -32,8 +32,9 @@ class RteType extends Type
         $schema                 = parent::processSchema($key, $defaultValue, $propertyAnnotations, $entityName);
         $propertyAnnotations    = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\Rte'];
 
-        $schema['rteToolbar'] = $propertyAnnotations->toolbar;
-        $schema['dbType']     = "text";
+        $schema['rteToolbar']   = $propertyAnnotations->toolbar;
+        $schema['typeExtend']   = $propertyAnnotations->extend;
+        $schema['dbType']       = "text";
         
         return $schema;
     }
