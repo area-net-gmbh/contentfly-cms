@@ -127,7 +127,7 @@
       },
       controllerProvider: function ($stateParams) {
 
-        if(extendedRoutes['list'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
+        if(extendedRoutes['list-pim'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
           return extendedRoutes['list-pim'][0]['controller'];
         }else{
           return 'ListCtrl';

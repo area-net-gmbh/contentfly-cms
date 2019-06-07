@@ -8,7 +8,7 @@
         .directive('pimRte', pimRte);
 
 
-    function pimRte(localStorageService, $sce){
+    function pimRte(localStorageService, $sce, $uibModal){
         return {
             restrict: 'E',
             scope: {
@@ -21,7 +21,6 @@
                 scope.disabled = !parseInt(attrs.writable) || scope.config.readonly;
 
                 //scope.trustedValue = $sce.trustAsHtml(scope.value);
-
                 if(!scope.disabled){
                   scope.tinymceOptions = {
                     setup:function(ed) {
@@ -36,24 +35,43 @@
                     language: 'de',
                     paste_as_text: true,
                     autoresize_bottom_margin: 20,
-                    plugins: "lists, link,anchor, code,autoresize,stickytoolbar2, paste",
+                    plugins: "lists, link,anchor, code,autoresize,stickytoolbar2, paste image",
                     block_formats: 'Absatz=p;Überschrift 1=h1;Überschrift 2=h2;Überschrift 3=h3;Überschrift 4=h4;Überschrift 5=h5;Überschrift 6=h6;Zitat=blockquote;Code=pre',
                     toolbar1: scope.config.rteToolbar,
                     file_picker_callback: function(callback, value, meta) {
-                      // Provide file and text for the link dialog
-                      if (meta.filetype == 'file') {
-                        callback('mypage.html', {text: 'My text'});
-                      }
-
-                      // Provide image and alt text for the image dialog
+                      //@todo: Bildgröße auswählbar??
                       if (meta.filetype == 'image') {
-                        callback('/file/get/e3cab1ea-86d7-11e9-87d9-021f2a6099e3/factory-1880261_1280.jpg', {alt: 'My alt text'});
+
+                        var modalInstance = $uibModal.open({
+                          templateUrl: '/ui/default/views/files.html',
+                          controller: 'FilesCtrl as vm',
+                          windowClass: 'zindex-top',
+                          resolve: {
+                            modaltitle: function () {
+                              return 'Datei auswählen';
+                            },
+                            property: function () {
+                              return 'test';
+                            },
+                            pimEntity: function () {
+                              return true;
+                            },
+                            '$extend': function(){ return null;}
+                          },
+                          size: 'xl'
+                        });
+
+
+                        modalInstance.result.then(function (fileData) {
+                          if(!fileData.type.includes('image')){
+
+                            return;
+                          }
+                          callback('/file/get/' + fileData.id + '/' + fileData.name, {alt: fileData.name});
+                        });
+
                       }
 
-                      // Provide alternative source and posted for the media dialog
-                      if (meta.filetype == 'media') {
-                        callback('movie.mp4', {source2: 'alt.ogg', poster: 'image.jpg'});
-                      }
                     }
                   };
 

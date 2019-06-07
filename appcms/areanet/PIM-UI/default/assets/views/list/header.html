@@ -38,6 +38,7 @@
             </ul>
         </div>
         <pim-plugin key="LIST_HEADER_SORTING_APPEND" uiblocks="uiblocks"></pim-plugin>
+
         <div class="btn-filter" uib-dropdown auto-close="outsideClick" is-open="vm.filterIsOpen"
              on-toggle="vm.toggleFilter(open)">
             <button class="btn btn-default" id="dropdown-filter" type="button" uib-dropdown-toggle>
@@ -169,6 +170,7 @@
                 </div>
                 <pim-plugin key="LIST_HEADER_FILTER_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </div>
+            <button ng-show="vm.filterBadge" class="btn btn-default" ng-click="vm.resetFilter()"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Gesamte Baumstruktur anzeigen</button>
         </div>
 
         <pim-plugin key="LIST_HEADER_FILTER_APPEND" uiblocks="uiblocks"></pim-plugin>

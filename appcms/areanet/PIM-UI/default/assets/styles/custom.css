@@ -248,6 +248,14 @@ body.emotionalBackground{
     z-index:20;
 }
 
+.zindex-top{
+    z-index: 1000000 !important;
+}
+
+.zindex-top ~ .modal-backdrop{
+    z-index: 999999 !important;
+}
+
 .pim-content-login{
     left:0 !important;
 }

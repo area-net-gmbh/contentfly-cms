@@ -46,7 +46,7 @@
         total-items="vm.totalItems" current-page="vm.currentPage"
         ng-dblclick="vm.openForm(object, $index, (vm.schema.settings.viewMode == 1))">
         <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <td ng-repeat="property in vm.schema.list">
+        <td ng-repeat="property in vm.schema.list" style="padding-left:{{object.level * 20}}px;">
             <pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin>
             <pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat>
             <pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin>
@@ -79,6 +79,12 @@
                         </li>
                         <li role="menuitem"
                             ng-hide="vm.hideButtons || vm.schema.settings.readonly || !vm.permissions[vm.entity].writable">
+                            <a class="dropdown" ng-click="vm.openForm(null, null, false, false, {treeParent: object.id})">
+                                <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Objekt darunter einfügen
+                            </a>
+                        </li>
+                        <li role="menuitem"
+                            ng-hide="vm.hideButtons || vm.schema.settings.readonly || !vm.permissions[vm.entity].writable">
                             <a class="dropdown" ng-click="vm.openForm(object, $index, false, true)">
                                 <span class="glyphicon glyphicon-copy" aria-hidden="true"></span> kopieren
                             </a>
@@ -107,7 +113,7 @@
     <tbody ng-if="vm.schema.settings.isSortable" ui-sortable="vm.sortableOptions" ng-model="vm.objects">
     <tr ng-repeat="objectSort in vm.objects track by $index" ng-dblclick="vm.openForm(objectSort)">
         <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <td ng-repeat="property in vm.schema.list">
+        <td ng-repeat="property in vm.schema.list" >
             <pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin>
             <pim-autoformat property="{{property}}" schema="vm.schema" object="objectSort"></pim-autoformat>
             <pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin>

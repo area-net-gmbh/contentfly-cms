@@ -286,7 +286,7 @@
 
       for(var i = 0; i < data.length; i++){
         var filler = '--'.repeat(depth);
-        filler = filler ? filler + ' ' : filler
+        filler = filler ? filler + ' ' : filler;
 
         if(joinSchema.settings.labelProperty){
           data[i]['pim_filterTitle'] = filler + data[i][joinSchema.settings.labelProperty];
@@ -449,10 +449,11 @@
         properties.push('sorting');
       }
 
+      var currentPage = vm.schema.settings.isSortable || vm.schema.settings.type == 'tree' ? 0 : vm.currentPage;
 
       var data = {
         entity: vm.entity,
-        currentPage: vm.schema.settings.isSortable ? 0 : vm.currentPage,
+        currentPage: currentPage,
         order: sortSettings,
         where: filter,
         properties: properties,
@@ -460,7 +461,6 @@
         lang: vm.currentLang,
         untranslatedLang: vm.untranslatedLang
       };
-
 
       EntityService.list(data).then(
         function successCallback(response) {
@@ -475,10 +475,42 @@
             vm.itemsPerPage = response.data.itemsPerPage;
           }
 
-          vm.totalItems = response.data.totalItems;
-          vm.objects = response.data.data;
+          var data  = [];
 
-          if(data.currentPage == 0 || (vm.itemsPerPage * data.currentPage) >=  vm.totalItems && data.currentPage == 1){
+          var treeSort = function(parent, level){
+            for(var i in response.data.data){
+              if(!parent){
+                if(!response.data.data[i].treeParent){
+                  response.data.data[i].level =  level;
+                  response.data.data[i].filler = '--'.repeat(level);
+                  data.push(response.data.data[i]);
+                  treeSort(response.data.data[i].id, level + 1);
+                }
+              }else{
+                if(response.data.data[i].treeParent && parent == response.data.data[i].treeParent.id){
+                  response.data.data[i].level = level;
+                  response.data.data[i].filler = '--'.repeat(level);
+                  data.push(response.data.data[i]);
+                  treeSort(response.data.data[i].id, level + 1);
+                }
+              }
+
+
+            }
+          };
+
+          if(vm.schema.settings.type == 'tree' && Object.keys(vm.filter).length == 0){
+            treeSort(null, 0);
+            delete vm.schema.list[1];
+            delete vm.schema.list[2];
+          }else{
+            data  = response.data.data
+          }
+
+          vm.totalItems = response.data.totalItems;
+          vm.objects    = data;
+
+          if(data.currentPage == 0 || (vm.itemsPerPage * data.currentPage) >=  vm.totalItems && data.currentPage == 1 || vm.schema.settings.type == 'tree'){
             vm.countLabel = vm.totalItems + (vm.totalItems == 1 ? ' Datensatz' : ' Datensätze');
           }else{
             var end = (vm.itemsPerPage * data.currentPage) > vm.totalItems ? vm.totalItems : (vm.itemsPerPage * data.currentPage);
@@ -787,12 +819,16 @@
       );
     }
 
-    function openForm(object, index, readonly, copy){
+    function openForm(object, index, readonly, copy, defaultVals = null){
 
       if(vm.schema.settings.readonly && vm.schema.settings.viewMode != 1){
         return;
       }
 
+      if(defaultVals){
+        vm.filter = defaultVals;
+      }
+      console.log(defaultVals);
       var doInsert     = false;
       var objectToForm = null;
       if(!object){
@@ -804,7 +840,7 @@
             continue;
           }
 
-          objectToForm[key] = vm.filter[key]
+          objectToForm[key] = vm.filter[key];
         }
 
       }else{

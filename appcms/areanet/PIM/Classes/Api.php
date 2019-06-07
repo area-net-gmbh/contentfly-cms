@@ -341,9 +341,8 @@ class Api
         }
 
         try {
-
             $this->em->persist($object);
-
+            $this->em->flush();
 
             if($schema[$entityShortName]['settings']['isSortable']){
                 if($schema[$entityShortName]['settings']['type'] == 'tree') {
@@ -368,8 +367,6 @@ class Api
 
                 $query->execute();
             }
-
-            $this->em->flush();
 
 
             /**

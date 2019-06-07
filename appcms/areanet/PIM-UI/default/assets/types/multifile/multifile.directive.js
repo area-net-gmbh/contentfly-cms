@@ -56,7 +56,8 @@
               },
               pimEntity: function () {
                 return true;
-              }
+              },
+              '$extend': function(){ return null;}
             },
             size: 'xl'
           });

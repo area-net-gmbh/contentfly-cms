@@ -482,7 +482,10 @@
     }
 
     function onChangeValue(key, mainKey, value) {
-
+      if(key == 'treeParent' && value == vm.object.id){
+        return;
+      }
+      //console.log(key, mainKey, value);
       if (!mainKey) {
         objectDataToSave[key] = value;
       } else {

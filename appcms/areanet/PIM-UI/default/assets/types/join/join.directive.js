@@ -167,7 +167,7 @@
               var data = {
                 entity: entity,
                 id: scope.value
-              }
+              };
 
               EntityService.single(data).then(
                 function (response) {
@@ -279,18 +279,57 @@
             properties.push(scope.schema.list[key]);
           }
 
+          var currentPage   = scope.schema.settings.type == 'tree' ? 0 : scope.currentPage;
+          var sortSettings  = {};
+          sortSettings[scope.schema.settings.sortBy] = scope.schema.settings.sortOrder;
+
           var data = {
             entity: entity,
-            currentPage: scope.currentPage,
-            itemsPerPage: itemsPerPage,
+            currentPage: currentPage,
+            itemsPerPage: scope.schema.settings.type == 'tree' ? 0 : itemsPerPage,
+            order: sortSettings,
             where: where,
             properties: properties,
             lang: scope.object.lang
           };
           EntityService.list(data).then(
             function successCallback(response) {
-              scope.totalPages    = Math.ceil(response.data.totalItems / itemsPerPage);
-              scope.objects       = response.data.data;
+              scope.totalPages    = scope.schema.settings.type == 'tree' ? 1 : Math.ceil(response.data.totalItems / itemsPerPage);
+
+              var data  = [];
+
+              var treeSort = function(parent, level){
+                for(var i in response.data.data){
+                  if(!parent){
+                    if(!response.data.data[i].treeParent){
+                      response.data.data[i].level =  level;
+                      response.data.data[i].filler = '--'.repeat(level);
+                      data.push(response.data.data[i]);
+                      treeSort(response.data.data[i].id, level + 1);
+                    }
+                  }else{
+                    if(response.data.data[i].treeParent && parent == response.data.data[i].treeParent.id){
+                      response.data.data[i].level = level;
+                      response.data.data[i].filler = '--'.repeat(level);
+                      data.push(response.data.data[i]);
+                      treeSort(response.data.data[i].id, level + 1);
+                    }
+                  }
+
+
+                }
+              };
+
+              if(scope.schema.settings.type == 'tree' && !scope.search){
+                treeSort(null, 0);
+                delete scope.schema.list[1];
+                delete scope.schema.list[2];
+              }else{
+                data  = response.data.data
+              }
+
+
+              scope.objects       = data;
               scope.selectedIndex = 0;
             },
             function errorCallback(response) {
