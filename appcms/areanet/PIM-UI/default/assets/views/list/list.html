@@ -16,6 +16,14 @@
     </p>
 </div>
 
+
+<ul class="breadcrumb" ng-show="vm.breadcrumb">
+    <li>Baumstruktur: </li>
+    <li ng-repeat="b in vm.breadcrumb">
+        <a ng-show="b.value" ng-click="vm.setFilter('treeParent', b.value)">{{b.title}}</a>
+        <a ng-hide="b.value" ng-click="vm.resetFilter()">{{b.title}}</a>
+    </li>
+</ul>
 <div class="form-loading" ng-hide="vm.objectsAvailable || vm.objectsNotAvailable">
     <div class="loader-inner ball-pulse">
         <div></div>
@@ -24,7 +32,6 @@
     </div>
     <p>Daten werden geladen...</p>
 </div>
-
 <p ng-show="vm.objectsNotAvailable">Es sind derzeit leider keine Daten vorhanden.</p>
 <pim-plugin key="LIST_TABLE_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <table id="list" class="table table-condensed" ng-show="vm.objectsAvailable">
@@ -46,7 +53,7 @@
         total-items="vm.totalItems" current-page="vm.currentPage"
         ng-dblclick="vm.openForm(object, $index, (vm.schema.settings.viewMode == 1))">
         <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <td ng-repeat="property in vm.schema.list" style="padding-left:{{object.level * 20}}px;">
+        <td ng-repeat="property in vm.schema.list" style="padding-left:{{object.level * 20}}px;" ng-click="vm.handleTreeClick(object)">
             <pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin>
             <pim-autoformat property="{{property}}" schema="vm.schema" object="object"></pim-autoformat>
             <pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin>
@@ -78,11 +85,25 @@
                             </a>
                         </li>
                         <li role="menuitem"
-                            ng-hide="vm.hideButtons || vm.schema.settings.readonly || !vm.permissions[vm.entity].writable">
+                            ng-hide="vm.hideButtons || vm.schema.settings.readonly || !vm.permissions[vm.entity].writable || vm.schema.settings.type != 'tree' || vm.filterBadge">
                             <a class="dropdown" ng-click="vm.openForm(null, null, false, false, {treeParent: object.id})">
-                                <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Objekt darunter einfügen
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Objekt darunter einfügen
                             </a>
                         </li>
+                        <li><hr></li>
+                        <li role="menuitem"
+                            ng-hide="vm.hideButtons || vm.schema.settings.readonly || !vm.permissions[vm.entity].writable || vm.schema.settings.type != 'tree' || vm.filterBadge">
+                            <a class="dropdown" ng-click="vm.setFilter('treeParent', object.id)">
+                                <span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span> Unterobjekte sortieren
+                            </a>
+                        </li>
+                        <li role="menuitem"
+                            ng-hide="vm.hideButtons || vm.schema.settings.readonly || !vm.permissions[vm.entity].writable || vm.schema.settings.type != 'tree' || vm.filterBadge">
+                            <a class="dropdown" ng-click="vm.setFilter('treeParent', object.treeParent ? object.treeParent.id : -1)">
+                                <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> Diese Ebene sortieren
+                            </a>
+                        </li>
+                        <li><hr></li>
                         <li role="menuitem"
                             ng-hide="vm.hideButtons || vm.schema.settings.readonly || !vm.permissions[vm.entity].writable">
                             <a class="dropdown" ng-click="vm.openForm(object, $index, false, true)">
@@ -111,9 +132,9 @@
     </tr>
     </tbody>
     <tbody ng-if="vm.schema.settings.isSortable" ui-sortable="vm.sortableOptions" ng-model="vm.objects">
-    <tr ng-repeat="objectSort in vm.objects track by $index" ng-dblclick="vm.openForm(objectSort)">
+    <tr ng-repeat="objectSort in vm.objects track by $index" ng-dblclick="vm.openForm(objectSort)" >
         <pim-plugin key="LIST_TABLE_BODY_COLS_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <td ng-repeat="property in vm.schema.list" >
+        <td ng-repeat="property in vm.schema.list" ng-click="vm.handleTreeClick(objectSort)">
             <pim-plugin key="LIST_TABLE_BODY_COL_PREPEND" uiblocks="uiblocks"></pim-plugin>
             <pim-autoformat property="{{property}}" schema="vm.schema" object="objectSort"></pim-autoformat>
             <pim-plugin key="LIST_TABLE_BODY_COL_APPEND" uiblocks="uiblocks"></pim-plugin>

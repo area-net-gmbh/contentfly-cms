@@ -170,7 +170,7 @@
                 </div>
                 <pim-plugin key="LIST_HEADER_FILTER_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </div>
-            <button ng-show="vm.filterBadge" class="btn btn-default" ng-click="vm.resetFilter()"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Gesamte Baumstruktur anzeigen</button>
+            <button ng-show="vm.filterBadge && vm.schema.settings.type == 'tree'" class="btn btn-default" ng-click="vm.resetFilter()"><span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Gesamte Baumstruktur anzeigen</button>
         </div>
 
         <pim-plugin key="LIST_HEADER_FILTER_APPEND" uiblocks="uiblocks"></pim-plugin>

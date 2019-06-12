@@ -252,6 +252,21 @@ body.emotionalBackground{
     z-index: 1000000 !important;
 }
 
+.breadcrumb{
+    padding:8px 12px !important;
+    background-color:#EAEDF2;
+    margin-left:-8px;
+}
+
+.breadcrumb a{
+    cursor:pointer;
+}
+
+hr{
+    margin-bottom:5px !important;
+    margin-top:5px !important;
+}
+
 .zindex-top ~ .modal-backdrop{
     z-index: 999999 !important;
 }

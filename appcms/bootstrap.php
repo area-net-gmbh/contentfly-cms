@@ -77,6 +77,7 @@ if($app['is_installed']) {
                     'charset' => Config\Adapter::getConfig()->DB_CHARSET,
                     'collate' => Config\Adapter::getConfig()->DB_COLLATE
                 )
+
             )
         ),
     ));

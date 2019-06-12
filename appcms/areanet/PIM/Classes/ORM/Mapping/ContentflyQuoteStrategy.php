@@ -13,7 +13,7 @@ class ContentflyQuoteStrategy implements QuoteStrategy
         // implement your quote strategy
         switch ($platform->getName()) {
             case 'mysql':
-                return $token == 'id' ? $token : '`' . $token . '`';
+                return $token == 'id' || $token == 'lang'   ? $token : '`' . $token . '`';
             default:
                 return $token;
         }
