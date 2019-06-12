@@ -166,6 +166,7 @@
 
               var data = {
                 entity: entity,
+                lang:scope.object.lang,
                 id: scope.value
               };
 

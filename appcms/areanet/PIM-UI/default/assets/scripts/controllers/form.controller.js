@@ -388,7 +388,7 @@
         compareToLang: translateFrom ? lang : currentLang,
         loadJoinedLang: translateFrom ? lang : null
       };
-
+      console.log(object);
       EntityService.single(data).then(
         function (response) {
 
