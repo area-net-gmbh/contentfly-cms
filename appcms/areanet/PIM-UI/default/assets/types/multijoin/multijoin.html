@@ -22,7 +22,7 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="object in objects" ng-click="chooseObject(object)" ng-class='{selected:$index == selectedIndex, choosen:choosenIds.indexOf(object.id) > -1}'>
-                        <td ng-repeat="property in schema.list"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
+                        <td ng-repeat="property in schema.list" style="padding-left:{{object.level * 20}}px;"><pim-autoformat property="{{property}}" schema="schema" object="object"></pim-autoformat></td>
                         <td class="td-smallalign-right"><span ng-hide="choosenIds.indexOf(object.id) > -1" class="glyphicon glyphicon-chevron-right"></span></td>
                     </tr>
                     </tbody>

@@ -71,13 +71,17 @@ class MultijoinType extends Type
         }
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])) {
-            $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
-            $schema['accept'] = $annotations->targetEntity;
+            $annotations        = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
+            $schema['accept']   = $annotations->targetEntity;
+
 
             if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'])) {
-                $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
-                $schema['foreign'] = $annotations->name;
+                $annotations                = $propertyAnnotations['Doctrine\\ORM\\Mapping\\JoinTable'];
+                $schema['foreign']          = $annotations->name;
+                $schema['dbfield']          = $annotations->joinColumns[0] && $annotations->joinColumns[0]->name ? $annotations->joinColumns[0]->name : $this->em->getClassMetadata($this->app['helper']->getFullEntityName($entityName))->getTableName().'_id';
+                $schema['dbfield_foreign']  = $annotations->inverseJoinColumns[0] && $annotations->inverseJoinColumns[0]->name ? $annotations->inverseJoinColumns[0]->name : lcfirst($this->em->getClassMetadata($schema['accept'])->getTableName()).'_id';
             }
+
         }
 
         return $schema;

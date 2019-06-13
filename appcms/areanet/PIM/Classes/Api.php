@@ -790,12 +790,18 @@ class Api
 
                 if($fieldOptions['type'] == 'multijoin' && ! empty($fieldOptions['foreign'])){
                     $joinTableName = $fieldOptions['foreign'];
-                    $joinField     = str_replace('_', '', $tableName).'_id';
+                    $joinField     = $fieldOptions['dbfield'];
+
+                    if($entityConfig['settings']['type'] == 'tree'){
+                        $treeTableName = $entityConfig['i18n'] ? 'pim_i18n_tree' : 'pim_tree';
+                    }else{
+                        $treeTableName = $tableName;
+                    }
 
                     $joinQuery  = "
                         SELECT COUNT(*) AS `records` 
                         FROM `$joinTableName` 
-                        INNER JOIN `$tableName`  
+                        INNER JOIN `$treeTableName`  
                         ON $joinField = id";
 
                     $joinQuery .= $tsQuery;
