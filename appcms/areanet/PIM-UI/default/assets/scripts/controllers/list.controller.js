@@ -544,7 +544,7 @@
             vm.itemsPerPage = response.data.itemsPerPage;
           }
 
-          var data  = [];
+          var objectsData  = [];
 
           var treeSort = function(parent, level){
             for(var i in response.data.data){
@@ -552,14 +552,14 @@
                 if(!response.data.data[i].treeParent){
                   response.data.data[i].level =  level;
                   response.data.data[i].filler = '--'.repeat(level);
-                  data.push(response.data.data[i]);
+                  objectsData.push(response.data.data[i]);
                   treeSort(response.data.data[i].id, level + 1);
                 }
               }else{
                 if(response.data.data[i].treeParent && parent == response.data.data[i].treeParent.id){
                   response.data.data[i].level = level;
                   response.data.data[i].filler = '--'.repeat(level);
-                  data.push(response.data.data[i]);
+                  objectsData.push(response.data.data[i]);
                   treeSort(response.data.data[i].id, level + 1);
                 }
               }
@@ -573,13 +573,13 @@
             delete vm.schema.list[1];
             delete vm.schema.list[2];
           }else{
-            data  = response.data.data;
+            objectsData  = response.data.data;
           }
 
           vm.totalItems = response.data.totalItems;
-          vm.objects    = data;
+          vm.objects    = objectsData;
 
-          if(data.currentPage == 0 || (vm.itemsPerPage * data.currentPage) >=  vm.totalItems && data.currentPage == 1 || vm.schema.settings.type == 'tree'){
+          if((data.currentPage == 0 || (vm.itemsPerPage * data.currentPage) >=  vm.totalItems && data.currentPage == 1) || vm.schema.settings.type == 'tree'){
             vm.countLabel = vm.totalItems + (vm.totalItems == 1 ? ' Datensatz' : ' Datensätze');
           }else{
             var end = (vm.itemsPerPage * data.currentPage) > vm.totalItems ? vm.totalItems : (vm.itemsPerPage * data.currentPage);
