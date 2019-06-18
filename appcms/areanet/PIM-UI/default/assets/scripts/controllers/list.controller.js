@@ -391,13 +391,13 @@
         vm.datalistFilter = savedDatalistFilter[vm.entity];
       }
 
-      for (var key in $stateParams) {
+      for (var key in $location.search()) {
         if (key.substr(0, 2) != 'f_') {
           continue;
         }
         var property = key.substr(2);
 
-        vm.filter[property] = $stateParams[key];
+        vm.filter[property] = $location.search()[key];
       }
 
       if(vm.i18n){

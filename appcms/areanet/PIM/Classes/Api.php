@@ -1659,7 +1659,7 @@ class Api
                     break;
             }
         }
-        //die($queryBuilder->getQuery()->getDQL());
+
         $object = $queryBuilder->getQuery()->getSingleResult();
 
         if (!$object) {

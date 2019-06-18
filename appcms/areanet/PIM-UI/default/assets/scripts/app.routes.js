@@ -104,7 +104,7 @@
       },
       controllerProvider: function ($stateParams) {
         if(extendedRoutes['list'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
-         return extendedRoutes['list'][0]['controller'];
+          return extendedRoutes['list'][0]['controller'];
         }else{
           return 'ListCtrl';
         }
@@ -178,13 +178,13 @@
         }
       },
       controllerAs: 'vm',
-        resolve: {
-          pimEntity: function(){return true;},
-          modaltitle: function(){return null;},
-          property: function(){return null;},
-          '$uibModalInstance': function(){return null;},
-          '$extend': function(){return null;}
-        },
+      resolve: {
+        pimEntity: function(){return true;},
+        modaltitle: function(){return null;},
+        property: function(){return null;},
+        '$uibModalInstance': function(){return null;},
+        '$extend': function(){return null;}
+      },
       secure: true
     });
 
@@ -192,15 +192,14 @@
 
     for (var route in uiRoutes){
 
-      var templatePath = uiRoutes[route]['templateName'].substr(0, 8) == '/plugins' ? uiRoutes[route]['templateName'] : '/custom/Frontend/ui/default/views/' + uiRoutes[route]['templateName'];
+      var templatePath   = uiRoutes[route]['templateName'].substr(0, 8) == '/plugins' ? uiRoutes[route]['templateName'] : '/custom/Frontend/ui/default/views/' + uiRoutes[route]['templateName'];
+      var controllerName = uiRoutes[route]['controllerName'];
 
       $stateProvider.state({
         url: route,
-        name: 'custom-' + route,
+        name: 'custom-' + uiRoutes[route]['controllerName'].toLowerCase(),
         templateUrl: templatePath + '?v=' + CUSTOM_VERSION,
-        controllerProvider: function ($stateParams) {
-          return uiRoutes[route]['controllerName'];
-        },
+        controller: controllerName,
         controllerAs: 'vm',
         secure: uiRoutes[route]['secure']
       });
