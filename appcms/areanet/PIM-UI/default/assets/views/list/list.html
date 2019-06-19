@@ -17,7 +17,7 @@
 </div>
 
 
-<ul class="breadcrumb" ng-show="vm.breadcrumb">
+<ul class="breadcrumb" ng-show="vm.breadcrumb && !vm.untranslatedLang">
     <li>Baumstruktur: </li>
     <li ng-repeat="b in vm.breadcrumb">
         <a ng-show="b.value" ng-click="vm.setFilter('treeParent', b.value)">{{b.title}}</a>

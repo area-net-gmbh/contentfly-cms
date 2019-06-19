@@ -418,8 +418,7 @@
       }
 
 
-
-      if(vm.schema.settings.type == 'tree'  && Object.keys(vm.filter).length == 0){
+      if(vm.schema.settings.type == 'tree'  && Object.keys(vm.filter).length == 0 && !vm.untranslatedLang){
         vm.treeResortWatcher = $scope.$watch("vm.objects", function(newValue, oldValue){
           if(newValue != oldValue){
             resortTree();
@@ -512,6 +511,8 @@
             }
           }
         }
+      }else{
+        vm.filter['treeParent'] = -1;
       }
 
       if(vm.schema.settings.isSortable){
@@ -568,7 +569,8 @@
             }
           };
 
-          if(vm.schema.settings.type == 'tree' && Object.keys(vm.filter).length == 0){
+          if(vm.schema.settings.type == 'tree' && Object.keys(vm.filter).length == 0 && !vm.untranslatedLang){
+
             treeSort(null, 0);
             delete vm.schema.list[1];
             delete vm.schema.list[2];
