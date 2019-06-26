@@ -81,6 +81,13 @@ class Helper
         return $entityShortName;
     }
 
+    public function getEntityName($entityName)
+    {
+        $entityNames = explode('\\', $entityName);
+
+        return array_pop($entityNames);
+    }
+
     public function install(EntityManager $em){
         //Admin-Benutzer
         $admin = $em->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => 'admin'));
