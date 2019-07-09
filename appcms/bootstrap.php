@@ -28,14 +28,19 @@ use Symfony\Component\HttpFoundation\Response;
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/ManyToMany.php');
 \Doctrine\Common\Annotations\AnnotationRegistry::registerFile(ROOT_DIR.'/areanet/PIM/Classes/Annotations/MatrixChooser.php');
 
+
+
 if(Config\Adapter::getConfig()->APP_DEBUG){
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL ^E_NOTICE);
 }
 
+
+
 $app = new Application();
 $app->register(new Silex\Provider\SessionServiceProvider());
+
 
 
 $app['is_installed'] = (Config\Adapter::getConfig()->DB_HOST != '$SET_DB_HOST');
@@ -82,6 +87,8 @@ if($app['is_installed']) {
         ),
     ));
 }
+
+
 
 $app->register(new ConsoleServiceProvider(), array(
     'console.name'              => 'PIM',
@@ -212,6 +219,8 @@ if($app['is_installed']) {
     }
 }
 
+
+
 $app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
 
 $app['consoleManager'] = function ($app) {
@@ -263,7 +272,25 @@ if($app['is_installed']) {
 
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 
+if(Config\Adapter::getConfig()->APP_FORCE_SSL && !defined('APPCMS_CONSOLE')){
+    if ( !(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
+            $_SERVER['HTTPS'] == 1) ||
+        isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+        $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'))
+    {
+        $redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        header('HTTP/1.1 301 Moved Permanently');
+        header('Location: ' . $redirect);
+        exit();
+    }
+
+    ini_set('session.cookie_secure', 1);
+    header("Strict-Transport-Security:max-age=63072000");
+}
+
 $app['auth']->init();
+
+
 require_once ROOT_DIR.'/../custom/app.php';
 
 $app['routeManager']->bindRoutes();

@@ -19,21 +19,7 @@ $app['request'] = function()use ($app){
     return $app['request_stack'] ? $app['request_stack']->getCurrentRequest() : null;
 };
 
-if(Config\Adapter::getConfig()->APP_FORCE_SSL){
-    if ( !(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
-            $_SERVER['HTTPS'] == 1) ||
-        isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
-        $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'))
-    {
-        $redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        header('HTTP/1.1 301 Moved Permanently');
-        header('Location: ' . $redirect);
-        exit();
-    }
 
-    ini_set('session.cookie_secure', 1);
-    header("Strict-Transport-Security:max-age=63072000");
-}
 
 header("Content-Security-Policy: ".Config\Adapter::getConfig()->APP_CS_POLICY);
 header("X-Content-Type-Options: nosniff");

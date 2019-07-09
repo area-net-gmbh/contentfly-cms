@@ -79,6 +79,8 @@ class Base extends Serializable
      */
     protected $groups;
 
+
+
     /**
      * @PIM\Config(hide=true)
      */
