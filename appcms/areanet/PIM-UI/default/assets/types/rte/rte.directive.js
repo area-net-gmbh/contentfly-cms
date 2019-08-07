@@ -8,7 +8,7 @@
         .directive('pimRte', pimRte);
 
 
-    function pimRte(localStorageService, $sce, $uibModal){
+    function pimRte(localStorageService, $sce, $uibModal, $state, $rootScope){
         return {
             restrict: 'E',
             scope: {
@@ -17,7 +17,7 @@
             templateUrl: function(){
                 return '/ui/default/types/rte/rte.html?v=' + APP_VERSION
             },
-            link: function(scope, element, attrs){
+            link: function(scope, element, attrs, ){
                 scope.disabled = !parseInt(attrs.writable) || scope.config.readonly;
 
                 //scope.trustedValue = $sce.trustAsHtml(scope.value);
@@ -39,7 +39,23 @@
                     block_formats: 'Absatz=p;Überschrift 1=h1;Überschrift 2=h2;Überschrift 3=h3;Überschrift 4=h4;Überschrift 5=h5;Überschrift 6=h6;Zitat=blockquote;Code=pre',
                     toolbar1: scope.config.rteToolbar,
                     file_picker_callback: function(callback, value, meta) {
-                      //@todo: Bildgröße auswählbar??
+
+                      if(meta.filetype == 'file'){
+                        //TODO: doSelect wird nicht mit übergeben
+
+                        $state.transitionTo('list.select', {entity: 'Kategorie', doSelect: true}, {
+                          location: false,
+                          inherit: true,
+                          relative: $state.$current,
+                          notify: false
+                        });
+
+                        $rootScope.$on('OBJECT_SELECTED', function(evt, data) {
+                          callback('intern://' + data.entity + ':' + data.id);
+                        });
+                      }
+
+
                       if (meta.filetype == 'image') {
 
                         var modalInstance = $uibModal.open({

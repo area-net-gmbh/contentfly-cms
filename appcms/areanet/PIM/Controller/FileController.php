@@ -13,6 +13,7 @@ use Doctrine\ORM\Id\AssignedGenerator;
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -261,6 +262,10 @@ class FileController extends BaseController
 
         if(!$fileObject){
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
+        }
+
+        if($fileObject->getType() == 'link/youtube'){
+            return new RedirectResponse(Config\Adapter::getConfig()->FILE_YOUTUBE_PREVIEW_URI . $fileObject->getName());
         }
 
         $sizeObject = null;

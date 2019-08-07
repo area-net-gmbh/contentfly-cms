@@ -28,7 +28,9 @@
 
         //Functions
         scope.addFile       = addFile;
+        scope.addYoutube    = addYoutube;
         scope.editFile      = editFile;
+        scope.getLabel      = getLabel;
         scope.openFile      = openFile;
         scope.removeFile    = removeFile;
         scope.uploadFile    = uploadFile;
@@ -94,6 +96,50 @@
             }
           }, function () {
           });
+        }
+
+        function addYoutube(){
+          var templateUrl = '/ui/default/views/form.html?v=' + APP_VERSION;
+          var controller  = 'FormCtrl as vm';
+
+          if(extendedRoutes['form']){
+            templateUrl =  extendedRoutes['form'][0]['template'];
+            controller  = extendedRoutes['form'][0]['controller'] + ' as vm';
+          }
+
+          var object = {
+            type: 'link/youtube'
+          };
+
+          var modalInstance = $uibModal.open({
+            templateUrl: templateUrl,
+            controller: controller,
+            resolve: {
+              entity: function(){ return 'PIM\\File';},
+              title: function(){ return 'Youtube-Video hinzufügen'; },
+              object: function(){ return object; },
+              lang: function(){ return null},
+              translateFrom:  function(){ return null},
+              doCopy: false,
+              readonly: false,
+              '$extend': function(){ return null;}
+            },
+            size: 'xl'
+          });
+
+          modalInstance.result.then(
+            function (newObject) {
+              if(newObject){
+                scope.value = newObject;
+                scope.onChangeCallback({key: scope.key, value: newObject.id});
+              }
+            },
+            function () {}
+          );
+        }
+
+        function getLabel(object){
+          return object.title ? object.title : object.name;
         }
 
         function editFile(){

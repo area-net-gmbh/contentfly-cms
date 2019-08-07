@@ -156,14 +156,17 @@ class Api
         //Dateien löschen
         //todo: Löschen von Datein aus API auslagern
         if($entityShortName == 'PIM\\File') {
-            $backend    = Backend::getInstance();
+            if($object->getType() != 'link/youtube'){
+                $backend    = Backend::getInstance();
 
-            $path   = $backend->getPath($object);
-            foreach (new \DirectoryIterator($path) as $fileInfo) {
-                if ($fileInfo->isDot() || !$fileInfo->isFile()) continue;
-                unlink($fileInfo->getPathname());
+                $path   = $backend->getPath($object);
+                foreach (new \DirectoryIterator($path) as $fileInfo) {
+                    if ($fileInfo->isDot() || !$fileInfo->isFile()) continue;
+                    unlink($fileInfo->getPathname());
+                }
+                @rmdir($path);
             }
-            @rmdir($path);
+
         }
 
         //Protokollierung
@@ -250,6 +253,7 @@ class Api
         if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $lang)){
             throw new ContentflyI18NException(Messages::contentfly_i18n_permission_denied, $entityShortName, $lang);
         }
+
 
         $object  = new $entityFullName();
 
@@ -344,7 +348,9 @@ class Api
             $this->em->persist($object);
             $this->em->flush();
 
-            if($schema[$entityShortName]['settings']['isSortable']){
+            /*
+             * @todo: Temporäre Tabellen werden in Doctrine mit falschem Zeichensatz angelegt
+             * if($schema[$entityShortName]['settings']['isSortable']){
                 if($schema[$entityShortName]['settings']['type'] == 'tree') {
                     $parent = $object->getTreeParent();
                     if(!$parent){
@@ -367,6 +373,7 @@ class Api
 
                 $query->execute();
             }
+            */
 
 
             /**

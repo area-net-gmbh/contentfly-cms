@@ -23,6 +23,7 @@
     vm.object = {};
     vm.isLoading = true;
     vm.isSubmit = false;
+
     vm.readonly = readonly;
     vm.fileUploads = {};
     vm.forms = {};
@@ -180,6 +181,11 @@
 
       vm.doSave = true;
 
+      if(entity == 'PIM\\File' && objectDataToSave['type']=='link/youtube'){
+        objectDataToSave['hash'] = objectDataToSave['name'];
+        objectDataToSave['size'] = 0;
+      }
+
       if (!vm.object['id'] || translateFrom) {
 
         var data = {
@@ -187,6 +193,9 @@
           data: objectDataToSave,
           lang: lang
         };
+
+
+
 
         EntityService.insert(data).then(
           function successCallback(response) {
@@ -253,6 +262,7 @@
           data: objectDataToSave
         };
 
+
         EntityService.update(data).then(
           function successCallback(response) {
             vm.doSave = false;
@@ -316,6 +326,38 @@
       }
     }
 
+    function viewStateFor(key, config){
+
+      if(!config.if) return false;
+
+      if(!config.if.property || !config.if.equals) return false;
+
+      var prop = objectDataToSave[config.if.property] ? objectDataToSave[config.if.property] : vm.object[config.if.property];
+
+      if(!prop) return false;
+
+      if(prop.toLowerCase() == config.if.equals.toLowerCase()){
+        vm.schema.properties[key].hide      = config.if.hide;
+        vm.schema.properties[key].readonly  = config.if.readonly;
+        vm.schema.properties[key].label     = config.if.label ? config.if.label : vm.schema.properties[key].org.label;
+      }else{
+        vm.schema.properties[key].readonly  = vm.schema.properties[key].org.readonly;
+        vm.schema.properties[key].hide      = vm.schema.properties[key].org.hide;
+        vm.schema.properties[key].label      = vm.schema.properties[key].org.label;
+      }
+
+
+    }
+
+    function parseViewState(){
+      angular.forEach(vm.schema.properties, function (config, key) {
+
+
+        viewStateFor(key, config);
+
+      });
+    }
+
     function init() {
 
       if (object) {
@@ -351,6 +393,12 @@
       var i18nPermissions = localStorageService.get('i18nPermissions');
 
       angular.forEach(vm.schema.properties, function (config, key) {
+        vm.schema.properties[key].org = {
+          readonly : vm.schema.properties[key].readonly,
+          hide : vm.schema.properties[key].hide,
+          label : vm.schema.properties[key].label
+        };
+
         if (config.type == 'onejoin') {
           vm.schemaOnejoin[config.tab] = schemaComplete[config.tab];
           vm.schemaOnejoin[config.tab].properties.id['hide'] = true;
@@ -369,8 +417,11 @@
         }
 
 
-      });
+        viewStateFor(key, config);
 
+
+
+      });
 
       if (!object || !object.id || !vm.permissions[entity].readable) {
         vm.isLoading = false;
@@ -494,6 +545,9 @@
         }
         objectDataToSave[mainKey][key] = value;
       }
+
+      parseViewState();
+
     }
 
 

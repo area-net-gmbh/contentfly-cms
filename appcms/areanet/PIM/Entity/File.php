@@ -17,6 +17,7 @@ class File extends Base
     /**
      * @ORM\Column(type="string")
      * @PIM\Config(label="Name", readonly=true, showInList=30)
+     * @PIM\ConfigIf(property="type", equals="link/youtube", readonly=false, label="Youtube-ID")
      */
     protected $name;
 
@@ -31,6 +32,7 @@ class File extends Base
     /**
      * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(label="Alias-Name", showInList=40)
+     * @PIM\ConfigIf(property="type", equals="link/youtube", hide=true)
      */
     protected $alias;
 
@@ -43,6 +45,7 @@ class File extends Base
     /**
      * @ORM\Column(type="string", nullable=true)
      * @PIM\Config(label="Alt-Text")
+     * @PIM\ConfigIf(property="type", equals="link/youtube", hide=true)
      */
     protected $altText;
 
@@ -62,24 +65,28 @@ class File extends Base
     /**
      * @ORM\Column(type="string")
      * @PIM\Config(hide=true)
+     *
      */
     protected $hash;
 
     /**
      * @ORM\Column(type="integer")
      * @PIM\Config(label="Dateigröße", readonly=true, showInList=70)
+     * @PIM\ConfigIf(property="type", equals="link/youtube", hide=true)
      */
     protected $size;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @PIM\Config(label="Breite", readonly=true, showInList=80)
+     * @PIM\ConfigIf(property="type", equals="link/youtube", hide=true)
      */
     protected $width;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @PIM\Config(label="Höhe", readonly=true, showInList=90)
+     * @PIM\ConfigIf(property="type", equals="link/youtube", hide=true)
      */
     protected $height;
 

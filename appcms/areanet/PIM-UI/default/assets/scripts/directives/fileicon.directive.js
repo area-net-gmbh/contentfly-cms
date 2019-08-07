@@ -94,6 +94,10 @@
                         element.attr('class', 'fileicon fa fa-file-video-o');
                         element.css('color', '#9f9f9f');
                         break;
+                  case 'link/youtube':
+                    element.attr('class', 'fileicon fileicon fa fa-youtube');
+                    element.css('color', '#9f9f9f');
+                    break;
                     default:
                         element.attr('class', 'fileicon fa fa-file-o');
                         element.css('color', '#D4A190');

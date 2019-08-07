@@ -5,7 +5,7 @@
     .module('app')
     .controller('ListCtrl', ListCtrl);
 
-  function ListCtrl($scope, $rootScope, $cookies, localStorageService, $stateParams, $http, $uibModal, pimEntity, $window, EntityService, $document, $location, FileSaver, Blob, $extend){
+  function ListCtrl($scope, $rootScope, $cookies, localStorageService, $stateParams, $state, $http, $uibModal, pimEntity, $window, EntityService, $document, $location, FileSaver, Blob, $extend){
 
     var vm              = $extend ? $extend : this;
     var oldPageNumber   = 1;
@@ -18,12 +18,13 @@
     vm.objects             = [];
     vm.objectsAvailable    = false;
     vm.objectsNotAvailable = false;
-
+    vm.stateParams          = $stateParams;
     vm.isExporting   = false;
     vm.itemsPerPage  = 0;
     vm.totalItems    = 0;
     vm.currentPage   = 1;
     vm.untranslatedRecords = [];
+
     vm.untranslatedLang    = null;
 
     if(pimEntity){
@@ -116,6 +117,7 @@
     vm.redirect                 = redirect;
     vm.refreshDatalistFilter    = refreshDatalistFilter;
     vm.resetFilter              = resetFilter;
+    vm.selectItem               = selectItem;
     vm.showUntranslatedRecords  = showUntranslatedRecords;
     vm.sortBy                   = sortBy;
     vm.setFilter                = setFilter;
@@ -1117,6 +1119,11 @@
 
       $location.search('untranslatedLang', lang);
       loadData();
+    }
+
+    function selectItem(object){
+      $rootScope.$emit('OBJECT_SELECTED', {entity: vm.entity, id: object.id});
+      $scope.$dismiss({entity: vm.entity, id: object.id});
     }
 
     function sortBy(property) {

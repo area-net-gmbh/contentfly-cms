@@ -195,7 +195,7 @@
         <pim-plugin key="LIST_HEADER_PAGINATION_APPEND" uiblocks="uiblocks"></pim-plugin>
     </div>
  <div class="col-xl-2 alignRight">
-        <button ng-hide="!vm.canInsert || !vm.permissions[vm.entity].writable || vm.schema.settings.readonly"
+        <button ng-hide="vm.doSelect || !vm.canInsert || !vm.permissions[vm.entity].writable || vm.schema.settings.readonly"
                 class="btnInsert btn btn-primary btn-sm" ng-click="vm.openForm()"><span class="glyphicon glyphicon-plus"
                                                                                         aria-hidden="true"></span>
             Objekt anlegen

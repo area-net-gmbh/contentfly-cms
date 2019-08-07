@@ -317,7 +317,10 @@ class Config{
      */
     public $FILE_CACHE_LIFETIME = 604800;
 
-
+    /**
+     * @var string Vorschau-URL für Youtube-Daeien
+     */
+    public $FILE_YOUTUBE_PREVIEW_URI = 'https://www.youtube.com/embed/';
 
     /**
      * @var string ImageMagick-Path

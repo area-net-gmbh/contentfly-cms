@@ -24,7 +24,9 @@
 
         //Functions
         scope.addFile       = addFile;
+        scope.addYoutube    = addYoutube;
         scope.editFile      = editFile;
+        scope.getLabel      = getLabel;
         scope.openFile      = openFile;
         scope.disableObject = disableObject;
         scope.removeFile    = removeFile;
@@ -120,6 +122,50 @@
           );
         }
 
+        function addYoutube(){
+          var templateUrl = '/ui/default/views/form.html?v=' + APP_VERSION;
+          var controller  = 'FormCtrl as vm';
+
+          if(extendedRoutes['form']){
+            templateUrl =  extendedRoutes['form'][0]['template'];
+            controller  = extendedRoutes['form'][0]['controller'] + ' as vm';
+          }
+
+          var object = {
+            type: 'link/youtube'
+          };
+
+          var modalInstance = $uibModal.open({
+            templateUrl: templateUrl,
+            controller: controller,
+            resolve: {
+              entity: function(){ return 'PIM\\File';},
+              title: function(){ return 'Youtube-Video hinzufügen'; },
+              object: function(){ return object; },
+              lang: function(){ return null},
+              translateFrom:  function(){ return null},
+              doCopy: false,
+              readonly: false,
+              '$extend': function(){ return null;}
+            },
+            size: 'xl'
+          });
+
+          modalInstance.result.then(
+            function (newObject) {
+              if(scope.config.mappedBy) {
+                var subObject = {};
+                subObject[scope.config.mappedBy] = newObject;
+                scope.value.push(subObject);
+              }else{
+                scope.value.push(newObject);
+              }
+              triggerUpdate();
+            },
+            function () {}
+          );
+        }
+
         function editFile(index, id, title) {
 
           var templateUrl = '/ui/default/views/form.html?v=' + APP_VERSION;
@@ -190,6 +236,11 @@
             }
           );
 
+        }
+
+
+        function getLabel(object){
+          return object.title ? object.title : object.name;
         }
 
         function openFile(index, id, name) {

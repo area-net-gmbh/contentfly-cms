@@ -143,7 +143,22 @@ abstract class Type
 
         }
 
-        //\Doctrine\ORM\Mapping\Column
+        if(isset($propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\ConfigIf'])) {
+            $annotations = $propertyAnnotations['Areanet\\PIM\\Classes\\Annotations\\ConfigIf'];
+
+            if(!empty($annotations->property) && !empty($annotations->equals)){
+                $schema['if'] = array(
+                    'property' => $annotations->property,
+                    'equals'   => $annotations->equals,
+                    'hide'     => $annotations->hide,
+                    'readonly' => $annotations->readonly,
+                    'label'    => $annotations->label
+                );
+            }
+
+        }
+
+            //\Doctrine\ORM\Mapping\Column
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'])){
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\Column'];
 

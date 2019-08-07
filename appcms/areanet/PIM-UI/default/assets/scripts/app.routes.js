@@ -90,6 +90,25 @@
       resolve: { '$extend': function(){return null;} },
       controllerAs: 'vm'
     });
+    var modal = null;
+
+    $stateProvider.state({
+      url: '/select',
+      name: 'list.select',
+      params: {entity: null, doSelect: true},
+      onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal, $resource) {
+        modal = $uibModal.open({
+          templateUrl: '/ui/default/views/list.html?v=' + APP_VERSION,
+          resolve: { pimEntity: function(){return null;}, '$extend': function(){return null;}, },
+          secure: true,
+          controller: 'ListCtrl',
+          controllerAs: 'vm',
+          windowClass: 'zindex-top'
+        }).result.finally(function() {
+          $state.go('^');
+        });
+      }]
+    });
 
     $stateProvider.state({
       url: '/list/:entity',
