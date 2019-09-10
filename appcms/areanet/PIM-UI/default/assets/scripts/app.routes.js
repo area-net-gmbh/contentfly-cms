@@ -7,14 +7,21 @@
 
   function stateProvider($stateProvider, $urlRouterProvider) {
 
+
+
     $stateProvider.state({
       url: '/',
       name: 'default',
       templateUrl: function ($stateParams){
-        return '/ui/default/views/dashboard.html?v=' + APP_VERSION;
+        if(extendedRoutes['default'] &&  extendedRoutes['default'][0]['template']){
+          return extendedRoutes['default'][0]['template'];
+        }else{
+          return '/ui/default/views/dashboard.html?v=' + APP_VERSION;
+        }
+
       },
       controllerProvider: function ($stateParams) {
-        if(extendedRoutes['default']){
+        if(extendedRoutes['default'] && extendedRoutes['default'][0]['controller']){
           return extendedRoutes['default'][0]['controller'];
         }else{
           return 'DashboardCtrl';
@@ -29,7 +36,7 @@
       url: '/error',
       name: 'error',
       templateUrl: function ($stateParams){
-        if(extendedRoutes['error']){
+        if(extendedRoutes['error'] &&  extendedRoutes['error'][0]['template']){
           return extendedRoutes['error'][0]['template'];
         }else{
           return '/ui/default/views/error.html?v=' + APP_VERSION;
@@ -37,7 +44,7 @@
       },
       controllerProvider: function ($stateParams) {
 
-        if(extendedRoutes['error']){
+        if(extendedRoutes['error'] && extendedRoutes['error'][0]['controller']){
           return extendedRoutes['error'][0]['controller'];
         }else{
           return 'ErrorCtrl';
@@ -51,7 +58,7 @@
       url: '/login',
       name: 'login',
       templateUrl: function ($stateParams){
-        if(extendedRoutes['login']){
+        if(extendedRoutes['login'] &&  extendedRoutes['login'][0]['template']){
           return extendedRoutes['login'][0]['template'];
         }else{
           return '/ui/default/views/login.html?v=' + APP_VERSION;
@@ -59,7 +66,7 @@
       },
       controllerProvider: function ($stateParams) {
 
-        if(extendedRoutes['login']){
+        if(extendedRoutes['login'] && extendedRoutes['login'][0]['controller']){
           return extendedRoutes['login'][0]['controller'];
         }else{
           return 'LoginCtrl';
@@ -73,7 +80,7 @@
       url: '/logout',
       name: 'logout',
       templateUrl: function ($stateParams){
-        if(extendedRoutes['logout']){
+        if(extendedRoutes['logout'] &&  extendedRoutes['logout'][0]['template']){
           return extendedRoutes['logout'][0]['template'];
         }else{
           return '/ui/default/views/login.html?v=' + APP_VERSION;
@@ -81,7 +88,7 @@
       },
       controllerProvider: function ($stateParams) {
 
-        if(extendedRoutes['logout']){
+        if(extendedRoutes['logout'] && extendedRoutes['logout'][0]['controller']){
           return extendedRoutes['logout'][0]['controller'];
         }else{
           return 'LogoutCtrl';
@@ -90,20 +97,41 @@
       resolve: { '$extend': function(){return null;} },
       controllerAs: 'vm'
     });
+    var modal = null;
+
+    $stateProvider.state({
+      url: '/select',
+      name: 'list.select',
+      params: {entity: null, doSelect: true},
+      onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal, $resource) {
+        modal = $uibModal.open({
+          templateUrl: '/ui/default/views/list.html?v=' + APP_VERSION,
+          resolve: { pimEntity: function(){return null;}, '$extend': function(){return null;}, },
+          secure: true,
+          controller: 'ListCtrl',
+          controllerAs: 'vm',
+          windowClass: 'zindex-top',
+          size: 'xl'
+        }).result.finally(function() {
+          $state.go('^');
+        });
+      }]
+    });
 
     $stateProvider.state({
       url: '/list/:entity',
       name: 'list',
       templateUrl: function ($stateParams){
-        if(extendedRoutes['list'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
+        if(extendedRoutes['list'] &&  extendedRoutes['list'][0]['template'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
           return extendedRoutes['list'][0]['template'];
         }else{
           return '/ui/default/views/list.html?v=' + APP_VERSION;
         }
 
       },
-      controllerProvider: function ($stateParams) {
-        if(extendedRoutes['list'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
+      controllerProvider: function ($stateParams, $state) {
+
+        if(extendedRoutes['list'] && extendedRoutes['list'][0]['controller'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
           return extendedRoutes['list'][0]['controller'];
         }else{
           return 'ListCtrl';
@@ -119,7 +147,7 @@
       url: '/list/PIM/:entity',
       name: 'list-pim',
       templateUrl: function ($stateParams){
-        if(extendedRoutes['list-pim'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
+        if(extendedRoutes['list-pim'] &&  extendedRoutes['list-pim'][0]['template'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
           return extendedRoutes['list-pim'][0]['template'];
         }else{
           return '/ui/default/views/list.html?v=' + APP_VERSION;
@@ -127,7 +155,7 @@
       },
       controllerProvider: function ($stateParams) {
 
-        if(extendedRoutes['list-pim'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
+        if(extendedRoutes['list-pim'] && extendedRoutes['list-pim'][0]['controller'] && (!extendedRoutes['list-pim'][0]['stateParams'] || extendedRoutes['list-pim'][0]['stateParams'] && extendedRoutes['list-pim'][0]['stateParams']['entity'] == $stateParams.entity)){
           return extendedRoutes['list-pim'][0]['controller'];
         }else{
           return 'ListCtrl';
@@ -142,14 +170,14 @@
       url: '/settings',
       name: 'settings',
       templateUrl: function ($stateParams){
-        if(extendedRoutes['settings']){
+        if(extendedRoutes['settings'] &&  extendedRoutes['settings'][0]['template']){
           return extendedRoutes['settings'][0]['template'];
         }else{
           return '/ui/default/views/settings.html?v=' + APP_VERSION;
         }
       },
       controllerProvider: function ($stateParams) {
-        if(extendedRoutes['settings']){
+        if(extendedRoutes['settings'] && extendedRoutes['settings'][0]['controller']){
           return extendedRoutes['settings'][0]['controller'];
         }else{
           return 'SettingsCtrl';
@@ -164,14 +192,14 @@
       url: '/files',
       name: 'files',
       templateUrl: function ($stateParams){
-        if(extendedRoutes['files']){
+        if(extendedRoutes['files'] &&  extendedRoutes['files'][0]['template']){
           return extendedRoutes['files'][0]['template'];
         }else{
           return '/ui/default/views/files.html?v=' + APP_VERSION;
         }
       },
       controllerProvider: function ($stateParams) {
-        if(extendedRoutes['files']){
+        if(extendedRoutes['files'] &&  extendedRoutes['files'][0]['controller']){
           return extendedRoutes['files'][0]['controller'];
         }else{
           return 'FilesCtrl';

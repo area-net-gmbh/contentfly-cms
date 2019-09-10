@@ -22,6 +22,7 @@
   function run($rootScope, $location, $cookies, localStorageService, $http, $uibModal, $transitions){
 
 
+
     if ($cookies.get('APPCMS-TOKEN') != null) {
       $http.defaults.headers.common = {
         'APPCMS-TOKEN': $cookies.get('APPCMS-TOKEN')
