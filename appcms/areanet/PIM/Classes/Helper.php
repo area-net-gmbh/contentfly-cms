@@ -103,7 +103,7 @@ class Helper
 
         if(isset($newData['users']) && $currentObject->getUsers(true)){
             $usersOldArr    = explode(',', $currentObject->getUsers(true));
-            $usersNewArr    = explode(',', $newData['users']);
+            $usersNewArr    = is_array($newData['users']) ? $newData['users'] : explode(',', $newData['users']);
 
             $usersToRemove  = array_diff($usersOldArr, $usersNewArr);
             $usersRemoved   = array_merge($usersRemoved, $usersToRemove);
