@@ -67,6 +67,7 @@ class FileType extends Type
         $subobject  = $object->$getterName();
 
         if(!$subobject){
+
             return;
         }
 

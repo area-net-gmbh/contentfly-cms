@@ -495,6 +495,8 @@ class Api
             }
         }
 
+        $usersRemoved   = $helper->getUsersRemoved($object, $data);
+
         foreach($data as $property => $value){
             if($property == 'modified' || $property == 'created') continue;
 
@@ -577,6 +579,30 @@ class Api
             }
 
             $this->em->persist($log);
+
+            foreach($usersRemoved as $userRemoved){
+                $logUsrDel = new Log();
+
+                $logUsrDel->setModelId($object->getId());
+                $logUsrDel->setModelName(ucfirst($entityShortName));
+                $logUsrDel->setUserCreated($this->app['auth.user']);
+                $logUsrDel->setUsers($userRemoved);
+                $logUsrDel->setMode(Log::USERDEL);
+
+                if ($schema[$entityShortName]['settings']['labelProperty']) {
+                    try {
+                        $labelGetter = 'get' . ucfirst($schema[$entityShortName]['settings']['labelProperty']);
+                        $label = $object->$labelGetter();
+                        $logUsrDel->setModelLabel($label);
+                    }catch(\Exception $e){
+
+                    }
+
+                }
+
+                $this->em->persist($logUsrDel);
+            }
+
             $this->em->flush();
         }
 
@@ -731,7 +757,7 @@ class Api
 
             $tableName = $entityConfig['settings']['dbname'];
 
-            $query = "SELECT COUNT(*) AS `records` FROM `$tableName`";
+            $query = "SELECT 1  FROM `$tableName`";
 
             if($entityConfig['settings']['type'] == 'tree'){
                 $treeTableName = $entityConfig['i18n'] ? 'pim_i18n_tree' : 'pim_tree';
@@ -770,21 +796,21 @@ class Api
 
             $query .= $tsQuery;
 
-            $entityCount        = $this->app['database']->fetchColumn($query, $params, 0);
+            $entityCount        = $this->app['database']->executeQuery($query, $params)->rowCount();
             $data['dataCount'] += $entityCount;
             $details[$entityName] = $entityCount;
             foreach($entityConfig['properties'] as $field => $fieldOptions){
                 if($fieldOptions['type'] == 'multifile'){
                     $joinTableName = $fieldOptions['foreign'] ? $fieldOptions['foreign'] :  $tableName + "_" + $field;
                     $joinQuery  = "
-                        SELECT COUNT(*) AS `records` 
+                        SELECT 1  
                         FROM `$joinTableName` 
                         INNER JOIN `pim_file`  
                         ON file_id = id";
 
                     $joinQuery .= $tsQuery;
 
-                    $joinEntityCount    = $this->app['database']->fetchColumn($joinQuery, $params, 0);
+                    $joinEntityCount    = $this->app['database']->executeQuery($query, $params)->rowCount();
                     $data['dataCount'] += $joinEntityCount;
                 }
 
@@ -799,14 +825,14 @@ class Api
                     }
 
                     $joinQuery  = "
-                        SELECT COUNT(*) AS `records` 
+                        SELECT 1
                         FROM `$joinTableName` 
                         INNER JOIN `$treeTableName`  
                         ON $joinField = id";
 
                     $joinQuery .= $tsQuery;
 
-                    $joinEntityCount    = $this->app['database']->fetchColumn($joinQuery, $params, 0);
+                    $joinEntityCount    = $this->app['database']->executeQuery($query, $params)->rowCount();
 
                     $data['dataCount'] += $joinEntityCount;
                 }
@@ -852,9 +878,9 @@ class Api
                 continue;
             }
 
-            $query = "SELECT model_name, model_id FROM `pim_log` WHERE model_name = ? AND mode = 'DEL'";
+            $query = "SELECT model_name, model_id FROM `pim_log` WHERE model_name = ? AND (mode = 'DEL' OR (mode = 'USERDEL' AND users = ?))";
 
-            $params  = array($entityName);
+            $params  = array($entityName, $this->app['auth.user']->getId());
             $tsQuery = "";
             if($lastMofified){
                 if(is_array($lastMofified)){
@@ -1243,8 +1269,8 @@ class Api
         foreach ($schema[$entityShortName]['properties'] as $field => $config) {
             if (count($properties) && !in_array($field, $properties)) continue;
 
-            if($config['type'] == 'join'){
-                $joinedShortEntity = $helper->getShortEntityName($config['accept']);
+            if($config['type'] == 'join' || $config['type'] == 'file'){
+                $joinedShortEntity = $config['type'] == 'file' ? 'PIM\\File' : $helper->getShortEntityName($config['accept']);
 
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
                     $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "a_$field.lang = :lang");
