@@ -211,22 +211,6 @@ class Api
         $this->em->remove($object);
         $this->em->flush();
 
-        //Sortierung anpassen
-        if($schema[$entityShortName]['settings']['isSortable']){
-            $oldPos = $object->getSorting();
-            if($schema[$entityShortName]['settings']['type'] == 'tree') {
-                if(!$parent){
-                    $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
-                }else{
-                    $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
-                }
-            }else{
-                $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0");
-            }
-            $query->execute();
-        }
-
-        $this->em->flush();
 
         return $object;
     }
@@ -343,31 +327,6 @@ class Api
         try {
             $this->em->persist($object);
             $this->em->flush();
-
-            if($schema[$entityShortName]['settings']['isSortable']){
-                if($schema[$entityShortName]['settings']['type'] == 'tree') {
-                    $parent = $object->getTreeParent();
-                    if(!$parent){
-                        $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.treeParent IS NULL");
-                    }else {
-                        $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.treeParent = '".$parent->getId()."'");
-                    }
-                }elseif($schema[$entityShortName]['settings']['sortRestrictTo']) {
-                    $restrictToProperty = $schema[$entityShortName]['settings']['sortRestrictTo'];
-                    $getter             = 'get'.ucfirst($restrictToProperty);
-                    $restrictToObject   = $object->$getter();
-                    if(!$restrictToObject){
-                        $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty IS NULL");
-                    }else{
-                        $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty = '".$restrictToObject->getId()."'");
-                    }
-                }else{
-                    $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1");
-                }
-
-                $query->execute();
-            }
-
 
             /**
              * Log insert actions
@@ -1393,8 +1352,10 @@ class Api
         $entities[] = "PIM\\Option";
         $entities[] = "PIM\\OptionGroup";
 
-        $data     = array();
-        $helper   = new Helper();
+        $data           = array();
+        $helper         = new Helper();
+        $permissions    = array();
+
         foreach($entities as $entity){
 
             $className = $helper->getFullEntityName($entity);
@@ -1406,6 +1367,14 @@ class Api
             $defaultValues = $reflect->getDefaultProperties();
 
             $annotationReader = new AnnotationReader();
+
+            $permissions[$entityName] = array(
+                'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
+                'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
+                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName),
+                'export'    => Permission::canExport($this->app['auth.user'], $entityName),
+                'extended'  => Permission::getExtended($this->app['auth.user'], $entityName)
+            );
 
             $i18n = false;
             if($object instanceof BaseI18n){
@@ -1566,7 +1535,7 @@ class Api
             );
         }
 
-        $data['_hash'] = md5(serialize($data));
+        $data['_hash'] = md5(serialize($data).serialize($permissions));
 
         if(Adapter::getConfig()->APP_ENABLE_SCHEMA_CACHE){
 
