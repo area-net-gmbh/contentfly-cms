@@ -270,7 +270,7 @@ class Api
                 }
             }
 
-            if($property == 'id'){
+            if($property == 'id' && !empty($value)){
                 $metadata = $this->em->getClassMetaData(get_class($object));
                 $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
                 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
@@ -1369,11 +1369,11 @@ class Api
             $annotationReader = new AnnotationReader();
 
             $permissions[$entityName] = array(
-                'readable'  => Permission::isReadable($this->app['auth.user'], $entityName),
-                'writable'  => Permission::isWritable($this->app['auth.user'], $entityName),
-                'deletable' => Permission::isDeletable($this->app['auth.user'], $entityName),
-                'export'    => Permission::canExport($this->app['auth.user'], $entityName),
-                'extended'  => Permission::getExtended($this->app['auth.user'], $entityName)
+                'readable'  => $this->app['auth.user'] ? Permission::isReadable($this->app['auth.user'], $entityName) : 0,
+                'writable'  => $this->app['auth.user'] ? Permission::isWritable($this->app['auth.user'], $entityName) : 0,
+                'deletable' => $this->app['auth.user'] ? Permission::isDeletable($this->app['auth.user'], $entityName) : 0,
+                'export'    => $this->app['auth.user'] ? Permission::canExport($this->app['auth.user'], $entityName) : 0,
+                'extended'  => $this->app['auth.user'] ? Permission::getExtended($this->app['auth.user'], $entityName) : 0
             );
 
             $i18n = false;

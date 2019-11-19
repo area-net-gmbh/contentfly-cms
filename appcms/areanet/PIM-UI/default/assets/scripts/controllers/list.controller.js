@@ -548,6 +548,8 @@
           var objectsData  = [];
 
           var treeSort = function(parent, level){
+            if(!response.data.data[i].id) continue;
+
             for(var i in response.data.data){
               if(!parent){
                 if(!response.data.data[i].treeParent){
