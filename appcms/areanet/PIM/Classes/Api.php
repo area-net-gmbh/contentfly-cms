@@ -1913,6 +1913,15 @@ class Api
                                 $entityAlias        = $join[2];
                                 $entityShortName    = $helper->getShortEntityName($entityName);
 
+                                if(!isset($schema[$entityShortName])) {
+                                    foreach($schema as $entityNameFromSchema => $entityConfig){
+                                        if(strtolower($entityConfig['settings']['dbname']) == strtolower($entityName)){
+                                            $entityShortName = $entityNameFromSchema;
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 if(isset($schema[$entityShortName])) {
 
                                     if (!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($entityName)))) {
@@ -1963,8 +1972,16 @@ class Api
                             //$queryParams  = entityAlias
                             $entityShortName = $helper->getShortEntityName($queryKey);
 
-                            if(isset($schema[$entityShortName])) {
+                            if(!isset($schema[$entityShortName])) {
+                                foreach($schema as $entityNameFromSchema => $entityConfig){
+                                    if(strtolower($entityConfig['settings']['dbname']) == strtolower($queryKey)){
+                                        $entityShortName = $entityNameFromSchema;
+                                        break;
+                                    }
+                                }
+                            }
 
+                            if(isset($schema[$entityShortName])) {
                                 if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
                                     throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                 }
@@ -2018,6 +2035,15 @@ class Api
                     //array('from' => 'entity')
                     if($method == 'from'){
                         $entityShortName = $helper->getShortEntityName($params);
+
+                        if(!isset($schema[$entityShortName])) {
+                            foreach($schema as $entityNameFromSchema => $entityConfig){
+                                if(strtolower($entityConfig['settings']['dbname']) == strtolower($params)){
+                                    $entityShortName = $entityNameFromSchema;
+                                    break;
+                                }
+                            }
+                        }
 
                         if(isset($schema[$entityShortName])) {
 
