@@ -1915,6 +1915,8 @@ class Api
 
                                 if(!isset($schema[$entityShortName])) {
                                     foreach($schema as $entityNameFromSchema => $entityConfig){
+                                        if($entityNameFromSchema == '_hash') continue;
+
                                         if(strtolower($entityConfig['settings']['dbname']) == strtolower($entityName)){
                                             $entityShortName = $entityNameFromSchema;
                                             break;
@@ -1974,6 +1976,8 @@ class Api
 
                             if(!isset($schema[$entityShortName])) {
                                 foreach($schema as $entityNameFromSchema => $entityConfig){
+                                    if($entityNameFromSchema == '_hash') continue;
+
                                     if(strtolower($entityConfig['settings']['dbname']) == strtolower($queryKey)){
                                         $entityShortName = $entityNameFromSchema;
                                         break;
@@ -2038,6 +2042,7 @@ class Api
 
                         if(!isset($schema[$entityShortName])) {
                             foreach($schema as $entityNameFromSchema => $entityConfig){
+                                if($entityNameFromSchema == '_hash') continue;
                                 if(strtolower($entityConfig['settings']['dbname']) == strtolower($params)){
                                     $entityShortName = $entityNameFromSchema;
                                     break;
