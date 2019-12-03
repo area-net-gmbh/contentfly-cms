@@ -1926,12 +1926,12 @@ class Api
 
                                 if(isset($schema[$entityShortName])) {
 
-                                    if (!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($entityName)))) {
+                                    if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
                                         throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                     }
 
                                     if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
-                                        $queryBuilder->andWhere("$entityAlias.userCreated = ? OR FIND_IN_SET(?, $entityAlias.users) > 0");
+                                        $queryBuilder->andWhere("$entityAlias.usercreated_id = ? OR FIND_IN_SET(?, $entityAlias.users) > 0");
                                         $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                         $paramCount++;
                                         $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
