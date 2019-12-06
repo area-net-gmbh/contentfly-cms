@@ -87,6 +87,7 @@ abstract class Type
             'sortable' => false,
             'default' => $defaultValue,
             'isFilterable' => false,
+            'isSidebar' => false,
             'unique' => false,
             'encoded' => false
         );
@@ -119,6 +120,10 @@ abstract class Type
 
             if($annotations->isDatalist){
                 $schema['isDatalist'] = $annotations->isDatalist;
+            }
+
+            if($annotations->isSidebar){
+                $schema['isSidebar'] = $annotations->isSidebar;
             }
 
             if($annotations->listShorten){

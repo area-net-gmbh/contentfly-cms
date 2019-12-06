@@ -21,7 +21,7 @@
     <li>Baumstruktur: </li>
     <li ng-repeat="b in vm.breadcrumb">
         <a ng-show="b.value" ng-click="vm.setFilter('treeParent', b.value)">{{b.title}}</a>
-        <a ng-hide="b.value" ng-click="vm.resetFilter()">{{b.title}}</a>
+        <a ng-hide="b.value" ng-click="vm.resetTree()">{{b.title}}</a>
     </li>
 </ul>
 <div class="form-loading" ng-hide="vm.objectsAvailable || vm.objectsNotAvailable">

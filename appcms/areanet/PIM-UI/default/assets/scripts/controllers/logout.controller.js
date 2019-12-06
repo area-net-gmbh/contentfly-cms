@@ -16,6 +16,7 @@
         localStorageService.remove('i18nPermissions');
         localStorageService.remove('savedFilter');
         localStorageService.remove('uiblocks');
+        localStorageService.remove('treeState');
         localStorageService.clearAll();
 
         $cookies.remove('APPCMS-TOKEN');

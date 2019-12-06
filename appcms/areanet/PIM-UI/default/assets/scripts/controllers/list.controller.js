@@ -101,6 +101,9 @@
     vm.filterIsOpen     = false;
     vm.filterBadge      = 0;
     vm.filterJoins      = {};
+    vm.filterTrees      = {};
+    vm.filterSidebar    = null;
+    vm.treeOpened       = {};
     vm.treeResortWatcher=null;
 
     //Functions
@@ -110,16 +113,20 @@
     vm.delete                   = doDelete;
     vm.executeFilter            = executeFilter;
     vm.exportData               = exportData;
+    vm.filterSelect             = filterSelect;
+    vm.filterTreeLabel          = filterTreeLabel;
     vm.handleTreeClick          = handleTreeClick;
     vm.openForm                 = openForm;
     vm.paginationChanged        = paginationChanged;
     vm.redirect                 = redirect;
     vm.refreshDatalistFilter    = refreshDatalistFilter;
     vm.resetFilter              = resetFilter;
+    vm.resetTree                = resetTree;
     vm.showUntranslatedRecords  = showUntranslatedRecords;
     vm.sortBy                   = sortBy;
     vm.setFilter                = setFilter;
     vm.toggleFilter             = toggleFilter;
+    vm.toggleTreeFilter         = toggleTreeFilter;
 
     //Startup
     init();
@@ -136,6 +143,8 @@
     function calcFilterBadge(){
       var badgeCount = 0;
       for (var key in vm.filter) {
+        if(key == 'treeParent') continue;
+
         if(vm.filter[key]){
           badgeCount++;
         }
@@ -371,6 +380,54 @@
       );
     }
 
+    function filterSelect(key, item){
+      vm.filter[key] = item.id;
+      vm.executeFilter();
+    }
+
+    function filterTreeLabel(entity, key){
+
+      if(!vm.filter[key]){
+        return 'Alle anzeigen';
+      }
+
+      if(vm.filter[key] == -1){
+        return 'Ohne Zuordnung';
+      }
+
+      entity = $rootScope.getShortEntityName(entity);
+
+      var entityConfig  = localStorageService.get('schema')[entity];
+      var labelProperty = entityConfig.settings.labelProperty ? entityConfig.settings.labelProperty : entityConfig.list[0];
+      var value         = vm.filter[key];
+
+      if(!value){
+        return 'Bitte auswählen...';
+      }
+
+      var label = filterTreeLabelFinder(labelProperty, key, vm.filterJoins[key], value);
+      return label;
+    }
+
+    function filterTreeLabelFinder(labelProperty, key, items, value){
+
+      for(var index in items){
+        var item = items[index];
+
+        if(item.id == value){
+          return item[labelProperty];
+        }
+
+        if(item.childs && item.childs.length > 0){
+          var foundedItem = filterTreeLabelFinder(labelProperty, key, item.childs, value);
+
+          if(foundedItem){
+            return foundedItem;
+          }
+        }
+      }
+    }
+
     function handleTreeClick(object){
       if(vm.schema.settings.type != 'tree'){
         return;
@@ -548,7 +605,7 @@
           var objectsData  = [];
 
           var treeSort = function(parent, level){
-            if(!response.data.data[i].id) return;
+
 
             for(var i in response.data.data){
               if(!parent){
@@ -571,11 +628,16 @@
             }
           };
 
+
+          if(vm.schema.settings.type == 'tree'){
+            delete vm.schema.list[1];
+            delete vm.schema.list[2];
+          }
+
           if(vm.schema.settings.type == 'tree' && Object.keys(vm.filter).length == 0 && !vm.untranslatedLang){
 
             treeSort(null, 0);
-            delete vm.schema.list[1];
-            delete vm.schema.list[2];
+            ;
           }else{
             objectsData  = response.data.data;
           }
@@ -650,7 +712,11 @@
     function generateBreadcrumb(){
       var joinSchema = localStorageService.get('schema')[vm.entity];
 
-      vm.breadcrumb = [{title: 'Alle Ebenen', value: null}, {title: '1.Ebene', value: -1}];
+      if(!vm.filterJoins['treeParent']){
+        return;
+      }
+
+      vm.breadcrumb = [{title: 'Alle Ebenen', value: null}, {title: 'Hauptebene', value: -1}];
 
       var data = [];
       var find = function(id){
@@ -695,32 +761,37 @@
             continue;
           }
 
-          var joinSchema = localStorageService.get('schema')[entity];
+          var joinSchema   = localStorageService.get('schema')[entity];
+          var entityConfig = localStorageService.get('schema')[entity];
 
-          if (localStorageService.get('schema')[entity].settings.type == 'tree') {
+          if (entityConfig.settings.type == 'tree') {
 
-            var properties = ['id'];
-            if (joinSchema.settings.isSortable) {
-              properties.push('sorting');
-            }
-            for (var key2 in joinSchema.list) {
-              properties.push(joinSchema.list[key2]);
-            }
 
             var filterData = {
               entity: entity,
-              properties: properties,
               lang: vm.currentLang
             };
 
-            EntityService.tree(filterData).then(
-              (function (entity, key) {
+            vm.filterTrees[key] = true;
+
+            EntityService.tree2(filterData).then(
+              (function (entity, key, entityConfig) {
                 return function (response) {
-                  generateTree(entity, key, response.data.data, 0);
+                  vm.filterJoins[key] = response.data.data;
+
+                  if(vm.schema.properties[key].isSidebar){
+                    vm.filterSidebar = {
+                      key: key,
+                      entity: entity,
+                      items: response.data.data
+                    }
+
+                  }
+
                   if(entity = vm.entity) generateBreadcrumb();
 
                 }
-              })(entity, key),
+              })(entity, key, entityConfig),
               function errorCallback(response) {
               }
             );
@@ -927,6 +998,10 @@
       );
     }
 
+    function toggleTreeFilter(key){
+      vm.treeOpened[key] = vm.treeOpened[key] ? false : true;
+    }
+
     function openForm(object, index, readonly, copy, defaultVals){
 
       if(vm.schema.settings.readonly && vm.schema.settings.viewMode != 1){
@@ -1101,8 +1176,22 @@
       generateBreadcrumb();
     }
 
+    function resetTree(){
+        delete vm.filter['treeParent'];
+
+      loadData();
+      generateBreadcrumb();
+    }
+
     function resetFilter() {
-      vm.filter = {};
+      if(vm.filter['treeParent']){
+        var temp = vm.filter['treeParent'];
+        vm.filter = {};
+        vm.filter['treeParent'] = temp;
+      }else{
+        vm.filter = {};
+      }
+
       vm.filterBadge = 0;
       vm.filterIsOpen = false;
       vm.datalistFilter = {};

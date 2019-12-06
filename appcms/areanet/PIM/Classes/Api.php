@@ -1864,6 +1864,91 @@ class Api
         return $array;
     }
 
+    public function getTree2($entityName, $lang = null){
+        $helper             = new Helper();
+        $schema             = $this->app['schema'];
+
+        $entityFullName     = $helper->getFullEntityName($entityName);
+        $entityShortName    = $helper->getShortEntityName($entityName);
+
+        if(!isset($schema[$entityShortName])){
+            throw new ContentflyException(Messages::contentfly_general_unknown_entity, $entityShortName, Messages::contentfly_status_not_found);
+        }
+
+        $i18n       = $schema[$entityShortName]['settings']['i18n'];
+        $tblName    = $schema[$entityShortName]['settings']['dbname'];
+        $dbFields   = array();
+
+        foreach($schema[$entityShortName]['list'] as $propName){
+            $propConfig = $schema[$entityShortName]['properties'][$propName];
+
+            switch($propConfig['type']){
+                case 'multijoin':
+                case 'multifile':
+                    continue;
+                case 'file':
+                case 'join':
+                    $fieldName = $propConfig['dbfield'] ? $propConfig['dbfield'] : $propName.'_id';
+                    $dbFields[$fieldName] = array('propName' => $propName, 'propType' => $propConfig['type']);
+                    break;
+                default:
+                    $dbFields[$propName] = array('propName' => $propName, 'propType' => $propConfig['type']);
+                    break;
+            }
+        }
+
+
+        unset($dbFields['id']);
+        unset($dbFields['sorting']);
+        unset($dbFields['parent_id']);
+
+        $statement = "
+            SELECT t.id, ".implode(',', array_keys($dbFields)).", t.sorting, t.parent_id 
+            FROM $tblName e 
+            INNER JOIN pim_tree t 
+              on e.id = t.id 
+            ORDER BY t.parent_id, t.sorting ";
+
+        $records = $this->app['database']->fetchAll($statement);
+
+        $tree = $this->treeSort($records, $dbFields, null);
+
+        return $tree;
+    }
+
+    private function treeSort($records, $dbFields, $parent_id){
+
+        $items = array_filter($records, function($record) use ($parent_id) { return $parent_id ? $record['parent_id'] == $parent_id : empty($record['parent_id']); });
+
+        $tree = array();
+
+        foreach($items as $item){
+
+            foreach($item as $dbField => $value){
+                $dbConfig = $dbFields[$dbField];
+                switch($dbConfig['propType']){
+                    case 'join':
+                    case 'file':
+                        $item[$dbConfig['propName']] = array('id' => $item[$dbField]);
+                        unset($item[$dbField]);
+                        break;
+                    case 'integer':
+                        $item[$dbField] = intval($item[$dbField]);
+                        break;
+                }
+            }
+
+            $item['parent'] = array('id' => $item['parent_id']);
+            unset($item['parent_id']);
+            $item['sorting'] = intval($item['sorting']);
+            $item['childs'] = $this->treeSort($records, $dbFields, $item['id']);
+
+            $tree[]         = $item;
+        }
+
+        return $tree;
+    }
+
     public function getQuery(Array $params){
 
         $helper         = new Helper();

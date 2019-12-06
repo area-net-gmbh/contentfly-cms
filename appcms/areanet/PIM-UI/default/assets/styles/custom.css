@@ -60,6 +60,75 @@
 }
 
 
+
+.filter-tree{
+    display: inline-block;
+    width:400px;
+}
+
+.filter-tree-items{
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    border: 1px solid
+    rgba(0,0,0,.15);
+    border-radius: 4px;
+    width:100%;
+}
+
+.filter-tree .btn{
+    position:relative;
+    margin-top:0 !important;
+}
+
+.filter-tree .btn .caret{
+    position: absolute;
+    height: 10px;
+    top: 50%;
+    right: 10px;
+    margin-top: -2px;
+    margin-left:15px;
+}
+
+.filter-tree .btn span{
+    margin-right: 10px;
+}
+
+.tree ul{
+    list-style: none;
+    margin:0 !important;
+    padding:0 !important;
+}
+
+.tree ul li{
+
+}
+
+.tree ul li span.hover{
+    cursor: pointer;
+    display:block;
+    padding-left:10px;
+    line-height: 28px;
+}
+
+.tree ul li span.hover:hover{
+    background-color:#F5F5F5;
+}
+
+.tree ul ul{
+    margin-left:18px !important;
+}
+
+.tree .test{
+    width:20px;
+    height:20px;
+    background-color:#CCCCCC;
+}
+
+.tree .selected{
+    font-weight: bold;
+}
+
+
+
 .clear{
     height:1px;
     line-height: 1px;
@@ -389,8 +458,13 @@ p.show, p.show *{
     width:500px;
 }
 
-.header{
-    margin-bottom:25px;
+.sidebar{
+    background-color:#EAEDF2;
+    padding-bottom:60px;
+}
+
+.row > div{
+    padding-top:20px;
 }
 
 .header h2{
@@ -643,6 +717,7 @@ li.grid:hover .image-edit{
 
 .btn-sorting, .btn-filter, .pagination{
     float:left;
+
 }
 
 .btn-sorting, .btn-filter{
@@ -651,11 +726,13 @@ li.grid:hover .image-edit{
 
 .btn-filter .dropdown-menu{
     width:640px;
+    padding-top:20px;
 }
 
 .btn-filter label{
     width:200px;
     display:inline-block;
+    float:left;
 }
 
 
@@ -987,6 +1064,10 @@ ul.ui-select-choices{
 
     #pim-content{
         left:34px;
+    }
+
+    .sidebar{
+        display:none;
     }
 }
 

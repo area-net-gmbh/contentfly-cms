@@ -57,8 +57,38 @@ class Image implements ProcessingInterface
             throw new \Exception("GDLib-Funktion $loadMethodName nicht auf dem Server verfügbar.");
         }
 
-        $imgName  = $backend->getPath($fileObject).'/'.$fileObject->getName();
-        $img      = $loadMethodName($imgName);
+        $imgName = $backend->getPath($fileObject).'/'.$fileObject->getName();
+        $img     = null;
+
+        if($type == 'jpeg' && function_exists("exif_read_data")){
+
+            $exif = exif_read_data($img);
+
+            if(!empty($exif['Orientation'])) {
+                switch($exif['Orientation']) {
+                    case 8:
+                        $img0 = $loadMethodName($imgName);
+                        $img  = imagerotate($img0,90,0);
+                        imagedestroy($img0);
+                        break;
+                    case 3:
+                        $img0 = $loadMethodName($imgName);
+                        $img  = imagerotate($img0,180,0);
+                        imagedestroy($img0);
+                        break;
+                    case 6:
+                        $img0 = $loadMethodName($imgName);
+                        $img  = imagerotate($img0,-90,0);
+                        imagedestroy($img0);
+                        break;
+                    default:
+                        $img = $loadMethodName($imgName);
+                        break;
+                }
+            }
+        }else{
+            $img = $loadMethodName($imgName);
+        }
 
         if($fileObject->getType() == 'image/png') {
             imagealphablending($img, false);

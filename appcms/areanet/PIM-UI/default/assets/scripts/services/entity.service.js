@@ -16,7 +16,8 @@
             multiupdate: multiupdate,
             single: single,
             translations: translations,
-            tree: tree
+            tree: tree,
+            tree2: tree2
         };
 
 
@@ -99,6 +100,14 @@
             data: data
           });
         }
+
+      function tree2(data){
+        return $http({
+          method: 'POST',
+          url: '/api/tree2',
+          data: data
+        });
+      }
         
         
     }
