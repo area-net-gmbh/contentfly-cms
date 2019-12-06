@@ -15,6 +15,7 @@ class Log extends Base
     const DELETED   = 'DEL';
     const INSERTED  = 'INS';
     const UPDATED   = 'UPT';
+    const USERDEL   = 'USERDEL';
 
     /**
      * @ORM\Column(type=APPCMS_ID_TYPE)
@@ -50,10 +51,17 @@ class Log extends Base
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
-     * @PIM\Config(showInList=50, label="Aktion")
-     * @PIM\Select(options="UPT=Geändert, DEL=Gelöscht, INS=Erstellt")
+     * @PIM\Config(showInList=50, label="Aktion", isFilterable=true)
+     * @PIM\Select(options="UPT=Geändert, DEL=Gelöscht, INS=Erstellt, USERDEL=Gelöscht für")
      */
     protected $mode;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @PIM\Virtualjoin(targetEntity="Areanet\PIM\Entity\User")
+     * @PIM\Config(label="Benutzer", showInList = 55, tab="settings")
+     */
+    protected $users;
 
     /**
      * @var \DateTime

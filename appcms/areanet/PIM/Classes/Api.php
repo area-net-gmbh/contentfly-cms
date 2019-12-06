@@ -214,23 +214,6 @@ class Api
         $this->em->remove($object);
         $this->em->flush();
 
-        //Sortierung anpassen
-        if($schema[$entityShortName]['settings']['isSortable']){
-            $oldPos = $object->getSorting();
-            if($schema[$entityShortName]['settings']['type'] == 'tree') {
-                if(!$parent){
-                    $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent IS NULL");
-                }else{
-                    $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0 AND e.treeParent = '".$parent->getId()."'");
-                }
-            }else{
-                $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting - 1 WHERE e.sorting > $oldPos AND e.sorting > 0");
-            }
-            $query->execute();
-        }
-
-        $this->em->flush();
-
         return $object;
     }
 
@@ -253,7 +236,6 @@ class Api
         if(I18nPermission::isOnlyReadable($this->app, $entityShortName, $lang)){
             throw new ContentflyI18NException(Messages::contentfly_i18n_permission_denied, $entityShortName, $lang);
         }
-
 
         $object  = new $entityFullName();
 
@@ -290,7 +272,7 @@ class Api
                 }
             }
 
-            if($property == 'id'){
+            if($property == 'id' && !empty($value)){
                 $metadata = $this->em->getClassMetaData(get_class($object));
                 $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
                 if(Config\Adapter::getConfig()->DB_GUID_STRATEGY) $metadata->setIdGenerator(new AssignedGenerator());
@@ -347,34 +329,6 @@ class Api
         try {
             $this->em->persist($object);
             $this->em->flush();
-
-            /*
-             * @todo: Temporäre Tabellen werden in Doctrine mit falschem Zeichensatz angelegt
-             * if($schema[$entityShortName]['settings']['isSortable']){
-                if($schema[$entityShortName]['settings']['type'] == 'tree') {
-                    $parent = $object->getTreeParent();
-                    if(!$parent){
-                        $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.treeParent IS NULL");
-                    }else {
-                        $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.treeParent = '".$parent->getId()."'");
-                    }
-                }elseif($schema[$entityShortName]['settings']['sortRestrictTo']) {
-                    $restrictToProperty = $schema[$entityShortName]['settings']['sortRestrictTo'];
-                    $getter             = 'get'.ucfirst($restrictToProperty);
-                    $restrictToObject   = $object->$getter();
-                    if(!$restrictToObject){
-                        $query  = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty IS NULL");
-                    }else{
-                        $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1 WHERE e.$restrictToProperty = '".$restrictToObject->getId()."'");
-                    }
-                }else{
-                    $query = $this->em->createQuery("UPDATE $entityFullName e SET e.sorting = e.sorting + 1");
-                }
-
-                $query->execute();
-            }
-            */
-
 
             /**
              * Log insert actions
@@ -502,6 +456,8 @@ class Api
             }
         }
 
+        $usersRemoved   = $helper->getUsersRemoved($object, $data);
+
         foreach($data as $property => $value){
             if($property == 'modified' || $property == 'created') continue;
 
@@ -584,6 +540,30 @@ class Api
             }
 
             $this->em->persist($log);
+
+            foreach($usersRemoved as $userRemoved){
+                $logUsrDel = new Log();
+
+                $logUsrDel->setModelId($object->getId());
+                $logUsrDel->setModelName(ucfirst($entityShortName));
+                $logUsrDel->setUserCreated($this->app['auth.user']);
+                $logUsrDel->setUsers($userRemoved);
+                $logUsrDel->setMode(Log::USERDEL);
+
+                if ($schema[$entityShortName]['settings']['labelProperty']) {
+                    try {
+                        $labelGetter = 'get' . ucfirst($schema[$entityShortName]['settings']['labelProperty']);
+                        $label = $object->$labelGetter();
+                        $logUsrDel->setModelLabel($label);
+                    }catch(\Exception $e){
+
+                    }
+
+                }
+
+                $this->em->persist($logUsrDel);
+            }
+
             $this->em->flush();
         }
 
@@ -738,7 +718,7 @@ class Api
 
             $tableName = $entityConfig['settings']['dbname'];
 
-            $query = "SELECT COUNT(*) AS `records` FROM `$tableName`";
+            $query = "SELECT 1  FROM `$tableName`";
 
             if($entityConfig['settings']['type'] == 'tree'){
                 $treeTableName = $entityConfig['i18n'] ? 'pim_i18n_tree' : 'pim_tree';
@@ -777,21 +757,21 @@ class Api
 
             $query .= $tsQuery;
 
-            $entityCount        = $this->app['database']->fetchColumn($query, $params, 0);
+            $entityCount        = $this->app['database']->executeQuery($query, $params)->rowCount();
             $data['dataCount'] += $entityCount;
             $details[$entityName] = $entityCount;
             foreach($entityConfig['properties'] as $field => $fieldOptions){
                 if($fieldOptions['type'] == 'multifile'){
                     $joinTableName = $fieldOptions['foreign'] ? $fieldOptions['foreign'] :  $tableName + "_" + $field;
                     $joinQuery  = "
-                        SELECT COUNT(*) AS `records` 
+                        SELECT 1  
                         FROM `$joinTableName` 
                         INNER JOIN `pim_file`  
                         ON file_id = id";
 
                     $joinQuery .= $tsQuery;
 
-                    $joinEntityCount    = $this->app['database']->fetchColumn($joinQuery, $params, 0);
+                    $joinEntityCount    = $this->app['database']->executeQuery($query, $params)->rowCount();
                     $data['dataCount'] += $joinEntityCount;
                 }
 
@@ -806,14 +786,14 @@ class Api
                     }
 
                     $joinQuery  = "
-                        SELECT COUNT(*) AS `records` 
+                        SELECT 1
                         FROM `$joinTableName` 
                         INNER JOIN `$treeTableName`  
                         ON $joinField = id";
 
                     $joinQuery .= $tsQuery;
 
-                    $joinEntityCount    = $this->app['database']->fetchColumn($joinQuery, $params, 0);
+                    $joinEntityCount    = $this->app['database']->executeQuery($query, $params)->rowCount();
 
                     $data['dataCount'] += $joinEntityCount;
                 }
@@ -859,9 +839,9 @@ class Api
                 continue;
             }
 
-            $query = "SELECT model_name, model_id FROM `pim_log` WHERE model_name = ? AND mode = 'DEL'";
+            $query = "SELECT model_name, model_id FROM `pim_log` WHERE model_name = ? AND (mode = 'DEL' OR (mode = 'USERDEL' AND users = ?))";
 
-            $params  = array($entityName);
+            $params  = array($entityName, $this->app['auth.user']->getId());
             $tsQuery = "";
             if($lastMofified){
                 if(is_array($lastMofified)){
@@ -1250,8 +1230,8 @@ class Api
         foreach ($schema[$entityShortName]['properties'] as $field => $config) {
             if (count($properties) && !in_array($field, $properties)) continue;
 
-            if($config['type'] == 'join'){
-                $joinedShortEntity = $helper->getShortEntityName($config['accept']);
+            if($config['type'] == 'join' || $config['type'] == 'file'){
+                $joinedShortEntity = $config['type'] == 'file' ? 'PIM\\File' : $helper->getShortEntityName($config['accept']);
 
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
                     $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "a_$field.lang = :lang");
@@ -1374,8 +1354,10 @@ class Api
         $entities[] = "PIM\\Option";
         $entities[] = "PIM\\OptionGroup";
 
-        $data     = array();
-        $helper   = new Helper();
+        $data           = array();
+        $helper         = new Helper();
+        $permissions    = array();
+
         foreach($entities as $entity){
 
             $className = $helper->getFullEntityName($entity);
@@ -1387,6 +1369,14 @@ class Api
             $defaultValues = $reflect->getDefaultProperties();
 
             $annotationReader = new AnnotationReader();
+
+            $permissions[$entityName] = array(
+                'readable'  => $this->app['auth.user'] ? Permission::isReadable($this->app['auth.user'], $entityName) : 0,
+                'writable'  => $this->app['auth.user'] ? Permission::isWritable($this->app['auth.user'], $entityName) : 0,
+                'deletable' => $this->app['auth.user'] ? Permission::isDeletable($this->app['auth.user'], $entityName) : 0,
+                'export'    => $this->app['auth.user'] ? Permission::canExport($this->app['auth.user'], $entityName) : 0,
+                'extended'  => $this->app['auth.user'] ? Permission::getExtended($this->app['auth.user'], $entityName) : 0
+            );
 
             $i18n = false;
             if($object instanceof BaseI18n){
@@ -1547,7 +1537,7 @@ class Api
             );
         }
 
-        $data['_hash'] = md5(serialize($data));
+        $data['_hash'] = md5(serialize($data).serialize($permissions));
 
         if(Adapter::getConfig()->APP_ENABLE_SCHEMA_CACHE){
 
@@ -1876,6 +1866,91 @@ class Api
         return $array;
     }
 
+    public function getTree2($entityName, $lang = null){
+        $helper             = new Helper();
+        $schema             = $this->app['schema'];
+
+        $entityFullName     = $helper->getFullEntityName($entityName);
+        $entityShortName    = $helper->getShortEntityName($entityName);
+
+        if(!isset($schema[$entityShortName])){
+            throw new ContentflyException(Messages::contentfly_general_unknown_entity, $entityShortName, Messages::contentfly_status_not_found);
+        }
+
+        $i18n       = $schema[$entityShortName]['settings']['i18n'];
+        $tblName    = $schema[$entityShortName]['settings']['dbname'];
+        $dbFields   = array();
+
+        foreach($schema[$entityShortName]['list'] as $propName){
+            $propConfig = $schema[$entityShortName]['properties'][$propName];
+
+            switch($propConfig['type']){
+                case 'multijoin':
+                case 'multifile':
+                    continue;
+                case 'file':
+                case 'join':
+                    $fieldName = $propConfig['dbfield'] ? $propConfig['dbfield'] : $propName.'_id';
+                    $dbFields[$fieldName] = array('propName' => $propName, 'propType' => $propConfig['type']);
+                    break;
+                default:
+                    $dbFields[$propName] = array('propName' => $propName, 'propType' => $propConfig['type']);
+                    break;
+            }
+        }
+
+
+        unset($dbFields['id']);
+        unset($dbFields['sorting']);
+        unset($dbFields['parent_id']);
+
+        $statement = "
+            SELECT t.id, ".implode(',', array_keys($dbFields)).", t.sorting, t.parent_id 
+            FROM $tblName e 
+            INNER JOIN pim_tree t 
+              on e.id = t.id 
+            ORDER BY t.parent_id, t.sorting ";
+
+        $records = $this->app['database']->fetchAll($statement);
+
+        $tree = $this->treeSort($records, $dbFields, null);
+
+        return $tree;
+    }
+
+    private function treeSort($records, $dbFields, $parent_id){
+
+        $items = array_filter($records, function($record) use ($parent_id) { return $parent_id ? $record['parent_id'] == $parent_id : empty($record['parent_id']); });
+
+        $tree = array();
+
+        foreach($items as $item){
+
+            foreach($item as $dbField => $value){
+                $dbConfig = $dbFields[$dbField];
+                switch($dbConfig['propType']){
+                    case 'join':
+                    case 'file':
+                        $item[$dbConfig['propName']] = array('id' => $item[$dbField]);
+                        unset($item[$dbField]);
+                        break;
+                    case 'integer':
+                        $item[$dbField] = intval($item[$dbField]);
+                        break;
+                }
+            }
+
+            $item['parent'] = array('id' => $item['parent_id']);
+            unset($item['parent_id']);
+            $item['sorting'] = intval($item['sorting']);
+            $item['childs'] = $this->treeSort($records, $dbFields, $item['id']);
+
+            $tree[]         = $item;
+        }
+
+        return $tree;
+    }
+
     public function getQuery(Array $params){
 
         $helper         = new Helper();
@@ -1925,14 +2000,25 @@ class Api
                                 $entityAlias        = $join[2];
                                 $entityShortName    = $helper->getShortEntityName($entityName);
 
+                                if(!isset($schema[$entityShortName])) {
+                                    foreach($schema as $entityNameFromSchema => $entityConfig){
+                                        if($entityNameFromSchema == '_hash') continue;
+
+                                        if(strtolower($entityConfig['settings']['dbname']) == strtolower($entityName)){
+                                            $entityShortName = $entityNameFromSchema;
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 if(isset($schema[$entityShortName])) {
 
-                                    if (!($permission = Permission::isReadable($this->app['auth.user'], ucfirst($entityName)))) {
+                                    if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
                                         throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                     }
 
                                     if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
-                                        $queryBuilder->andWhere("$entityAlias.userCreated = ? OR FIND_IN_SET(?, $entityAlias.users) > 0");
+                                        $queryBuilder->andWhere("$entityAlias.usercreated_id = ? OR FIND_IN_SET(?, $entityAlias.users) > 0");
                                         $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                         $paramCount++;
                                         $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
@@ -1975,8 +2061,18 @@ class Api
                             //$queryParams  = entityAlias
                             $entityShortName = $helper->getShortEntityName($queryKey);
 
-                            if(isset($schema[$entityShortName])) {
+                            if(!isset($schema[$entityShortName])) {
+                                foreach($schema as $entityNameFromSchema => $entityConfig){
+                                    if($entityNameFromSchema == '_hash') continue;
 
+                                    if(strtolower($entityConfig['settings']['dbname']) == strtolower($queryKey)){
+                                        $entityShortName = $entityNameFromSchema;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(isset($schema[$entityShortName])) {
                                 if (!($permission = Permission::isReadable($this->app['auth.user'], $entityShortName))) {
                                     throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                 }
@@ -2030,6 +2126,16 @@ class Api
                     //array('from' => 'entity')
                     if($method == 'from'){
                         $entityShortName = $helper->getShortEntityName($params);
+
+                        if(!isset($schema[$entityShortName])) {
+                            foreach($schema as $entityNameFromSchema => $entityConfig){
+                                if($entityNameFromSchema == '_hash') continue;
+                                if(strtolower($entityConfig['settings']['dbname']) == strtolower($params)){
+                                    $entityShortName = $entityNameFromSchema;
+                                    break;
+                                }
+                            }
+                        }
 
                         if(isset($schema[$entityShortName])) {
 

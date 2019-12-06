@@ -21,6 +21,9 @@
     vm.filterIsOpen         = false;
     vm.filterBadge          = 0;
     vm.filterJoins          = {};
+    vm.filterTrees      = {};
+    vm.filterSidebar    = null;
+    vm.treeOpened       = {};
     vm.itemsPerPage         = 0;
     vm.modaltitle           = modaltitle;
     vm.permissions          = localStorageService.get('permissions');
@@ -36,6 +39,8 @@
     vm.cancel               = cancel;
     vm.closeFilter          = closeFilter;
     vm.delete               = doDelete;
+    vm.filterSelect         = filterSelect;
+    vm.filterTreeLabel      = filterTreeLabel;
     vm.loadData             = loadData;
     vm.openForm             = openForm;
     vm.executeFilter        = executeFilter;
@@ -43,6 +48,7 @@
     vm.resetFilter          = resetFilter;
     vm.selectFile           = selectFile;
     vm.sortBy               = sortBy;
+    vm.toggleTreeFilter     = toggleTreeFilter;
     vm.uploadFile           = uploadFile;
     vm.uploadMultiFile      = uploadMultiFile;
     vm.openFile             = openFile;
@@ -214,6 +220,83 @@
 
     }
 
+    function filterSelect(key, item){
+      vm.filter[key] = item.id;
+      vm.executeFilter();
+    }
+
+    function filterTreeLabel(entity, key){
+      entity = $rootScope.getShortEntityName(entity);
+
+      var entityConfig  = localStorageService.get('schema')[entity];
+      var labelProperty = entityConfig.settings.labelProperty ? entityConfig.settings.labelProperty : entityConfig.list[0];
+      var value         = vm.filter[key];
+
+      if(!value){
+        return 'Bitte auswählen...';
+      }
+
+      var label = filterTreeLabelFinder(labelProperty, key, vm.filterJoins[key], value);
+      return label;
+    }
+
+    function filterTreeLabelFinder(labelProperty, key, items, value){
+
+      for(var index in items){
+        var item = items[index];
+
+        if(item.id == value){
+          return item[labelProperty];
+        }
+
+        if(item.childs && item.childs.length > 0){
+          var foundedItem = filterTreeLabelFinder(labelProperty, key, item.childs, value);
+
+          if(foundedItem){
+            return foundedItem;
+          }
+        }
+      }
+    }
+
+    function generateBreadcrumb(){
+      var joinSchema = localStorageService.get('schema')[vm.entity];
+
+      if(!vm.filterJoins['treeParent']){
+        return;
+      }
+
+      vm.breadcrumb = [{title: 'Alle Ebenen', value: null}, {title: 'Hauptebene', value: -1}];
+
+      var data = [];
+      var find = function(id){
+        var t = vm.filterJoins['treeParent'].find(function(e){ return e.id == id});
+
+        if(!t) return;
+
+        data.push(t);
+
+        if(t.treeParent){
+          find(t.treeParent.id);
+        }
+      };
+
+
+      if(vm.filter['treeParent']){
+        find(vm.filter['treeParent']);
+        data = data.reverse();
+        for(var i = 0; i < data.length; i++){
+          var title = joinSchema.settings.labelProperty ? data[i][joinSchema.settings.labelProperty] : data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+
+          vm.breadcrumb.push({
+            'title': title,
+            'value': data[i].id
+          });
+        }
+      }
+
+    }
+
     function init(){
       var savedFilter = localStorageService.get('savedFilter');
       if(savedFilter && savedFilter['PIM\\File']){
@@ -302,48 +385,99 @@
 
     function loadFilters(){
       for (var key in vm.schema.properties) {
+        if((vm.schema.properties[key].type == 'join' || vm.schema.properties[key].type == 'virtualjoin')  && vm.schema.properties[key].isFilterable ){
 
-        if(vm.schema.properties[key].type == 'join' && vm.schema.properties[key].isFilterable){
           var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
-          if(!localStorageService.get('permissions')[entity].readable){
+          if (!vm.permissions[entity].readable) {
             continue;
           }
 
-          if(localStorageService.get('schema')[entity].settings.type == 'tree') {
+          if(vm.schema.properties[key].isDatalist && localStorageService.get('schema')[entity].settings.type != 'tree'){
+            continue;
+          }
 
-            EntityService.tree({entity: entity}).then(
-              (function(entity, key) {
-                return function(response) {
-                  generateTree(entity, key, response.data.data, 0);
+          var joinSchema   = localStorageService.get('schema')[entity];
+          var entityConfig = localStorageService.get('schema')[entity];
+
+          if (entityConfig.settings.type == 'tree') {
+
+
+            var filterData = {
+              entity: entity,
+              lang: vm.currentLang
+            };
+
+            vm.filterTrees[key] = true;
+
+            EntityService.tree2(filterData).then(
+              (function (entity, key, entityConfig) {
+                return function (response) {
+                  vm.filterJoins[key] = response.data.data;
+
+                  if(vm.schema.properties[key].isSidebar){
+                    vm.filterSidebar = {
+                      key: key,
+                      entity: entity,
+                      items: response.data.data
+                    }
+
+                  }
+
+                  if(entity = vm.entity) generateBreadcrumb();
+
                 }
-              })(entity, key),
+              })(entity, key, entityConfig),
               function errorCallback(response) {
               }
             );
-          }else{
-            var joinSchema = localStorageService.get('schema')[entity];
+          } else {
 
-            var properties = ['id', 'modified', 'created', 'user'];
-            if(joinSchema.settings.isSortable){
+            var orderMode  = 'DESC';
+            var orderField = 'created';
+
+            if(joinSchema.settings.sortBy){
+              orderField = joinSchema.settings.sortBy;
+              orderMode  = joinSchema.settings.sortOrder ? joinSchema.settings.sortOrder : orderMode;
+            }
+
+            var properties = ['id'];
+            if (joinSchema.settings.isSortable) {
               properties.push('sorting');
+              orderField  = 'sorting';
+              orderMode   = 'ASC';
             }
-            for (var key in joinSchema.list ) {
-              properties.push(joinSchema.list[key]);
+            for (var key2 in joinSchema.list) {
+              properties.push(joinSchema.list[key2]);
             }
 
-            EntityService.list({entity: entity, properties: properties}).then(
-              (function(entity, key) {
-                return function(response) {
+            var order = {};
+            order[orderField] = orderMode;
+
+            var filterData = {
+              entity: entity,
+              properties: properties,
+              flatten: true,
+              lang: vm.currentLang,
+              order: order
+            };
+
+
+            EntityService.list(filterData).then(
+              (function (entity, key, joinSchema) {
+                return function (response) {
                   vm.filterJoins[key] = response.data.data;
-
                   for (var i = 0; i < vm.filterJoins[key].length; i++) {
                     if (!vm.filterJoins[key][i]['pim_filterTitle']) {
-                      vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                      if (joinSchema.settings.labelProperty) {
+                        vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.settings.labelProperty];
+                      } else {
+                        vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                      }
                     }
                   }
                 }
-              })(entity, key),
+              })(entity, key, joinSchema),
               function errorCallback(response) {
               }
             );
@@ -354,7 +488,11 @@
 
           var field = key;
 
-          if(!localStorageService.get('permissions')[entity].readable){
+          if(!vm.permissions[entity].readable){
+            continue;
+          }
+
+          if(vm.schema.properties[key].isDatalist && localStorageService.get('schema')[entity].settings.type != 'tree'){
             continue;
           }
 
@@ -371,7 +509,7 @@
             );
           }else{
 
-            EntityService.list({entity: entity}).then(
+            EntityService.list({entity: entity, flatten: true, lang: vm.currentLang}).then(
               (function(entity, key) {
                 return function(response) {
                   var joinSchema = localStorageService.get('schema')[entity];
@@ -379,7 +517,11 @@
 
                   for(var i = 0; i < vm.filterJoins[key].length; i++){
                     if(!vm.filterJoins[key][i]['pim_filterTitle']){
-                      vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                      if(joinSchema.settings.labelProperty){
+                        vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.settings.labelProperty];
+                      }else{
+                        vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                      }
                     }
                   }
                 }
@@ -390,6 +532,64 @@
           }
 
 
+        }else if(vm.schema.properties[key].type == 'checkbox' && vm.schema.properties[key].isFilterable){
+          var entity = 'PIM\\Option';
+
+          var field = key;
+
+          if(!vm.permissions[entity].readable){
+            continue;
+          }
+
+          var where  = {group: vm.schema.properties[key].group};
+
+          EntityService.list({entity: entity, flatten: true, where : where}).then(
+            (function(entity, key) {
+              return function(response) {
+                var joinSchema = localStorageService.get('schema')[entity];
+                vm.filterJoins[key] = response.data.data;
+
+                for(var i = 0; i < vm.filterJoins[key].length; i++){
+                  if(!vm.filterJoins[key][i]['pim_filterTitle']){
+                    vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i]['value'];
+                  }
+                }
+              }
+            })(entity, key),
+            function errorCallback(response) {
+            }
+          );
+
+        }else if(vm.schema.properties[key].type == 'virtualjoin' && vm.schema.properties[key].isFilterable){
+
+          var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
+
+          if(!vm.permissions[entity].readable){
+            continue;
+          }
+
+          EntityService.list({entity: entity, flatten: true}).then(
+            (function(entity, key) {
+              return function(response) {
+                var joinSchema = localStorageService.get('schema')[entity];
+                vm.filterJoins[key] = response.data.data;
+                for(var i = 0; i < vm.filterJoins[key].length; i++){
+                  if(!vm.filterJoins[key][i]['pim_filterTitle']){
+                    if(joinSchema.settings.labelProperty){
+                      vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.settings.labelProperty];
+                    }else{
+                      vm.filterJoins[key][i]['pim_filterTitle'] = vm.filterJoins[key][i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
+                    }
+                  }
+                }
+              }
+            })(entity, key),
+            function errorCallback(response) {
+            }
+          );
+
+
+
         }else if(vm.schema.properties[key].isFilterable){
           var field = key;
 
@@ -397,8 +597,7 @@
             entity: vm.entity,
             properties: [field],
             groupBy: field
-          }
-
+          };
 
           data['order'] = {};
           data['order'][field] = "ASC";
@@ -492,6 +691,10 @@
         }
       );
 
+    }
+
+    function toggleTreeFilter(key){
+      vm.treeOpened[key] = vm.treeOpened[key] ? false : true;
     }
 
     function uploadMultiFile(files, errFiles) {

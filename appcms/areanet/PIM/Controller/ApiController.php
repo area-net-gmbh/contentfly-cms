@@ -759,6 +759,7 @@ class ApiController extends BaseController
      *
      * @apiParam {String} entity Auszulesende Entity
      * @apiParam {Array} [properties] Gibt nur die angebenenen Eigenschaften/Felder zurück, ansonsten werden alle Eigenschaften geladen (Performance!)<code>['feld1', 'feld2', ...]</code>
+     * @apiParam {String} lang Sprachvariante
      * @apiParamExample {json} Request-Beispiel:
      *     {
      *      "entity": "Category",
@@ -793,6 +794,56 @@ class ApiController extends BaseController
 
         $api            = new Api($this->app);
         $tree           = $api->getTree($entityName, null, $properties, $lang);
+        $currentDate    = new \Datetime();
+
+        return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'),'data' => $tree));
+    }
+
+    /**
+     * @apiVersion 1.5.2
+     * @api {post} /api/tree2 tree2
+     * @apiName Baumansicht optimiert
+     * @apiDescription API-Endpoint, zum Abruf einer optimierten/performanten Baumstruktur.
+     *
+     * Die Entität muss vom Typ Areanet\PIM\Entity\BaseTree
+     * @apiGroup Objekte
+     * @apiHeader {String} APPMS-TOKEN Access-Token
+     * @apiHeader {String} Content-Type=application/json
+     *
+     * @apiParam {String} entity Auszulesende Entity
+     * @apiParam {String} lang Sprachvariante
+     * @apiParamExample {json} Request-Beispiel:
+     *     {
+     *      "entity": "Category"
+     *     }
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "message": "treeAction",
+     *       "data:" [
+     *          {
+     *              "id": 1,
+     *              "isHidden": false,
+     *              "isDeleted": false,
+     *              "title": "Eine Kategorie",
+     *              "treeChilds" : [
+     *                  {
+     *                      ....
+     *                  }
+     *              ]
+     *          },
+     *          {...},
+     *          ...
+     *      ]
+     *   }
+     */
+    public function tree2Action(Request $request)
+    {
+        $entityName   = $request->get('entity');
+        $lang         = $request->get('lang');
+
+        $api            = new Api($this->app);
+        $tree           = $api->getTree2($entityName,  $lang);
         $currentDate    = new \Datetime();
 
         return $this->renderResponse(array('ts' => $currentDate->format('Y-m-d H:i:s'),'data' => $tree));

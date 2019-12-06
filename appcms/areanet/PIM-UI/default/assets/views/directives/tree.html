@@ -1,0 +1,29 @@
+<script type="text/ng-template" id="tree">
+    <span class="hover" ng-click="select(item)" >
+        <i class="fa fa-plus-square-o" ng-click="toggle($event, item.id)"  ng-if="item.childs.length && !isOpened(item.id)"></i>
+        <i class="fa fa-minus-square-o" ng-click="toggle($event, item.id)"  ng-if="item.childs.length && isOpened(item.id)"></i>
+        <i class="fa fa-square-o"  ng-if="!item.childs.length"></i>
+        <span ng-class="{selected: isSelected(item)}"> {{ label(item) }}</span>
+    </span>
+    <ul ng-if="item.childs && isOpened(item.id)">
+        <li ng-repeat="item in item.childs" ng-include="'tree'">
+        </li>
+    </ul>
+</script>
+
+<div class="tree">
+    <ul>
+
+        <li ng-repeat="item in items" ng-include="'tree'"></li>
+        <li>
+            <span class="hover" ng-click="selectAll()" >
+                <span ng-class="{selected: !value}">(Alle anzeigen)</span>
+            </span>
+        </li>
+        <li>
+            <span class="hover" ng-click="selectRoot()" >
+                <span ng-class="{selected: value == -1}">(Ohne Zuordnung)</span>
+            </span>
+        </li>
+    </ul>
+</div>

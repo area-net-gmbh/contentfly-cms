@@ -1,14 +1,26 @@
-<pim-plugin key="LIST_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<pim-plugin key="FILES_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <div class="row header" data-block="header">
-    <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
+    <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0" ng-if="!vm.filterSidebar">
+        <ng-include src="'/ui/default/views/files/header.html'"></ng-include>
+    </div>
+    <div class="col-lg-9 col-lg-offset-2 " ng-if="vm.filterSidebar">
         <ng-include src="'/ui/default/views/files/header.html'"></ng-include>
     </div>
 </div>
 
 <ng-include src="'/ui/default/views/files/info.html'"></ng-include>
 
-<div class="row" data-block="content">
-    <div class="col-sm-10 col-sm-offset-1">
+<pim-plugin key=FILES_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<div class="row" ng-if="vm.filterSidebar">
+    <div class="col-lg-2  sidebar ">
+        <ng-include src="'/ui/default/views/files/tree.html'"></ng-include>
+    </div>
+    <div class="col-lg-9  ">
+        <ng-include src="'/ui/default/views/files/list.html'"></ng-include>
+    </div>
+</div>
+<div class="row" ng-if="!vm.filterSidebar">
+    <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
         <ng-include src="'/ui/default/views/files/list.html'"></ng-include>
     </div>
 </div>

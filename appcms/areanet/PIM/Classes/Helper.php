@@ -9,6 +9,7 @@
 namespace Areanet\PIM\Classes;
 
 
+use Areanet\PIM\Entity\Base;
 use Areanet\PIM\Entity\ThumbnailSetting;
 use Areanet\PIM\Entity\User;
 use Doctrine\ORM\EntityManager;
@@ -86,6 +87,29 @@ class Helper
         $entityNames = explode('\\', $entityName);
 
         return array_pop($entityNames);
+    }
+
+    public function getUsersRemoved(Base $currentObject, array $newData){
+
+        $usersRemoved = array();
+
+        if(isset($newData['userCreated'])){
+            $userCreatedNewId = is_array($newData['userCreated']) ? $newData['userCreated']['id'] : $newData['userCreated'];
+
+            if($currentObject->getUserCreated() && $currentObject->getUserCreated()->getId() != $userCreatedNewId){
+                $usersRemoved[] = $currentObject->getUserCreated()->getId();
+            }
+        }
+
+        if(isset($newData['users']) && $currentObject->getUsers(true)){
+            $usersOldArr    = explode(',', $currentObject->getUsers(true));
+            $usersNewArr    = is_array($newData['users']) ? $newData['users'] : explode(',', $newData['users']);
+
+            $usersToRemove  = array_diff($usersOldArr, $usersNewArr);
+            $usersRemoved   = array_merge($usersRemoved, $usersToRemove);
+        }
+
+        return $usersRemoved;
     }
 
     public function install(EntityManager $em){

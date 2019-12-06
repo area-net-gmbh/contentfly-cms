@@ -19,8 +19,6 @@ $app['request'] = function()use ($app){
     return $app['request_stack'] ? $app['request_stack']->getCurrentRequest() : null;
 };
 
-
-
 header("Content-Security-Policy: ".Config\Adapter::getConfig()->APP_CS_POLICY);
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
@@ -102,22 +100,26 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
 
 });
 
+$app->after(function (\Symfony\Component\HttpFoundation\Request $request, \Symfony\Component\HttpFoundation\Response $response) {
 
-if(Config\Adapter::getConfig()->APP_ALLOW_ORIGIN){
+    $response->headers->set('Access-Control-Allow-Origin', $request->headers->get('Origin'));
+    $response->headers->set('Access-Control-Allow-Credentials', Config\Adapter::getConfig()->APP_ALLOW_CREDENTIALS_SDK);
 
-    $app->after(function (\Symfony\Component\HttpFoundation\Request $request, \Symfony\Component\HttpFoundation\Response $response) {
-        $response->headers->set('Access-Control-Allow-Origin', Config\Adapter::getConfig()->APP_ALLOW_ORIGIN);
-        $response->headers->set('Access-Control-Allow-Credentials', Config\Adapter::getConfig()->APP_ALLOW_CREDENTIALS);
+    $response->headers->set('Access-Control-Allow-Headers', Config\Adapter::getConfig()->APP_ALLOW_HEADERS_SDK);
+    $response->headers->set('Access-Control-Allow-Methods', Config\Adapter::getConfig()->APP_ALLOW_METHODS);
+    $response->headers->set('Access-Control-Max-Age', Config\Adapter::getConfig()->APP_MAX_AGE);
 
-        $response->headers->set('Access-Control-Allow-Headers', Config\Adapter::getConfig()->APP_ALLOW_HEADERS);
-        $response->headers->set('Access-Control-Allow-Methods', Config\Adapter::getConfig()->APP_ALLOW_METHODS);
-        $response->headers->set('Access-Control-Max-Age', Config\Adapter::getConfig()->APP_MAX_AGE);
-    });
+});
 
-    $app->options("{anything}", function () {
-        return new \Symfony\Component\HttpFoundation\JsonResponse(null, 204);
-    })->assert("anything", ".*");
-}
+$app->options("{anything}", function () {
+    return new \Symfony\Component\HttpFoundation\JsonResponse(null, 204);
+})->assert("anything", ".*");
+
+
+$app->options("{anything}", function () {
+    return new \Symfony\Component\HttpFoundation\JsonResponse(null, 204);
+})->assert("anything", ".*");
+
 
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
 $app->get(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:indexAction');

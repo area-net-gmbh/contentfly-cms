@@ -32,8 +32,21 @@
                             var momentJS = moment(scope.object[property].ISO8601);
                             element.text(momentJS.format(scope.schema.properties[property].format));
                             break;
+                          case 'file':
+                            element.text(scope.object[property]['name']);
+                            break;
                         case 'boolean':
                             element.text(scope.object[property] ? 'Ja' : 'Nein');
+                            break;
+                          case 'virtualjoin':
+                              var ids = [];
+                              if(scope.object[property]){
+                                for(var i = 0; i < scope.object[property].length; i++){
+                                  ids.push(scope.object[property][i]['id']);
+                                }
+                              }
+
+                              element.text(ids.join(', '));
                             break;
                         case 'join':
                         case 'radio':

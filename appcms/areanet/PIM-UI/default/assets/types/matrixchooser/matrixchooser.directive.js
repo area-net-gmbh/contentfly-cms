@@ -55,8 +55,8 @@
           var controller  = 'FormCtrl as vm';
 
           if(extendedRoutes['form']){
-            templateUrl =  extendedRoutes['form'][0]['template'];
-            controller  = extendedRoutes['form'][0]['controller'] + ' as vm';
+            templateUrl =  extendedRoutes['form'][0]['template'] ? extendedRoutes['form'][0]['template'] : templateUrl;
+            controller  =  extendedRoutes['form'][0]['controller'] ? extendedRoutes['form'][0]['controller'] + ' as vm' : controller;
           }
 
           var modalInstance = $uibModal.open({

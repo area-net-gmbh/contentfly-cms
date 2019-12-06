@@ -51,6 +51,11 @@ final class Config extends Annotation
     /**
      * @var boolean
      */
+    public $isSidebar = false;
+
+    /**
+     * @var boolean
+     */
     public $i18n_universal=false;
 
     /**

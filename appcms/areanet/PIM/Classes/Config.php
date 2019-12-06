@@ -174,14 +174,25 @@ class Config{
     public $APP_ALLOW_CREDENTIALS   = 'false';
 
     /**
+     * @var string Allow Credentials
+     */
+    public $APP_ALLOW_CREDENTIALS_SDK   = 'true';
+
+    /**
      * @var string Allowed Methods
      */
-    public $APP_ALLOW_METHODS       = 'POST, GET';
+    public $APP_ALLOW_METHODS       = 'POST, GET, OPTIONS, DELETE, PUT';
 
     /**
      * @var string Allowed Headers
      */
     public $APP_ALLOW_HEADERS       = 'content-type, x-xsrf-token';
+
+    /**
+     * @var string Allowed Headers
+     */
+    public $APP_ALLOW_HEADERS_SDK       = 'Access-Control-Allow-Origin,Access-Control-Allow-Methods,Access-Control-Allow-Headers,contentfly-ionic,content-type, x-xsrf-token, appcms-token, authorization';
+
 
     /**
      * @var string CORS max age

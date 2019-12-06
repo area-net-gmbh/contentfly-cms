@@ -24,7 +24,7 @@ class File extends Base
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Folder")
      * @ORM\JoinColumn(name="folder_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
-     * @PIM\Config(showInList=80, label="Ordner", isFilterable=true)
+     * @PIM\Config(showInList=80, label="Ordner", isFilterable=true, isSidebar=true)
      */
     protected $folder;
 

@@ -127,7 +127,8 @@
         }
 
       },
-      controllerProvider: function ($stateParams) {
+      controllerProvider: function ($stateParams, $state) {
+
         if(extendedRoutes['list'] && extendedRoutes['list'][0]['controller'] && (!extendedRoutes['list'][0]['stateParams'] || extendedRoutes['list'][0]['stateParams'] && extendedRoutes['list'][0]['stateParams']['entity'] == $stateParams.entity)){
           return extendedRoutes['list'][0]['controller'];
         }else{
