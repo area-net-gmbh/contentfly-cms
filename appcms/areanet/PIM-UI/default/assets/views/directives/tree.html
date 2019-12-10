@@ -4,6 +4,7 @@
         <i class="fa fa-minus-square-o" ng-click="toggle($event, item.id)"  ng-if="item.childs.length && isOpened(item.id)"></i>
         <i class="fa fa-square-o"  ng-if="!item.childs.length"></i>
         <span ng-class="{selected: isSelected(item)}"> {{ label(item) }}</span>
+        <span ng-if="selectMode" style="float:right;padding-top:8px;padding-right:16px;" class="glyphicon glyphicon-chevron-right"></span>
     </span>
     <ul ng-if="item.childs && isOpened(item.id)">
         <li ng-repeat="item in item.childs" ng-include="'tree'">
@@ -13,17 +14,22 @@
 
 <div class="tree">
     <ul>
-
-        <li ng-repeat="item in items" ng-include="'tree'"></li>
-        <li>
+        <li ng-if="sword && showCancelSearch">
+            <span class="hover" ng-click="clearSearch($event)" >
+                <span >(Suche beenden)</span>
+            </span>
+        </li>
+        <li ng-if="!selectMode && !sword">
             <span class="hover" ng-click="selectAll()" >
                 <span ng-class="{selected: !value}">(Alle anzeigen)</span>
             </span>
         </li>
-        <li>
+        <li ng-if="!selectMode && !sword">
             <span class="hover" ng-click="selectRoot()" >
                 <span ng-class="{selected: value == -1}">(Ohne Zuordnung)</span>
             </span>
         </li>
+        <li ng-repeat="item in items" ng-include="'tree'" ng-if="!sword"></li>
+        <li ng-repeat="item in sItems" ng-include="'tree'" ng-if="sword"></li>
     </ul>
 </div>

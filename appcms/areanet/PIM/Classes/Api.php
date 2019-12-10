@@ -688,7 +688,7 @@ class Api
         return $all;
     }
 
-    public function getCount($lastMofified){
+    public function getCount($lastMofified, $entity = null){
 
         $data = array(
             'dataCount'     => 0,
@@ -704,6 +704,8 @@ class Api
         );
         $details = array();
         foreach($schema as $entityName => $entityConfig){
+
+            if($entity && $entity != $entityName) continue;
 
             if(in_array($entityName, $entitiesToExclude)){
                 continue;
@@ -798,24 +800,27 @@ class Api
             }
         }
 
-        $query = "SELECT COUNT(*) AS `records`, SUM(size) AS `size` FROM `pim_file`";
+        if(!$entity || $entity && $entity == 'PIM\\File') {
+            $query = "SELECT COUNT(*) AS `records`, SUM(size) AS `size` FROM `pim_file`";
 
-        $params = array();
-        if($lastMofified){
-            if(is_array($lastMofified)){
-                if(isset($lastMofified['PIM\\File'])){
+            $params = array();
+            if ($lastMofified) {
+                if (is_array($lastMofified)) {
+                    if (isset($lastMofified['PIM\\File'])) {
+                        $query .= " WHERE `modified` > ?";
+                        $params = array($lastMofified['PIM\\File']);
+                    }
+                } else {
                     $query .= " WHERE `modified` > ?";
-                    $params = array($lastMofified['PIM\\File']);
+                    $params = array($lastMofified);
                 }
-            }else{
-                $query .= " WHERE `modified` > ?";
-                $params = array($lastMofified);
             }
+
+            $files = $this->app['database']->fetchAssoc($query, $params);
+            $data['filesCount'] = intval($files['records']);
+            $data['filesSize'] = $files['size'] ? $files['size'] : 0;
         }
 
-        $files              = $this->app['database']->fetchAssoc($query, $params);
-        $data['filesCount'] = intval($files['records']);
-        $data['filesSize']  = $files['size'] ? $files['size'] : 0;
         $data['details']    = $details;
         return $data;
     }
@@ -1902,11 +1907,19 @@ class Api
         unset($dbFields['sorting']);
         unset($dbFields['parent_id']);
 
+        $tblTreeName  = 'pim_tree';
+        $joinI18NCond = '';
+
+        if($i18n){
+            $tblTreeName  = 'pim_i18n_tree';
+            $joinI18NCond = "AND t.lang = e.lang AND t.lang = '$lang'";
+        }
+
         $statement = "
             SELECT t.id, ".implode(',', array_keys($dbFields)).", t.sorting, t.parent_id 
             FROM $tblName e 
-            INNER JOIN pim_tree t 
-              on e.id = t.id 
+            INNER JOIN $tblTreeName t 
+              on e.id = t.id $joinI18NCond
             ORDER BY t.parent_id, t.sorting ";
 
         $records = $this->app['database']->fetchAll($statement);

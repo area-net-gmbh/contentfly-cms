@@ -47,7 +47,7 @@
             </button>
             <div uib-dropdown-menu aria-labelledby="dropdown-filter" class="form-inline">
                 <pim-plugin key="LIST_HEADER_FILTER_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <div class="form-group" ng-hide="config.hide || !config.isFilterable || key == 'treeParent'"
+                <div class="form-group" ng-hide="config.hide || !config.isFilterable "
                      ng-repeat="(key, config) in vm.schema.properties" ng-switch on="config.type">
 
                     <label ng-switch-when="boolean">{{vm.schema.properties[key].label}}</label>
@@ -64,17 +64,16 @@
                         <label>{{vm.schema.properties[key].label}} </label>
 
                         <div class="filter-tree" ng-if="vm.filterTrees[key]" >
-                            <button class="btn btn-default"  type="button" ng-click="vm.toggleTreeFilter(key)" >
+                            <button  class="btn btn-default"  type="button" ng-click="vm.toggleTreeFilter(key)" >
                                 <span>{{vm.filterTreeLabel(vm.schema.properties[key].accept, key)}}</span>
                                 <i class="caret pull-right"></i>
                             </button>
+                            <input ng-if="vm.treeOpened[key]" type="text" class="form-control" ng-model="vm.treeSearch[key]" placeholder="Suche..."  >
                             <div class="filter-tree-items" ng-if="vm.treeOpened[key]">
-                                <pim-tree key="key" value="vm.filter[key]" entity="vm.schema.properties[key].accept" items="vm.filterJoins[key]" on-select-callback="vm.filterSelect(key, item)"></pim-tree>
+
+                                <pim-tree show-cancel-search="true" key="key" value="vm.filter[key]" sword="vm.treeSearch[key]" entity="vm.schema.properties[key].accept" items="vm.filterJoins[key]" on-select-callback="vm.filterSelect(key, item)"></pim-tree>
                             </div>
-
                         </div>
-
-
 
                         <select class="form-control" ng-if="!vm.schema.properties[key].isDatalist && !vm.filterTrees[key]"
                                 ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
@@ -102,8 +101,22 @@
                     </div>
 
                     <div ng-if="vm.filterJoins[key] || vm.schema.properties[key].isDatalist" ng-switch-when="multijoin">
+
                         <label>{{vm.schema.properties[key].label}}</label>
-                        <select class="form-control" ng-if="!vm.schema.properties[key].isDatalist"
+
+                        <div class="filter-tree" ng-if="vm.filterTrees[key]" >
+                            <button  class="btn btn-default"  type="button" ng-click="vm.toggleTreeFilter(key)" >
+                                <span>{{vm.filterTreeLabel(vm.schema.properties[key].accept, key)}}</span>
+                                <i class="caret pull-right"></i>
+                            </button>
+                            <input ng-if="vm.treeOpened[key]" type="text" class="form-control" ng-model="vm.treeSearch[key]" placeholder="Suche..."  >
+                            <div class="filter-tree-items" ng-if="vm.treeOpened[key]">
+
+                                <pim-tree show-cancel-search="true" key="key" value="vm.filter[key]" sword="vm.treeSearch[key]" entity="vm.schema.properties[key].accept" items="vm.filterJoins[key]" on-select-callback="vm.filterSelect(key, item)"></pim-tree>
+                            </div>
+                        </div>
+
+                        <select class="form-control" ng-if="!vm.schema.properties[key].isDatalist && !vm.filterTrees[key]"
                                 ng-model="vm.filter[key]" ng-change="vm.executeFilter()">
                             <option value="">alle anzeigen</option>
                             <option value="-1">ohne Zuordnung</option>
@@ -113,7 +126,7 @@
                             </option>
                         </select>
 
-                        <ui-select ng-model="vm.datalistFilter[key]" ng-if="vm.schema.properties[key].isDatalist"
+                        <ui-select ng-model="vm.datalistFilter[key]" ng-if="vm.schema.properties[key].isDatalist && !vm.filterTrees[key]"
                                    on-select="vm.executeFilter()">
                             <ui-select-match placeholder="Bitte auswählen...">
                                 <span ng-bind="$select.selected.pim_filterTitle"></span>

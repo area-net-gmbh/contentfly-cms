@@ -1,10 +1,15 @@
-<pim-plugin key="FILES_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
-<div class="row header" data-block="header">
-    <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0" ng-if="!vm.filterSidebar">
-        <ng-include src="'/ui/default/views/files/header.html'"></ng-include>
+<pim-plugin key="LIST_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<div class="row header" data-block="header" ng-if="!vm.filterSidebar">
+    <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
+        <ng-include src="'/ui/default/views/list/header.html'"></ng-include>
     </div>
-    <div class="col-lg-9 col-lg-offset-2 " ng-if="vm.filterSidebar">
-        <ng-include src="'/ui/default/views/files/header.html'"></ng-include>
+</div>
+<div class="row header" data-block="header" ng-if="vm.filterSidebar">
+    <div class="col-lg-2  sidebar-header ">
+        <h3>&nbsp;<br><small>{{vm.filterSidebarTitle}}</small></small></h3>
+    </div>
+    <div class="col-lg-9  ">
+        <ng-include src="'/ui/default/views/list/header.html'"></ng-include>
     </div>
 </div>
 
