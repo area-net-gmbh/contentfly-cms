@@ -19,6 +19,11 @@ final class Config extends Annotation
     public $showInList = 0;
 
     /**
+     * @var boolean
+     */
+    public $excludeFromSync = false;
+
+    /**
      * @var integer
      */
     public $listShorten = 0;

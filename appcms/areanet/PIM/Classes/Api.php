@@ -716,6 +716,10 @@ class Api
             }
 
 
+            if($entityConfig['settings']['excludeFromSync']){
+                continue;
+            }
+
             $tableName = $entityConfig['settings']['dbname'];
 
             $query = "SELECT 1  FROM `$tableName`";
@@ -1407,7 +1411,8 @@ class Api
                 'dbname' => null,
                 'viewMode' => 0,
                 'i18n' => $i18n,
-                'sort' => 1000
+                'sort' => 1000,
+                'excludeFromSync' => false
             );
 
 
@@ -1447,6 +1452,8 @@ class Api
                     $settings['sortRestrictTo'] = $classAnnotation->sortRestrictTo ? $classAnnotation->sortRestrictTo : $settings['sortRestrictTo'];
                     $settings['viewMode']       = $classAnnotation->viewMode ? intval($classAnnotation->viewMode) : $settings['viewMode'];
                     $settings['sort']           = $classAnnotation->sort ? intval($classAnnotation->sort) : $settings['sort'];
+                    $settings['excludeFromSync']= $classAnnotation->excludeFromSync ? $classAnnotation->excludeFromSync : false;
+
                     if($classAnnotation->tabs){
                         $tabs = json_decode(str_replace("'", '"', $classAnnotation->tabs));
                         foreach($tabs as $key=>$value){
