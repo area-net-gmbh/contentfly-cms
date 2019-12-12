@@ -17,7 +17,7 @@
             templateUrl: function(){
                 return '/ui/default/types/rte/rte.html?v=' + APP_VERSION
             },
-            link: function(scope, element, attrs, ){
+            link: function(scope, element, attrs){
                 scope.disabled = !parseInt(attrs.writable) || scope.config.readonly;
 
                 //scope.trustedValue = $sce.trustAsHtml(scope.value);
