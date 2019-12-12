@@ -85,6 +85,9 @@
 
         EntityService.multiupdate(data).then(
           function successCallback(response) {
+            if(vm.filterSidebar && vm.filterSidebar.key == 'treeParent'){
+              loadFilters('treeParent');
+            }
           },
           function errorCallback(response) {
           }
@@ -103,8 +106,10 @@
     vm.filterJoins      = {};
     vm.filterTrees      = {};
     vm.filterSidebar    = null;
+    vm.filterSidebarTitle=null;
     vm.treeOpened       = {};
     vm.treeResortWatcher=null;
+    vm.treeSearch       = {};
 
     //Functions
     vm.back                     = back;
@@ -115,7 +120,6 @@
     vm.exportData               = exportData;
     vm.filterSelect             = filterSelect;
     vm.filterTreeLabel          = filterTreeLabel;
-    vm.handleTreeClick          = handleTreeClick;
     vm.openForm                 = openForm;
     vm.paginationChanged        = paginationChanged;
     vm.redirect                 = redirect;
@@ -144,7 +148,6 @@
     function calcFilterBadge(){
       var badgeCount = 0;
       for (var key in vm.filter) {
-        if(key == 'treeParent') continue;
 
         if(vm.filter[key]){
           badgeCount++;
@@ -168,6 +171,10 @@
 
       loadUntranslatedRecords();
       loadData();
+
+      if(vm.filterSidebar){
+        loadFilters(vm.filterSidebar.key);
+      }
     }
 
     function doDelete(object){
@@ -211,6 +218,11 @@
 
             EntityService.delete(data).then(
               function successCallback(response) {
+
+                if(vm.filterSidebar && vm.filterSidebar.key == 'treeParent'){
+                  loadFilters('treeParent');
+                }
+
                 loadData();
                 loadUntranslatedRecords();
               },
@@ -384,15 +396,17 @@
     function filterSelect(key, item){
       vm.filter[key] = item.id;
       vm.executeFilter();
+      vm.filterIsOpen = false;
     }
 
     function filterTreeLabel(entity, key){
+      var value = vm.filter[key];
 
-      if(!vm.filter[key]){
+      if(!value){
         return 'Alle anzeigen';
       }
 
-      if(vm.filter[key] == -1){
+      if(value == -1){
         return 'Ohne Zuordnung';
       }
 
@@ -400,7 +414,6 @@
 
       var entityConfig  = localStorageService.get('schema')[entity];
       var labelProperty = entityConfig.settings.labelProperty ? entityConfig.settings.labelProperty : entityConfig.list[0];
-      var value         = vm.filter[key];
 
       if(!value){
         return 'Bitte auswählen...';
@@ -429,13 +442,7 @@
       }
     }
 
-    function handleTreeClick(object){
-      if(vm.schema.settings.type != 'tree'){
-        return;
-      }
 
-      vm.setFilter('treeParent', object.id);
-    }
 
     function init(){
 
@@ -476,62 +483,10 @@
       }
 
 
-      if(vm.schema.settings.type == 'tree'  && Object.keys(vm.filter).length == 0 && !vm.untranslatedLang){
-        vm.treeResortWatcher = $scope.$watch("vm.objects", function(newValue, oldValue){
-          if(newValue != oldValue){
-            resortTree();
-          }
-        }, true);
-      }
-
 
       calcFilterBadge();
     }
 
-    function resortTree(){
-      if(Object.keys(vm.filter).length){
-        return;
-      }
-      vm.treeResortWatcher();
-
-      var data = [];
-      vm.objects.sort(function(a, b){
-          return a.sorting > b.sorting ? 1 : -1;
-        });
-
-
-      var treeSort = function(parent, level){
-        for(var i in vm.objects){
-          if(!parent){
-            if(!vm.objects[i].treeParent){
-              vm.objects[i].level =  level;
-              vm.objects[i].filler = '--'.repeat(level);
-              data.push(vm.objects[i]);
-              treeSort(vm.objects[i].id, level + 1);
-            }
-          }else{
-            if(vm.objects[i].treeParent && parent == vm.objects[i].treeParent.id){
-              vm.objects[i].level = level;
-              vm.objects[i].filler = '--'.repeat(level);
-              data.push(vm.objects[i]);
-              treeSort(vm.objects[i].id, level + 1);
-            }
-          }
-
-
-        }
-      };
-
-      treeSort(null, 0);
-
-      vm.objects = data;
-
-      vm.treeResortWatcher = $scope.$watch("vm.objects", function(newValue, oldValue){
-        if(newValue != oldValue){
-          resortTree();
-        }
-      }, true);
-    }
 
     function loadData(){
 
@@ -605,43 +560,13 @@
 
           var objectsData  = [];
 
-          var treeSort = function(parent, level){
-
-
-            for(var i in response.data.data){
-              if(!parent){
-                if(!response.data.data[i].treeParent){
-                  response.data.data[i].level =  level;
-                  response.data.data[i].filler = '--'.repeat(level);
-                  objectsData.push(response.data.data[i]);
-                  treeSort(response.data.data[i].id, level + 1);
-                }
-              }else{
-                if(response.data.data[i].treeParent && parent == response.data.data[i].treeParent.id){
-                  response.data.data[i].level = level;
-                  response.data.data[i].filler = '--'.repeat(level);
-                  objectsData.push(response.data.data[i]);
-                  treeSort(response.data.data[i].id, level + 1);
-                }
-              }
-
-
-            }
-          };
-
 
           if(vm.schema.settings.type == 'tree'){
             delete vm.schema.list[1];
             delete vm.schema.list[2];
           }
 
-          if(vm.schema.settings.type == 'tree' && Object.keys(vm.filter).length == 0 && !vm.untranslatedLang){
-
-            treeSort(null, 0);
-            ;
-          }else{
-            objectsData  = response.data.data;
-          }
+          objectsData  = response.data.data;
 
           vm.totalItems = response.data.totalItems;
           vm.objects    = objectsData;
@@ -710,47 +635,15 @@
       );
     }
 
-    function generateBreadcrumb(){
-      var joinSchema = localStorageService.get('schema')[vm.entity];
-
-      if(!vm.filterJoins['treeParent']){
-        return;
-      }
-
-      vm.breadcrumb = [{title: 'Alle Ebenen', value: null}, {title: 'Hauptebene', value: -1}];
-
-      var data = [];
-      var find = function(id){
-        var t = vm.filterJoins['treeParent'].find(function(e){ return e.id == id});
-
-        if(!t) return;
-
-        data.push(t);
-
-        if(t.treeParent){
-          find(t.treeParent.id);
-        }
-      };
 
 
-      if(vm.filter['treeParent']){
-        find(vm.filter['treeParent']);
-        data = data.reverse();
-        for(var i = 0; i < data.length; i++){
-          var title = joinSchema.settings.labelProperty ? data[i][joinSchema.settings.labelProperty] : data[i][joinSchema.list[Object.keys(joinSchema.list)[0]]];
-
-          vm.breadcrumb.push({
-            'title': title,
-            'value': data[i].id
-          });
-        }
-      }
-
-    }
-
-    function loadFilters(){
+    function loadFilters(onlyFilterForKey){
       for (var key in vm.schema.properties) {
+        if(onlyFilterForKey && key !=onlyFilterForKey) continue;
+
+
         if((vm.schema.properties[key].type == 'join' || vm.schema.properties[key].type == 'virtualjoin')  && vm.schema.properties[key].isFilterable ){
+
 
           var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
 
@@ -775,6 +668,17 @@
 
             vm.filterTrees[key] = true;
 
+            if(vm.schema.properties[key].isSidebar){
+              vm.filterSidebar = {
+                key: key,
+                entity: entity,
+                items: [],
+                isLoading: true
+              }
+
+              vm.filterSidebarTitle = joinSchema.settings.label;
+            }
+
             EntityService.tree2(filterData).then(
               (function (entity, key, entityConfig) {
                 return function (response) {
@@ -784,12 +688,13 @@
                     vm.filterSidebar = {
                       key: key,
                       entity: entity,
-                      items: response.data.data
+                      items: response.data.data,
+                      sLoading: false
                     }
 
+                    vm.filterSidebarTitle = joinSchema.settings.label;
                   }
 
-                  if(entity = vm.entity) generateBreadcrumb();
 
                 }
               })(entity, key, entityConfig),
@@ -849,26 +754,57 @@
           }
 
         }else if(vm.schema.properties[key].type == 'multijoin' && vm.schema.properties[key].isFilterable){
-          var entity = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
-
-          var field = key;
+          var entity      = $rootScope.getShortEntityName(vm.schema.properties[key].accept);
+          var joinSchema  = localStorageService.get('schema')[entity];
+          var field       = key;
 
           if(!vm.permissions[entity].readable){
             continue;
           }
 
-          if(vm.schema.properties[key].isDatalist && localStorageService.get('schema')[entity].settings.type != 'tree'){
+          if(vm.schema.properties[key].isDatalist && joinSchema.settings.type != 'tree'){
             continue;
           }
 
-          if(localStorageService.get('schema')[entity].settings.type == 'tree'){
+          if(joinSchema.settings.type == 'tree'){
 
-            EntityService.tree({entity: entity}).then(
-              (function(entity, key) {
-                return function(response) {
-                  generateTree(entity, key, response.data.data, 0)
+            var filterData = {
+              entity: entity,
+              lang: vm.currentLang
+            };
+
+            vm.filterTrees[key] = true;
+
+            if(vm.schema.properties[key].isSidebar){
+              vm.filterSidebar = {
+                key: key,
+                entity: entity,
+                items: [],
+                isLoading: true
+              }
+
+              vm.filterSidebarTitle = joinSchema.settings.label;
+            }
+
+            EntityService.tree2(filterData).then(
+              (function (entity, key, entityConfig) {
+                return function (response) {
+                  vm.filterJoins[key] = response.data.data;
+
+                  if(vm.schema.properties[key].isSidebar){
+                    vm.filterSidebar = {
+                      key: key,
+                      entity: entity,
+                      items: response.data.data,
+                      isLoading: false
+                    }
+
+                    vm.filterSidebarTitle = joinSchema.settings.label;
+                  }
+
+
                 }
-              })(entity, key),
+              })(entity, key, entityConfig),
               function errorCallback(response) {
               }
             );
@@ -1068,12 +1004,16 @@
       modalInstance.result.then(
         function (updatedObject) {
           if(doInsert || copy || !updatedObject){
+
             loadData();
             loadUntranslatedRecords();
           }else{
             vm.objects[index] = updatedObject;
           }
 
+          if(vm.filterSidebar && vm.filterSidebar.key == 'treeParent'){
+            loadFilters('treeParent');
+          }
         },
         function () {
         }
@@ -1174,24 +1114,17 @@
     function setFilter(property, value){
       vm.filter[property] = value;
       executeFilter();
-      generateBreadcrumb();
     }
 
     function resetTree(){
         delete vm.filter['treeParent'];
 
       loadData();
-      generateBreadcrumb();
     }
 
     function resetFilter() {
-      if(vm.filter['treeParent']){
-        var temp = vm.filter['treeParent'];
-        vm.filter = {};
-        vm.filter['treeParent'] = temp;
-      }else{
-        vm.filter = {};
-      }
+
+      vm.filter = {};
 
       vm.filterBadge = 0;
       vm.filterIsOpen = false;
@@ -1201,7 +1134,6 @@
       localStorageService.set('savedFilter', vm.filter);
 
       loadData();
-      generateBreadcrumb();
     }
 
     function showUntranslatedRecords(lang){

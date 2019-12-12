@@ -147,6 +147,7 @@ class ApiController extends BaseController
      * @apiHeader {String} Content-Type=application/json
      *
      * @apiParam {String/Array} [lastModified="yyyymmdd hh:mm:ii"] Es werden nur die Objekte zurückgegeben, die seit lastModified geändert wurden.
+     * @apiParam {String} entity = null Es wird nur die Anzahl der angegebenen Entität ausgegeben
      * @apiParamExample {json} Request-Beispiel mit globalem Zeitstempel:
      *     {
      *      "lastModified": "2016-02-20 15:30:22"
@@ -168,7 +169,8 @@ class ApiController extends BaseController
     public function countAction(Request $request, Application $app){
         $api            = new Api($this->app, $request);
         $lastModified   = $request->get("lastModified");
-        $data           = $api->getCount($lastModified);
+        $entity         = $request->get("entity");
+        $data           = $api->getCount($lastModified, $entity);
 
         $currentDate    = new \Datetime();
 

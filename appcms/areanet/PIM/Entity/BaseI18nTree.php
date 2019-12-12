@@ -15,7 +15,7 @@ class BaseI18nTree extends BaseI18nSortable
     /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\BaseI18nTree", inversedBy="treeChilds")
      * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="SET NULL")
-     * @PIM\Config(showInList=60, label="Eltern-Objekt", isFilterable=true, i18n_universal=true)
+     * @PIM\Config(showInList=60, label="Eltern-Objekt", isFilterable=true, isSidebar=true, i18n_universal=true)
      */
     protected $treeParent;
 

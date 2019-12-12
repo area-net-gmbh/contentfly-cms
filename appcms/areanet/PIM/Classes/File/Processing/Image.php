@@ -62,9 +62,13 @@ class Image implements ProcessingInterface
 
         if($type == 'jpeg' && function_exists("exif_read_data")){
 
-            $exif = exif_read_data($img);
+            try {
+                $exif = exif_read_data($imgName);
+            }catch(\Exception $e){
 
-            if(!empty($exif['Orientation'])) {
+            }
+
+            if($exif && !empty($exif['Orientation'])) {
                 switch($exif['Orientation']) {
                     case 8:
                         $img0 = $loadMethodName($imgName);
@@ -85,6 +89,8 @@ class Image implements ProcessingInterface
                         $img = $loadMethodName($imgName);
                         break;
                 }
+            }else{
+                $img = $loadMethodName($imgName);
             }
         }else{
             $img = $loadMethodName($imgName);

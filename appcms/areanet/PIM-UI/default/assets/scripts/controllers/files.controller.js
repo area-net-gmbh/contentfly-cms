@@ -223,18 +223,26 @@
     function filterSelect(key, item){
       vm.filter[key] = item.id;
       vm.executeFilter();
+
+      vm.filterIsOpen = false;
     }
 
     function filterTreeLabel(entity, key){
+      var value = vm.filter[key];
+
+      if(!value){
+        return 'Alle anzeigen';
+      }
+
+      if(value == -1){
+        return 'Ohne Zuordnung';
+      }
+
       entity = $rootScope.getShortEntityName(entity);
 
       var entityConfig  = localStorageService.get('schema')[entity];
       var labelProperty = entityConfig.settings.labelProperty ? entityConfig.settings.labelProperty : entityConfig.list[0];
-      var value         = vm.filter[key];
 
-      if(!value){
-        return 'Bitte auswählen...';
-      }
 
       var label = filterTreeLabelFinder(labelProperty, key, vm.filterJoins[key], value);
       return label;
@@ -408,6 +416,17 @@
               lang: vm.currentLang
             };
 
+            if(vm.schema.properties[key].isSidebar){
+              vm.filterSidebar = {
+                key: key,
+                entity: entity,
+                items: [],
+                isLoading: true
+              }
+
+              vm.filterSidebarTitle = joinSchema.settings.label;
+            }
+
             vm.filterTrees[key] = true;
 
             EntityService.tree2(filterData).then(
@@ -419,9 +438,11 @@
                     vm.filterSidebar = {
                       key: key,
                       entity: entity,
-                      items: response.data.data
+                      items: response.data.data,
+                      isLoading: false
                     }
 
+                    vm.filterSidebarTitle = joinSchema.settings.label;
                   }
 
                   if(entity = vm.entity) generateBreadcrumb();

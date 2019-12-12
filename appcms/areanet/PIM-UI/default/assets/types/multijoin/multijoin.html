@@ -13,7 +13,8 @@
                 </span>
             </div>
             <div ng-show="chooserOpened" class="chooserContainer">
-                <table class="chooser">
+                <pim-tree ng-if="isTree" value="choosenIds" key="" select-mode="true" sword="search" entity="entity" items="objects" on-select-callback="chooseObject(item)"></pim-tree>
+                <table class="chooser" ng-if="!isTree">
                     <thead>
                     <tr>
                         <th ng-repeat="property in schema.list">{{schema.properties[property].label}}</th>

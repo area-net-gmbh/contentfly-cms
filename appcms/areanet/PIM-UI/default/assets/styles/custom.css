@@ -461,6 +461,11 @@ p.show, p.show *{
 .sidebar{
     background-color:#EAEDF2;
     padding-bottom:60px;
+    padding-left:3%;
+}
+
+.sidebar-header{
+    padding-left:3%;
 }
 
 .row > div{
@@ -545,6 +550,10 @@ label.optional{
     color:#6a727d;
 }
 
+.image-edit img{
+    pointer-events: none;
+}
+
 .image-edit .filelabel{
     width:100%;
     text-align:center;
@@ -584,6 +593,7 @@ label.optional{
     display:none;
 }
 
+
 .image-edit button.btn2{
     position: absolute;
     right:45px;
@@ -620,9 +630,8 @@ label.optional{
 }
 
 
-
 .image-edit:hover button{
-    display:block;
+    display:block
 }
 
 .file-edit{

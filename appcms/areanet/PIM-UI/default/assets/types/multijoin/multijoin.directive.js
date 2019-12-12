@@ -17,7 +17,6 @@
       },
       link: function(scope, element, attrs){
         var itemsPerPage = 10;
-        var entity       = null;
 
         scope.$watch('value',function(data){
 
@@ -42,7 +41,9 @@
         scope.chooserOpened = false;
         scope.currentPage   = 1;
         scope.deletable     = false;
+        scope.entity        = null;
         scope.hide          = false;
+        scope.isTree        = false;
         scope.propertyCount = 0;
         scope.objects       = [];
         scope.readonly      = false;
@@ -89,7 +90,7 @@
             templateUrl: templateUrl,
             controller: controller,
             resolve: {
-              entity: function(){ return entity;},
+              entity: function(){ return scope.entity;},
               title: function(){ return 'Neues Objekt anlegen'; },
               object: function(){ return null; },
               readonly: false,
@@ -114,8 +115,10 @@
         }
 
         function change(){
-          scope.currentPage = 1;
-          loadData();
+          if(!scope.isTree){
+            scope.currentPage = 1;
+            loadData();
+          }
         }
 
         function chooseObject(object){
@@ -193,7 +196,7 @@
             templateUrl: templateUrl,
             controller: controller,
             resolve: {
-              entity: function(){ return entity;},
+              entity: function(){ return scope.entity;},
               object: function(){ return object; },
               readonly: false,
               lang: function(){ return scope.object.lang},
@@ -223,7 +226,7 @@
 
         function init(){
 
-          entity = $rootScope.getShortEntityName(scope.config.accept);
+          scope.entity = $rootScope.getShortEntityName(scope.config.accept);
 
           var permissions = localStorageService.get('permissions');
           if(!permissions){
@@ -234,20 +237,20 @@
 
           if(scope.config.acceptFrom){
             var entityForm = $rootScope.getShortEntityName(scope.config.acceptFrom);
-            scope.hide = !permissions[entity].readable || !permissions[entityForm].readable;
+            scope.hide = !permissions[scope.entity].readable || !permissions[entityForm].readable;
 
 
             scope.deletable         = permissions[entityForm].deletable && !scope.readonly;
-            scope.writable_object   = permissions[entity].writable && !scope.readonly;
+            scope.writable_object   = permissions[scope.entity].writable && !scope.readonly;
             scope.writable          = parseInt(attrs.writable) > 0 && permissions[entityForm].writable > 0;
           }else{
-            scope.hide              = !permissions[entity].readable;
-            scope.writable_object   = permissions[entity].writable && !scope.readonly;
+            scope.hide              = !permissions[scope.entity].readable;
+            scope.writable_object   = permissions[scope.entity].writable && !scope.readonly;
             scope.deletable         = parseInt(attrs.writable) > 0 && !scope.readonly;
             scope.writable          = parseInt(attrs.writable) > 0;
           }
 
-          scope.schema = localStorageService.get('schema')[entity];
+          scope.schema = localStorageService.get('schema')[scope.entity];
 
           scope.propertyCount = Object.keys(scope.schema.list).length;
         }
@@ -294,61 +297,79 @@
             properties.push(scope.schema.list[key]);
           }
 
-          var currentPage   = scope.schema.settings.type == 'tree' ? 0 : scope.currentPage;
-          var sortSettings  = {};
-          sortSettings[scope.schema.settings.sortBy] = scope.schema.settings.sortOrder;
-
-          var data = {
-            entity: entity,
-            currentPage: currentPage,
-            order: sortSettings,
-            itemsPerPage: itemsPerPage,
-            where: where,
-            properties: properties,
-            lang: scope.object.lang
-          };
-          EntityService.list(data).then(
-            function successCallback(response) {
-              scope.totalPages    = scope.schema.settings.type == 'tree' ? 1 : Math.ceil(response.data.totalItems / itemsPerPage);
-              var data  = [];
-
-              var treeSort = function(parent, level){
-                for(var i in response.data.data){
-                  if(!parent){
-                    if(!response.data.data[i].treeParent){
-                      response.data.data[i].level =  level;
-                      response.data.data[i].filler = '--'.repeat(level);
-                      data.push(response.data.data[i]);
-                      treeSort(response.data.data[i].id, level + 1);
-                    }
-                  }else{
-                    if(response.data.data[i].treeParent && parent == response.data.data[i].treeParent.id){
-                      response.data.data[i].level = level;
-                      response.data.data[i].filler = '--'.repeat(level);
-                      data.push(response.data.data[i]);
-                      treeSort(response.data.data[i].id, level + 1);
-                    }
-                  }
+          scope.isTree = scope.schema.settings.type == 'tree';
 
 
-                }
-              };
+          if(scope.isTree){
+            var filterData = {
+              entity: scope.entity,
+              lang: scope.object.lang
+            };
 
-              if(scope.schema.settings.type == 'tree' && !scope.search){
-                treeSort(null, 0);
-                delete scope.schema.list[1];
-                delete scope.schema.list[2];
-              }else{
-                data  = response.data.data
+            EntityService.tree2(filterData).then(
+              function (response) {
+                scope.objects = response.data.data;
+              },
+              function errorCallback(response) {
               }
+            );
+          }else {
+            var currentPage = scope.schema.settings.type == 'tree' ? 0 : scope.currentPage;
+            var sortSettings = {};
+            sortSettings[scope.schema.settings.sortBy] = scope.schema.settings.sortOrder;
+
+            var data = {
+              entity: scope.entity,
+              currentPage: currentPage,
+              order: sortSettings,
+              itemsPerPage: itemsPerPage,
+              where: where,
+              properties: properties,
+              lang: scope.object.lang
+            };
+            EntityService.list(data).then(
+              function successCallback(response) {
+                scope.totalPages = scope.schema.settings.type == 'tree' ? 1 : Math.ceil(response.data.totalItems / itemsPerPage);
+                var data = [];
+
+                var treeSort = function (parent, level) {
+                  for (var i in response.data.data) {
+                    if (!parent) {
+                      if (!response.data.data[i].treeParent) {
+                        response.data.data[i].level = level;
+                        response.data.data[i].filler = '--'.repeat(level);
+                        data.push(response.data.data[i]);
+                        treeSort(response.data.data[i].id, level + 1);
+                      }
+                    } else {
+                      if (response.data.data[i].treeParent && parent == response.data.data[i].treeParent.id) {
+                        response.data.data[i].level = level;
+                        response.data.data[i].filler = '--'.repeat(level);
+                        data.push(response.data.data[i]);
+                        treeSort(response.data.data[i].id, level + 1);
+                      }
+                    }
 
 
-              scope.objects       = data;
-            },
-            function errorCallback(response) {
-              scope.objects = [];
-            }
-          );
+                  }
+                };
+
+                if (scope.schema.settings.type == 'tree' && !scope.search) {
+                  treeSort(null, 0);
+                  delete scope.schema.list[1];
+                  delete scope.schema.list[2];
+                } else {
+                  data = response.data.data
+                }
+
+
+                scope.objects = data;
+              },
+              function errorCallback(response) {
+                scope.objects = [];
+              }
+            );
+          }
         }
 
         function openChooser(){

@@ -10,14 +10,14 @@
     return {
       restrict: 'E',
       scope: {
-        items: '=', entity: '=', value: '=', key: '=', onSelectCallback: '&'
+        items: '=', entity: '=', value: '=', key: '=',  selectMode: '=', sword: "=", onSelectCallback: '&', showCancelSearch: "="
       },
       templateUrl: function(){
         return '/ui/default/views/directives/tree.html?v=' + APP_VERSION
       },
       link: function(scope, element, attrs){
 
-        var treeState    = {};
+        var treeState       = {};
 
         //Properties
         scope.clicked     = false;
@@ -26,7 +26,9 @@
         scope.schema      = null;
 
         //Functions
+        scope.clearSearch = clearSearch;
         scope.label     = label;
+        scope.sItems    = [];
         scope.isOpened  = isOpened;
         scope.isSelected= isSelected;
         scope.select    = select;
@@ -38,15 +40,65 @@
 
         /////////////////////////////////////
 
+        function clearSearch($event){
+          scope.sword = '';
+          $event.stopPropagation();
+        }
+
         function init(){
+
           scope.entity = $rootScope.getShortEntityName(scope.entity);
           scope.schema = localStorageService.get('schema')[scope.entity];
-
 
           treeState = localStorageService.get('treeState');
           treeState = treeState ? treeState : {};
 
           scope.nodeOpened = treeState[scope.entity] ? treeState[scope.entity] : {};
+
+          scope.$watch('sword',function(data){
+            filter();
+          },true)
+
+        }
+
+        function find(items, parentLabel){
+
+          if(!items.length){
+            return;
+          }
+
+          for(var i in items){
+            var item  = items[i];
+            var itemLabel = label(item);
+
+            if(itemLabel.toLowerCase().includes(scope.sword.toLowerCase())){
+
+              var labelProperty = scope.schema.settings.labelProperty ? scope.schema.settings.labelProperty : scope.schema.list[0];
+              var sItem = {};
+              sItem['id'] = item.id;
+              sItem[labelProperty] = parentLabel + itemLabel;
+              scope.sItems.push(sItem);
+
+            }
+
+            find(item.childs, parentLabel + itemLabel + ' -> ');
+          }
+
+        }
+
+        function filter(){
+          if(!scope.sword){
+            return;
+          }
+
+          scope.sItems = [];
+
+          find(scope.items, '')
+
+        }
+
+        function labelProperty(){
+          return scope.schema.settings.labelProperty ? scope.schema.settings.labelProperty : scope.schema.list[0];
         }
 
         function label(item){
@@ -63,7 +115,7 @@
         }
 
         function isSelected(item){
-          return item.id == scope.value;
+          return Array.isArray(scope.value) ? scope.value.includes(item.id) :item.id == scope.value;
         }
 
 

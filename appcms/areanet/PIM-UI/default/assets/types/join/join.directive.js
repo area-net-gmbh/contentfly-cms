@@ -17,14 +17,15 @@
       },
       link: function(scope, element, attrs){
         var itemsPerPage = 10;
-        var entity       = null;
 
         //Properties
         scope.chooserOpened     = false;
+        scope.entity            = null;
         scope.currentPage       = 1;
         scope.deletable         = false;
         scope.hide              = false;
         scope.propertyCount     = 0;
+        scope.isTree            = false;
         scope.objects           = [];
         scope.readonly          = false;
         scope.schema            = null;
@@ -34,16 +35,16 @@
         scope.writable_object   = false;
 
         //Functions
-        scope.addNewObject  = addNewObject;
-        scope.change        = change;
-        scope.chooseObject  = chooseObject;
-        scope.closeChooser  = closeChooser;
-        scope.editObject    = editObject;
-        scope.keyPressed    = keyPressed;
-        scope.loadData      = loadData;
-        scope.openChooser   = openChooser;
-        scope.removeObject  = removeObject;
-        scope.setSelectedIndex = setSelectedIndex;
+        scope.addNewObject      = addNewObject;
+        scope.change            = change;
+        scope.chooseObject      = chooseObject;
+        scope.closeChooser      = closeChooser;
+        scope.editObject        = editObject;
+        scope.keyPressed        = keyPressed;
+        scope.loadData          = loadData;
+        scope.openChooser       = openChooser;
+        scope.removeObject      = removeObject;
+        scope.setSelectedIndex  = setSelectedIndex;
 
         //Startup
         init();
@@ -64,7 +65,7 @@
             templateUrl: templateUrl,
             controller: controller,
             resolve: {
-              entity: function(){ return entity;},
+              entity: function(){ return scope.entity;},
               title: function(){ return 'Neues Objekt anlegen'; },
               object: function(){ return null; },
               readonly: false,
@@ -87,8 +88,11 @@
         }
 
         function change(){
-          scope.currentPage = 1;
-          loadData();
+          if(!scope.isTree){
+            scope.currentPage = 1;
+            loadData();
+          }
+
         }
 
         function chooseObject(object){
@@ -107,6 +111,7 @@
 
         }
 
+
         function closeChooser(){
           scope.chooserOpened = false;
         }
@@ -124,7 +129,7 @@
             templateUrl: templateUrl,
             controller: controller,
             resolve: {
-              entity: function(){ return entity;},
+              entity: function(){ return scope.entity;},
               object: function(){ return scope.value; },
               readonly: false,
               lang: function(){ return scope.object.lang},
@@ -145,6 +150,7 @@
           );
         }
 
+
         function isObject(val) {
           if (val === null) { return false;}
           return ( (typeof val === 'function') || (typeof val === 'object') );
@@ -152,7 +158,7 @@
 
         function init(){
 
-          entity = $rootScope.getShortEntityName(scope.config.accept);
+          scope.entity = $rootScope.getShortEntityName(scope.config.accept);
 
           var permissions = localStorageService.get('permissions');
           if(!permissions){
@@ -165,7 +171,7 @@
             if(!isObject(scope.value)) {
 
               var data = {
-                entity: entity,
+                entity: scope.entity,
                 lang:scope.object.lang,
                 id: scope.value
               };
@@ -228,12 +234,12 @@
             }
           }
 
-          scope.hide              = !permissions[entity].readable;
+          scope.hide              = !permissions[scope.entity].readable;
           scope.readonly          = parseInt(attrs.readonly) > 0;
-          scope.writable_object   = permissions[entity].writable && !scope.readonly;
+          scope.writable_object   = permissions[scope.entity].writable && !scope.readonly;
           scope.writable          = parseInt(attrs.writable) > 0;
 
-          scope.schema    = localStorageService.get('schema')[entity];
+          scope.schema    = localStorageService.get('schema')[scope.entity];
 
           scope.propertyCount = Object.keys(scope.schema.list).length;
         }
@@ -280,63 +286,51 @@
             properties.push(scope.schema.list[key]);
           }
 
-          var currentPage   = scope.schema.settings.type == 'tree' ? 0 : scope.currentPage;
-          var sortSettings  = {};
-          sortSettings[scope.schema.settings.sortBy] = scope.schema.settings.sortOrder;
+          scope.isTree = scope.schema.settings.type == 'tree';
 
-          var data = {
-            entity: entity,
-            currentPage: currentPage,
-            itemsPerPage: scope.schema.settings.type == 'tree' ? 0 : itemsPerPage,
-            order: sortSettings,
-            where: where,
-            properties: properties,
-            lang: scope.object.lang
-          };
-          EntityService.list(data).then(
-            function successCallback(response) {
-              scope.totalPages    = scope.schema.settings.type == 'tree' ? 1 : Math.ceil(response.data.totalItems / itemsPerPage);
+          if(scope.isTree){
+            var filterData = {
+              entity: scope.entity,
+              lang: scope.object.lang
+            };
 
-              var data  = [];
-
-              var treeSort = function(parent, level){
-                for(var i in response.data.data){
-                  if(!parent){
-                    if(!response.data.data[i].treeParent){
-                      response.data.data[i].level =  level;
-                      response.data.data[i].filler = '--'.repeat(level);
-                      data.push(response.data.data[i]);
-                      treeSort(response.data.data[i].id, level + 1);
-                    }
-                  }else{
-                    if(response.data.data[i].treeParent && parent == response.data.data[i].treeParent.id){
-                      response.data.data[i].level = level;
-                      response.data.data[i].filler = '--'.repeat(level);
-                      data.push(response.data.data[i]);
-                      treeSort(response.data.data[i].id, level + 1);
-                    }
-                  }
-
-
-                }
-              };
-
-              if(scope.schema.settings.type == 'tree' && !scope.search){
-                treeSort(null, 0);
-                delete scope.schema.list[1];
-                delete scope.schema.list[2];
-              }else{
-                data  = response.data.data
+            EntityService.tree2(filterData).then(
+              function (response) {
+                  scope.objects = response.data.data;
+              },
+              function errorCallback(response) {
               }
+            );
+          }else {
 
+            var currentPage = scope.currentPage;
+            var sortSettings = {};
+            sortSettings[scope.schema.settings.sortBy] = scope.schema.settings.sortOrder;
 
-              scope.objects       = data;
-              scope.selectedIndex = 0;
-            },
-            function errorCallback(response) {
-              scope.objects = [];
-            }
-          );
+            var data = {
+              entity: scope.entity,
+              currentPage: currentPage,
+              itemsPerPage: itemsPerPage,
+              order: sortSettings,
+              where: where,
+              properties: properties,
+              lang: scope.object.lang
+            };
+            EntityService.list(data).then(
+              function successCallback(response) {
+                scope.totalPages = Math.ceil(response.data.totalItems / itemsPerPage);
+
+                var data = [];
+                data = response.data.data
+
+                scope.objects = data;
+                scope.selectedIndex = 0;
+              },
+              function errorCallback(response) {
+                scope.objects = [];
+              }
+            );
+          }
         }
 
         function openChooser(){
