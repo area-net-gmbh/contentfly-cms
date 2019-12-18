@@ -1,7 +1,7 @@
 <div ng-show="readable">
     <pim-plugin key="TYPE_PREPEND" uiblocks="uiblocks"></pim-plugin>
     <label for="{{key}}" class="col-sm-2 control-label optional">{{config.label}} <pim-plugin key="TYPE_LABEL_APPEND" uiblocks="uiblocks"></pim-plugin></label>
-    <div class="col-sm-10" uib-dropdown>
+    <div class="col-sm-10" uib-dropdown ng-hide="readonly || config.readonly">
         <button  ng-disabled="!writable" class="btn btn-default" id="dropdown-{{key}}" type="button" uib-dropdown-toggle>
             Dateien hinzufügen <span class="glyphicon glyphicon-menu-down"></span>
         </button>
@@ -17,7 +17,7 @@
 
     </div>
     <div class="col-sm-10 col-sm-offset-2 alert alert-danger" ng-show="errorMsg">{{errorMsg}}</div>
-    <div class="col-sm-10 col-sm-offset-2">
+    <div class="col-sm-10 col-sm-offset-2" ng-hide="readonly || config.readonly">
         <div class="row image-upload" ng-show="fileUploads && f" ng-repeat="f in fileUploads">
             <div class="col-sm-3">{{f.name}}</div>
             <div class="col-sm-7">
@@ -26,7 +26,7 @@
         </div>
     </div>
     <pim-plugin key="TYPE_FIELD_PREPEND" uiblocks="uiblocks"></pim-plugin>
-    <div class="col-sm-10 col-sm-offset-2" ui-sortable="sortableOptions" ng-model="value" ng-init="mappedBy = config.mappedBy">
+    <div class="col-sm-10" ng-class="{'col-sm-offset-2': !readonly && !config.readonly}" ui-sortable="sortableOptions" ng-model="value" ng-init="mappedBy = config.mappedBy">
         <div class="image-form-container" ng-repeat="(index, subobject) in value" ng-init="type = mappedBy ? subobject[mappedBy].type : subobject.type">
             <ng-switch on="type">
                 <div ng-switch-when="image/jpeg" class="image-edit image-form"  ng-class="{disabled:config.sortable && !subobject.isActive, squareImage: formImageSquarePreview}" style="background-image:url('/file/get/{{mappedBy ? subobject[mappedBy].id : subobject.id}}/pim_small/{{mappedBy ? subobject[mappedBy].name : subobject.name}}');">

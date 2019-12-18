@@ -111,7 +111,7 @@
         }
 
 
-        function editObject(index){
+        function editObject(index, readonly){
 
           var id     = scope.value[index].id;
           var object = scope.value[index];
@@ -130,7 +130,7 @@
             resolve: {
               entity: function(){ return entity;},
               object: function(){ return object; },
-              readonly: false,
+              readonly: readonly != 1 ? false : true,
               lang: function(){ return scope.object.lang;},
               doCopy: false,
               translateFrom:  function(){ null;},
