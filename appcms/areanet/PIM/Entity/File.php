@@ -42,7 +42,7 @@ class File extends Base
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @PIM\Config(label="Alt-Text")
+     * @PIM\Config(label="Alt-Text", showInList=60)
      */
     protected $altText;
 
