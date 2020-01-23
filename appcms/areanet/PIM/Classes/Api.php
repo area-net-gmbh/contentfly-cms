@@ -1589,23 +1589,23 @@ class Api
             $queryBuilder
                 ->where("$entityNameAlias.id = :id")
                 ->setParameter('id', $id);
-
-            if($schema[$entityShortName]['settings']['i18n']){
-                if(empty($lang)){
-                    throw new ContentflyException(Messages::contentfly_i18n_missing_lang_param, $entityShortName);
-                }
-                $queryBuilder
-                    ->andWhere("$entityNameAlias.lang = :lang")
-                    ->setParameter('lang', $lang);
-            }
         }elseif($where){
             foreach($where as $field => $value){
                 $queryBuilder
                     ->andWhere("$entityNameAlias.$field = :$field")
-                    ->setParameter($field, $lang);
+                    ->setParameter($field, $value);
             }
         }else{
             throw new ContentflyException(Messages::contentfly_general_missing_params, $entityShortName);
+        }
+
+        if($schema[$entityShortName]['settings']['i18n']){
+            if(empty($lang)){
+                throw new ContentflyException(Messages::contentfly_i18n_missing_lang_param, $entityShortName);
+            }
+            $queryBuilder
+                ->andWhere("$entityNameAlias.lang = :lang")
+                ->setParameter('lang', $lang);
         }
 
         foreach ($schema[$entityShortName]['properties'] as $field => $config) {
