@@ -137,10 +137,14 @@
         }
 
         function init(){
-          var permissions = localStorageService.get('permissions')
+          var permissions = localStorageService.get('permissions');
           if(!permissions){
             return;
           }
+
+          scope.$watch('value',function(data){
+            if(scope.value) scope.onChangeCallback({key: scope.key, value: scope.value.id});
+          },true);
 
           scope.readable        = permissions['PIM\\File'].readable;
           scope.uploadable      = permissions['PIM\\File'].writable;

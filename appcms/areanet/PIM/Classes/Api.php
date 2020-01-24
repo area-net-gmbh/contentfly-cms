@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ms
- * Date: 21.04.17
- * Time: 10:26
- */
-
 namespace Areanet\PIM\Classes;
 
 
@@ -147,10 +140,9 @@ class Api
             $subObjects = $this->em->getRepository($entityFullName)->findBy(array('treeParent' => $object->getId()));
             if($subObjects){
                 foreach($subObjects as $subObject){
-                    $this->delete($entityShortName, $subObject->getId(), $this->app);
+                    $this->doDelete($entityShortName, $subObject->getId(), $this->app);
                 }
             }
-            $parent = $object->getTreeParent();
         }
 
         //Dateien löschen
@@ -1232,7 +1224,7 @@ class Api
 
         }
 
-        $joinIsTree = false;
+        $forceLoadPartial = false;
 
         foreach ($schema[$entityShortName]['properties'] as $field => $config) {
             if (count($properties) && !in_array($field, $properties)) continue;
@@ -1246,6 +1238,7 @@ class Api
                         $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'];
                         $labelPropertyField = $labelProperty && $schema[$joinedShortEntity]['properties'][$labelProperty]  ? ','.$labelProperty : '';
                         $queryBuilder->addSelect('partial '.'a_'.$field.'.{id, lang'.$labelPropertyField.'}');
+                        $forceLoadPartial = true;
                     }else{
                         $queryBuilder->addSelect( 'a_'.$field);
                     }
@@ -1255,22 +1248,21 @@ class Api
                         $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'];
                         $labelPropertyField = $labelProperty && $schema[$joinedShortEntity]['properties'][$labelProperty]  ? ','.$labelProperty : '';
                         $queryBuilder->addSelect('partial '.'a_'.$field.'.{id'.$labelPropertyField.'}');
+                        $forceLoadPartial = true;
                     }else{
                         $queryBuilder->addSelect('a_'.$field);
+                        $forceLoadPartial = true;
                     }
                 }
-
-                $joinIsTree = $joinIsTree || $schema[$joinedShortEntity]['settings']['type'] == 'tree';
             }
         }
 
         $query   = $queryBuilder->getQuery();
 
-
-        if(count($properties) && !$joinIsTree){
+        if($forceLoadPartial){
             $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         }
-
+//die($query->getDQL());
         $objects = $query->getResult();
 
         if(!$objects){
@@ -1280,7 +1272,7 @@ class Api
         $array = array();
         foreach($objects as $object){
 
-            $objectData = $object->toValueObject($this->app, $entityShortName,  $flatten, $validProperties);
+            $objectData = $object->toValueObject($this->app, $entityShortName,  $flatten, $properties);
 
             $array[] = $objectData;
 
@@ -1667,7 +1659,7 @@ class Api
             }
         }
 
-        $object = $queryBuilder->getQuery()->getSingleResult();
+        $object = $queryBuilder->getQuery()->getOneOrNullResult();
 
         if (!$object) {
             return new JsonResponse(array('message' => "Object not found"), Messages::contentfly_status_not_found);
