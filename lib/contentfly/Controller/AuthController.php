@@ -1,12 +1,12 @@
 <?php
-namespace Areanet\Contentfly\Controller;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Config\Adapter;
-use Areanet\Contentfly\Classes\Controller\BaseController;
-use Areanet\Contentfly\Classes\LoginProvider;
-use Areanet\Contentfly\Classes\Manager\LoginManager;
-use Areanet\Contentfly\Entity\Token;
-use Areanet\Contentfly\Entity\User;
+namespace Areanet\PIM\Controller;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\LoginProvider;
+use Areanet\PIM\Classes\Manager\LoginManager;
+use Areanet\PIM\Entity\Token;
+use Areanet\PIM\Entity\User;
 use Silex\Application;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -65,7 +65,7 @@ class AuthController extends BaseController
             }
         }else{
 
-            $user = $this->em->getRepository('Areanet\Contentfly\Entity\User')->findOneBy(array('alias' => $request->get('alias')));
+            $user = $this->em->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $request->get('alias')));
             if(!$user){
                 return new JsonResponse(array('message' => 'Ungültiger Benutzername.'), 401);
             }
@@ -92,7 +92,7 @@ class AuthController extends BaseController
         }
 
         if(self::CHECK_LOGIN_INTERVAL) {
-            $lastToken = $this->em->getRepository('Areanet\Contentfly\Entity\Token')->findOneBy(array('user' => $user), array('created' => 'DESC'));
+            $lastToken = $this->em->getRepository('Areanet\PIM\Entity\Token')->findOneBy(array('user' => $user), array('created' => 'DESC'));
             if ($lastToken) {
                 $created = $lastToken->getCreated()->getTimestamp();
                 $now = (new \DateTime())->getTimestamp();

@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Permission;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\BaseSortable;
-use Areanet\Contentfly\Entity\OptionGroup;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\OptionGroup;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -83,7 +83,7 @@ class CheckboxType extends Type
         $config     = $this->app['schema'][ucfirst($entityName)]['properties'][$property];
 
         $data       = array();
-        $permission = \Areanet\Contentfly\Entity\Permission::ALL;
+        $permission = \Areanet\PIM\Entity\Permission::ALL;
         $subEntity  = null;
 
         if(isset($config['accept'])){
@@ -107,11 +107,11 @@ class CheckboxType extends Type
 
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
 
-                if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
                     if($objectToLoad->getUserCreated() != $this->app['auth.user']){
                         $group = $this->app['auth.user']->getGroup();
                         if(!($group && $objectToLoad->hasGroupId($group->getId()))){
@@ -126,11 +126,11 @@ class CheckboxType extends Type
 
 
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
 
-                if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
                     if($objectToLoad->getUserCreated() != $this->app['auth.user']){
                         $group = $this->app['auth.user']->getGroup();
                         if(!($group && $objectToLoad->hasGroupId($group->getId()))){

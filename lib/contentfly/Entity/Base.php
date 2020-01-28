@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
-use Areanet\Contentfly\Classes\Exceptions\ContentflyException;
-use Areanet\Contentfly\Classes\Messages;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Messages;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\MappedSuperclass
@@ -46,14 +46,14 @@ class Base extends Serializable
     protected $views;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
      * @PIM\Config(label="geändert von", hide=true)
      */
     protected $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
      * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id", onDelete="SET NULL")
      * @PIM\Config(showInList = APP_CMS_SHOW_OWNER_IN_LIST, label="Besitzer", tab="settings")
      */
@@ -67,14 +67,14 @@ class Base extends Serializable
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Virtualjoin(targetEntity="Areanet\Contentfly\Entity\User")
+     * @PIM\Virtualjoin(targetEntity="Areanet\PIM\Entity\User")
      * @PIM\Config(label="Benutzer", tab="settings")
      */
     protected $users;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Virtualjoin(targetEntity="Areanet\Contentfly\Entity\Group")
+     * @PIM\Virtualjoin(targetEntity="Areanet\PIM\Entity\Group")
      * @PIM\Config(label="Gruppen", tab="settings")
      */
     protected $groups;

@@ -1,9 +1,9 @@
 <?php
-namespace Areanet\Contentfly\Controller;
+namespace Areanet\PIM\Controller;
 
-use Areanet\Contentfly\Classes\Config;
-use Areanet\Contentfly\Classes\Controller\BaseController;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Classes\Config;
+use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Entity\User;
 
 class UiController extends BaseController
 {
@@ -48,7 +48,7 @@ class UiController extends BaseController
                 'welcome' => Config\Adapter::getConfig()->FRONTEND_WELCOME,
                 'customLoginBG' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGIN_BG
             ),
-            'webroot' => Config\Adapter::getConfig()->WEB_ROOT
+            'webroot' => dirname($_SERVER['PHP_SELF'])
         ));
     }
 }

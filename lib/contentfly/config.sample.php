@@ -1,5 +1,5 @@
 <?php
-use \Areanet\Contentfly\Classes\Config\Factory;
+use \Areanet\PIM\Classes\Config\Factory;
 
 $configFactory = Factory::getInstance();
 
@@ -7,7 +7,7 @@ $configFactory = Factory::getInstance();
  * Default Config
  */
 
-$configDefault = new \Areanet\Contentfly\Classes\Config();
+$configDefault = new \Areanet\PIM\Classes\Config();
 
 $configDefault->DB_HOST                 = '$SET_DB_HOST';
 $configDefault->DB_NAME                 = '$SET_DB_NAME';

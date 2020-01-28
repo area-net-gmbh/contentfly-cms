@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
-use Areanet\Contentfly\Classes\Config\Adapter;
-use Areanet\Contentfly\Classes\Permission;
+use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Permission;
 use Silex\Application;
 
 abstract class Serializable implements \JsonSerializable{

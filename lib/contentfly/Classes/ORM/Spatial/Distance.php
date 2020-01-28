@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\ORM\Spatial;
+namespace Areanet\PIM\Classes\ORM\Spatial;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Lexer;

@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\File;
+namespace Areanet\PIM\Classes\File;
 
 
 class Processing
@@ -21,6 +21,6 @@ class Processing
             return self::$mapping[$mimeType];
         }
 
-        return new \Areanet\Contentfly\Classes\File\Processing\Standard();
+        return new \Areanet\PIM\Classes\File\Processing\Standard();
     }
 }

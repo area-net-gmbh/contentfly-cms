@@ -6,7 +6,7 @@
  * Time: 15:52
  */
 
-namespace Areanet\Contentfly\Classes\Exceptions;
+namespace Areanet\PIM\Classes\Exceptions;
 
 
 class ContentflyI18NException extends \Exception

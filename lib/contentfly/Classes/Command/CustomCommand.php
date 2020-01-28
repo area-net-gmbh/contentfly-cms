@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\Command;
+namespace Areanet\PIM\Classes\Command;
 
 use Knp\Command\Command;
 

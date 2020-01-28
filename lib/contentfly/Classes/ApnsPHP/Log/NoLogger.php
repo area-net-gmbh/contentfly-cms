@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\ApnsPHP\Log;
+namespace Areanet\PIM\Classes\ApnsPHP\Log;
 
 class NoLogger implements \ApnsPHP_Log_Interface{
 

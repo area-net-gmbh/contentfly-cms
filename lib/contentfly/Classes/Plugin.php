@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 
-use Areanet\Contentfly\Classes\Type\PluginType;
+use Areanet\PIM\Classes\Type\PluginType;
 use Silex\Application;
 
 abstract class Plugin

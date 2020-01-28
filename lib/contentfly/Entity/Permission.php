@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
@@ -17,7 +17,7 @@ class Permission extends Base
     const ALL     = 2;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\Group", inversedBy="permissions")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Group", inversedBy="permissions")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
      */
     protected $group;

@@ -6,7 +6,7 @@
  * Time: 15:20
  */
 
-namespace Areanet\Contentfly\Classes\Controller\Provider;
+namespace Areanet\PIM\Classes\Controller\Provider;
 
 
 class Route

@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Classes\File\Processing;
+namespace Areanet\PIM\Classes\File\Processing;
 
-use Areanet\Contentfly\Classes\File\ProcessingInterface;
-use Areanet\Contentfly\Classes\File\BackendInterface;
-use Areanet\Contentfly\Entity\File;
-use Areanet\Contentfly\Entity\ThumbnailSetting;
+use Areanet\PIM\Classes\File\ProcessingInterface;
+use Areanet\PIM\Classes\File\BackendInterface;
+use Areanet\PIM\Entity\File;
+use Areanet\PIM\Entity\ThumbnailSetting;
 
 class Standard implements ProcessingInterface
 {

@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Classes\Manager;
+namespace Areanet\PIM\Classes\Manager;
 
-use Areanet\Contentfly\Classes\Controller\Provider\Base\CustomControllerProvider;
-use Areanet\Contentfly\Classes\Manager;
+use Areanet\PIM\Classes\Controller\Provider\Base\CustomControllerProvider;
+use Areanet\PIM\Classes\Manager;
 
 class RouteManager extends Manager
 {

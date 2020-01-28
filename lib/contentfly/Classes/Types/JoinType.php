@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Helper;
-use Areanet\Contentfly\Classes\Permission;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Controller\ApiController;
-use Areanet\Contentfly\Entity\Base;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Helper;
+use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 
@@ -70,11 +70,11 @@ class JoinType extends Type
         }
 
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($subobject->getUserCreated() != $this->app['auth.user'] && !$subobject->hasUserId($this->app['auth.user']->getId()))){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($subobject->getUserCreated() != $this->app['auth.user'] && !$subobject->hasUserId($this->app['auth.user']->getId()))){
             return array('id' => $subobject->getId(), 'pim_blocked' => true);
         }
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($subobject->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $subobject->hasGroupId($group->getId()))){

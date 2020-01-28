@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\ORM\Query\Mysql;
+namespace Areanet\PIM\Classes\ORM\Query\Mysql;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Lexer;

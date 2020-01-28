@@ -1,7 +1,7 @@
 <?php
-namespace Areanet\Contentfly\Classes\File;
+namespace Areanet\PIM\Classes\File;
 
-use Areanet\Contentfly\Classes\File\Backend\FileSystem;
+use Areanet\PIM\Classes\File\Backend\FileSystem;
 
 class Backend
 {

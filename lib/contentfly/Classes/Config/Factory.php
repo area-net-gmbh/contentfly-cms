@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Classes\Config;
+namespace Areanet\PIM\Classes\Config;
 
-use Areanet\Contentfly\Classes\Config;
-use Areanet\Contentfly\Classes\Exceptions\Config\NotFoundException;
+use Areanet\PIM\Classes\Config;
+use Areanet\PIM\Classes\Exceptions\Config\NotFoundException;
 
 
 /**
@@ -10,7 +10,7 @@ use Areanet\Contentfly\Classes\Exceptions\Config\NotFoundException;
  *
  * Factory class to manage config setting for different server hosts (local, development, production,...)
  *
- * @package Areanet\Contentfly\Classes\Config
+ * @package Areanet\PIM\Classes\Config
  */
 
 class Factory{

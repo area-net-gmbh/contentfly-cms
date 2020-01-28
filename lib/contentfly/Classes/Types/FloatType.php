@@ -1,6 +1,6 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Type;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Type;
 
 
 class FloatType extends Type

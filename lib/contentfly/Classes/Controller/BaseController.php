@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Classes\Controller;
+namespace Areanet\PIM\Classes\Controller;
 
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Config\Adapter;
-use Areanet\Contentfly\Entity\BaseSortable;
-use Areanet\Contentfly\Entity\BaseTree;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\BaseTree;
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;

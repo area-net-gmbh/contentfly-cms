@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__.'/bootstrap.php';
 
-use Areanet\Contentfly\Controller;
-use \Areanet\Contentfly\Classes\Config;
+use Areanet\PIM\Controller;
+use Areanet\PIM\Classes\Config;
 use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\Debug\ErrorHandler;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +68,7 @@ $handler->setHandler(function ($exception) use ($app) {
 
 $app->error(function (\Exception $e, Request $request, $code) use($app) {
 
-    if($e instanceof \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException){
+    if($e instanceof \Areanet\PIM\Classes\Exceptions\FileNotFoundException){
         return new \Symfony\Component\HttpFoundation\Response($e->getMessage(), 404, array('X-Status-Code' => 404));
     }else{
         $accept = AcceptHeader::fromString($app["request"]->headers->get('Content-Type'));
@@ -83,9 +83,9 @@ $app->error(function (\Exception $e, Request $request, $code) use($app) {
         }
 
         $data= array();
-        if($e instanceof \Areanet\Contentfly\Classes\Exceptions\ContentflyException){
+        if($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyException){
             $data = array('message' => $e->getMessage(), 'type' => get_class($e), 'message_value' => $e->getValue(), 'status' => $e->getCode());
-        }elseif($e instanceof \Areanet\Contentfly\Classes\Exceptions\ContentflyI18NException){
+        }elseif($e instanceof \Areanet\PIM\Classes\Exceptions\ContentflyI18NException){
             $data = array('message' => $e->getMessage(), 'type' => get_class($e), 'message_entity' => $e->getEntity(), 'message_lang' => $e->getLang(), 'status' => $e->getCode());
         }else{
             $data = array("message" => $e->getMessage(), "type" => get_class($e), $e->getCode() ? $e->getCode() : 500);
@@ -125,11 +125,11 @@ $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction')
 $app->get(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:indexAction');
 $app->post(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:submitAction');
 
-$app->mount('/api', new \Areanet\Contentfly\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));
-$app->mount('/export', new \Areanet\Contentfly\Classes\Controller\Provider\Base\ExportControllerProvider('/export'));
-$app->mount('/auth', new \Areanet\Contentfly\Classes\Controller\Provider\Base\AuthControllerProvider('/auth'));
-$app->mount('/file', new \Areanet\Contentfly\Classes\Controller\Provider\Base\FileControllerProvider('/file'));
-$app->mount('/system', new \Areanet\Contentfly\Classes\Controller\Provider\Base\SystemControllerProvider('/system'));
+$app->mount('/api', new \Areanet\PIM\Classes\Controller\Provider\Base\ApiControllerProvider('/api'));
+$app->mount('/export', new \Areanet\PIM\Classes\Controller\Provider\Base\ExportControllerProvider('/export'));
+$app->mount('/auth', new \Areanet\PIM\Classes\Controller\Provider\Base\AuthControllerProvider('/auth'));
+$app->mount('/file', new \Areanet\PIM\Classes\Controller\Provider\Base\FileControllerProvider('/file'));
+$app->mount('/system', new \Areanet\PIM\Classes\Controller\Provider\Base\SystemControllerProvider('/system'));
 
 $app->run();
 

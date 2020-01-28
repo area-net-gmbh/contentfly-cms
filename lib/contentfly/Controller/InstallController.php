@@ -6,12 +6,12 @@
  * Time: 11:44
  */
 
-namespace Areanet\Contentfly\Controller;
+namespace Areanet\PIM\Controller;
 
 
-use Areanet\Contentfly\Classes\Config\Adapter;
-use Areanet\Contentfly\Classes\Controller\BaseController;
-use Areanet\Contentfly\Classes\Helper;
+use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\Helper;
 use Silex\Provider\DoctrineServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -25,12 +25,9 @@ class InstallController extends BaseController
             return $this->app->redirect(Adapter::getConfig()->FRONTEND_URL);
         }
 
-        /** @var Helper $helper */
-        $helper = $this->app['helper'];
-        $helper->createSymlinks();
-
         return $this->app['twig']->render('install.twig', array(
             'app_version'  => APP_VERSION,
+            'webroot' => dirname($_SERVER['PHP_SELF']),
             'errors' => null
         ));
     }
@@ -156,7 +153,7 @@ class InstallController extends BaseController
                 'mappings' => array(
                     array(
                         'type' => 'annotation',
-                        'namespace' => 'Areanet\Contentfly\Entity',
+                        'namespace' => 'Areanet\PIM\Entity',
                         'path' => ROOT_DIR . '/lib/contentfly/Entity',
                         'use_simple_annotation_reader' => false
                     ),
@@ -169,12 +166,12 @@ class InstallController extends BaseController
                 )
             ),
             'orm.custom.functions.numeric' => array(
-                'Find_In_Set' => '\Areanet\Contentfly\Classes\ORM\Query\Mysql\FindInSet'
+                'Find_In_Set' => '\Areanet\PIM\Classes\ORM\Query\Mysql\FindInSet'
             )
         ));
 
         $this->app['typeManager'] = function ($app) {
-            return new \Areanet\Contentfly\Classes\Manager\TypeManager($app);
+            return new \Areanet\PIM\Classes\Manager\TypeManager($app);
         };
 
 

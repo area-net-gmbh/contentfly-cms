@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\Annotations;
+namespace Areanet\PIM\Classes\Annotations;
 
 use Doctrine\Common\Annotations\Annotation;
 

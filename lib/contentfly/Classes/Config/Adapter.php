@@ -1,7 +1,7 @@
 <?php
-namespace Areanet\Contentfly\Classes\Config;
-use Areanet\Contentfly\Classes\Config;
-use Areanet\Contentfly\Classes\Exceptions\Config\FactoryNotFoundException;
+namespace Areanet\PIM\Classes\Config;
+use Areanet\PIM\Classes\Config;
+use Areanet\PIM\Classes\Exceptions\Config\FactoryNotFoundException;
 
 
 /**
@@ -9,7 +9,7 @@ use Areanet\Contentfly\Classes\Exceptions\Config\FactoryNotFoundException;
  *
  * Adapter class to get config settings for a server host (local, development, production,...) with a "one-liner"
  *
- * @package Areanet\Contentfly\Classes\Config
+ * @package Areanet\PIM\Classes\Config
  */
 class Adapter{
 

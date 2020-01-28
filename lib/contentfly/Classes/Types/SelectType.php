@@ -1,9 +1,9 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
+namespace Areanet\PIM\Classes\Types;
 
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Entity\Base;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Entity\Base;
 
 
 class SelectType extends Type

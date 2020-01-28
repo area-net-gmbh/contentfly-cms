@@ -1,7 +1,7 @@
 <?php
-namespace Areanet\Contentfly\Classes\File;
+namespace Areanet\PIM\Classes\File;
 
-use Areanet\Contentfly\Entity\File;
+use Areanet\PIM\Entity\File;
 
 interface BackendInterface
 {

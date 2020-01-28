@@ -1,9 +1,9 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Annotations\Datetime;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Entity\Base;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Annotations\Datetime;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Entity\Base;
 
 
 class DatetimeType extends Type

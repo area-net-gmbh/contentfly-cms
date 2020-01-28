@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
@@ -19,7 +19,7 @@ class Option extends BaseSortable
     protected $value;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\OptionGroup")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\OptionGroup")
      * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
      * @PIM\Config(label="Optionen Gruppe", showInList=15, isFilterable=true, readonly=true)
      */

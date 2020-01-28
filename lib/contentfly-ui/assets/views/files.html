@@ -1,7 +1,7 @@
 <pim-plugin key="LIST_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <div class="row header" data-block="header" ng-if="!vm.filterSidebar">
     <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
-        <ng-include src="'/ui/default/views/list/header.html'"></ng-include>
+        <ng-include src="'lib/contentfly-ui/assets/views/files/header.html'"></ng-include>
     </div>
 </div>
 <div class="row header" data-block="header" ng-if="vm.filterSidebar">
@@ -9,24 +9,24 @@
         <h3>&nbsp;<br><small>{{vm.filterSidebarTitle}}</small></small></h3>
     </div>
     <div class="col-lg-9  ">
-        <ng-include src="'/ui/default/views/files/header.html'"></ng-include>
+        <ng-include src="'lib/contentfly-ui/assets/views/files/header.html'"></ng-include>
     </div>
 </div>
 
-<ng-include src="'/ui/default/views/files/info.html'"></ng-include>
+<ng-include src="'lib/contentfly-ui/assets/views/files/info.html'"></ng-include>
 
 <pim-plugin key=FILES_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
 <div class="row" ng-if="vm.filterSidebar">
     <div class="col-lg-2  sidebar ">
-        <ng-include src="'/ui/default/views/files/tree.html'"></ng-include>
+        <ng-include src="'lib/contentfly-ui/assets/views/files/tree.html'"></ng-include>
     </div>
     <div class="col-lg-9  ">
-        <ng-include src="'/ui/default/views/files/list.html'"></ng-include>
+        <ng-include src="'lib/contentfly-ui/assets/views/files/list.html'"></ng-include>
     </div>
 </div>
 <div class="row" ng-if="!vm.filterSidebar">
     <div class="col-xl-10 col-xl-offset-1 col-lg-12 col-lg-offset-0">
-        <ng-include src="'/ui/default/views/files/list.html'"></ng-include>
+        <ng-include src="'lib/contentfly-ui/assets/views/files/list.html'"></ng-include>
     </div>
 </div>
 <pim-plugin key="FILES_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin>

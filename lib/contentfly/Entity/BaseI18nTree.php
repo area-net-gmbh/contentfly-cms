@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
@@ -13,14 +13,14 @@ use Areanet\Contentfly\Classes\Annotations as PIM;
 class BaseI18nTree extends BaseI18nSortable
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\BaseI18nTree", inversedBy="treeChilds")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\BaseI18nTree", inversedBy="treeChilds")
      * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="SET NULL")
      * @PIM\Config(showInList=60, label="Eltern-Objekt", isFilterable=true, isSidebar=true, i18n_universal=true)
      */
     protected $treeParent;
 
     /**
-     * @ORM\OneToMany(targetEntity="Areanet\Contentfly\Entity\BaseTree", mappedBy="treeParent")
+     * @ORM\OneToMany(targetEntity="Areanet\PIM\Entity\BaseTree", mappedBy="treeParent")
      */
     protected $treeChilds;
 

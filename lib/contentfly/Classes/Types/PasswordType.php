@@ -1,7 +1,7 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
+namespace Areanet\PIM\Classes\Types;
 
-use Areanet\Contentfly\Classes\Type;
+use Areanet\PIM\Classes\Type;
 
 
 class PasswordType extends Type

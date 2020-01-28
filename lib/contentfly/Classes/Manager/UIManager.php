@@ -6,10 +6,10 @@
  * Time: 17:09
  */
 
-namespace Areanet\Contentfly\Classes\Manager;
+namespace Areanet\PIM\Classes\Manager;
 
 
-use Areanet\Contentfly\Classes\Manager;
+use Areanet\PIM\Classes\Manager;
 use Silex\Application;
 
 class UIManager extends Manager

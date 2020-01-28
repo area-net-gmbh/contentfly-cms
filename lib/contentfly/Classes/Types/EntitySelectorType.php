@@ -1,9 +1,9 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Annotations\Time;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Controller\ApiController;
-use Areanet\Contentfly\Entity\Base;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Annotations\Time;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
 
 
 class EntitySelectorType extends Type

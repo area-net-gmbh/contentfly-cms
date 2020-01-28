@@ -1,9 +1,9 @@
 <?php
-namespace Areanet\Contentfly\Classes\Manager;
+namespace Areanet\PIM\Classes\Manager;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Areanet\Contentfly\Classes\Command\CustomCommand;
-use Areanet\Contentfly\Classes\Manager;
+use Areanet\PIM\Classes\Command\CustomCommand;
+use Areanet\PIM\Classes\Manager;
 use Knp\Console\ConsoleEvent;
 use Knp\Console\ConsoleEvents;
 use Silex\Application;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Areanet\Contentfly\Classes\Manager;
-use Areanet\Contentfly\Classes\Manager;
-use Areanet\Contentfly\Entity\Group;
-use Areanet\Contentfly\Entity\User;
+namespace Areanet\PIM\Classes\Manager;
+use Areanet\PIM\Classes\Manager;
+use Areanet\PIM\Entity\Group;
+use Areanet\PIM\Entity\User;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,7 +23,7 @@ abstract class LoginManager extends Manager
         $class = get_class($this);
 
         $alias = md5($class).'-'.$alias;
-        $user = $this->app['orm.em']->getRepository('Areanet\Contentfly\Entity\User')->findOneBy(array('alias' => $alias));
+        $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $alias));
         if(!$user){
             $user = new User();
             $user->setAlias($alias);

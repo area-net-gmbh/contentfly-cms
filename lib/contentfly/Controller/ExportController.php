@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Controller;
+namespace Areanet\PIM\Controller;
 
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Controller\BaseController;
-use Areanet\Contentfly\Classes\Exceptions\ContentflyException;
-use Areanet\Contentfly\Classes\Helper;
-use Areanet\Contentfly\Classes\Permission;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Helper;
+use Areanet\PIM\Classes\Permission;
 use Ellumilel\ExcelWriter;
 use PHPMailer\PHPMailer\Exception;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
@@ -26,7 +26,7 @@ class ExportController extends BaseController
 
         $output = fopen('php://output', 'w');
 
-        stream_filter_register("newlines", "Areanet\Contentfly\Controller\StreamFilterNewlines");
+        stream_filter_register("newlines", "Areanet\PIM\Controller\StreamFilterNewlines");
         stream_filter_append($output, "newlines");
 
         fputcsv($output, array_keys($data->header), ';', '"');
@@ -72,7 +72,7 @@ class ExportController extends BaseController
             throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
@@ -98,7 +98,7 @@ class ExportController extends BaseController
             return $response;
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
@@ -127,7 +127,7 @@ class ExportController extends BaseController
             throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
@@ -188,7 +188,7 @@ class ExportController extends BaseController
                                     $subitem2->addAttribute('id', isset($value->id) ? $value->id : '');
                                 }
 
-                                $event = new \Areanet\Contentfly\Classes\Event();
+                                $event = new \Areanet\PIM\Classes\Event();
                                 $event->setParam('entity', $entityName);
                                 $event->setParam('request', $request);
                                 $event->setParam('subitem2', $subitem2);
@@ -220,7 +220,7 @@ class ExportController extends BaseController
                                             $subitem2->addAttribute('id', isset($subobject->id) ? $subobject->id : '');
                                         }
 
-                                        $event = new \Areanet\Contentfly\Classes\Event();
+                                        $event = new \Areanet\PIM\Classes\Event();
                                         $event->setParam('entity', $entityShortName);
                                         $event->setParam('request', $request);
                                         $event->setParam('subitem2', $subitem2);
@@ -264,7 +264,7 @@ class ExportController extends BaseController
                     }
                 }
 
-                $event = new \Areanet\Contentfly\Classes\Event();
+                $event = new \Areanet\PIM\Classes\Event();
                 $event->setParam('entity', $entityShortName);
                 $event->setParam('request', $request);
                 $event->setParam('item', $item);
@@ -296,7 +296,7 @@ class ExportController extends BaseController
             throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('where', $where);
@@ -346,7 +346,7 @@ class ExportController extends BaseController
                                     $flattenedValue = isset($value->id) ? $value->id : '';
                                 }
 
-                                $event = new \Areanet\Contentfly\Classes\Event();
+                                $event = new \Areanet\PIM\Classes\Event();
                                 $event->setParam('entity', $entityShortName);
                                 $event->setParam('request', $request);
                                 $event->setParam('flattenedValue', $flattenedValue);
@@ -374,7 +374,7 @@ class ExportController extends BaseController
                                         $flattenedValue = isset($subobject->id) ? $subobject->id : '';
                                     }
 
-                                    $event = new \Areanet\Contentfly\Classes\Event();
+                                    $event = new \Areanet\PIM\Classes\Event();
                                     $event->setParam('entity', $entityShortName);
                                     $event->setParam('request', $request);
                                     $event->setParam('flattenedValue', $flattenedValue);
@@ -410,7 +410,7 @@ class ExportController extends BaseController
                             break;
                     }
 
-                    $event = new \Areanet\Contentfly\Classes\Event();
+                    $event = new \Areanet\PIM\Classes\Event();
                     $event->setParam('entity', $entityShortName);
                     $event->setParam('request', $request);
                     $event->setParam('csvRow', $csvRow);

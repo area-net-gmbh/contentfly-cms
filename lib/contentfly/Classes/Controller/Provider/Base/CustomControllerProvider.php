@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Classes\Controller\Provider\Base;
+namespace Areanet\PIM\Classes\Controller\Provider\Base;
 
-use Areanet\Contentfly\Classes\Config;
-use Areanet\Contentfly\Classes\Controller\Provider\BaseControllerProvider;
-use Areanet\Contentfly\Classes\Controller\Provider\Route;
-use Areanet\Contentfly\Controller\ApiController;
+use Areanet\PIM\Classes\Config;
+use Areanet\PIM\Classes\Controller\Provider\BaseControllerProvider;
+use Areanet\PIM\Classes\Controller\Provider\Route;
+use Areanet\PIM\Controller\ApiController;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;

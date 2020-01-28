@@ -6,12 +6,12 @@
  * Time: 10:01
  */
 
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\ThumbnailSetting;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\ThumbnailSetting;
+use Areanet\PIM\Entity\User;
 use Doctrine\ORM\EntityManager;
 
 class Helper
@@ -59,7 +59,7 @@ class Helper
         if (substr($entityName, 0, 8) == 'Areanet\\' || substr($entityName, 0, 7) == 'Custom\\' || substr($entityName, 0, 8) == 'Plugins\\') {
             $entityFullName = $entityName;
         }elseif(substr($entityName, 0, 3) == 'PIM') {
-            $entityFullName = 'Areanet\Contentfly\Entity\\' . substr($entityName, 4);
+            $entityFullName = 'Areanet\PIM\Entity\\' . substr($entityName, 4);
         }else{
             $entityFullName = 'Custom\Entity\\' . ucfirst($entityName);
         }
@@ -114,7 +114,7 @@ class Helper
 
     public function install(EntityManager $em){
         //Admin-Benutzer
-        $admin = $em->getRepository('Areanet\Contentfly\Entity\User')->findOneBy(array('alias' => 'admin'));
+        $admin = $em->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => 'admin'));
         if(!$admin){
             $admin = new User();
         }
@@ -127,7 +127,7 @@ class Helper
         $em->persist($admin);
 
         //Bildgrößen
-        $sizeList = $em->getRepository('Areanet\Contentfly\Entity\ThumbnailSetting')->findOneBy(array('alias' => 'pim_list'));
+        $sizeList = $em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => 'pim_list'));
         if(!$sizeList){
             $sizeList = new ThumbnailSetting();
         }
@@ -140,7 +140,7 @@ class Helper
 
         $em->persist($sizeList);
 
-        $sizeSmall = $em->getRepository('Areanet\Contentfly\Entity\ThumbnailSetting')->findOneBy(array('alias' => 'pim_small'));
+        $sizeSmall = $em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => 'pim_small'));
         if(!$sizeSmall){
             $sizeSmall = new ThumbnailSetting();
         }

@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
-use Areanet\Contentfly\Entity\Group;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Entity\Group;
+use Areanet\PIM\Entity\User;
 use Silex\Application;
 
 class I18nPermission

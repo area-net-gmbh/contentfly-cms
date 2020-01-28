@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
@@ -21,7 +21,7 @@ class File extends Base
     protected $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\Folder")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Folder")
      * @ORM\JoinColumn(name="folder_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      * @PIM\Config(showInList=80, label="Ordner", isFilterable=true, isSidebar=true)
      */
@@ -90,7 +90,7 @@ class File extends Base
     protected $isHidden;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Areanet\Contentfly\Entity\Tag")
+     * @ORM\ManyToMany(targetEntity="Areanet\PIM\Entity\Tag")
      * @ORM\JoinTable(name="pim_file_tags", joinColumns={@ORM\JoinColumn(onDelete="CASCADE")})
      * @PIM\Config(label="Tags", tab="tags", isFilterable=true)
      */

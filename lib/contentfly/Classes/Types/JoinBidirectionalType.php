@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Permission;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Controller\ApiController;
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\BaseSortable;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseSortable;
 use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -29,7 +29,7 @@ class JoinBidirectionalType extends Type
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany']) && !isset($propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'])){
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany'];
-            if($annotations->targetEntity != 'Areanet\Contentfly\Entity\BaseTree'){
+            if($annotations->targetEntity != 'Areanet\PIM\Entity\BaseTree'){
                 return true;
             }
         }
@@ -60,7 +60,7 @@ class JoinBidirectionalType extends Type
                 $classAnnotations   = $annotationReader->getClassAnnotations($reflect);
 
                 foreach($classAnnotations as $classAnnotation) {
-                    if ($classAnnotation instanceof \Areanet\Contentfly\Classes\Annotations\Config) {
+                    if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
                         if(isset($classAnnotation->sortRestrictTo) && $classAnnotation->sortRestrictTo == $annotations->mappedBy){
                             $schema['sortable'] = true;
                             break;
@@ -97,11 +97,11 @@ class JoinBidirectionalType extends Type
 
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
 
-                if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
                     if($objectToLoad->getUserCreated() != $this->app['auth.user']){
                         $group = $this->app['auth.user']->getGroup();
                         if(!($group && $objectToLoad->hasGroupId($group->getId()))){
@@ -116,11 +116,11 @@ class JoinBidirectionalType extends Type
 
 
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
 
-                if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
                     if($objectToLoad->getUserCreated() != $this->app['auth.user']){
                         $group = $this->app['auth.user']->getGroup();
                         if(!($group && $objectToLoad->hasGroupId($group->getId()))){

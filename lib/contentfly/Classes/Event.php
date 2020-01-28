@@ -6,7 +6,7 @@
  * Time: 16:55
  */
 
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 
 class Event extends \Symfony\Component\EventDispatcher\Event implements \Iterator

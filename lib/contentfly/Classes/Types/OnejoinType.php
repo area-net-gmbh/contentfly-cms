@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Exceptions\ContentflyException;
-use Areanet\Contentfly\Classes\Helper;
-use Areanet\Contentfly\Classes\Permission;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Entity\Base;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Helper;
+use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Entity\Base;
 use Custom\Entity\TestMeta;
 
 
@@ -38,7 +38,7 @@ class OnejoinType extends Type
         $one2Oneentity = $helper->getShortEntityName($propertyAnnotations->targetEntity);
 
         $i18nTest = new $propertyAnnotations->targetEntity();
-        if(is_a($i18nTest, 'Areanet\Contentfly\Entity\BaseI18n')){
+        if(is_a($i18nTest, 'Areanet\PIM\Entity\BaseI18n')){
             throw new ContentflyException('contentfly_i18n_onejoin_not_supported', $helper->getShortEntityName($propertyAnnotations->targetEntity));
        }
 
@@ -75,11 +75,11 @@ class OnejoinType extends Type
         }
 
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($subobject->getUserCreated() != $this->app['auth.user'] && !$subobject->hasUserId($this->app['auth.user']->getId()))){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($subobject->getUserCreated() != $this->app['auth.user'] && !$subobject->hasUserId($this->app['auth.user']->getId()))){
             return array('id' => $subobject->getId(), 'pim_blocked' => true);
         }
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($subobject->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $subobject->hasGroupId($group->getId()))){

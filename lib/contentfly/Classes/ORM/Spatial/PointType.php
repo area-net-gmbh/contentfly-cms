@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\ORM\Spatial;
+namespace Areanet\PIM\Classes\ORM\Spatial;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -36,7 +36,7 @@ class PointType extends Type {
         }
 
         $data = unpack('x/x/x/x/corder/Ltype/dlat/dlon', $value);
-        return new \Areanet\Contentfly\Classes\ORM\Spatial\Point($data['lat'], $data['lon']);
+        return new \Areanet\PIM\Classes\ORM\Spatial\Point($data['lat'], $data['lon']);
     }
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform) {

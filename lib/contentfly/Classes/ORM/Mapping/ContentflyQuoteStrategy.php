@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\ORM\Mapping;
+namespace Areanet\PIM\Classes\ORM\Mapping;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\ORM\Mapping\ClassMetadata;

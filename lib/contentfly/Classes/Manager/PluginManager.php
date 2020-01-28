@@ -1,15 +1,15 @@
 <?php
-namespace Areanet\Contentfly\Classes\Manager;
+namespace Areanet\PIM\Classes\Manager;
 
-use Areanet\Contentfly\Classes\Exceptions\ContentflyException;
-use Areanet\Contentfly\Classes\Manager;
-use Areanet\Contentfly\Classes\Messages;
-use Areanet\Contentfly\Classes\Plugin;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Manager;
+use Areanet\PIM\Classes\Messages;
+use Areanet\PIM\Classes\Plugin;
 
 
 /**
  * Class PluginManager
- * @package Areanet\Contentfly\Classes\Manager
+ * @package Areanet\PIM\Classes\Manager
  */
 class PluginManager extends Manager
 {

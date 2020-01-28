@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Exceptions\Config;
+namespace Areanet\PIM\Classes\Exceptions\Config;
 
 
 /**
  * Class NotFoundException
  * 
- * @package Areanet\Contentfly\Classes\Exceptions\Config
+ * @package Areanet\PIM\Classes\Exceptions\Config
  */
 
 class FactoryNotFoundException extends \Exception

@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Exceptions;
+namespace Areanet\PIM\Classes\Exceptions;
 
 
 /**
  * Class NotFoundException
  *
- * @package Areanet\Contentfly\Classes\Exceptions\Config
+ * @package Areanet\PIM\Classes\Exceptions\Config
  */
 
 class FileNotFoundException extends \Exception

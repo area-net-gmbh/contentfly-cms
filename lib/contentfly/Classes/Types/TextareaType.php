@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Config\Adapter;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Controller\ApiController;
-use Areanet\Contentfly\Entity\Base;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
 
 
 class TextareaType extends Type

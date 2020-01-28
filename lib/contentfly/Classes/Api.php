@@ -1,21 +1,20 @@
 <?php
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 
-use Areanet\Contentfly\Classes\Config\Adapter;
-use Areanet\Contentfly\Classes\Exceptions\ContentflyException;
-use Areanet\Contentfly\Classes\Exceptions\ContentflyI18NException;
-use Areanet\Contentfly\Classes\Exceptions\File\FileExistsException;
-use Areanet\Contentfly\Classes\File\Backend;
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\BaseI18n;
-use Areanet\Contentfly\Entity\BaseI18nSortable;
-use Areanet\Contentfly\Entity\BaseI18nTree;
-use Areanet\Contentfly\Entity\BaseSortable;
-use Areanet\Contentfly\Entity\BaseTree;
-use Areanet\Contentfly\Entity\File;
-use Areanet\Contentfly\Entity\Log;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Exceptions\ContentflyI18NException;
+use Areanet\PIM\Classes\File\Backend;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseI18n;
+use Areanet\PIM\Entity\BaseI18nSortable;
+use Areanet\PIM\Entity\BaseI18nTree;
+use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\BaseTree;
+use Areanet\PIM\Entity\File;
+use Areanet\PIM\Entity\Log;
+use Areanet\PIM\Entity\User;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -89,11 +88,11 @@ class Api
             throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId())) ){
             throw new ContentflyException(Messages::contentfly_general_access_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
         }
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
@@ -407,11 +406,11 @@ class Api
             throw new ContentflyException(Messages::contentfly_general_permission_denied, $entityShortName, Messages::contentfly_status_access_denied);
         }
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()) && $object != $this->app['auth.user'])){
             throw new ContentflyException(Messages::contentfly_general_permission_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
         }
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
@@ -495,7 +494,7 @@ class Api
             if($entityShortName == 'PIM\User'){
                 throw new ContentflyException(Messages::contentfly_general_user_already_exists, $data['alias'],Messages::contentfly_status_ressource_already_exists);
             }elseif($entityShortName == 'PIM\File') {
-                $existingFile = $this->em->getRepository('Areanet\Contentfly\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId()));
+                $existingFile = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('name' => $object->getName(), 'folder' => $object->getFolder()->getId()));
                 throw new ContentflyException(Messages::contentfly_general_ressource_already_exists, $existingFile->getId(), Messages::contentfly_status_ressource_already_exists);
             }else{
                 throw new ContentflyException(Messages::contentfly_general_ressource_already_exists, "$property::$value", Messages::contentfly_status_ressource_already_exists);
@@ -563,7 +562,7 @@ class Api
 
 
     public function getAll($lastModified = null, $flatten = false, $filedata = null){
-        $entities   = array('Areanet\Contentfly\Entity\File', 'Areanet\Contentfly\Entity\User', 'Areanet\Contentfly\Entity\Group');
+        $entities   = array('Areanet\PIM\Entity\File', 'Areanet\PIM\Entity\User', 'Areanet\PIM\Entity\Group');
 
         $entityFolder = __DIR__.'/../../../../custom/Entity/';
         foreach (new \DirectoryIterator($entityFolder) as $fileInfo) {
@@ -593,10 +592,10 @@ class Api
 
             $qb->where("1 = 1");
 
-            if($permission == \Areanet\Contentfly\Entity\Permission::OWN){
+            if($permission == \Areanet\PIM\Entity\Permission::OWN){
                 $qb->andWhere("$entityNameAlias.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityNameAlias.users) > 0");
                 $qb->setParameter('userCreated', $this->app['auth.user']);
-            }elseif($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
                 $group = $this->app['auth.user']->getGroup();
                 if(!$group){
                     $qb->andWhere("$entityNameAlias.userCreated = :userCreated");
@@ -647,7 +646,7 @@ class Api
             $qb = $this->em->createQueryBuilder();
 
             $qb->select('log')
-                ->from('Areanet\Contentfly\Entity\Log', 'log')
+                ->from('Areanet\PIM\Entity\Log', 'log')
                 ->where('log.modelName = :modelName')
                 ->andWhere("log.mode = 'DEL' OR log.mode = 'Gelöscht'")
                 ->setParameter('modelName', $entityShortcut);
@@ -732,11 +731,11 @@ class Api
                 }
             }
 
-            if($permission == \Areanet\Contentfly\Entity\Permission::OWN){
+            if($permission == \Areanet\PIM\Entity\Permission::OWN){
                 $tsQuery .= " AND (userCreated_id = ? OR FIND_IN_SET(?, users) > 0)";
                 $params[] = $this->app['auth.user']->getId();
                 $params[] = $this->app['auth.user']->getId();
-            }elseif($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
                 $group = $this->app['auth.user']->getGroup();
                 if(!$group){
                     $tsQuery .= " AND userCreated_id = ?";
@@ -891,16 +890,16 @@ class Api
             $queryBuilder = $this->em->createQueryBuilder();
             $queryBuilder
                 ->select("navItem")
-                ->from("Areanet\Contentfly\Entity\NavItem", "navItem")
+                ->from("Areanet\PIM\Entity\NavItem", "navItem")
                 ->join("navItem.nav", "nav")
                 ->where('navItem.nav IS NOT NULL')
                 ->orderBy('nav.sorting')
                 ->orderBy('navItem.sorting');
 
-            if($permission == \Areanet\Contentfly\Entity\Permission::OWN){
+            if($permission == \Areanet\PIM\Entity\Permission::OWN){
                 $queryBuilder->andWhere("navItem.userCreated = :userCreated OR FIND_IN_SET(:userCreated, navItem.users) > 0");
                 $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
-            }elseif($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+            }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
                 $group = $this->app['auth.user']->getGroup();
                 if(!$group){
                     $queryBuilder->andWhere("navItem.userCreated = :userCreated");
@@ -915,7 +914,7 @@ class Api
             $items = $queryBuilder->getQuery()->getResult();
             foreach($items as $item){
 
-                $entityUriName = str_replace('Areanet\Contentfly\Entity', 'PIM/', $item->getEntity());
+                $entityUriName = str_replace('Areanet\PIM\Entity', 'PIM/', $item->getEntity());
                 $entityUriName = str_replace('Custom\Entity', '', $entityUriName);
 
                 if(empty($frontend['customNavigation']['items'][$item->getNav()->getId()])){
@@ -975,10 +974,10 @@ class Api
             ->andWhere("$entityNameAlias.isIntern = false");
 
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::OWN){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN){
             $queryBuilder->andWhere("$entityNameAlias.userCreated = :userCreated OR FIND_IN_SET(:userCreated, $entityNameAlias.users) > 0");
             $queryBuilder->setParameter('userCreated', $this->app['auth.user']);
-        }elseif($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+        }elseif($permission == \Areanet\PIM\Entity\Permission::GROUP){
             $group = $this->app['auth.user']->getGroup();
             if(!$group){
                 $queryBuilder->andWhere("$entityNameAlias.userCreated = :userCreated");
@@ -1149,7 +1148,7 @@ class Api
             }
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('request',        $this->request);
         $event->setParam('entity',         $entityShortName);
         $event->setParam('queryBuilder',   $queryBuilder);
@@ -1427,7 +1426,7 @@ class Api
                     $settings['dbname'] = $classAnnotation->name ? $classAnnotation->name : null;
                 }
 
-                if ($classAnnotation instanceof \Areanet\Contentfly\Classes\Annotations\Config) {
+                if ($classAnnotation instanceof \Areanet\PIM\Classes\Annotations\Config) {
                     $settings['label']          = $classAnnotation->label ? $classAnnotation->label : $entity;
                     $settings['labelProperty']  = $classAnnotation->labelProperty ? $classAnnotation->labelProperty : $settings['labelProperty'];
                     $settings['readonly']       = $classAnnotation->readonly ? $classAnnotation->readonly : false;
@@ -1447,7 +1446,7 @@ class Api
                     }
                 }
 
-                $event = new \Areanet\Contentfly\Classes\Event();
+                $event = new \Areanet\PIM\Classes\Event();
                 $event->setParam('classAnnotation', $classAnnotation);
                 $event->setParam('settings',        $settings);
                 $this->app['dispatcher']->dispatch('pim.schema.after.classAnnotation', $event);
@@ -1472,7 +1471,7 @@ class Api
                 foreach($propertyAnnotations as $propertyAnnotation){
                     $allPropertyAnnotations[get_class($propertyAnnotation)] = $propertyAnnotation;
 
-                    $event = new \Areanet\Contentfly\Classes\Event();
+                    $event = new \Areanet\PIM\Classes\Event();
                     $event->setParam('propertyAnnotation', $propertyAnnotation);
                     $event->setParam('properties', isset($customProperties[$prop->getName()]) ? $customProperties[$prop->getName()] : array());
                     $this->app['dispatcher']->dispatch('pim.schema.after.propertyAnnotation', $event);
@@ -1730,11 +1729,11 @@ class Api
 
 
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()))){
+        if($permission == \Areanet\PIM\Entity\Permission::OWN && ($object->getUserCreated() != $this->app['auth.user'] && !$object->hasUserId($this->app['auth.user']->getId()))){
             throw new ContentflyException(Messages::contentfly_general_access_denied, "$entityShortName::$id", Messages::contentfly_status_access_denied);
         }
 
-        if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+        if($permission == \Areanet\PIM\Entity\Permission::GROUP){
             if($object->getUserCreated() != $this->app['auth.user']){
                 $group = $this->app['auth.user']->getGroup();
                 if(!($group && $object->hasGroupId($group->getId()))){
@@ -2020,13 +2019,13 @@ class Api
                                         throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                     }
 
-                                    if ($permission == \Areanet\Contentfly\Entity\Permission::OWN) {
+                                    if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
                                         $queryBuilder->andWhere("$entityAlias.usercreated_id = ? OR FIND_IN_SET(?, $entityAlias.users) > 0");
                                         $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                         $paramCount++;
                                         $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                         $paramCount++;
-                                    } elseif ($permission == \Areanet\Contentfly\Entity\Permission::GROUP) {
+                                    } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
                                         $group = $this->app['auth.user']->getGroup();
                                         if (!$group) {
                                             $queryBuilder->andWhere("$entityAlias.usercreated_id = ?");
@@ -2080,13 +2079,13 @@ class Api
                                     throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                                 }
 
-                                if ($permission == \Areanet\Contentfly\Entity\Permission::OWN) {
+                                if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
                                     $queryBuilder->andWhere("$queryParams.userCreated_id = ? OR FIND_IN_SET(?, $queryParams.users) > 0");
                                     $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                     $paramCount++;
                                     $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                     $paramCount++;
-                                } elseif ($permission == \Areanet\Contentfly\Entity\Permission::GROUP) {
+                                } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
                                     $group = $this->app['auth.user']->getGroup();
                                     if (!$group) {
                                         $queryBuilder->andWhere("$queryParams.usercreated_id = ?");
@@ -2146,13 +2145,13 @@ class Api
                                 throw new ContentflyException(Messages::contentfly_general_access_denied, $entityShortName, Messages::contentfly_status_access_denied);
                             }
 
-                            if ($permission == \Areanet\Contentfly\Entity\Permission::OWN) {
+                            if ($permission == \Areanet\PIM\Entity\Permission::OWN) {
                                 $queryBuilder->andWhere("userCreated_id = ? OR FIND_IN_SET(?, users) > 0");
                                 $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                 $paramCount++;
                                 $queryBuilder->setParameter($paramCount, $this->app['auth.user']->getId());
                                 $paramCount++;
-                            } elseif ($permission == \Areanet\Contentfly\Entity\Permission::GROUP) {
+                            } elseif ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
                                 $group = $this->app['auth.user']->getGroup();
                                 if (!$group) {
                                     $queryBuilder->andWhere("userCreated_id = ?");

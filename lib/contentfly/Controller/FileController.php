@@ -1,13 +1,13 @@
 <?php
-namespace Areanet\Contentfly\Controller;
-use Areanet\Contentfly\Classes\Config;
-use Areanet\Contentfly\Classes\Controller\BaseController;
-use Areanet\Contentfly\Classes\File\Backend;
-use Areanet\Contentfly\Classes\File\Processing;
-use Areanet\Contentfly\Classes\Messages;
-use Areanet\Contentfly\Classes\Permission;
-use Areanet\Contentfly\Entity\File;
-use Areanet\Contentfly\Entity\Log;
+namespace Areanet\PIM\Controller;
+use Areanet\PIM\Classes\Config;
+use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\File\Backend;
+use Areanet\PIM\Classes\File\Processing;
+use Areanet\PIM\Classes\Messages;
+use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Entity\File;
+use Areanet\PIM\Entity\Log;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Silex\Application;
@@ -38,7 +38,7 @@ class FileController extends BaseController
             throw new AccessDeniedHttpException("Zugriff auf PIM\\File verweigert.");
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('request', $request);
         $event->setParam('user',    $this->app['auth.user']);
         $event->setParam('app',     $this->app);
@@ -48,7 +48,7 @@ class FileController extends BaseController
 
         if($request->get("id")){
 
-            $fileObject = $this->em->getRepository('Areanet\Contentfly\Entity\File')->find($request->get("id"));
+            $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($request->get("id"));
 
             if (!$fileObject) {
                 $fileObject = new File();
@@ -119,7 +119,7 @@ class FileController extends BaseController
 
             $fileObject = null;
             if(Config\Adapter::getConfig()->FILE_HASH_MUST_UNIQUE){
-                $fileObject = $this->em->getRepository('Areanet\Contentfly\Entity\File')->findOneBy(array('hash' => $hash));
+                $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->findOneBy(array('hash' => $hash));
             }
 
             $width  = null;
@@ -142,7 +142,7 @@ class FileController extends BaseController
 
                 $folder = null;
                 if($request->get("folder")){
-                    $folder = $this->em->getRepository('Areanet\Contentfly\Entity\Folder')->find($request->get("folder"));
+                    $folder = $this->em->getRepository('Areanet\PIM\Entity\Folder')->find($request->get("folder"));
                     if($folder){
                         $fileObject->setFolder($folder);
                     }
@@ -208,7 +208,7 @@ class FileController extends BaseController
             }
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('request', $request);
         $event->setParam('fileObject', $fileObject);
         $event->setParam('user',    $this->app['auth.user']);
@@ -257,22 +257,22 @@ class FileController extends BaseController
      */
     public function getAction($id, $alias = null, $size = null, $variant = null){
         $fileObject = null;
-        $fileObject = $this->em->getRepository('Areanet\Contentfly\Entity\File')->find($id);
+        $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
         if(!$fileObject){
-            throw new \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
 
         $sizeObject = null;
         if($size){
-            $sizeObject = $this->em->getRepository('Areanet\Contentfly\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
+            $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
 
             if(!$sizeObject){
-                throw new \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_filesize_not_found);
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_filesize_not_found);
             }
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('id', $id);
         $event->setParam('fileObject', $fileObject);
         $event->setParam('sizeObject', $sizeObject);
@@ -294,7 +294,7 @@ class FileController extends BaseController
 
         if($size){
 
-            $sizeObject = $this->em->getRepository('Areanet\Contentfly\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
+            $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
 
             if($sizeObject->getForceJpeg()){
                 $mimeType = 'image/jpeg';
@@ -311,7 +311,7 @@ class FileController extends BaseController
 
             $processor = Processing::getInstance($fileObject->getType());
             if($processor instanceof Processing\Standard){
-                throw new \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_filesize_not_found);
+                throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_filesize_not_found);
             }else{
 
                 $processor->execute($backend, $fileObject, $size, $variant);
@@ -324,7 +324,7 @@ class FileController extends BaseController
         $fileName   = $backend->getUri($fileObject, $sizeObject, $variant);
         if(!file_exists($fileName)){
 
-            throw new \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
 
         $client_etag =
@@ -347,7 +347,7 @@ class FileController extends BaseController
             return new \Symfony\Component\HttpFoundation\Response(null, 304, array('X-Status-Code' => 304, 'Cache-control' => 'max-age='.Config\Adapter::getConfig()->FILE_CACHE_LIFETIME.', public'));
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('id', $id);
         $event->setParam('fileObject', $fileObject);
         $event->setParam('sizeObject', $sizeObject);
@@ -406,19 +406,19 @@ class FileController extends BaseController
         }
 
         if(!$sourceId || !$destId){
-            throw new \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_missing_params);
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_missing_params);
         }
         
 
-        $fileSource = $this->em->getRepository('Areanet\Contentfly\Entity\File')->find($sourceId);
-        $fileDest   = $this->em->getRepository('Areanet\Contentfly\Entity\File')->find($destId);
+        $fileSource = $this->em->getRepository('Areanet\PIM\Entity\File')->find($sourceId);
+        $fileDest   = $this->em->getRepository('Areanet\PIM\Entity\File')->find($destId);
 
         if(!$fileSource || !$fileDest){
-            throw new \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
 
         if($fileSource->getName() != $fileDest->getName()){
-            throw new \Areanet\Contentfly\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_founds);
+            throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_founds);
         }
 
         $backend    = Backend::getInstance();

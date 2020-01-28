@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
-use Areanet\Contentfly\Classes\Helper;
-use Areanet\Contentfly\Classes\I18nPermission;
+use Areanet\PIM\Classes\Helper;
+use Areanet\PIM\Classes\I18nPermission;
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
@@ -36,7 +36,7 @@ class Group extends Base
 
 
     /**
-     * @ORM\OneToMany(targetEntity="Areanet\Contentfly\Entity\Permission", mappedBy="group", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="Areanet\PIM\Entity\Permission", mappedBy="group", cascade={"remove"})
      * @PIM\Config(tab="permissions", label="Berechtigungen")
      * @PIM\Permissions()
      */

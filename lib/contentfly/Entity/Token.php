@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Entity\User;
 
 /**
  * @ORM\Entity

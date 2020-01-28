@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Classes\Controller\Provider\Base;
+namespace Areanet\PIM\Classes\Controller\Provider\Base;
 
-use Areanet\Contentfly\Classes\Controller\Provider\BaseControllerProvider;
-use Areanet\Contentfly\Controller\FileController;
+use Areanet\PIM\Classes\Controller\Provider\BaseControllerProvider;
+use Areanet\PIM\Controller\FileController;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

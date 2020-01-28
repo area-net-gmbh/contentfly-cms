@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>:: Contentfly CMS - Let your content fly :::</title>
+    <base href="{{ webroot }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <style>
         body{
-            background-image: url('ui/default/img/bg_login.jpg');
+            background-image: url('lib/contentfly-ui/assets/img/bg_login.jpg');
             background-size:cover;
         }
 
@@ -36,7 +37,7 @@
     <div class="row first">
         <div class="col-md-4 col-md-offset-4 box">
             <div class="page-header">
-                <img src="/ui/default/img/logo.png">
+                <img src="lib/contentfly-ui/assets/img/logo.png">
                 <h2><small>Version: {{ app_version }}</small></h2>
             </div>
         </div>

@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Exceptions\Entity;
+namespace Areanet\PIM\Classes\Exceptions\Entity;
 
 
 /**
  * Class NotFoundException
  *
- * @package Areanet\Contentfly\Classes\Exceptions\Entity
+ * @package Areanet\PIM\Classes\Exceptions\Entity
  */
 
 class EntityDuplicateException extends \Exception

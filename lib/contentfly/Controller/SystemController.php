@@ -1,13 +1,13 @@
 <?php
-namespace Areanet\Contentfly\Controller;
+namespace Areanet\PIM\Controller;
 
-use Areanet\Contentfly\Classes\Config\Adapter;
-use Areanet\Contentfly\Classes\Controller\BaseController;
-use Areanet\Contentfly\Entity\Folder;
-use Areanet\Contentfly\Entity\Log;
-use Areanet\Contentfly\Entity\ThumbnailSetting;
-use Areanet\Contentfly\Entity\Token;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Entity\Folder;
+use Areanet\PIM\Entity\Log;
+use Areanet\PIM\Entity\ThumbnailSetting;
+use Areanet\PIM\Entity\Token;
+use Areanet\PIM\Entity\User;
 use Custom\Entity\Ansprechpartner;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand;
@@ -96,7 +96,7 @@ class SystemController extends BaseController
     {
         $id =  $request->get('id');
 
-        $token = $this->em->getRepository('Areanet\\PIM\\Entity\\Token')->find($id);
+        $token = $this->em->getRepository('Areanet\\Contently\\Entity\\Token')->find($id);
         if(!$token){
             throw new \Exception('Token ungültig');
         }
@@ -122,7 +122,7 @@ class SystemController extends BaseController
 
     protected function listTokens(Request $request)
     {
-        $query  = $this->em->createQuery("SELECT token FROM Areanet\Contentfly\Entity\Token token WHERE token.referrer <> ''");
+        $query  = $this->em->createQuery("SELECT token FROM Areanet\PIM\Entity\Token token WHERE token.referrer <> ''");
         $tokens = $query->getResult();
 
         $data = array();

@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
@@ -13,7 +13,7 @@ class NavItem extends BaseSortable
 {
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\Nav")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Nav")
      * @ORM\JoinColumn(onDelete="SET NULL")
      * @PIM\Config(label="Bereich", showInList=15, isFilterable=true)
      */

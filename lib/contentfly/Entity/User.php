@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 use Silex\Application;
 
 /**
@@ -22,7 +22,7 @@ class User extends Base
     protected $isAdmin;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\Group")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Group")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      * @PIM\Config(showInList=80, label="Gruppe", isFilterable=true)
      */

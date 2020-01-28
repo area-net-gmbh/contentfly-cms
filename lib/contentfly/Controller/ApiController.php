@@ -1,26 +1,26 @@
 <?php
-namespace Areanet\Contentfly\Controller;
+namespace Areanet\PIM\Controller;
 
-use Areanet\Contentfly\Classes\Annotations\ManyToMany;
-use Areanet\Contentfly\Classes\Annotations\MatrixChooser;
-use Areanet\Contentfly\Classes\Api;
-use \Areanet\Contentfly\Classes\Config;
-use Areanet\Contentfly\Classes\Controller\BaseController;
-use Areanet\Contentfly\Classes\Exceptions\Entity\EntityDuplicateException;
-use Areanet\Contentfly\Classes\Exceptions\Entity\EntityNotFoundException;
-use Areanet\Contentfly\Classes\Exceptions\File\FileExistsException;
-use Areanet\Contentfly\Classes\File\Backend;
-use Areanet\Contentfly\Classes\File\Backend\FileSystem;
-use Areanet\Contentfly\Classes\File\Processing;
-use Areanet\Contentfly\Classes\File\Processing\Standard;
-use Areanet\Contentfly\Classes\Helper;
-use Areanet\Contentfly\Classes\Permission;
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\BaseSortable;
-use Areanet\Contentfly\Entity\BaseTree;
-use Areanet\Contentfly\Entity\File;
-use Areanet\Contentfly\Entity\Log;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Classes\Annotations\ManyToMany;
+use Areanet\PIM\Classes\Annotations\MatrixChooser;
+use Areanet\PIM\Classes\Api;
+use \Areanet\PIM\Classes\Config;
+use Areanet\PIM\Classes\Controller\BaseController;
+use Areanet\PIM\Classes\Exceptions\Entity\EntityDuplicateException;
+use Areanet\PIM\Classes\Exceptions\Entity\EntityNotFoundException;
+use Areanet\PIM\Classes\Exceptions\File\FileExistsException;
+use Areanet\PIM\Classes\File\Backend;
+use Areanet\PIM\Classes\File\Backend\FileSystem;
+use Areanet\PIM\Classes\File\Processing;
+use Areanet\PIM\Classes\File\Processing\Standard;
+use Areanet\PIM\Classes\Helper;
+use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseSortable;
+use Areanet\PIM\Entity\BaseTree;
+use Areanet\PIM\Entity\File;
+use Areanet\PIM\Entity\Log;
+use Areanet\PIM\Entity\User;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
@@ -225,7 +225,7 @@ class ApiController extends BaseController
         $id                  = $request->get('id');
         $lang                = $request->get('lang', null);
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
@@ -238,7 +238,7 @@ class ApiController extends BaseController
         $api = new Api($this->app, $request);
         $api->doDelete($entityShortName, $id, $lang);
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
@@ -335,7 +335,7 @@ class ApiController extends BaseController
         $data                = $request->get('data');
         $lang                = $request->get('lang');
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('user',    $app['auth.user']);
@@ -350,7 +350,7 @@ class ApiController extends BaseController
         $object = $api->doInsert($entityShortName, $data, $lang);
 
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityShortName);
         $event->setParam('request', $request);
         $event->setParam('user',    $app['auth.user']);
@@ -643,7 +643,7 @@ class ApiController extends BaseController
         $currentUserPass     = $request->get('pass');
         $disableModifiedTime = $request->get('disableModifiedTime');
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
@@ -665,7 +665,7 @@ class ApiController extends BaseController
             }
         }
 
-        $event = new \Areanet\Contentfly\Classes\Event();
+        $event = new \Areanet\PIM\Classes\Event();
         $event->setParam('entity',  $entityName);
         $event->setParam('request', $request);
         $event->setParam('id',      $id);
@@ -919,7 +919,7 @@ class ApiController extends BaseController
      * @apiName Baumansicht
      * @apiDescription API-Endpoint, zum Abruf einer Baumstruktur.
      *
-     * Die Entität muss vom Typ Areanet\Contentfly\Entity\BaseTree
+     * Die Entität muss vom Typ Areanet\PIM\Entity\BaseTree
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
@@ -958,7 +958,7 @@ class ApiController extends BaseController
      * @apiName Baumansicht
      * @apiDescription API-Endpoint, zum Abruf einer Baumstruktur.
      *
-     * Die Entität muss vom Typ Areanet\Contentfly\Entity\BaseTree
+     * Die Entität muss vom Typ Areanet\PIM\Entity\BaseTree
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json
@@ -1011,7 +1011,7 @@ class ApiController extends BaseController
      * @apiName Baumansicht optimiert
      * @apiDescription API-Endpoint, zum Abruf einer optimierten/performanten Baumstruktur.
      *
-     * Die Entität muss vom Typ Areanet\Contentfly\Entity\BaseTree
+     * Die Entität muss vom Typ Areanet\PIM\Entity\BaseTree
      * @apiGroup Objekte
      * @apiHeader {String} APPMS-TOKEN Access-Token
      * @apiHeader {String} Content-Type=application/json

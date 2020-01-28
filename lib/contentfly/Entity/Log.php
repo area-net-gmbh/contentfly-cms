@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Entity;
+namespace Areanet\PIM\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Areanet\Contentfly\Classes\Annotations as PIM;
+use Areanet\PIM\Classes\Annotations as PIM;
 
 /**
  * @ORM\Entity
@@ -58,7 +58,7 @@ class Log extends Base
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @PIM\Virtualjoin(targetEntity="Areanet\Contentfly\Entity\User")
+     * @PIM\Virtualjoin(targetEntity="Areanet\PIM\Entity\User")
      * @PIM\Config(label="Benutzer", showInList = 55, tab="settings")
      */
     protected $users;
@@ -72,7 +72,7 @@ class Log extends Base
     protected $created;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Areanet\Contentfly\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\User")
      * @ORM\JoinColumn(name="usercreated_id", referencedColumnName="id", onDelete="SET NULL")
      * @PIM\Config(showInList = 70, label="Benutzer", tab="settings")
      */

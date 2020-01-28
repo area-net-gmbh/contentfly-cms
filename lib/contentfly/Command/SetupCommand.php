@@ -1,8 +1,8 @@
 <?php
-namespace Areanet\Contentfly\Command;
+namespace Areanet\PIM\Command;
 
-use Areanet\Contentfly\Entity\ThumbnailSetting;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Entity\ThumbnailSetting;
+use Areanet\PIM\Entity\User;
 use Knp\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

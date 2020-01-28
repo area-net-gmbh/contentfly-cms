@@ -1,11 +1,11 @@
 <?php
 
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 
-use Areanet\Contentfly\Controller\ApiController;
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\User;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Silex\Application;
 

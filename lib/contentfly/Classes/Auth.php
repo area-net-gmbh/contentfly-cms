@@ -1,13 +1,13 @@
 <?php
-namespace Areanet\Contentfly\Classes;
-use Areanet\Contentfly\Classes\Manager\LoginManager;
-use Areanet\Contentfly\Entity\User;
+namespace Areanet\PIM\Classes;
+use Areanet\PIM\Classes\Manager\LoginManager;
+use Areanet\PIM\Entity\User;
 use Silex\Application;
 
 
 /**
  * Class Config
- * @package Areanet\Contentfly\Classes
+ * @package Areanet\PIM\Classes
  */
 class Auth{
 
@@ -30,7 +30,7 @@ class Auth{
     public function init(){
 
         if(($userId = $this->app['session']->get('auth.userid'))){
-            $user = $this->app['orm.em']->getRepository('Areanet\Contentfly\Entity\User')->find($userId);
+            $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->find($userId);
             if($user) $this->setUser($user);
         }
     }
@@ -57,7 +57,7 @@ class Auth{
     public function login($alias, $pass){
 
 
-        $user = $this->app['orm.em']->getRepository('Areanet\Contentfly\Entity\User')->findOneBy(array('alias' => $alias));
+        $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->findOneBy(array('alias' => $alias));
         if (!$user) {
             throw new \Exception('Ungültiger Benutzername.', 401);
         }

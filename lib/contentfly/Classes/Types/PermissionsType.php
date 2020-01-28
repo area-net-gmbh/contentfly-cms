@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Controller\ApiController;
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\Permission;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\Permission;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
@@ -54,7 +54,7 @@ class PermissionsType extends Type
 
 
         $data = array();
-        $permission = \Areanet\Contentfly\Entity\Permission::ALL;
+        $permission = \Areanet\PIM\Entity\Permission::ALL;
         $subEntity = null;
 
         if (!$this->app['auth.user']->getIsAdmin()) {
@@ -65,11 +65,11 @@ class PermissionsType extends Type
 
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
-                if ($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))) {
+                if ($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))) {
                     continue;
                 }
 
-                if ($permission == \Areanet\Contentfly\Entity\Permission::GROUP) {
+                if ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
                     if ($objectToLoad->getUserCreated() != $this->app['auth.user']) {
                         $group = $this->app['auth.user']->getGroup();
                         if (!($group && $objectToLoad->hasGroupId($group->getId()))) {
@@ -83,11 +83,11 @@ class PermissionsType extends Type
         } else {
 
             foreach ($object->$getter() as $objectToLoad) {
-                if ($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))) {
+                if ($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))) {
                     continue;
                 }
 
-                if ($permission == \Areanet\Contentfly\Entity\Permission::GROUP) {
+                if ($permission == \Areanet\PIM\Entity\Permission::GROUP) {
                     if ($objectToLoad->getUserCreated() != $this->app['auth.user']) {
                         $group = $this->app['auth.user']->getGroup();
                         if (!($group && $objectToLoad->hasGroupId($group->getId()))) {
@@ -110,7 +110,7 @@ class PermissionsType extends Type
         $this->em->persist($object);
         $this->em->flush();
 
-        $query = $this->em->createQuery('DELETE FROM Areanet\Contentfly\\Entity\\Permission e WHERE e.group = ?1');
+        $query = $this->em->createQuery('DELETE FROM Areanet\PIM\\Entity\\Permission e WHERE e.group = ?1');
         $query->setParameter(1, $object);
         $query->execute();
 

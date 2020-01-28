@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 use Silex\Application;
 

@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Manager;
+namespace Areanet\PIM\Classes\Manager;
 
-use Areanet\Contentfly\Classes\Exceptions\ContentflyException;
-use Areanet\Contentfly\Classes\Manager;
-use Areanet\Contentfly\Classes\Messages;
-use Areanet\Contentfly\Classes\Plugin;
-use Areanet\Contentfly\Classes\Type;
+use Areanet\PIM\Classes\Exceptions\ContentflyException;
+use Areanet\PIM\Classes\Manager;
+use Areanet\PIM\Classes\Messages;
+use Areanet\PIM\Classes\Plugin;
+use Areanet\PIM\Classes\Type;
 use Silex\Application;
 
 class TypeManager extends Manager

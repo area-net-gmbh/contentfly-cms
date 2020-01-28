@@ -37,7 +37,6 @@ Mit dem CMS können serverseitig beliebige Inhalte gespeichert und verwaltet wer
 ### Systemvoraussetzungen
 
 * Apache 2.x
-** Follow Symlinks aktiviert/erlaubt
 * PHP 7.1 oder höher
 * PHP-Module (benötigt)
     * open_ssl
@@ -66,17 +65,15 @@ Mit dem CMS können serverseitig beliebige Inhalte gespeichert und verwaltet wer
 
 (3) Datenbankzugangsdaten in _custom/config.php_ eintragen
 
-(4) Datenbank über Doctrine im Ordner _appcms_ generieren.
+(4) Datenbank über Doctrine im Ordner _bin_ generieren.
 
 `php console.php orm:schema:update --force`
 
-(4) Datenbank im Ordner _appcms_ initalisieren/einrichten
+(5) Datenbank im Ordner _bin_ initalisieren/einrichten
 
 `php console.php appcms:setup`
 
-(4) Webserver (Virtual Host) DocumentRoot auf _appcms/public_ stellen
-
-(5) URL/Host aufrufen und Standard-Login in das Contentfly CMS mit Benutzer _admin_ und Passwort _admin_
+(6) URL/Host aufrufen und Standard-Login in das Contentfly CMS mit Benutzer _admin_ und Passwort _admin_
 
 ### ZIP-Version für Release-Build erstellen
 

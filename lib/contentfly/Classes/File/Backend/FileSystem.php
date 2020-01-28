@@ -1,9 +1,9 @@
 <?php
-namespace Areanet\Contentfly\Classes\File\Backend;
+namespace Areanet\PIM\Classes\File\Backend;
 
-use Areanet\Contentfly\Entity\File;
-use Areanet\Contentfly\Classes\File\BackendInterface;
-use Areanet\Contentfly\Entity\ThumbnailSetting;
+use Areanet\PIM\Entity\File;
+use Areanet\PIM\Classes\File\BackendInterface;
+use Areanet\PIM\Entity\ThumbnailSetting;
 
 class FileSystem implements BackendInterface
 {

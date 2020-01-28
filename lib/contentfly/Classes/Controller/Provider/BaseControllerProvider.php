@@ -1,7 +1,7 @@
 <?php
-namespace Areanet\Contentfly\Classes\Controller\Provider;
+namespace Areanet\PIM\Classes\Controller\Provider;
 
-use Areanet\Contentfly\Classes\Config\Adapter;
+use Areanet\PIM\Classes\Config\Adapter;
 use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,7 +45,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
             }
 
             if(!is_object($request->get('_controller'))) {
-                $event = new \Areanet\Contentfly\Classes\Event();
+                $event = new \Areanet\PIM\Classes\Event();
                 $event->setParam('request', $request);
                 $event->setParam('app', $app);
                 $controllerAction = str_replace(':', '.', strtolower($request->get('_controller')));
@@ -65,7 +65,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
         $app->after(function (Request $request, Response $response) use ($app) {
 
             if(!is_object($request->get('_controller'))) {
-                $event = new \Areanet\Contentfly\Classes\Event();
+                $event = new \Areanet\PIM\Classes\Event();
                 $event->setParam('request', $request);
                 $event->setParam('response', $response);
                 $event->setParam('app', $app);
@@ -102,7 +102,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
             return false;
         }
 
-        $token = $app['orm.em']->getRepository('Areanet\Contentfly\Entity\Token')->findOneBy(array('token' => $tokenString));
+        $token = $app['orm.em']->getRepository('Areanet\PIM\Entity\Token')->findOneBy(array('token' => $tokenString));
 
         if(!$token){
             return false;

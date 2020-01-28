@@ -1,9 +1,9 @@
 <?php
-namespace Areanet\Contentfly\Classes\Controller\Provider\Base;
+namespace Areanet\PIM\Classes\Controller\Provider\Base;
 
-use Areanet\Contentfly\Classes\Controller\Provider\BaseControllerProvider;
-use Areanet\Contentfly\Controller\ApiController;
-use Areanet\Contentfly\Controller\AuthController;
+use Areanet\PIM\Classes\Controller\Provider\BaseControllerProvider;
+use Areanet\PIM\Controller\ApiController;
+use Areanet\PIM\Controller\AuthController;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;

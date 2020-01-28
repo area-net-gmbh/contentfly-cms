@@ -1,7 +1,7 @@
 <?php
-namespace Areanet\Contentfly\Classes\Type;
+namespace Areanet\PIM\Classes\Type;
 
-use Areanet\Contentfly\Classes\Type;
+use Areanet\PIM\Classes\Type;
 
 abstract class CustomType extends Type
 {

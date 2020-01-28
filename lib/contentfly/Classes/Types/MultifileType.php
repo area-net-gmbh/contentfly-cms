@@ -1,11 +1,11 @@
 <?php
-namespace Areanet\Contentfly\Classes\Types;
-use Areanet\Contentfly\Classes\Api;
-use Areanet\Contentfly\Classes\Exceptions\FileNotFoundException;
-use Areanet\Contentfly\Classes\Permission;
-use Areanet\Contentfly\Classes\Type;
-use Areanet\Contentfly\Entity\Base;
-use Areanet\Contentfly\Entity\BaseSortable;
+namespace Areanet\PIM\Classes\Types;
+use Areanet\PIM\Classes\Api;
+use Areanet\PIM\Classes\Exceptions\FileNotFoundException;
+use Areanet\PIM\Classes\Permission;
+use Areanet\PIM\Classes\Type;
+use Areanet\PIM\Entity\Base;
+use Areanet\PIM\Entity\BaseSortable;
 use Doctrine\Common\Collections\ArrayCollection;
 
 
@@ -26,14 +26,14 @@ class MultifileType extends Type
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\OneToMany']) && isset($propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'])){
             $annotations = $propertyAnnotations['Areanet\\PIM\Classes\\Annotations\\ManyToMany'];
-            if($annotations->targetEntity == 'Areanet\Contentfly\Entity\File'){
+            if($annotations->targetEntity == 'Areanet\PIM\Entity\File'){
                 return true;
             }
         }
 
         if(isset($propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'])){
             $annotations = $propertyAnnotations['Doctrine\\ORM\\Mapping\\ManyToMany'];
-            if($annotations->targetEntity == 'Areanet\Contentfly\Entity\File'){
+            if($annotations->targetEntity == 'Areanet\PIM\Entity\File'){
                 return true;
             }
         }
@@ -114,11 +114,11 @@ class MultifileType extends Type
         
         if (in_array($property, $propertiesToLoad)) {
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] &&  !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
 
-                if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
                     if($objectToLoad->getUserCreated() != $this->app['auth.user']){
                         $group = $this->app['auth.user']->getGroup();
                         if(!($group && $objectToLoad->hasGroupId($group->getId()))){
@@ -137,11 +137,11 @@ class MultifileType extends Type
 
 
             foreach ($object->$getter() as $objectToLoad) {
-                if($permission == \Areanet\Contentfly\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
+                if($permission == \Areanet\PIM\Entity\Permission::OWN && ($objectToLoad->getUserCreated() != $this->app['auth.user'] && !$objectToLoad->hasUserId($this->app['auth.user']->getId()))){
                     continue;
                 }
 
-                if($permission == \Areanet\Contentfly\Entity\Permission::GROUP){
+                if($permission == \Areanet\PIM\Entity\Permission::GROUP){
                     if($objectToLoad->getUserCreated() != $this->app['auth.user']){
                         $group = $this->app['auth.user']->getGroup();
                         if(!($group && $objectToLoad->hasGroupId($group->getId()))){
@@ -196,7 +196,7 @@ class MultifileType extends Type
                     $id = $id["id"];
                 }
 
-                $objectToJoin = $this->em->getRepository('Areanet\Contentfly\Entity\File')->find($id);
+                $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
                 if(!$objectToJoin){
                     continue;
                 }
@@ -233,7 +233,7 @@ class MultifileType extends Type
                     $id = $id["id"];
                 }
 
-                $objectToJoin = $this->em->getRepository('Areanet\Contentfly\Entity\File')->find($id);
+                $objectToJoin = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
 
                 if(!$objectToJoin){
                     continue;

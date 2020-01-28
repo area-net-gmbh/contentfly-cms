@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 
 /**
  * Class Messages
- * @package Areanet\Contentfly\Classes
+ * @package Areanet\PIM\Classes
  */
 class Messages
 {

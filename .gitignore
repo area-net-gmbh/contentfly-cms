@@ -18,3 +18,5 @@ profiler/*
 backup/*
 plugins/*
 doc
+docker
+docker-compose.yml

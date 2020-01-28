@@ -18,7 +18,7 @@ define('HOST', isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : 'defau
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\Builder\ClassMetadataBuilder;
 use Silex\Application;
-use \Areanet\Contentfly\Classes\Config;
+use \Areanet\PIM\Classes\Config;
 use Knp\Provider\ConsoleServiceProvider;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -98,16 +98,15 @@ $app->register(new ConsoleServiceProvider(), array(
 
 
 $app['helper'] = function () {
-    return new \Areanet\Contentfly\Classes\Helper();
+    return new \Areanet\PIM\Classes\Helper();
 };
 
 $app['auth'] = function ($app) {
-    return new \Areanet\Contentfly\Classes\Auth($app);
+    return new \Areanet\PIM\Classes\Auth($app);
 };
 
 if($app['is_installed']) {
 
-    if(!defined('APPCMS_CONSOLE')) $app['helper']->createSymlinks();
 
     $app->register(new \Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
         'orm.proxies_dir' => ROOT_DIR . '/data/cache/doctrine',
@@ -116,8 +115,8 @@ if($app['is_installed']) {
             'mappings' => array(
                 array(
                     'type' => 'annotation',
-                    'namespace' => 'Areanet\Contentfly\Entity',
-                    'path' => ROOT_DIR . '/areanet/contentfly/Entity',
+                    'namespace' => 'Areanet\PIM\Entity',
+                    'path' => ROOT_DIR . '/lib/contentfly/Entity',
                     'use_simple_annotation_reader' => false
                 ),
                 array(
@@ -130,12 +129,12 @@ if($app['is_installed']) {
         ),
         'orm.auto_generate_proxies' => Config\Adapter::getConfig()->APP_AUTOGENERATE_PROXIES,
         'orm.custom.functions.numeric' => array(
-            'Find_In_Set' => '\Areanet\Contentfly\Classes\ORM\Query\Mysql\FindInSet'
+            'Find_In_Set' => '\Areanet\PIM\Classes\ORM\Query\Mysql\FindInSet'
         )
     ));
 
     $config = $app['orm.em']->getConfiguration();
-    $config->setQuoteStrategy(new \Areanet\Contentfly\Classes\ORM\Mapping\ContentflyQuoteStrategy());
+    $config->setQuoteStrategy(new \Areanet\PIM\Classes\ORM\Mapping\ContentflyQuoteStrategy());
 
     if (!Config\Adapter::getConfig()->APP_DEBUG && !defined('APPCMS_CONSOLE')) {
         switch (Config\Adapter::getConfig()->APP_CACHE_DRIVER) {
@@ -163,12 +162,12 @@ if($app['is_installed']) {
     }
 
     $app['typeManager'] = function ($app) {
-        return new \Areanet\Contentfly\Classes\Manager\TypeManager($app);
+        return new \Areanet\PIM\Classes\Manager\TypeManager($app);
     };
 
-    /** @var \Areanet\Contentfly\Classes\Manager\PluginManager */
+    /** @var \Areanet\PIM\Classes\Manager\PluginManager */
     $app['pluginManager'] = function ($app) {
-        return new \Areanet\Contentfly\Classes\Manager\PluginManager($app);
+        return new \Areanet\PIM\Classes\Manager\PluginManager($app);
     };
 
     foreach (Config\Adapter::getConfig()->APP_SYSTEM_TYPES as $systemType) {
@@ -190,7 +189,7 @@ if(!is_dir(ROOT_DIR.'/custom/Views/')){
 }
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path'     =>   array(ROOT_DIR.'/custom/Views/', ROOT_DIR.'/areanet/contentfly-ui/'),
+    'twig.path'     =>   array(ROOT_DIR.'/custom/Views/', ROOT_DIR.'/lib/contentfly-ui/'),
     'twig.options'  => array('strict_variables' => false)
 ));
 
@@ -200,7 +199,7 @@ if($app['is_installed']) {
             $queryBuilder = $app['orm.em']->createQueryBuilder();
             $queryBuilder
                 ->select('thumbnailSetting')
-                ->from('Areanet\Contentfly\Entity\ThumbnailSetting', 'thumbnailSetting');
+                ->from('Areanet\PIM\Entity\ThumbnailSetting', 'thumbnailSetting');
             $query = $queryBuilder->getQuery();
             return $query->getResult();
         } catch (Exception $e) {
@@ -224,33 +223,33 @@ if($app['is_installed']) {
 $app['debug'] = Config\Adapter::getConfig()->APP_DEBUG;
 
 $app['consoleManager'] = function ($app) {
-    return new \Areanet\Contentfly\Classes\Manager\ConsoleManager($app);
+    return new \Areanet\PIM\Classes\Manager\ConsoleManager($app);
 };
 
 $app['uiManager'] = function ($app) {
-    return new \Areanet\Contentfly\Classes\Manager\UIManager($app);
+    return new \Areanet\PIM\Classes\Manager\UIManager($app);
 };
 
 $app['routeManager'] = function ($app) {
-    return new \Areanet\Contentfly\Classes\Manager\RouteManager($app);
+    return new \Areanet\PIM\Classes\Manager\RouteManager($app);
 };
 
 $app->extend('dispatcher', function (EventDispatcherInterface $dispatcher, $app) {
     $dispatcher->addListener(\Knp\Console\ConsoleEvents::INIT, function (\Knp\Console\ConsoleEvent $event) {
         $app = $event->getApplication();
-        $app->add(new \Areanet\Contentfly\Command\SetupCommand());
+        $app->add(new \Areanet\PIM\Command\SetupCommand());
     });
     return $dispatcher;
 });
 
 $app['schema'] = function ($app){
-    $api = new \Areanet\Contentfly\Classes\Api($app);
+    $api = new \Areanet\PIM\Classes\Api($app);
     return $api->getSchema();
 };
 
 
 $app['database'] = function ($app){
-    $config = \Areanet\Contentfly\Classes\Config\Adapter::getConfig();
+    $config = \Areanet\PIM\Classes\Config\Adapter::getConfig();
 
     $connectionParams = array(
         'dbname'    => $config->DB_NAME,
@@ -267,7 +266,7 @@ $app['database'] = function ($app){
 
 if($app['is_installed']) {
     $evm = $app['orm.em']->getEventManager();
-    $evm->addEventListener(Events::loadClassMetadata, new \Areanet\Contentfly\Classes\Events\LoadMetadata());
+    $evm->addEventListener(Events::loadClassMetadata, new \Areanet\PIM\Classes\Events\LoadMetadata());
 }
 
 $app->register(new Silex\Provider\ValidatorServiceProvider());

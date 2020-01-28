@@ -1,5 +1,5 @@
 <?php
-namespace Areanet\Contentfly\Classes\ORM\Spatial;
+namespace Areanet\PIM\Classes\ORM\Spatial;
 
 /**
  * Point object for spatial mapping

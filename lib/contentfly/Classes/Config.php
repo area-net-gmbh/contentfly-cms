@@ -1,10 +1,10 @@
 <?php
-namespace Areanet\Contentfly\Classes;
+namespace Areanet\PIM\Classes;
 
 
 /**
  * Class Config
- * @package Areanet\Contentfly\Classes
+ * @package Areanet\PIM\Classes
  */
 class Config{
 
@@ -233,7 +233,7 @@ class Config{
     /**
      * @var string Export-Controller
      */
-    public $APP_EXPORT_CONTROLLER = 'Areanet\Contentfly\Controller\ExportController';
+    public $APP_EXPORT_CONTROLLER = 'Areanet\PIM\Controller\ExportController';
 
     /**
      * @var string Load Frontend UI in folder /ui/...
@@ -305,7 +305,7 @@ class Config{
     /**
      * @var array Register File Processors
      */
-    public $FILE_PROCESSORS = array('\Areanet\Contentfly\Classes\File\Processing\Image');
+    public $FILE_PROCESSORS = array('\Areanet\PIM\Classes\File\Processing\Image');
 
 
     /**
