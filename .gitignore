@@ -1,11 +1,7 @@
 .vagrant/*
-appcms/areanet/PIM-UI/default/assets/bower_components
-appcms/public/info.php
-appcms/public/custom/*
-appcms/public/ui/*
-appcms/public/plugins/*
-appcms/composer.lock
-appcms/vendor
+lib/contentfly-ui/assets/bower_components
+composer.lock
+vendor
 .idea/*
 ansible/*
 template
@@ -13,8 +9,6 @@ docker-compose.yml
 docker/*
 Vagrantfile
 custom/*
-custom1.4/*
-custom1.5/*
 data/*
 data/files/*
 data/cache/*
@@ -24,4 +18,3 @@ profiler/*
 backup/*
 plugins/*
 doc
-ubuntu-xenial-16.04-cloudimg-console.log

@@ -1,0 +1,26 @@
+<?php
+namespace Areanet\Contentfly\Classes\Annotations;
+
+use Doctrine\Common\Annotations\Annotation;
+
+/**
+ * @Annotation
+ */
+final class Checkbox extends Annotation
+{
+    /**
+     * @var string
+     */
+    public $group = null;
+
+    /**
+    * @var boolean
+    */
+    public $horizontalAlignment = false;
+
+    /**
+     * @var integer
+     */
+    public $columns = 4;
+
+}

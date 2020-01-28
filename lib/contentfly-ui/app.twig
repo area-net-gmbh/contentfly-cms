@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" lang="de" ng-app="app" n {% if frontend.customLoginBG  %}class="custom"{% endif %}>
+
+<head>
+    <meta charset="utf-8">
+    <base href="{{ webroot }}">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>{{ frontend.title }}</title>
+    <link rel="stylesheet prefetch" href="lib/contentfly-ui/assets/bower_components/bootstrap/dist/css/bootstrap.min.css?v={{ app_version }}" >
+    <link rel="stylesheet prefetch" href="lib/contentfly-ui/assets/bower_components/BootstrapXL/BootstrapXL.css?v={{ app_version }}" >
+    <link rel="stylesheet prefetch" href="lib/contentfly-ui/assets/bower_components/font-awesome/css/font-awesome.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="lib/contentfly-ui/assets/bower_components/angular-ui-select/dist/select.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="lib/contentfly-ui/assets/bower_components/bootstrap-languages/languages.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="lib/contentfly-ui/assets/styles/loaders.min.css?v={{ app_version }}">
+    <link rel="stylesheet prefetch" href="lib/contentfly-ui/assets/styles/custom.css?v={{ app_version }}">
+    {% for cssFile in cssFiles %}
+        <link rel="stylesheet prefetch" href="{{ cssFile }}?v={{ custom_version }}">
+    {% endfor %}
+
+    <script>
+        {{ script|raw  }}
+    </script>
+</head>
+<body ng-class="{emotionalBackground: !userLoggedIn}">
+{% verbatim %}
+<pim-plugin key="INDEX_BODY_PREPEND" uiblocks="uiblocks"></pim-plugin>
+<nav ng-cloak ng-show="userLoggedIn" id="pim-header" class="navbar navbar-default navbar-fixed-top devmode-{{devmode}} ">
+    <div class="container-fluid">
+        <pim-plugin key="INDEX_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <a href="#/dashboard"><img class="logo" ng-attr-src="{{frontend.customLogo ? 'custom/Frontend/contentfly-ui/img/logo.png' : 'lib/contentfly-ui/assets/img/logo-small.png'}}"></a>
+        <pim-plugin key="INDEX_HEADER_LOGO_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <pim-plugin key="INDEX_HEADER_NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
+            <ul class="nav navbar-nav navbar-right ">
+                <li ng-show="newVersion"><a href="#/logout" class="bg-danger"><span class="glyphicon glyphicon-info-sign"></span> Neue Version {{newVersion}} verfügbar, bitte aus-/einloggen!</a></li>
+                <pim-plugin key="INDEX_HEADER_NAVIGATION_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li uib-dropdown>
+                    <a href id="simple-dropdown" uib-dropdown-toggle>{{user.alias}} <span class="glyphicon glyphicon-user"></span></a>
+                    <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                        <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                        <li class="version">Version {{::version}}</li>
+                        <li><a class="dropdown" ng-click="openPasswordForm()"><span class="glyphicon glyphicon-lock"></span> Passwort ändern</a></li>
+                        <li><a class="dropdown" href="#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
+                        <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_APPEND" uiblocks="uiblocks"></pim-plugin>
+                    </ul>
+                </li>
+                <pim-plugin key="INDEX_HEADER_NAVIGATION_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+            <pim-plugin key="INDEX_HEADER_NAVIGATION_APPEND" uiblocks="uiblocks"></pim-plugin>
+        </div>
+        <pim-plugin key="INDEX_HEADER_APPEND" uiblocks="uiblocks"></pim-plugin>
+    </div>
+</nav>
+
+<nav ng-cloak ng-show="userLoggedIn" id="pim-nav">
+    <pim-plugin key="INDEX_NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <ul>
+        <pim-plugin key="INDEX_NAVIGATION_ENTITIES_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <li ng-if="!frontend.customNavigation.enabled"  ng-repeat="(groupName, entities) in navigation">
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="glyphicon glyphicon-th-large"></span>
+                {{groupName}}
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul ng-hide="!navigationOpened[groupName]">
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li  ng-repeat="item in entities">
+                    <a ng-class="{active: currentNav == item.entity}" href="#/list/{{item.entity | urlencode}}">{{item.label}}</a>
+                </li>
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </li>
+        <li ng-if="frontend.customNavigation.enabled" ng-repeat="nav in ::frontend.customNavigation.items">
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="{{nav.icon}}"></span>
+                {{nav.title}}
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+                </h3>
+            <ul ng-hide="!navigationOpened[groupName]">
+                <li ng-repeat="navItem in ::nav.items">
+                    <a ng-class="{active: currentNav == navItem.uri}" href="{{navItem.uri}}">{{navItem.title}}</a>
+                </li>
+            </ul>
+        </li>
+        <li class="group" ng-if="navigationPlugins">Plugins</li>
+        <li ng-repeat="(groupName, entities) in navigationPlugins">
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="glyphicon glyphicon-th-large"></span>
+                {{groupName}}
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul ng-hide="!navigationOpened[groupName]">
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li  ng-repeat="item in entities">
+                    <a ng-class="{active: currentNav == item.entity}" href="#/list/{{item.entity | urlencode}}">{{item.label}}</a>
+                </li>
+                <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </li>
+        <li class="group">System</li>
+        <pim-plugin key="INDEX_NAVIGATION_MEDIA_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <li ng-show="permissions['PIM\\File'].readable || permissions['PIM\\Folder'].readable || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND || uiblocks.INDEX_NAVIGATION_MEDIA_SUB_PREPEND">
+            <h3 ng-click="toggleNavigation(groupName)">
+                <span class="glyphicon glyphicon-picture"></span>
+                Medienverwaltung
+                <span ng-hide="navigationOpened[groupName]" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened[groupName]" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul  ng-hide="!navigationOpened[groupName]">
+                <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li ng-show="permissions['PIM\\File'].readable"><a ng-class="{active: currentNav == 'PIM\\File'}" href="#/files">Dateien</a></li>
+                <li ng-show="permissions['PIM\\Folder'].readable"><a ng-class="{active: currentNav == 'PIM\\Folder'}" href="#/list/PIM/Folder">Ordner</a></li>
+                <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </li>
+        <pim-plugin key="INDEX_NAVIGATION_MEDIA_APPEND" uiblocks="uiblocks"></pim-plugin>
+        <li ng-if="frontend.customNavigation.enabled && user.isAdmin">
+
+            <h3 ng-click="toggleNavigation('customNavigation')">
+                <span class="glyphicon glyphicon-th-list"></span>
+                Navigation
+                <span ng-hide="navigationOpened['customNavigation']" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened['customNavigation']" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul  ng-hide="!navigationOpened['customNavigation']">
+                <li><a ng-class="{active: currentNav == 'PIM\\Nav'}" href="#/list/PIM/Nav">Bereiche</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\NavItem'}" href="#/list/PIM/NavItem">Einträge</a></li>
+            </ul>
+        </li>
+        <pim-plugin key="INDEX_NAVIGATION_ADMIN_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <li ng-if="user.isAdmin">
+            <h3 ng-click="toggleNavigation('admin')">
+                <span class="glyphicon glyphicon-cog"></span>
+                Administration
+                <span ng-hide="navigationOpened['admin']" class="glyphicon glyphicon-chevron-down cf-caret"></span>
+                <span ng-hide="!navigationOpened['admin']" class="glyphicon glyphicon-chevron-up cf-caret"></span>
+            </h3>
+            <ul  ng-hide="!navigationOpened['admin']">
+                <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
+                <li><a ng-class="{active: currentNav == 'PIM\\ThumbnailSetting'}" href="#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Option'}" href="#/list/PIM/Option">Optionen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Log'}" href="#/list/PIM/Log">Protokollierung</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Tag'}" href="#/list/PIM/Tag">Tags</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\User'}" href="#/list/PIM/User">Benutzer</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Group'}" href="#/list/PIM/Group">Gruppen</a></li>
+                <li><a ng-class="{active: currentNav == 'Admin\\Settings'}" href="#/settings">Einstellungen</a></li>
+                <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
+            </ul>
+        </li>
+        <pim-plugin key="INDEX_NAVIGATION_VERSION_PREPEND" uiblocks="uiblocks"></pim-plugin>
+        <li class="version">Version {{::version}}</li>
+        <pim-plugin key="INDEX_NAVIGATION_VERSION_APPEND" uiblocks="uiblocks"></pim-plugin>
+    </ul>
+    <pim-plugin key="INDEX_NAVIGATION_APPEND" uiblocks="uiblocks"></pim-plugin>
+</nav>
+
+<div id="pim-content" class="container-fluid ng-class:{ 'pim-content-login': !userLoggedIn };">
+    <pim-plugin key="INDEX_CONTENT_PREPEND" uiblocks="uiblocks"></pim-plugin>
+    <div ui-view></div>
+    <pim-plugin key="INDEX_CONTENT_APPEND" uiblocks="uiblocks"></pim-plugin
+</div>
+
+<div class="splash" ng-cloak="">
+    <div class="loader-inner ball-pulse">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <p>Anwendung wird geladen...</p>
+</div>
+<pim-plugin key="INDEX_BODY_APPEND" uiblocks="uiblocks"></pim-plugin>
+<div id="toast"></div>
+{% endverbatim %}
+<!-- Angular Files -->
+<script src="lib/contentfly-ui/assets/bower_components/jquery/dist/jquery.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/jquery-ui/jquery-ui.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular/angular.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-ui-router/release/angular-ui-router.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-cookies/angular-cookies.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-blocks/dist/angular-blocks.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-local-storage/dist/angular-local-storage.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/ng-file-upload/ng-file-upload-all.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/moment/min/moment.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-moment/angular-moment.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angulargrid/angulargrid.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-ui-select/dist/select.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-ui-sortable/sortable.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angularUtils-pagination/dirPagination.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/Blob.js/Blob.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/file-saver.js/FileSaver.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-file-saver/dist/angular-file-saver.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/tinymce/tinymce.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-ui-tinymce/dist/tinymce.min.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/bower_components/angular-sanitize/angular-sanitize.js?v={{ app_version }}"></script>
+
+
+<!-- Dynamic Angular Modules -->
+{% for modulePath in angularModules %}
+    <script src="{{ modulePath }}?v={{ custom_version }}"></script>
+{% endfor %}
+
+<!-- Global App Files -->
+<script>
+    var appcms_modules = [
+        /* Angular modules */
+        'ngCookies',
+        'ngFileUpload',
+        'ui.router',
+        /* 3rd-party modules */
+        'angularGrid',
+        'angular-blocks',
+        'angularMoment',
+        'angularUtils.directives.dirPagination',
+        'LocalStorageModule',
+        'ui.tinymce',
+        'ui.bootstrap',
+        'ui.sortable',
+        'ui.select',
+        'ngFileSaver',
+        'ngSanitize'
+    ];
+
+    {% for moduleName in angularModules|keys %}
+    appcms_modules.push('{{ moduleName }}');
+    {% endfor %}
+</script>
+<script src="lib/contentfly-ui/assets/scripts/app.module.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/app.routes.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/app.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/app.config.js?v={{ app_version }}"></script>
+
+<!-- Dynamic Scripts -->
+{% for jsFile in jsFiles %}
+    <script src="{{ jsFile }}?v={{ custom_version }}"></script>
+{% endfor %}
+
+<!-- App Services -->
+<script src="lib/contentfly-ui/assets/scripts/services/entity.service.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/services/file.service.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/services/token.service.js?v={{ app_version }}"></script>
+
+<!-- App System-Types -->
+{% for systemType in systemTypes %}
+    <script src="lib/contentfly-ui/assets/types/{{ systemType.getAlias() }}/{{ systemType.getAlias() }}.directive.js?v={{ app_version }}"></script>
+{% endfor %}
+<!-- App Custom-Types -->
+{% for customType in customTypes %}
+    <script src="custom/Frontend/contentfly-ui/types/{{ customType.getAlias() }}/{{ customType.getAlias() }}.directive.js?v={{ custom_version }}"></script>
+{% endfor %}
+<!-- App Plugin-Types -->
+{% for pluginType in pluginTypes %}
+    <script src="plugins/{{ pluginType.getPluginKey() }}/types/{{ pluginType.getAlias() }}/{{ pluginType.getAlias() }}.directive.js?v={{ custom_version }}"></script>
+{% endfor %}
+
+<!-- App Directives -->
+<script src="lib/contentfly-ui/assets/scripts/directives/form.directive.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/directives/autoformat.directive.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/directives/fileicon.directive.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/directives/clearinput.directive.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/directives/bindValidity.directive.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/directives/enter.directive.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/directives/plugin.directive.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/directives/tree.directive.js?v={{ app_version }}"></script>
+
+<!-- App Controllers -->
+<script src="lib/contentfly-ui/assets/scripts/controllers/partials/modal.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/partials/file-edit.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/partials/video-add.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/partials/relogin.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/partials/password.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/login.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/logout.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/list.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/form.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/files.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/dashboard.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/settings.controller.js?v={{ app_version }}"></script>
+<script src="lib/contentfly-ui/assets/scripts/controllers/error.controller.js?v={{ app_version }}"></script>
+
+
+</body>
+</html>
