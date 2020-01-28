@@ -1199,11 +1199,7 @@ class Api
 
                 $config = $schema[$entityShortName]['properties'][$name];
 
-                if(in_array($config['type'], array('multijoin', 'multifile', 'checkbox'))){
-                    continue;
-                }
-
-                if(in_array($config['type'], array('join', 'file'))){
+                if(in_array($config['type'], array('join', 'file', 'multijoin', 'multifile', 'checkbox'))){
                     $partialExcludedProperties[] = $name;
                     continue;
                 }
@@ -1229,7 +1225,7 @@ class Api
         foreach ($schema[$entityShortName]['properties'] as $field => $config) {
             if (count($properties) && !in_array($field, $properties)) continue;
 
-            if($config['type'] == 'join' || $config['type'] == 'file'){
+            if($config['type'] == 'join' || $config['type'] == 'file' || $config['type'] == 'multifile' || $config['type'] == 'multijoin'){
                 $joinedShortEntity = $config['type'] == 'file' ? 'PIM\\File' : $helper->getShortEntityName($config['accept']);
 
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
