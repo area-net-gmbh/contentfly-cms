@@ -41,7 +41,7 @@ Angepasste Ordnerstruktur und Betrieb in Unterordnern z.B. www.domain.de/content
 * **Webserver Document-Root muss auf "/" anstatt "appcms/public" gesetzt werden**
 * *RewriteBase* wurde aus der .htaccess entfernt
 * Der Webordner/-pfad wird in der Bootstrap-Datei automatisch in die Konfigurationsvariable *WEB_ROOT* geschrieben
-* Die Variable *WEB-ROOT* wird automatisch in den Twig-Templates als *<base href="..">* gesetzt
+* Die Variable *WEB-ROOT* wird automatisch in den Twig-Templates als base/href gesetzt
 
 ### Geänderte Ordner- und Dateistruktur
 
