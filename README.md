@@ -54,6 +54,8 @@ Angepasste Ordnerstruktur und Betrieb in Unterordnern z.B. www.domain.de/content
 * *appcms/config-sample.php* => *lib/contentfly/config-sample.php*
 * *appcms/console.php* => *bin/console.php*
 * *appcms/cli-config.php* => *bin/cli-config.php*
+* *data* => *data*
+* *custom* => *custom*
 
 **Hinweis:** Die PHP-Namespaces z.B. "Areanet/PIM/Entity" wurden nicht geändert.
 
