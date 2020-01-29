@@ -11,9 +11,9 @@
     <li id="fileitem_{{object.id}}" ng-click="vm.selectFile(object)" pagination-id="files" dir-paginate="object in vm.objects | itemsPerPage: vm.itemsPerPage" total-items="vm.totalItems" current-page="vm.currentPage" class="grid image-edit ng-class: {'isSelectable': vm.modaltitle}">
         <pim-plugin key="FILES_ITEMS_PREVIEW_PREPEND" uiblocks="uiblocks"></pim-plugin>
         <ng-switch on="object.type">
-            <img ng-switch-when="image/jpeg" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
-            <img ng-switch-when="image/png" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
-            <img ng-switch-when="image/gif" src="/file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
+            <img ng-switch-when="image/jpeg" src="file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
+            <img ng-switch-when="image/png" src="file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
+            <img ng-switch-when="image/gif" src="file/get/{{object.id}}/pim_small/{{object.name}}?cache={{object.modified.TIMESTAMP}}" class="grid-img" />
             <div ng-switch-default pim-fileicon type="{{object.type}}" aria-hidden="true"></div>
         </ng-switch>
 

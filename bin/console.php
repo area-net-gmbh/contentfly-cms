@@ -3,7 +3,7 @@ set_time_limit(0);
 
 define('APPCMS_CONSOLE', true);
 
-require_once __DIR__.'/../bootstrap.php';
+require_once __DIR__.'/../lib/contentfly/bootstrap.php';
 
 $app['console']->setHelperSet(new Symfony\Component\Console\Helper\HelperSet(array(
     'db' => new \Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($app["db"]),

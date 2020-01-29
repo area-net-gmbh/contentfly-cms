@@ -43,6 +43,8 @@ if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
     }
 }
 
+Config\Adapter::getConfig()->WEB_ROOT = dirname($_SERVER['PHP_SELF']);
+
 ErrorHandler::register();
 
 $handler = Symfony\Component\Debug\ExceptionHandler::register($app['debug']);

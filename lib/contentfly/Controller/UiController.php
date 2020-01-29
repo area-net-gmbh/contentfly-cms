@@ -48,7 +48,7 @@ class UiController extends BaseController
                 'welcome' => Config\Adapter::getConfig()->FRONTEND_WELCOME,
                 'customLoginBG' => Config\Adapter::getConfig()->FRONTEND_CUSTOM_LOGIN_BG
             ),
-            'webroot' => dirname($_SERVER['PHP_SELF'])
+            'webroot' => Config\Adapter::getConfig()->WEB_ROOT
         ));
     }
 }

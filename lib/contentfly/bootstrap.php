@@ -1,5 +1,5 @@
 <?php
-define('ROOT_DIR', __DIR__);
+define('ROOT_DIR', __DIR__.'/../..');
 
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
