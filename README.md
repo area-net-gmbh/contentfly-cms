@@ -32,6 +32,48 @@ Mit dem CMS können serverseitig beliebige Inhalte gespeichert und verwaltet wer
 - [Doctrine](http://www.doctrine-project.org/) als ORM für die Datenhaltung
 - [AngularJS](https://angularjs.org/) für die Oberfläche
 
+## Migration 1.5 auf 1.6
+
+Angepasste Ordnerstruktur und Betrieb in Unterordnern z.B. www.domain.de/contentfly möglich.
+
+### Allgemeine Änderungen
+
+* **Webserver Document-Root muss auf "/" anstatt "appcms/public" gesetzt werden**
+* *RewriteBase* wurde aus der .htaccess entfernt
+* Der Webordner/-pfad wird in der Bootstrap-Datei automatisch in die Konfigurationsvariable *WEB_ROOT* geschrieben
+* Die Variable *WEB-ROOT* wird automatisch in den Twig-Templates als *<base href="..">* gesetzt
+
+### Geänderte Ordner- und Dateistruktur
+
+* *appcms/areanet/PIM* => *lib/contentfly*
+* *appcms/areanet/PIM-UI* => *lib/contentfly-ui*
+* *appcms/vendor* => *vendor*
+* *appcms/bootstrap.php* => *lib/contentfly/bootstrap.php*
+* *appcms/bootstrap-web.php* => *lib/contentfly/bootstrap-web.php*
+* *appcms/version.php* => *lib/contentfly/version.php*
+* *appcms/config-sample.php* => *lib/contentfly/config-sample.php*
+* *appcms/console.php* => *bin/console.php*
+* *appcms/cli-config.php* => *bin/cli-config.php*
+
+**Hinweis:** Die PHP-Namespaces z.B. "Areanet/PIM/Entity" wurden nicht geändert.
+
+### Dateien und Bilder
+
+* Der Dateiabruf "file/get" wurde intern auf HTTP-Redirects (301) auf "/data/files/..." umgestellt
+* Alternativ kann der Abruf über die Konfigurationsvariable APP_FILE_MODE auf "readfile" oder "xsendfile" gestellt werden
+
+### Migration
+
+* Folgende Ordner/Dateien aus der Version 1.6 in das Root-Verzeichnis kopieren
+    * *lib*
+    * *vendor*
+    * *bin*
+    * *index.php*
+    * *.htaccess*
+* Document-Root des Webservers auf das Root-Verzeichnis stellen
+* Ordner *appcms* löschen
+
+
 ## Installation
 
 ### Systemvoraussetzungen
