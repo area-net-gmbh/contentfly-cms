@@ -383,7 +383,8 @@ class FileController extends BaseController
                 'Expires' => gmdate('D, d M Y H:i:s \G\M\T', time() + Config\Adapter::getConfig()->FILE_CACHE_LIFETIME)
             ));
         }else{
-            $redirectUri = Config\Adapter::getConfig()->WEB_ROOT."/data/files/$id/".basename($fileName);
+
+            $redirectUri = Config\Adapter::getConfig()->WEB_ROOT."data/files/$id/".basename($fileName);
             return $this->app->redirect($redirectUri, 301);
         }
 

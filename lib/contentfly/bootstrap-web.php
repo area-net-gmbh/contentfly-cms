@@ -43,7 +43,7 @@ if(Config\Adapter::getConfig()->APP_HTTP_AUTH_USER) {
     }
 }
 
-Config\Adapter::getConfig()->WEB_ROOT = dirname($_SERVER['PHP_SELF']);
+Config\Adapter::getConfig()->WEB_ROOT = dirname($_SERVER['PHP_SELF']) == '/' ? dirname($_SERVER['PHP_SELF']) : dirname($_SERVER['PHP_SELF']).'/';
 
 ErrorHandler::register();
 
@@ -122,6 +122,16 @@ $app->options("{anything}", function () {
     return new \Symfony\Component\HttpFoundation\JsonResponse(null, 204);
 })->assert("anything", ".*");
 
+
+$app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
+
+if(Config\Adapter::getConfig()->FRONTEND_URL){
+    if(substr(Config\Adapter::getConfig()->FRONTEND_URL, strlen(Config\Adapter::getConfig()->FRONTEND_URL) - 1) == '/'){
+        $app->get(substr(Config\Adapter::getConfig()->FRONTEND_URL, 0, strlen(Config\Adapter::getConfig()->FRONTEND_URL) - 1), 'ui.controller:showAction');
+    }else{
+        $app->get(Config\Adapter::getConfig()->FRONTEND_URL.'/', 'ui.controller:showAction');
+    }
+}
 
 $app->get(Config\Adapter::getConfig()->FRONTEND_URL, 'ui.controller:showAction');
 $app->get(Config\Adapter::getConfig()->APP_INSTALLER_URL, 'install.controller:indexAction');

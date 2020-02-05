@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <base href="{{ webroot }}/">
+    <base href="{{ webroot }}">
     <meta name="format-detection" content="telephone=no">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -30,12 +30,12 @@
 <nav ng-cloak ng-show="userLoggedIn" id="pim-header" class="navbar navbar-default navbar-fixed-top devmode-{{devmode}} ">
     <div class="container-fluid">
         <pim-plugin key="INDEX_HEADER_PREPEND" uiblocks="uiblocks"></pim-plugin>
-        <a href="#/dashboard"><img class="logo" ng-attr-src="{{frontend.customLogo ? 'custom/Frontend/contentfly-ui/img/logo.png' : 'lib/contentfly-ui/assets/img/logo-small.png'}}"></a>
+        <a ng-href="{{::virtualRoot}}#/dashboard"><img class="logo" ng-attr-src="{{frontend.customLogo ? 'custom/Frontend/contentfly-ui/img/logo.png' : 'lib/contentfly-ui/assets/img/logo-small.png'}}"></a>
         <pim-plugin key="INDEX_HEADER_LOGO_APPEND" uiblocks="uiblocks"></pim-plugin>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <pim-plugin key="INDEX_HEADER_NAVIGATION_PREPEND" uiblocks="uiblocks"></pim-plugin>
             <ul class="nav navbar-nav navbar-right ">
-                <li ng-show="newVersion"><a href="#/logout" class="bg-danger"><span class="glyphicon glyphicon-info-sign"></span> Neue Version {{newVersion}} verfügbar, bitte aus-/einloggen!</a></li>
+                <li ng-show="newVersion"><a ng-href="{{::virtualRoot}}#/logout" class="bg-danger"><span class="glyphicon glyphicon-info-sign"></span> Neue Version {{newVersion}} verfügbar, bitte aus-/einloggen!</a></li>
                 <pim-plugin key="INDEX_HEADER_NAVIGATION_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li uib-dropdown>
                     <a href id="simple-dropdown" uib-dropdown-toggle>{{user.alias}} <span class="glyphicon glyphicon-user"></span></a>
@@ -43,7 +43,7 @@
                         <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_PREPEND" uiblocks="uiblocks"></pim-plugin>
                         <li class="version">Version {{::version}}</li>
                         <li><a class="dropdown" ng-click="openPasswordForm()"><span class="glyphicon glyphicon-lock"></span> Passwort ändern</a></li>
-                        <li><a class="dropdown" href="#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
+                        <li><a class="dropdown" ng-href="{{::virtualRoot}}#/logout"><span class="glyphicon glyphicon-log-out"></span> Ausloggen</a></li>
                         <pim-plugin key="INDEX_HEADER_USER_DROPDOWN_APPEND" uiblocks="uiblocks"></pim-plugin>
                     </ul>
                 </li>
@@ -69,7 +69,7 @@
             <ul ng-hide="!navigationOpened[groupName]">
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li  ng-repeat="item in entities">
-                    <a ng-class="{active: currentNav == item.entity}" href="#/list/{{item.entity | urlencode}}">{{item.label}}</a>
+                    <a ng-class="{active: currentNav == item.entity}" ng-href="{{::virtualRoot}}#/list/{{item.entity | urlencode}}">{{item.label}}</a>
                 </li>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
@@ -83,7 +83,7 @@
                 </h3>
             <ul ng-hide="!navigationOpened[groupName]">
                 <li ng-repeat="navItem in ::nav.items">
-                    <a ng-class="{active: currentNav == navItem.uri}" href="{{navItem.uri}}">{{navItem.title}}</a>
+                    <a ng-class="{active: currentNav == navItem.uri}" ng-href="{{::virtualRoot}}{{navItem.uri}}">{{navItem.title}}</a>
                 </li>
             </ul>
         </li>
@@ -98,7 +98,7 @@
             <ul ng-hide="!navigationOpened[groupName]">
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
                 <li  ng-repeat="item in entities">
-                    <a ng-class="{active: currentNav == item.entity}" href="#/list/{{item.entity | urlencode}}">{{item.label}}</a>
+                    <a ng-class="{active: currentNav == item.entity}" ng-href="{{::virtualRoot}}/list/{{item.entity | urlencode}}">{{item.label}}</a>
                 </li>
                 <pim-plugin key="INDEX_NAVIGATION_ENTITIES_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
@@ -114,8 +114,8 @@
             </h3>
             <ul  ng-hide="!navigationOpened[groupName]">
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li ng-show="permissions['PIM\\File'].readable"><a ng-class="{active: currentNav == 'PIM\\File'}" href="#/files">Dateien</a></li>
-                <li ng-show="permissions['PIM\\Folder'].readable"><a ng-class="{active: currentNav == 'PIM\\Folder'}" href="#/list/PIM/Folder">Ordner</a></li>
+                <li ng-show="permissions['PIM\\File'].readable"><a ng-class="{active: currentNav == 'PIM\\File'}" ng-href="{{::virtualRoot}}#/files">Dateien</a></li>
+                <li ng-show="permissions['PIM\\Folder'].readable"><a ng-class="{active: currentNav == 'PIM\\Folder'}" ng-href="{{::virtualRoot}}#/list/PIM/Folder">Ordner</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_MEDIA_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>
@@ -129,8 +129,8 @@
                 <span ng-hide="!navigationOpened['customNavigation']" class="glyphicon glyphicon-chevron-up cf-caret"></span>
             </h3>
             <ul  ng-hide="!navigationOpened['customNavigation']">
-                <li><a ng-class="{active: currentNav == 'PIM\\Nav'}" href="#/list/PIM/Nav">Bereiche</a></li>
-                <li><a ng-class="{active: currentNav == 'PIM\\NavItem'}" href="#/list/PIM/NavItem">Einträge</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Nav'}" ng-href="{{::virtualRoot}}#/list/PIM/Nav">Bereiche</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\NavItem'}" ng-href="{{::virtualRoot}}#/list/PIM/NavItem">Einträge</a></li>
             </ul>
         </li>
         <pim-plugin key="INDEX_NAVIGATION_ADMIN_PREPEND" uiblocks="uiblocks"></pim-plugin>
@@ -143,13 +143,13 @@
             </h3>
             <ul  ng-hide="!navigationOpened['admin']">
                 <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_PREPEND" uiblocks="uiblocks"></pim-plugin>
-                <li><a ng-class="{active: currentNav == 'PIM\\ThumbnailSetting'}" href="#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
-                <li><a ng-class="{active: currentNav == 'PIM\\Option'}" href="#/list/PIM/Option">Optionen</a></li>
-                <li><a ng-class="{active: currentNav == 'PIM\\Log'}" href="#/list/PIM/Log">Protokollierung</a></li>
-                <li><a ng-class="{active: currentNav == 'PIM\\Tag'}" href="#/list/PIM/Tag">Tags</a></li>
-                <li><a ng-class="{active: currentNav == 'PIM\\User'}" href="#/list/PIM/User">Benutzer</a></li>
-                <li><a ng-class="{active: currentNav == 'PIM\\Group'}" href="#/list/PIM/Group">Gruppen</a></li>
-                <li><a ng-class="{active: currentNav == 'Admin\\Settings'}" href="#/settings">Einstellungen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\ThumbnailSetting'}" ng-href="{{::virtualRoot}}#/list/PIM/ThumbnailSetting">Bildgrößen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Option'}" ng-href="{{::virtualRoot}}#/list/PIM/Option">Optionen</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Log'}" ng-href="{{::virtualRoot}}#/list/PIM/Log">Protokollierung</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Tag'}" ng-href="{{::virtualRoot}}#/list/PIM/Tag">Tags</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\User'}" ng-href="{{::virtualRoot}}#/list/PIM/User">Benutzer</a></li>
+                <li><a ng-class="{active: currentNav == 'PIM\\Group'}" ng-href="{{::virtualRoot}}#/list/PIM/Group">Gruppen</a></li>
+                <li><a ng-class="{active: currentNav == 'Admin\\Settings'}" ng-href="{{::virtualRoot}}#/settings">Einstellungen</a></li>
                 <pim-plugin key="INDEX_NAVIGATION_ADMIN_SUB_APPEND" uiblocks="uiblocks"></pim-plugin>
             </ul>
         </li>

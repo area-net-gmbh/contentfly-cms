@@ -20,3 +20,4 @@ plugins/*
 doc
 docker
 docker-compose.yml
+info.php

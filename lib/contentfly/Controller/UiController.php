@@ -20,18 +20,22 @@ class UiController extends BaseController
         foreach($jsFiles as $jsFile){
             $jsFilesToInclude[] = $jsFile;
         }
-        
+
+        $feUrl = '';
+        if(Config\Adapter::getConfig()->FRONTEND_URL){
+            $feUrl = substr(Config\Adapter::getConfig()->FRONTEND_URL, 0, 1) == '/' ? substr(Config\Adapter::getConfig()->FRONTEND_URL, 1) : Config\Adapter::getConfig()->FRONTEND_URL;
+        }
+
         $dynInlineScript  = 'var APP_VERSION = \''.APP_VERSION.'\';';
         $dynInlineScript .= 'var CUSTOM_VERSION = \''.CUSTOM_VERSION.'\';';
         $dynInlineScript .= "var uiRoutes = ".json_encode($uiRoutes).";";
         $dynInlineScript .= "var extendedRoutes = ".json_encode($extendedRoutes).";";
-
+        $dynInlineScript .= "var VIRTUAL_ROOT = '".$feUrl."';";
         $cssFilesToInclude = array();
         $cssFiles = $this->app['uiManager']->getCSSFiles();
         foreach($cssFiles as $cssFile){
             $cssFilesToInclude[] = $cssFile;
         }
-
 
         return $this->app['twig']->render('app.twig', array(
             'app_version'  => APP_VERSION,
