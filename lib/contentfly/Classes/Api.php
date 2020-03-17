@@ -1881,7 +1881,7 @@ class Api
             switch($propConfig['type']){
                 case 'multijoin':
                 case 'multifile':
-                    continue;
+                    break;
                 case 'file':
                 case 'join':
                     $fieldName = $propConfig['dbfield'] ? $propConfig['dbfield'] : $propName.'_id';
