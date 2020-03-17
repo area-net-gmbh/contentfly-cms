@@ -1230,6 +1230,7 @@ class Api
 
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
                     $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "a_$field.lang = :lang");
+                    $queryBuilder->setParameter('lang', $lang);
                     if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
                         $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'];
                         $labelPropertyField = $labelProperty && $schema[$joinedShortEntity]['properties'][$labelProperty]  ? ','.$labelProperty : '';
@@ -1258,7 +1259,7 @@ class Api
         if($forceLoadPartial){
             $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         }
-//die($query->getDQL());
+
         $objects = $query->getResult();
 
         if(!$objects){
@@ -1885,7 +1886,7 @@ class Api
             switch($propConfig['type']){
                 case 'multijoin':
                 case 'multifile':
-                    continue;
+                    break;
                 case 'file':
                 case 'join':
                     $fieldName = $propConfig['dbfield'] ? $propConfig['dbfield'] : $propName.'_id';
