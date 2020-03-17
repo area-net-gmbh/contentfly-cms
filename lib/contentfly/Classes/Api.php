@@ -1226,6 +1226,7 @@ class Api
 
                 if ($schema[$joinedShortEntity]['settings']['i18n']) {
                     $queryBuilder->leftJoin("$entityNameAlias.$field", 'a_'.$field, Join::WITH, "a_$field.lang = :lang");
+                    $queryBuilder->setParameter('lang', $lang);
                     if(count($properties) && $schema[$joinedShortEntity]['settings']['type'] != 'tree') {
                         $labelProperty = $schema[$joinedShortEntity]['settings']['labelProperty'];
                         $labelPropertyField = $labelProperty && $schema[$joinedShortEntity]['properties'][$labelProperty]  ? ','.$labelProperty : '';
