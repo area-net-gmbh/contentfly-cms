@@ -125,7 +125,7 @@ abstract class Plugin
      * @return string Über Symlink freigegebener Pfad zum Frontend-Ordner im Plugin
      */
     final public function getFrontendPath(){
-        return '/plugins/'.$this->getKey();
+        return '/plugins/'.$this->getKey().'/Frontend';
     }
 
     /**
