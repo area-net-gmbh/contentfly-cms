@@ -22,4 +22,4 @@ docker
 docker-compose.yml
 info.php
 .DS_Store
-.gitignore
+.vscode
