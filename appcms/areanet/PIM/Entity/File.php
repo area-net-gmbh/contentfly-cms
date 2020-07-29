@@ -21,6 +21,12 @@ class File extends Base
     protected $name;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @PIM\Config(label="Pfad", readonly=true, showInList=35)
+     */
+    protected $path;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Areanet\PIM\Entity\Folder")
      * @ORM\JoinColumn(name="folder_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
      * @PIM\Config(showInList=80, label="Ordner", isFilterable=true, isSidebar=true)
@@ -127,6 +133,26 @@ class File extends Base
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * Get the value of path
+     */ 
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Set the value of path
+     *
+     * @return  self
+     */ 
+    public function setPath($path)
+    {
+        $this->path = $path;
+
+        return $this;
     }
 
     /**
