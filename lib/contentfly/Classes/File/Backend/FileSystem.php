@@ -9,15 +9,20 @@ class FileSystem implements BackendInterface
 {
     public function getPath(File $file)
     {
+        return ROOT_DIR.'/data/files/'.$this->path($file);
+    }
 
-        if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
-        return ROOT_DIR.'/data/files/'.$file->getId();
+    private function path(File $file){
+        $path = ($file->getPath() ? $file->getPath() : '').$file->getId();
+ 
+        if(!is_dir(ROOT_DIR.'/data/files/'.$path)) mkdir(ROOT_DIR.'/data/files/'.$path, 0777, true);
+
+        return $path;
     }
 
     public function getWebPath(File $file)
     {
-        if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
-        return '/data/files/'.$file->getId();
+        return '/data/files/'.$this->path($file);
     }
 
     public function getUri(File $file, $size = null, $variant = null)
@@ -50,9 +55,7 @@ class FileSystem implements BackendInterface
 
         }
 
-        if(!is_dir(ROOT_DIR.'/data/files/'.$file->getId())) mkdir(ROOT_DIR.'/data/files/'.$file->getId());
-
-        return ROOT_DIR.'/data/files/'.$file->getId().'/'.$variant.$sizeUri.$fileName;
+        return ROOT_DIR.'/data/files/'.$this->path($file).'/'.$variant.$sizeUri.$fileName;
     }
 
     public function getWebUri(File $file, $size = null, $variant = null)
@@ -83,7 +86,7 @@ class FileSystem implements BackendInterface
             }
         }
 
-        return 'files/get/'.$file->getId().'/'.$variant.$sizeUri.$fileName;
+        return 'files/get/'.$this->path($file).'/'.$variant.$sizeUri.$fileName;
     }
 
 

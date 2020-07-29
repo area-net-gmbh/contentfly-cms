@@ -8,6 +8,7 @@ use Areanet\PIM\Classes\Messages;
 use Areanet\PIM\Classes\Permission;
 use Areanet\PIM\Entity\File;
 use Areanet\PIM\Entity\Log;
+use DateTime;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Silex\Application;
@@ -62,6 +63,10 @@ class FileController extends BaseController
                 $baseFilename   = str_replace($extension, "", $file->getClientOriginalName());
                 $filename       = $this->sanitizeFileName($baseFilename) . "." . $extension;
                 $fileObject->setName($filename);
+
+                $now    = new DateTime();
+                $path   = $now->format('Y/m/');
+                $fileObject->setPath($path);
 
                 //AUDIT
                 $log = new Log();
@@ -161,6 +166,11 @@ class FileController extends BaseController
                 $fileObject->setHash($hash);
                 $fileObject->setUserCreated($this->app['auth.user']);
                 $fileObject->setUser($this->app['auth.user']);
+                
+                $now    = new DateTime();
+                $path   = $now->format('Y/m/');
+                $fileObject->setPath($path);
+                
                 $this->em->persist($fileObject);
 
                 $this->em->flush();
@@ -178,8 +188,6 @@ class FileController extends BaseController
                 $this->em->persist($log);
 
                 $this->em->flush();
-
-
 
                 $processor = Processing::getInstance($file->getClientMimeType());
                 $processor->execute($backend, $fileObject);
@@ -384,7 +392,8 @@ class FileController extends BaseController
             ));
         }else{
 
-            $redirectUri = Config\Adapter::getConfig()->WEB_ROOT."data/files/$id/".basename($fileName);
+            $webpath = $backend->getWebPath($fileObject);
+            $redirectUri = Config\Adapter::getConfig()->WEB_ROOT.substr($webpath, 1).'/'.basename($fileName);
             return $this->app->redirect($redirectUri, 301);
         }
 
