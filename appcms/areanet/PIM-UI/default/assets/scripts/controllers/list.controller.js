@@ -698,6 +698,12 @@
                 }
               })(entity, key, entityConfig),
               function errorCallback(response) {
+                vm.filterSidebar = {
+                  key: key,
+                  entity: entity,
+                  items: response.data.data,
+                  isLoading: false
+                }
               }
             );
           } else {

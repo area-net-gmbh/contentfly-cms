@@ -10,7 +10,7 @@ class FileSystem implements BackendInterface
    
     public function getPath(File $file)
     {
-        return ROOT_DIR.'/data/files/'.$this->path($file);
+        return ROOT_DIR.'/../data/files/'.$this->path($file);
     }
 
     public function getWebPath(File $file)
@@ -21,7 +21,7 @@ class FileSystem implements BackendInterface
     private function path(File $file){
         $path = ($file->getPath() ? $file->getPath() : '').$file->getId();
 
-        if(!is_dir(ROOT_DIR.'/data/files/'.$path)) mkdir(ROOT_DIR.'/data/files/'.$path, 0777, true);
+        if(!is_dir(ROOT_DIR.'/../data/files/'.$path)) mkdir(ROOT_DIR.'/../data/files/'.$path, 0777, true);
 
         return $path;
     }
@@ -56,7 +56,7 @@ class FileSystem implements BackendInterface
 
         }
 
-        return ROOT_DIR.'/data/files/'.$this->path($file).'/'.$variant.$sizeUri.$fileName;
+        return ROOT_DIR.'/../data/files/'.$this->path($file).'/'.$variant.$sizeUri.$fileName;
     }
 
     public function getWebUri(File $file, $size = null, $variant = null)
