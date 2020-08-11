@@ -78,6 +78,16 @@ class FileController extends BaseController
                 $this->em->flush();
             }else{
                 $filename = $fileObject->getName();
+
+                $backend = Backend::getInstance();
+                $dir     = $backend->getPath($fileObject);
+
+                if(!file_exists($dir."/".$filename) && !$fileObject->getPath()){
+                    $now    = new DateTime();
+                    $path   = $now->format('Y/m/');
+                    $fileObject->setPath($path);
+                }
+
                 $log = new Log();
                 $log->setModelName('PIM\File');
                 $log->setUser($this->app['auth.user']);
