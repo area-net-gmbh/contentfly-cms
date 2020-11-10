@@ -104,10 +104,7 @@ $app['helper'] = function () {
 $app['auth'] = function ($app) {
     return new \Areanet\PIM\Classes\Auth($app);
 };
-
 if($app['is_installed']) {
-
-
     $app->register(new \Dflydev\Provider\DoctrineOrm\DoctrineOrmServiceProvider(), array(
         'orm.proxies_dir' => ROOT_DIR . '/data/cache/doctrine',
         'orm.em.options' => array(
@@ -287,10 +284,9 @@ if(Config\Adapter::getConfig()->APP_FORCE_SSL && !defined('APPCMS_CONSOLE')){
     header("Strict-Transport-Security:max-age=63072000");
 }
 
-$app['auth']->init();
-
 
 require_once ROOT_DIR.'/custom/app.php';
+$app['auth']->init();
 
 $app['routeManager']->bindRoutes();
 

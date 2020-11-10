@@ -28,7 +28,7 @@ class Auth{
     }
 
     public function init(){
-
+       
         if(($userId = $this->app['session']->get('auth.userid'))){
             $user = $this->app['orm.em']->getRepository('Areanet\PIM\Entity\User')->find($userId);
             if($user) $this->setUser($user);
