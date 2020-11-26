@@ -687,7 +687,7 @@ class Api
         $schema = $this->getSchema();
 
         $entitiesToExclude = array(
-            'PIM\\File', 'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\PushToken', 'PIM\\ThumbnailSetting',
+            'PIM\\File', 'PIM\\Token', 'PIM\\Group', 'PIM\\PushToken', 'PIM\\ThumbnailSetting',
             'PIM\\Permission', 'PIM\\Nav', 'PIM\\NavItem', 'PIM\\Log', '_hash'
         );
         $details = array();
@@ -810,7 +810,9 @@ class Api
 
             $files = $this->app['database']->fetchAssoc($query, $params);
             $data['filesCount'] = intval($files['records']);
+            $data['dataCount'] += intval($files['records']);
             $data['filesSize'] = $files['size'] ? $files['size'] : 0;
+            $details['PIM\\File'] = intval($files['records']);
         }
 
         $data['details']    = $details;
@@ -824,7 +826,7 @@ class Api
         $schema = $this->getSchema();
 
         $entitiesToExclude = array(
-            'PIM\\Folder', 'PIM\\Token', 'PIM\\Group', 'PIM\\ThumbnailSetting',
+            'PIM\\Token', 'PIM\\Group', 'PIM\\ThumbnailSetting',
             'PIM\\Permission', 'PIM\\Nav', 'PIM\\NavItem', 'PIM\\Log', '_hash'
         );
 

@@ -14,7 +14,8 @@
         "symfony/validator": "4.0.4",
         "ellumilel/php-excel-writer": "0.1.6",
         "ramsey/uuid": "3.8",
-        "doctrine/orm": "dev-bugfix-many2many as 2.6.x-dev"
+        "doctrine/orm": "dev-bugfix-many2many as 2.6.x-dev",
+        "oro/doctrine-extensions": "^1.3"
     },
     "autoload": {
         "psr-4": {
