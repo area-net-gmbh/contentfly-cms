@@ -7,7 +7,7 @@
     ],
     "require": {
         "silex/silex": "2.2.2",
-        "twig/twig": "2.4.4",
+        "twig/twig": "2.7.0",
         "dflydev/doctrine-orm-service-provider": "2.0.1",
         "knplabs/console-service-provider": "^2.1.0",
         "doctrine/dbal": "2.6.3",
