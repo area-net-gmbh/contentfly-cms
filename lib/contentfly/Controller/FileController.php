@@ -276,11 +276,11 @@ class FileController extends BaseController
     public function getAction($id, $alias = null, $size = null, $variant = null){
         $fileObject = null;
         $fileObject = $this->em->getRepository('Areanet\PIM\Entity\File')->find($id);
-
+        
         if(!$fileObject){
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
-
+        
         $sizeObject = null;
         if($size){
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
@@ -309,12 +309,12 @@ class FileController extends BaseController
             $fileMTime = filemtime($fileUri);
             $etagFile  = md5($fileUri . $fileMTime);
         }
-
+        
         if($size){
 
             $sizeObject = $this->em->getRepository('Areanet\PIM\Entity\ThumbnailSetting')->findOneBy(array('alias' => $size));
 
-            if($sizeObject->getForceJpeg()){
+            if($sizeObject->getForceJpeg() || $fileObject->getType() == 'application/pdf'){
                 $mimeType = 'image/jpeg';
             }
 
@@ -344,7 +344,7 @@ class FileController extends BaseController
 
             throw new \Areanet\PIM\Classes\Exceptions\FileNotFoundException(Messages::contentfly_general_not_found);
         }
-
+        
         $client_etag =
             !empty($_SERVER['HTTP_IF_NONE_MATCH'])
                 ?   trim($_SERVER['HTTP_IF_NONE_MATCH'])
@@ -386,7 +386,7 @@ class FileController extends BaseController
             );
             return new Response('', 200, $headers);
         }else if(Config\Adapter::getConfig()->APP_FILE_MODE == 'readfile') {
-
+            
             $stream = function () use ($fileName) {
                 readfile($fileName);
             };

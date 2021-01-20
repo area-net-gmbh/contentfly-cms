@@ -33,7 +33,7 @@ class UIManager extends Manager
         }
 
         if(substr($templatePath, 0, 8) != '/plugins'){
-            $templatePath =  "/custom/Frontend/ui/default/views/$templatePath";
+            $templatePath =  "/custom/Frontend/contentfly-ui/views/$templatePath";
         }
 
         $this->blocks[$key][] = $templatePath;
@@ -52,7 +52,7 @@ class UIManager extends Manager
 
         if($template){
             if(substr($template, 0, 8) != '/plugins'){
-                $template =  "/custom/Frontend/ui/default/views/$template";
+                $template =  "/custom/Frontend/contentfly-ui/views/$template";
             }
         }
 
@@ -105,7 +105,7 @@ class UIManager extends Manager
     public function addAngularModule($moduleName, $path){
 
         if(substr($path, 0, 8) != '/plugins'){
-            $path =  "/custom/Frontend/ui/default/scripts/$path";
+            $path =  "/custom/Frontend/contentfly-ui/scripts/$path";
         }
 
         $this->angularModules[$moduleName] = $path;
@@ -124,7 +124,7 @@ class UIManager extends Manager
      */
     public function addJSFile($path){
         if(substr($path, 0, 8) != '/plugins'){
-            $path =  "/custom/Frontend/ui/default/scripts/$path";
+            $path =  "/custom/Frontend/contentfly-ui/scripts/$path";
         }
 
         $this->jsFiles[] = $path;
@@ -145,7 +145,7 @@ class UIManager extends Manager
     public function addCSSFile($path){
 
         if(substr($path, 0, 8) != '/plugins'){
-            $path =  "/custom/Frontend/ui/default/styles/$path";
+            $path =  "/custom/Frontend/contentfly-ui/styles/$path";
         }
 
         $this->cssFiles[] = $path;

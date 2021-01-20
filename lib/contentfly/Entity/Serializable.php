@@ -54,7 +54,7 @@ abstract class Serializable implements \JsonSerializable{
             if(!$typeObject){
                 throw new \Exception("toValueObject(): Unkown Type $typeObject for $property for entity $entityName", 500);
             }
-
+            
             $result->$property = $typeObject->fromDatabase($this, $entityName, $property, $flatten, $level, $propertiesToLoad);
 
         }

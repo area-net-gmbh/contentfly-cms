@@ -1639,18 +1639,38 @@ class Api
                     }
                     break;
                 case 'multijoin':
-                    $joinedEntity = $helper->getShortEntityName($config['accept']);
+                case 'joinbidirectional': 
+                    $joinedEntity = $config['accept'] ? $helper->getShortEntityName($config['accept']) : $helper->getShortEntityName($config['targetEntity']);
                     if ($schema[$joinedEntity]['settings']['i18n']) {
-                        $queryBuilder->leftJoin("$entityNameAlias.$field", $field, Join::WITH, "$field.lang = :loadJoinedLang");
-                        $queryBuilder->addSelect($field);
+                        //echo "$entityNameAlias.$field<br>";
+                        $queryBuilder->leftJoin("$entityNameAlias.$field", $entityNameAlias.$field, Join::WITH, $entityNameAlias.$field.".lang = :loadJoinedLang");
+                        $queryBuilder->addSelect($entityNameAlias.$field);
 
                         if($loadJoinedLang){
                             $queryBuilder->setParameter('loadJoinedLang', $loadJoinedLang);
                         }else{
                             $queryBuilder->setParameter('loadJoinedLang', $lang);
                         }
+
+                        foreach($schema[$joinedEntity]['properties'] as $subfield => $subconfig){
+                            switch ($subconfig['type']) {
+                                case 'join':
+                                    $joinedSubEntity = $helper->getShortEntityName($subconfig['accept']);
+                                    if ($schema[$joinedSubEntity]['settings']['i18n']) {
+
+                                        $queryBuilder->leftJoin($entityNameAlias.$field.'.'.$subfield, $entityNameAlias.$field.$subfield, Join::WITH, $entityNameAlias.$field.$subfield.".lang = :loadJoinedLang");
+                                        $queryBuilder->addSelect($entityNameAlias.$field.$subfield);
+
+                                        if($loadJoinedLang){
+                                            $queryBuilder->setParameter('loadJoinedLang', $loadJoinedLang);
+                                        }else{
+                                            $queryBuilder->setParameter('loadJoinedLang', $lang);
+                                        }
+                                    }
+                                    break;
+                            }
+                        }
                     }
-                    break;
             }
         }
 

@@ -43,7 +43,7 @@ class FileSystem implements BackendInterface
         if($size){
             if($size instanceof ThumbnailSetting){
 
-                if($size->getForceJpeg()) {
+                if($size->getForceJpeg() || $file->getType() == 'application/pdf') {
                     $imgThumbNameList = explode('.', $fileName);
                     $imgThumbNameList[(count($imgThumbNameList) - 1)] = 'jpg';
                     $fileName = implode('.', $imgThumbNameList);
